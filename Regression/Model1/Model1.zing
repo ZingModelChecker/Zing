@@ -1,0 +1,215 @@
+class _namespace {
+  static activate void Main() {
+    atomic {
+      trace(@"file", 0, @"foo.as");
+      trace(@"line", 0, 1, 1, 5, 26);
+    }
+    Set_L_Int32_R S;
+    Tuple2_L_Int32_Boolean_R __flt2;
+    Tuple2_L_Int32_Boolean_R __flt3;
+    Map_L_Int32_Boolean_R __flt0;
+    Map_L_Int32_Boolean_R _S0;
+    Map_L_Int32_Boolean_R M;
+    bool __flt10;
+    trace(@"line", 0, 2, 7, 2, 22);
+    
+    S = new Set_L_Int32_R;
+;
+    trace(@"line", 0, 2, 15, 2, 15);
+    
+    S = (S + 3);
+;
+    trace(@"line", 0, 2, 17, 2, 17);
+    
+    S = (S + 4);
+;
+    trace(@"line", 0, 2, 19, 2, 19);
+    
+    S = (S + 5);
+;
+    trace(@"line", 0, 2, 21, 2, 21);
+    
+    S = (S + 6);
+;
+    trace(@"line", 0, 3, 15, 3, 23);
+    
+    __flt2 = new Tuple2_L_Int32_Boolean_R;
+;
+    trace(@"line", 0, 3, 15, 3, 23);
+    
+    __flt2.First = 1;
+;
+    trace(@"line", 0, 3, 15, 3, 23);
+    
+    __flt2.Second = true;
+;
+    trace(@"line", 0, 3, 15, 3, 23);
+    
+    __flt2 = _SpecSharpHelpers.Tuple2_L_Int32_Boolean_R_Intern(__flt2);
+;
+    trace(@"line", 0, 3, 26, 3, 35);
+    
+    __flt3 = new Tuple2_L_Int32_Boolean_R;
+;
+    trace(@"line", 0, 3, 26, 3, 35);
+    
+    __flt3.First = 2;
+;
+    trace(@"line", 0, 3, 26, 3, 35);
+    
+    __flt3.Second = false;
+;
+    trace(@"line", 0, 3, 26, 3, 35);
+    
+    __flt3 = _SpecSharpHelpers.Tuple2_L_Int32_Boolean_R_Intern(__flt3);
+;
+    trace(@"line", 0, 3, 11, 3, 36);
+    
+    __flt0 = new Map_L_Int32_Boolean_R;
+;
+    trace(@"line", 0, 3, 15, 3, 23);
+    
+    __flt0 = (__flt0 + __flt2);
+;
+    trace(@"line", 0, 3, 26, 3, 35);
+    
+    __flt0 = (__flt0 + __flt3);
+;
+    atomic {
+      trace(@"line", 0, 3, 40, 3, 74);
+      
+      _S0 = new Map_L_Int32_Boolean_R;
+;
+    }
+    trace(@"line", 0, 3, 56, 3, 61);
+    foreach (int _S1 in S) {
+      int __flt6;
+      Tuple2_L_Int32_Boolean_R __flt7;
+      trace(@"line", 0, 3, 64, 3, 68);
+      
+      __flt6 = (_S1 % 2);
+;
+      trace(@"line", 0, 3, 64, 3, 73);
+      if (!(__flt6 == 0)) {
+        trace(@"line", 0, 3, 56, 3, 61);
+        goto _L_0;
+      }
+      trace(@"line", 0, 3, 44, 3, 52);
+      
+      __flt7 = new Tuple2_L_Int32_Boolean_R;
+;
+      trace(@"line", 0, 3, 44, 3, 52);
+      
+      __flt7.First = _S1;
+;
+      trace(@"line", 0, 3, 44, 3, 52);
+      
+      __flt7.Second = true;
+;
+      trace(@"line", 0, 3, 44, 3, 52);
+      
+      __flt7 = _SpecSharpHelpers.Tuple2_L_Int32_Boolean_R_Intern(__flt7);
+;
+      trace(@"line", 0, 3, 40, 3, 74);
+      
+      _S0 = (_S0 + __flt7);
+;
+      _L_0:
+ {
+      }
+    }
+    trace(@"line", 0, 3, 7, 3, 74);
+    
+    M = _SpecSharpHelpers.Map_L_Int32_Boolean_R_Add(__flt0, _S0);
+;
+    trace(@"line", 0, 4, 8, 4, 11);
+    
+    __flt10 = _SpecSharpHelpers.Map_L_Int32_Boolean_R_Select(M, 4);
+;
+    trace(@"line", 0, 4, 3, 5, 26);
+    if (!__flt10) {
+      trace(@"line", 0, 5, 5, 5, 26);
+      assert(false, "exception thrown: Exception()");
+    }
+    else {
+    }
+  }
+};
+
+set Set_L_Int32_R int;
+
+class Tuple2_L_Int32_Boolean_R {
+  int First;
+  
+  bool Second;
+};
+
+class _SpecSharpHelpers {
+  static Set_L_Tuple2_L_Int32_Boolean_R_R Tuple2_L_Int32_Boolean_R_Table = new Set_L_Tuple2_L_Int32_Boolean_R_R;
+  
+  static atomic Tuple2_L_Int32_Boolean_R Tuple2_L_Int32_Boolean_R_Intern(Tuple2_L_Int32_Boolean_R param) {
+    foreach (Tuple2_L_Int32_Boolean_R elem in Tuple2_L_Int32_Boolean_R_Table) {
+      if (((elem.First == param.First) && (elem.Second == param.Second))) {
+        return elem;
+      }
+    }
+    
+    Tuple2_L_Int32_Boolean_R_Table = (Tuple2_L_Int32_Boolean_R_Table + param);
+;
+    return param;
+  }
+  
+  static atomic bool Map_L_Int32_Boolean_R_In(int index, Map_L_Int32_Boolean_R map) {
+    foreach (Tuple2_L_Int32_Boolean_R elem in map) {
+      if ((index == elem.First)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  static atomic Map_L_Int32_Boolean_R Map_L_Int32_Boolean_R_Copy(Map_L_Int32_Boolean_R map) {
+    Map_L_Int32_Boolean_R result;
+    
+    result = new Map_L_Int32_Boolean_R;
+;
+    foreach (Tuple2_L_Int32_Boolean_R elem in map) {
+      
+      result = (result + elem);
+;
+    }
+    return result;
+  }
+  
+  static atomic Map_L_Int32_Boolean_R Map_L_Int32_Boolean_R_Add(Map_L_Int32_Boolean_R map1, Map_L_Int32_Boolean_R map2) {
+    Map_L_Int32_Boolean_R result;
+    
+    result = _SpecSharpHelpers.Map_L_Int32_Boolean_R_Copy(map2);
+;
+    foreach (Tuple2_L_Int32_Boolean_R elem in map1) {
+      bool test;
+      
+      test = _SpecSharpHelpers.Map_L_Int32_Boolean_R_In(elem.First, result);
+;
+      if (!test) {
+        
+        result = (result + elem);
+;
+      }
+    }
+    return result;
+  }
+  
+  static atomic bool Map_L_Int32_Boolean_R_Select(Map_L_Int32_Boolean_R map, int index) {
+    foreach (Tuple2_L_Int32_Boolean_R elem in map) {
+      if ((index == elem.First)) {
+        return elem.Second;
+      }
+    }
+    assert(false, "map selection undefined");
+  }
+};
+
+set Set_L_Tuple2_L_Int32_Boolean_R_R Tuple2_L_Int32_Boolean_R;
+
+set Map_L_Int32_Boolean_R Tuple2_L_Int32_Boolean_R;

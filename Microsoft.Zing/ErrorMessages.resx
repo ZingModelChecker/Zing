@@ -1,0 +1,457 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Usage" xml:space="preserve">
+    <value>
+                        - PREEMPTIVE OR COOPERATIVE
+/preemptive             Processes are preemptive and checker explores all possible interleaving. [default(cooperative) : explicit yield]
+                        - INPUT FILES -
+/zom:&lt;file&gt;             Name of a ZOM library (default: no ZOM library)
+
+                        - OUTPUT FILES -
+/out:&lt;file&gt;             Output file name (default: base name of first file)
+/define:&lt;symbol list&gt;   Define conditional compilation symbol(s) (Short form: /d)
+                        - MISCELLANEOUS -
+/help                   Display this usage message (Short form: /?)
+/dumpsource             Write the intermediate code as C# source
+
+                        - CODE GENERATION -
+/debug[+|-]             Emit debugging information
+
+                        - ERRORS AND WARNINGS -
+/warnaserror[+|-]       Report all warnings as errors
+/warnaserror:&lt;warning list&gt;
+                        Report specific warnings as errors
+/warn:&lt;n&gt;               Set warning level (0-4) (Short form: /w)
+/nowarn:&lt;warning list&gt;  Disable specific warning messages
+</value>
+  </data>
+  <data name="LowercaseEllSuffix" xml:space="preserve">
+    <value>The 'l' suffix is easily confused with the digit '1' -- use 'L' for clarity</value>
+  </data>
+  <data name="DuplicateNameInNS" xml:space="preserve">
+    <value>The namespace '{1}' already contains a definition for '{0}'</value>
+  </data>
+  <data name="ExpectedIdentifier" xml:space="preserve">
+    <value>Identifier expected</value>
+  </data>
+  <data name="ExpectedComplexType" xml:space="preserve">
+    <value>A complex type is required in this context</value>
+  </data>
+  <data name="ExpectedSemicolon" xml:space="preserve">
+    <value>; expected</value>
+  </data>
+  <data name="SyntaxError" xml:space="preserve">
+    <value>Syntax error, '{0}' expected</value>
+  </data>
+  <data name="IllegalEscape" xml:space="preserve">
+    <value>Unrecognized escape sequence</value>
+  </data>
+  <data name="NewlineInConst" xml:space="preserve">
+    <value>Newline in constant</value>
+  </data>
+  <data name="EmptyCharConst" xml:space="preserve">
+    <value>Empty character literal</value>
+  </data>
+  <data name="TooManyCharsInConst" xml:space="preserve">
+    <value>Too many characters in character literal</value>
+  </data>
+  <data name="IntOverflow" xml:space="preserve">
+    <value>Integral constant is too large</value>
+  </data>
+  <data name="PPDirectiveExpected" xml:space="preserve">
+    <value>Preprocessor directive expected</value>
+  </data>
+  <data name="EndOfPPLineExpected" xml:space="preserve">
+    <value>Single-line comment or end-of-line expected</value>
+  </data>
+  <data name="ExpectedRightParenthesis" xml:space="preserve">
+    <value>) expected</value>
+  </data>
+  <data name="EndifDirectiveExpected" xml:space="preserve">
+    <value>#endif directive expected</value>
+  </data>
+  <data name="UnexpectedDirective" xml:space="preserve">
+    <value>Unexpected preprocessor directive</value>
+  </data>
+  <data name="ErrorDirective" xml:space="preserve">
+    <value>#error: '{0}'</value>
+  </data>
+  <data name="WarningDirective" xml:space="preserve">
+    <value>#warning: '{0}'</value>
+  </data>
+  <data name="TypeExpected" xml:space="preserve">
+    <value>Type expected</value>
+  </data>
+  <data name="PPDefFollowsToken" xml:space="preserve">
+    <value>Cannot define/undefine preprocessor symbols after first token in file</value>
+  </data>
+  <data name="NoCommentEnd" xml:space="preserve">
+    <value>End-of-file found, '*/' expected</value>
+  </data>
+  <data name="EndRegionDirectiveExpected" xml:space="preserve">
+    <value>#endregion directive expected</value>
+  </data>
+  <data name="BadDirectivePlacement" xml:space="preserve">
+    <value>Preprocessor directives must appear as the first non-white-space character on a line</value>
+  </data>
+  <data name="ExpectedRightBrace" xml:space="preserve">
+    <value>} expected</value>
+  </data>
+  <data name="ExpectedLeftBrace" xml:space="preserve">
+    <value>{ expected</value>
+  </data>
+  <data name="InvalidPreprocExpr" xml:space="preserve">
+    <value>Invalid preprocessor expression</value>
+  </data>
+  <data name="InvalidLineNumber" xml:space="preserve">
+    <value>The line number specified for #line directive is missing or invalid</value>
+  </data>
+  <data name="MissingPPFile" xml:space="preserve">
+    <value>File name, single-line comment or end-of-line expected</value>
+  </data>
+  <data name="ExpectedLeftBracket" xml:space="preserve">
+    <value>[ expected</value>
+  </data>
+  <data name="ExpectedRightBracket" xml:space="preserve">
+    <value>] expected</value>
+  </data>
+  <data name="RelatedErrorLocation" xml:space="preserve">
+    <value>(Location of symbol related to another error)</value>
+  </data>
+  <data name="UnexpectedToken" xml:space="preserve">
+    <value>Did not expect '{0}'</value>
+  </data>
+  <data name="UnescapedSingleQuote" xml:space="preserve">
+    <value>''' is not a valid character literal, use '\'' instead</value>
+  </data>
+  <data name="ExpectedDoubleQuote" xml:space="preserve">
+    <value>" expected</value>
+  </data>
+  <data name="NumericLiteralTooLarge" xml:space="preserve">
+    <value>The numeric literal is too large for its associated type</value>
+  </data>
+  <data name="ExpectedPeriod" xml:space="preserve">
+    <value>Expected '.' (period)</value>
+  </data>
+  <data name="UnexpectedVoidType" xml:space="preserve">
+    <value>Void type not permitted in this context</value>
+  </data>
+  <data name="ExpectedArrayDecl" xml:space="preserve">
+    <value>Expected an array type declaration</value>
+  </data>
+  <data name="InvalidModifier" xml:space="preserve">
+    <value>The modifier '{0}' is not valid for this item</value>
+  </data>
+  <data name="InvalidStructFieldInitializer" xml:space="preserve">
+    <value>Initializers not permitted on struct members</value>
+  </data>
+  <data name="DuplicateModifier" xml:space="preserve">
+    <value>Duplicate '{0}' modifier</value>
+  </data>
+  <data name="NoVoidParameter" xml:space="preserve">
+    <value>Invalid parameter type 'void'</value>
+  </data>
+  <data name="NoVoidField" xml:space="preserve">
+    <value>Invalid field type 'void'</value>
+  </data>
+  <data name="InvalidExprTerm" xml:space="preserve">
+    <value>Invalid expression term '{0}'</value>
+  </data>
+  <data name="IllegalStatement" xml:space="preserve">
+    <value>Only assignments and method calls can be used as a statement</value>
+  </data>
+  <data name="ExpectedMethodCall" xml:space="preserve">
+    <value>Expected a function call following 'async'</value>
+  </data>
+  <data name="ExpectedStringLiteral" xml:space="preserve">
+    <value>Expected a string literal</value>
+  </data>
+  <data name="ExpectedCommaOrRightParen" xml:space="preserve">
+    <value>Expected a comma or a right parenthesis</value>
+  </data>
+  <data name="BadEmbeddedStmt" xml:space="preserve">
+    <value>Embedded statement cannot be labeled</value>
+  </data>
+  <data name="PossibleMistakenNullStatement" xml:space="preserve">
+    <value>Possible mistaken null statement</value>
+  </data>
+  <data name="ExpectedRightBraceOrJoinPattern" xml:space="preserve">
+    <value>Expected a right brace or a valid join pattern (timeout, wait, event, or receive)</value>
+  </data>
+  <data name="ExpectedJoinPatternSeparator" xml:space="preserve">
+    <value>Expected a join pattern delimiter (logical AND or '-&gt;')</value>
+  </data>
+  <data name="ExpectedJoinPattern" xml:space="preserve">
+    <value>Expected a join pattern (timeout, wait, event, or receive)</value>
+  </data>
+  <data name="ExpectedExceptionHandler" xml:space="preserve">
+    <value>Expected an exception handler</value>
+  </data>
+  <data name="InternalCompilerError" xml:space="preserve">
+    <value>Internal compiler error: {0}</value>
+  </data>
+  <data name="InternalCompilerWarning" xml:space="preserve">
+    <value>Internal compiler warning: {0}</value>
+  </data>
+  <data name="InvalidChoiceType" xml:space="preserve">
+    <value>choose(type) requires a boolean, enum, or range type</value>
+  </data>
+  <data name="InvalidChoiceExpr" xml:space="preserve">
+    <value>choose(expr) requires an expression of type 'array' or 'set'</value>
+  </data>
+  <data name="TimeoutNotAlone" xml:space="preserve">
+    <value>Timeout may not be combined with other types of join patterns</value>
+  </data>
+  <data name="TooManyTimeouts" xml:space="preserve">
+    <value>Only one timeout is permitted within a select statement</value>
+  </data>
+  <data name="EmbeddedChoose" xml:space="preserve">
+    <value>The choose() operator may only be used in a simple assignment statement</value>
+  </data>
+  <data name="EmbeddedMethodCall" xml:space="preserve">
+    <value>Method calls may only be used in a simple assignment or expression statement</value>
+  </data>
+  <data name="MultipleDefaultHandlers" xml:space="preserve">
+    <value>Only one default exception handler is permitted in a try block</value>
+  </data>
+  <data name="BooleanExpressionRequired" xml:space="preserve">
+    <value>A boolean expression is required in this context</value>
+  </data>
+  <data name="IntegerExpressionRequired" xml:space="preserve">
+    <value>An integer expression is required in this context</value>
+  </data>
+  <data name="UnexpectedChannelDirection" xml:space="preserve">
+    <value>Direction modifiers may only be applied to external channels</value>
+  </data>
+  <data name="ExtChanIllegalDirection" xml:space="preserve">
+    <value>External channel direction must be either 'in' or 'out'</value>
+  </data>
+  <data name="ExtChanNotChan" xml:space="preserve">
+    <value>The 'external' modifier applies only to channels</value>
+  </data>
+  <data name="ExtChanNotInitialized" xml:space="preserve">
+    <value>External channels must be initialized</value>
+  </data>
+  <data name="ExtChanNotStatic" xml:space="preserve">
+    <value>External channels must be static class members</value>
+  </data>
+  <data name="IncompatibleSetTypes" xml:space="preserve">
+    <value>For addition or subtraction, set types must be identical</value>
+  </data>
+  <data name="IncompatibleSetOperand" xml:space="preserve">
+    <value>For addition or subtraction, the operand type must match that of the set's elements</value>
+  </data>
+  <data name="InvalidSetExpression" xml:space="preserve">
+    <value>Complex set operations not yet supported</value>
+  </data>
+  <data name="InvalidSetAssignment" xml:space="preserve">
+    <value>Set expressions must add to, or subtract from, a single set</value>
+  </data>
+  <data name="InvalidSetOperator" xml:space="preserve">
+    <value>This operator may not be applied to set types</value>
+  </data>
+  <data name="ExpectedChannelType" xml:space="preserve">
+    <value>Expected a channel reference in this context</value>
+  </data>
+  <data name="AtomicBlockInAtomicMethod" xml:space="preserve">
+    <value>Atomic block not permitted within an atomic method</value>
+  </data>
+  <data name="AtomicBlockNested" xml:space="preserve">
+    <value>Atomic blocks may not be nested</value>
+  </data>
+  <data name="InvalidAsyncCallTarget" xml:space="preserve">
+    <value>The target of an async call should return void and have no output parameters</value>
+  </data>
+  <data name="InvalidForeachSource" xml:space="preserve">
+    <value>The source enumerable of foreach must be a set or an array</value>
+  </data>
+  <data name="InvalidForeachTargetType" xml:space="preserve">
+    <value>The target variable of foreach must match the type of the collection's members</value>
+  </data>
+  <data name="InvalidEventPattern" xml:space="preserve">
+    <value>Event patterns may only appear in select statements marked as 'visible'</value>
+  </data>
+  <data name="InvalidSizeofOperand" xml:space="preserve">
+    <value>The operand of 'sizeof' must be an array type, or an expression referring to an array, set or channel</value>
+  </data>
+  <data name="InvalidMessageType" xml:space="preserve">
+    <value>The message type must match that of the referenced channel</value>
+  </data>
+  <data name="InvalidSymbolicType" xml:space="preserve">
+    <value>The 'symbolic' modifier may not be applied to this type</value>
+  </data>
+  <data name="InvalidIndexType" xml:space="preserve">
+    <value>Index type for an array should be integer constant or an enumerated type</value>
+  </data>
+  <data name="UnexpectedSymbolicType" xml:space="preserve">
+    <value>Symbolic types are not permitted in this context</value>
+  </data>
+  <data name="ExpectedJoinStatement" xml:space="preserve">
+    <value>Select statements must contain at least one join statement</value>
+  </data>
+  <data name="ExpectedSetType" xml:space="preserve">
+    <value>A set expression is required in this context</value>
+  </data>
+  <data name="TraceExpectedArguments" xml:space="preserve">
+    <value>Missing arguments in trace statement</value>
+  </data>
+  <data name="InvalidExceptionExpression" xml:space="preserve">
+    <value>Exception expressions in Zing must be simple identifiers</value>
+  </data>
+  <data name="NamedArgumentExpected" xml:space="preserve">
+    <value>Named attribute argument expected</value>
+  </data>
+  <data name="InvalidUseOfSymbolicFunction" xml:space="preserve">
+    <value>Symbolic return values must be assigned to symbolic variables</value>
+  </data>
+  <data name="TooManyJoinStatements" xml:space="preserve">
+    <value>Only 64 join statements are permitted in a select statement</value>
+  </data>
+  <data name="InvalidSymbolicAssignment" xml:space="preserve">
+    <value>Assignment from symbolic to concrete is only permitted for booleans</value>
+  </data>
+  <data name="InvalidPredicateReturnType" xml:space="preserve">
+    <value>Methods used in wait conditions must return bool (concrete)</value>
+  </data>
+  <data name="UnexpectedPredicateOutputParameter" xml:space="preserve">
+    <value>Methods used in wait conditions must not have output parameters</value>
+  </data>
+  <data name="FloatOverflow" xml:space="preserve">
+    <value>Floating-point constant is outside the range of type '{0}'</value>
+  </data>
+  <data name="ExpectedStaticMethod" xml:space="preserve">
+    <value>Methods marked with the 'activate' qualifier must be static</value>
+  </data>
+  <data name="ExpectedVoidMethod" xml:space="preserve">
+    <value>Methods marked with the 'activate' qualifier must return void</value>
+  </data>
+  <data name="ExpectedParameterlessMethod" xml:space="preserve">
+    <value>Methods marked with the 'activate' qualifier must have no parameters</value>
+  </data>
+  <data name="IllegalYieldInAtomicBlock" xml:space="preserve">
+    <value>yield cannot be used inside an atomic block.</value>
+  </data>
+  <data name="InvokePluginExpectedArguments" xml:space="preserve">
+    <value>Missing arguments in InvokePlugin statement</value>
+  </data>
+  <data name="ExpectedPluginDllName" xml:space="preserve">
+    <value>Expected Plugin Dll Name as the first argument</value>
+  </data>
+</root>

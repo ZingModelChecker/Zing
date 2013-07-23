@@ -1,0 +1,6945 @@
+class ___X_Routines {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  static bool ___nondet_choice() {
+	atomic {
+		select {
+			wait(true) -> return true ;
+			wait(true) -> return false;
+		}
+	}
+  }
+  
+  static void ___skip() {
+  }
+  
+  static void ___Assert_Boolean(bool ___b) {
+	assert(___b);
+  }
+  
+  static void ___Assume_Boolean(bool ___b) {
+	assume(___b);
+  }
+  
+  void ___Routines_ctor() {
+  }
+};
+
+class ___X_MyAutoResetEvent {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  bool ___b;
+  
+  void ___MyAutoResetEvent_ctor(bool ___c) {
+    trace(@"#line", 0, 42, 36, 42, 45);
+    
+    this.___b = ___c;
+
+  }
+  
+  void ___Set() {
+    trace(@"#line", 0, 43, 22, 43, 34);
+    
+    this.___b = true;
+
+  }
+  
+  void ___WaitOne() {
+	atomic {
+		select {
+		    wait(this.___b) -> this.___b = false;
+	    }
+	}
+  }
+};
+
+class ___X_MyManualResetEvent {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  bool ___b;
+  
+  void ___MyManualResetEvent_ctor(bool ___c) {
+    trace(@"#line", 0, 58, 38, 58, 47);
+    
+    this.___b = ___c;
+
+  }
+  
+  void ___Set() {
+    trace(@"#line", 0, 59, 22, 59, 34);
+    
+    this.___b = true;
+
+  }
+  
+  void ___WaitOne() {
+	atomic {
+		select {
+			wait(this.___b) -> ;
+		}
+	}
+  }
+};
+
+class ___X_Init {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  static ___X_TransactionTable ___tx_table;
+  static int count;
+  
+  static ___X_LightweightTransaction ___CreateTransaction() {
+    ___X_LightweightTransaction ___tx;
+
+      trace(@"#line", 0, 77, 35, 77, 67);
+      
+      ___tx = new ___X_LightweightTransaction;
+
+      ___tx.___LightweightTransaction_ctor_0();
+
+    trace(@"#line", 0, 78, 3, 78, 38);
+    ___X_Init.___tx_table.___Add_LtmInternalTransaction(___tx.___internalTransaction);
+    atomic {
+      trace(@"#line", 0, 79, 3, 79, 12);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 77, 35, 79, 12);
+      return ___tx;
+    }
+  }
+  
+  static activate void ___Main() {
+    atomic {
+      trace(@"#file", 0, @"C:\t-mnaik\Indigo\tx-initial\System.Transactions\tx.cs");
+      trace(@"#line", 0, 83, 2, 93, 14);
+      ____namespace.____InitStatics();
+    }
+
+
+    ___X_LightweightTransaction ___tx1;
+    ___X_VolatileEnlistment ____any0;
+
+    ___X_IVENotification ___VRM;
+
+    atomic {
+      trace(@"#line", 0, 85, 19, 86, 45);
+      
+      ___VRM = new ___X_IVENotification;
+
+      ___VRM.___IVENotification_ctor();
+      
+
+
+
+
+    trace(@"#line", 0, 87, 26, 87, 50);
+    
+    ___tx1 = ___X_Init.___CreateTransaction();
+
+    trace(@"#line", 0, 88, 26, 88, 50);
+    }    
+
+
+    trace(@"#line", 0, 90, 3, 90, 9);
+    async ___X_Init.___Timer();
+    trace(@"#line", 0, 91, 3, 91, 39);
+
+    ____any0 = ___tx1.___VolatileEnlist_IVENotification_Boolean_VN(___VRM, true, ___X_VN.___TP);
+
+
+    trace(@"#line", 0, 92, 3, 92, 25);
+    
+    trace(@"#line", 0, 93, 3, 93, 14);
+    ___tx1.___Commit();
+
+  }
+  
+  static void ___Timer() {
+    trace(@"#line", 0, 97, 3, 100, 3);
+    while (true) {
+      trace(@"#line", 0, 99, 4, 99, 25);
+      ___X_Init.___tx_table.___threadTimer();
+    }
+  }
+  
+  void ___Init_ctor() {
+  }
+};
+
+class ___X_TransactionTable {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___PrimitiveArray_L_TransactionList_R ___transactionLists;
+  
+  int ___TransactionListCount;
+  
+  void ___TransactionTable_ctor() {
+ {
+      trace(@"#line", 0, 107, 43, 107, 43);
+      
+      this.___TransactionListCount = 1;
+
+    }
+    int ___i;
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 112, 3, 116, 3);
+      assume((this.___TransactionListCount <= 32));
+      
+      this.___transactionLists = new ___PrimitiveArray_L_TransactionList_R;
+
+      
+      this.___transactionLists.repr = new  ______PrimitiveArray_L_TransactionList_R_zarray;
+
+      
+      this.___transactionLists.leng = this.___TransactionListCount;
+
+      
+      ___i = 0;
+
+      
+      _____flt0 = (___i < this.___TransactionListCount);
+
+      while (_____flt0) {
+        assert(((___i >= 0) && (___i < this.___transactionLists.leng)), @"array index out of bound");
+        
+        this.___transactionLists.repr[___i] = new ___X_TransactionList;
+
+        this.___transactionLists.repr[___i].___TransactionList_ctor();
+        
+        ___i = (___i + 1);
+
+        
+        _____flt0 = (___i < this.___TransactionListCount);
+
+      }
+    }
+  }
+  
+  void ___threadTimer() {
+    int ___i;
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 121, 12, 121, 42);
+      
+      ___i = 0;
+
+      
+      _____flt0 = (___i < this.___TransactionListCount);
+
+    }
+    trace(@"#line", 0, 121, 3, 124, 3);
+    while (_____flt0) {
+      ___X_TransactionList _____flt1;
+      bool ____any3;
+      atomic {
+        trace(@"#line", 0, 123, 4, 123, 27);
+        assert(((___i >= 0) && (___i < this.___transactionLists.leng)), @"array index out of bound");
+        
+        _____flt1 = this.___transactionLists.repr[___i];
+
+      }
+      trace(@"#line", 0, 123, 4, 123, 41);
+      
+      ____any3 = _____flt1.___ProcessList();
+
+      atomic {
+        trace(@"#line", 0, 121, 19, 121, 47);
+        
+        ___i = (___i + 1);
+
+        
+        _____flt0 = (___i < this.___TransactionListCount);
+
+      }
+    }
+  }
+  
+  void ___Add_LtmInternalTransaction(___X_LtmInternalTransaction ___txNew) {
+    int ___listForTx;
+    ___X_TransactionList _____flt0;
+    atomic {
+      trace(@"#line", 0, 129, 7, 130, 34);
+      
+      ___listForTx = (___txNew.___TransactionHash % this.___TransactionListCount);
+
+      assert(((___listForTx >= 0) && (___listForTx < this.___transactionLists.leng)), @"array index out of bound");
+      
+      _____flt0 = this.___transactionLists.repr[___listForTx];
+
+    }
+    trace(@"#line", 0, 130, 3, 130, 47);
+    _____flt0.___Add_LtmInternalTransaction(___txNew);
+  }
+  
+  void ___Remove_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt0;
+    int ___listForTx;
+    ___X_TransactionList _____flt1;
+    atomic {
+      trace(@"#line", 0, 135, 3, 138, 34);
+      
+      _____flt0 = !___tx.___inTimerList;
+
+      if (_____flt0) {
+        goto _____G_0;
+      }
+      else {
+      }
+    }
+      
+      ___listForTx = (___tx.___TransactionHash % this.___TransactionListCount);
+
+      assert(((___listForTx >= 0) && (___listForTx < this.___transactionLists.leng)), @"array index out of bound");
+      
+      _____flt1 = this.___transactionLists.repr[___listForTx];
+
+    trace(@"#line", 0, 138, 3, 138, 47);
+    _____flt1.___Remove_LtmInternalTransaction(___tx);
+    _____G_0:
+ {
+    }
+  }
+};
+
+class ___X_TransactionList {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_LtmInternalTransaction ___timeoutListHead;
+  
+  ___X_LtmInternalTransaction ___timeoutListTail;
+  
+  void ___TransactionList_ctor() {
+  }
+  
+  void ___Add_LtmInternalTransaction(___X_LtmInternalTransaction ___txNew) {
+    bool _____flt0;
+    atomic {
+      select first {
+        wait (!this.____locked) ->
+          
+          this.____locked = true;
+
+      }
+      trace(@"#line", 0, 150, 9, 152, 35);
+      
+      _____flt0 = (this.___timeoutListTail == null);
+
+    }
+    trace(@"#line", 0, 152, 4, 190, 4);
+    if (_____flt0) {
+      bool _____flt1;
+      atomic {
+        trace(@"#line", 0, 155, 22, 155, 49);
+        
+        _____flt1 = (this.___timeoutListHead == null);
+
+      }
+      trace(@"#line", 0, 155, 5, 155, 51);
+      ___X_Routines.___Assert_Boolean(_____flt1);
+      trace(@"#line", 0, 156, 5, 156, 32);
+      
+      this.___timeoutListTail = ___txNew;
+
+      trace(@"#line", 0, 157, 5, 157, 32);
+      
+      this.___timeoutListHead = ___txNew;
+
+    }
+    else {
+      ___X_LtmInternalTransaction ___txCurrent;
+      ___X_LtmInternalTransaction ___txLast;
+      bool _____flt3;
+      bool _____flt2;
+      atomic {
+        trace(@"#line", 0, 161, 28, 163, 28);
+        
+        ___txCurrent = this.___timeoutListTail;
+
+        
+        ___txLast = null;
+
+        
+        _____flt3 = (___txCurrent != null);
+
+      }
+      trace(@"#line", 0, 163, 12, 163, 56);
+      if (_____flt3) {
+        bool _____flt4;
+        trace(@"#line", 0, 163, 33, 163, 56);
+        
+        _____flt4 = ___X_Routines.___nondet_choice();
+
+        atomic {
+          trace(@"#line", 0, 163, 33, 163, 56);
+          
+          _____flt2 = _____flt4;
+
+        }
+      }
+      else {
+        trace(@"#line", 0, 163, 12, 163, 56);
+        
+        _____flt2 = false;
+
+      }
+      trace(@"#line", 0, 163, 5, 167, 5);
+      while (_____flt2) {
+        bool _____flt5;
+        atomic {
+          trace(@"#line", 0, 163, 12, 166, 35);
+          
+          ___txLast = ___txCurrent;
+
+          
+          ___txCurrent = ___txCurrent.___prevLink;
+
+          
+          _____flt5 = (___txCurrent != null);
+
+        }
+        trace(@"#line", 0, 163, 12, 163, 56);
+        if (_____flt5) {
+          bool _____flt6;
+          trace(@"#line", 0, 163, 33, 163, 56);
+          
+          _____flt6 = ___X_Routines.___nondet_choice();
+
+          atomic {
+            trace(@"#line", 0, 163, 33, 163, 56);
+            
+            _____flt2 = _____flt6;
+
+          }
+        }
+        else {
+          trace(@"#line", 0, 163, 12, 163, 56);
+          
+          _____flt2 = false;
+
+        }
+      }
+      trace(@"#line", 0, 169, 5, 189, 5);
+      if ((___txCurrent == null)) {
+        trace(@"#line", 0, 172, 6, 172, 33);
+        
+        this.___timeoutListHead = ___txNew;
+
+        trace(@"#line", 0, 173, 6, 173, 28);
+        
+        ___txNew.___nextLink = ___txLast;
+
+        trace(@"#line", 0, 174, 6, 174, 28);
+        
+        ___txLast.___prevLink = ___txNew;
+
+      }
+      else {
+        trace(@"#line", 0, 178, 6, 178, 31);
+        
+        ___txCurrent.___nextLink = ___txNew;
+
+        trace(@"#line", 0, 179, 6, 179, 31);
+        
+        ___txNew.___prevLink = ___txCurrent;
+
+        trace(@"#line", 0, 180, 6, 188, 6);
+        if ((___txLast == null)) {
+          trace(@"#line", 0, 182, 7, 182, 34);
+          
+          this.___timeoutListTail = ___txNew;
+
+        }
+        else {
+          trace(@"#line", 0, 186, 7, 186, 29);
+          
+          ___txLast.___prevLink = ___txNew;
+
+          trace(@"#line", 0, 187, 7, 187, 29);
+          
+          ___txNew.___nextLink = ___txLast;
+
+        }
+      }
+    }
+    trace(@"#line", 0, 192, 4, 192, 27);
+    
+    ___txNew.___inTimerList = true;
+
+    atomic {
+      trace(@"#line", 0, 150, 9, 150, 12);
+      
+      this.____locked = false;
+
+    }
+  }
+  
+  void ___Remove_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt0;
+    bool _____flt1;
+    bool _____flt2;
+    bool _____flt3;
+    bool _____flt4;
+    atomic {
+      trace(@"#line", 0, 200, 3, 205, 26);
+      
+      _____flt0 = !___tx.___inTimerList;
+
+      if (_____flt0) {
+        goto _____G_0;
+      }
+      else {
+      }
+    }
+    atomic {
+      select first {
+        wait (!this.____locked) ->
+          
+          this.____locked = true;
+
+      }
+    }      
+      _____flt1 = (___tx.___nextLink != null);
+
+
+    trace(@"#line", 0, 205, 4, 208, 4);
+    if (_____flt1) {
+      trace(@"#line", 0, 207, 5, 207, 38);
+      
+      ___tx.___nextLink.___prevLink = ___tx.___prevLink;
+
+    }
+    else {
+    }
+    atomic {
+      trace(@"#line", 0, 210, 8, 210, 26);
+      
+      _____flt2 = (___tx.___prevLink != null);
+
+    }
+    trace(@"#line", 0, 210, 4, 213, 4);
+    if (_____flt2) {
+      trace(@"#line", 0, 212, 5, 212, 38);
+      
+      ___tx.___prevLink.___nextLink = ___tx.___nextLink;
+
+    }
+    else {
+    }
+    atomic {
+      trace(@"#line", 0, 215, 8, 215, 33);
+      
+      _____flt3 = (___tx == this.___timeoutListHead);
+
+    }
+    trace(@"#line", 0, 215, 4, 218, 4);
+    if (_____flt3) {
+      trace(@"#line", 0, 217, 5, 217, 38);
+      
+      this.___timeoutListHead = ___tx.___nextLink;
+
+    }
+    else {
+    }
+    atomic {
+      trace(@"#line", 0, 220, 8, 220, 33);
+      
+      _____flt4 = (___tx == this.___timeoutListTail);
+
+    }
+    trace(@"#line", 0, 220, 4, 223, 4);
+    if (_____flt4) {
+      trace(@"#line", 0, 222, 5, 222, 38);
+      
+      this.___timeoutListTail = ___tx.___prevLink;
+
+    }
+    else {
+    }
+    trace(@"#line", 0, 225, 4, 225, 21);
+    
+    ___tx.___nextLink = null;
+
+    trace(@"#line", 0, 226, 4, 226, 21);
+    
+    ___tx.___prevLink = null;
+
+    atomic {
+      trace(@"#line", 0, 203, 9, 203, 12);
+      
+      this.____locked = false;
+
+    }
+    _____G_0:
+ {
+    }
+  }
+  
+  bool ___ProcessList() {
+    bool ___listEmpty;
+    bool ___flag;
+    ___X_LtmInternalTransaction ___tx;
+    atomic {
+      trace(@"#line", 0, 233, 8, 235, 34);
+      
+      ___listEmpty = false;
+
+      
+      ___flag = true;
+
+      
+      ___tx = null;
+
+    }
+    trace(@"#line", 0, 237, 3, 285, 3);
+    while (___flag) {
+      bool _____flt0;
+      bool _____flt7;
+      bool _____flt4;
+      bool _____flt3;
+      bool _____flt9;
+      atomic {
+        trace(@"#line", 0, 239, 4, 242, 36);
+        
+        ___tx = null;
+      }
+      atomic {
+        select first {
+          wait (!this.____locked) ->
+            
+            this.____locked = true;
+
+        }
+      }        
+      _____flt0 = (this.___timeoutListHead != null);
+
+      trace(@"#line", 0, 242, 5, 266, 5);
+      if (_____flt0) {
+        bool _____flt1;
+        trace(@"#line", 0, 244, 10, 244, 33);
+        
+        _____flt1 = ___X_Routines.___nondet_choice();
+
+        trace(@"#line", 0, 244, 6, 261, 6);
+        if (_____flt1) {
+          bool _____flt2;
+          atomic {
+            trace(@"#line", 0, 246, 7, 246, 31);
+            
+            ___tx = this.___timeoutListHead;
+
+          }
+          trace(@"#line", 0, 248, 7, 248, 40);
+          
+          this.___timeoutListHead = ___tx.___nextLink;
+
+          atomic {
+            trace(@"#line", 0, 249, 11, 249, 38);
+            
+            _____flt2 = (this.___timeoutListHead != null);
+
+          }
+          trace(@"#line", 0, 249, 7, 256, 7);
+          if (_____flt2) {
+            trace(@"#line", 0, 251, 8, 251, 43);
+            
+            this.___timeoutListHead.___prevLink = null;
+
+          }
+          else {
+            trace(@"#line", 0, 255, 8, 255, 34);
+            
+            this.___timeoutListTail = null;
+
+          }
+        }
+        else {
+        }
+      }
+      else {
+        trace(@"#line", 0, 265, 6, 265, 21);
+        
+        ___listEmpty = true;
+
+      }
+      atomic {
+        trace(@"#line", 0, 267, 22, 268, 67);
+        
+        _____flt7 = (this.___timeoutListTail == null);
+
+        if (_____flt7) {
+          bool _____flt8;
+          
+          _____flt8 = (this.___timeoutListHead == null);
+
+          
+          _____flt4 = _____flt8;
+
+        }
+        else {
+          
+          _____flt4 = false;
+
+        }
+        if (_____flt4) {
+          
+          _____flt3 = true;
+
+        }
+        else {
+          bool _____flt5;
+          
+          _____flt5 = (this.___timeoutListTail != null);
+
+          if (_____flt5) {
+            bool _____flt6;
+            
+            _____flt6 = (this.___timeoutListHead != null);
+
+            
+            _____flt3 = _____flt6;
+
+          }
+          else {
+            
+            _____flt3 = false;
+
+          }
+        }
+      }
+      trace(@"#line", 0, 267, 5, 268, 69);
+      ___X_Routines.___Assert_Boolean(_____flt3);
+
+        
+      _____flt9 = (___tx != null);
+
+      trace(@"#line", 0, 270, 4, 283, 4);
+      if (_____flt9) {
+        trace(@"#line", 0, 272, 5, 272, 22);
+        
+        ___tx.___prevLink = null;
+
+        trace(@"#line", 0, 273, 5, 273, 22);
+        
+        ___tx.___nextLink = null;
+
+        trace(@"#line", 0, 274, 5, 274, 26);
+        
+        ___tx.___inTimerList = false;
+      }
+
+      atomic {
+        trace(@"#line", 0, 240, 10, 270, 17);
+        
+        this.____locked = false;
+      }
+
+      if (_____flt9) {
+        atomic {
+          select first {
+            wait (!___tx.____locked) ->
+              
+              ___tx.____locked = true;
+
+          }
+          trace(@"#line", 0, 279, 11, 279, 12);
+        }
+        trace(@"#line", 0, 281, 6, 281, 27);
+        ___tx.___State.___Timeout_LtmInternalTransaction(___tx);
+        atomic {
+          trace(@"#line", 0, 279, 11, 279, 12);
+          
+          ___tx.____locked = false;
+
+        }
+      }
+      else {
+      }
+      atomic {
+        trace(@"#line", 0, 284, 4, 284, 34);
+        if ((___tx == null)) {
+          
+          ___flag = false;
+
+        }
+        else {
+        }
+      }
+    }
+    atomic {
+      trace(@"#line", 0, 287, 3, 287, 19);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 233, 8, 287, 19);
+      return ___listEmpty;
+    }
+  }
+};
+
+class ___X_IDENotification {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  void ___IDENotification_ctor() {
+  }
+  
+  void ___SinglePhaseCommit_DurableEnlistment(___X_DurableEnlistment ___e) {
+        select {
+	      wait(true)  -> ;
+	      wait(false) -> ;
+	      wait(true)  -> ___e.___Committed();
+	      wait(true)  -> ___e.___Aborted();
+	      wait(true)  -> ___e.___InDoubt();
+	      wait(true)  -> ___e.___EnlistmentDone();
+        }
+  }
+  
+  void ___Rollback_DurableEnlistment(___X_DurableEnlistment ___e) {
+        select {
+	      wait(true)  -> ;
+	      wait(false) -> ;
+	      wait(true)  -> ___e.___EnlistmentDone();
+        }
+  }
+};
+
+class ___X_IVENotification {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  void ___IVENotification_ctor() {
+  }
+  
+  void ___SinglePhaseCommit_VolatileEnlistment(___X_VolatileEnlistment ___e) {
+        select {
+          wait(true)  -> ;
+	      wait(false) -> ;
+	      wait(true)  -> ___e.___Committed();
+	      wait(true)  -> ___e.___Aborted();
+	      wait(true)  -> ___e.___InDoubt();
+              wait(true)  -> ___e.___EnlistmentDone();
+        }
+  }
+  
+  void ___Prepare_VolatileEnlistment(___X_VolatileEnlistment ___e) {
+      bool b = (___X_Init.count < 1);
+      if (b) {
+              ___X_LightweightTransaction ___tx2;
+              ___X_VolatileEnlistment ____any0;
+              ___X_IVENotification ___VRM;
+
+
+                  ___X_Init.count =  ___X_Init.count + 1;
+                  ___VRM = new ___X_IVENotification;
+                  ___VRM.___IVENotification_ctor();
+                  ___tx2 = ___X_Init.___CreateTransaction();
+                  ____any0 = ___tx2.___VolatileEnlist_IVENotification_Boolean_VN(___VRM, true, ___X_VN.___TP);
+
+              ___tx2.___Commit();
+      } else {
+         ;
+      }
+  }
+  
+  void ___Commit_VolatileEnlistment(___X_VolatileEnlistment ___e) {
+        select {
+          wait(true)  -> ___e.___EnlistmentDone();
+        }
+  }
+  
+  void ___Rollback_VolatileEnlistment(___X_VolatileEnlistment ___e) {
+        select {
+          wait(true)  -> ; 
+          wait(false) -> ; 
+          wait(true)  -> ___e.___EnlistmentDone();
+        }
+  }
+  
+  void ___InDoubt() {
+        select {
+          wait(true)  -> ;
+          wait(false) -> ;
+        }
+  }
+};
+
+class ___X_LtmInternalTransaction {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_TransactionState ___State;
+  
+  int ___TransactionHash;
+  
+  ___X_DurableEnlistment ___durableEnlistment;
+  
+  ___X_VolatileEnlistmentSet ___phase0Volatiles;
+  
+  ___X_VolatileEnlistmentSet ___phase1Volatiles;
+  
+  int ___phase0VolatileWaveCount;
+  
+  ___X_LightweightTransaction ___committableTransaction;
+  
+  ___X_LtmInternalTransaction ___nextLink;
+  
+  ___X_LtmInternalTransaction ___prevLink;
+  
+  bool ___inTimerList;
+  
+  ___X_MyAutoResetEvent ___TransactionCompletionEvent;
+  
+  bool ___completionEventSet;
+  
+  static ___X_MyAutoResetEvent ___ThreadTransactionCompletionEvent;
+  
+  void ___LtmInternalTransaction_ctor(___X_LightweightTransaction ___committableTransaction) {
+ {
+      trace(@"#line", 0, 400, 57, 400, 60);
+      
+      this.___TransactionCompletionEvent = null;
+
+      trace(@"#line", 0, 401, 37, 401, 41);
+      
+      this.___completionEventSet = false;
+
+    }
+    trace(@"#line", 0, 407, 3, 407, 55);
+    
+    this.___State = ___X_TransactionState.____TransactionStateActive;
+
+    trace(@"#line", 0, 409, 3, 409, 26);
+    
+    this.___TransactionHash = 0;
+
+    trace(@"#line", 0, 412, 3, 412, 54);
+    
+    this.___committableTransaction = ___committableTransaction;
+
+    atomic {
+      trace(@"#line", 0, 414, 3, 415, 52);
+      
+      this.___phase0Volatiles = new ___X_VolatileEnlistmentSet;
+
+      this.___phase0Volatiles.___VolatileEnlistmentSet_ctor();
+      
+      this.___phase1Volatiles = new ___X_VolatileEnlistmentSet;
+
+      this.___phase1Volatiles.___VolatileEnlistmentSet_ctor();
+    }
+    trace(@"#line", 0, 415, 3, 415, 52);
+    
+    this.___committableTransaction = ___committableTransaction;
+
+  }
+  
+  void ___WaitForOutcome() {
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 420, 7, 420, 45);
+      
+      _____flt0 = (this.___TransactionCompletionEvent == null);
+
+    }
+    trace(@"#line", 0, 420, 3, 423, 3);
+    if (_____flt0) {
+      trace(@"#line", 0, 422, 4, 422, 69);
+      
+      this.___TransactionCompletionEvent = ___X_LtmInternalTransaction.___ThreadTransactionCompletionEvent;
+
+    }
+    else {
+    }
+  }
+  
+  void ___SynchronousOutcome() {
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 428, 7, 428, 30);
+      
+      _____flt0 = !this.___completionEventSet;
+
+    }
+    trace(@"#line", 0, 428, 3, 431, 3);
+    if (_____flt0) {
+      trace(@"#line", 0, 430, 4, 430, 41);
+      
+      this.___TransactionCompletionEvent = null;
+
+    }
+    else {
+    }
+    trace(@"#line", 0, 432, 3, 432, 59);
+    
+    this.___committableTransaction.___completedSynchronously = true;
+
+  }
+  
+  void ___SignalCompletion() {
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 437, 7, 437, 45);
+      
+      _____flt0 = (this.___TransactionCompletionEvent != null);
+
+    }
+    trace(@"#line", 0, 437, 3, 442, 3);
+    if (_____flt0) {
+      bool _____flt1;
+      atomic {
+        trace(@"#line", 0, 439, 21, 439, 44);
+        
+        _____flt1 = !this.___completionEventSet;
+
+      }
+      trace(@"#line", 0, 439, 4, 439, 46);
+      ___X_Routines.___Assert_Boolean(_____flt1);
+      trace(@"#line", 0, 440, 4, 440, 40);
+      this.___TransactionCompletionEvent.___Set();
+      trace(@"#line", 0, 441, 4, 441, 33);
+      
+      this.___completionEventSet = true;
+
+    }
+    else {
+    }
+  }
+};
+
+class ___X_LightweightTransaction {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_LtmInternalTransaction ___internalTransaction;
+  
+  bool ___blocking;
+  
+  bool ___complete;
+  
+  bool ___completedSynchronously;
+  
+  void ___LightweightTransaction_ctor_0() {
+ {
+      trace(@"#line", 0, 449, 27, 449, 31);
+      
+      this.___complete = false;
+
+      trace(@"#line", 0, 450, 41, 450, 45);
+      
+      this.___completedSynchronously = false;
+
+    }
+    trace(@"#line", 0, 455, 3, 455, 61);
+    
+    this.___internalTransaction = new ___X_LtmInternalTransaction;
+
+    this.___internalTransaction.___LtmInternalTransaction_ctor(this);
+  }
+  
+  void ___LightweightTransaction_ctor_1(___X_LtmInternalTransaction ___tx) {
+ {
+      trace(@"#line", 0, 449, 27, 449, 31);
+      
+      this.___complete = false;
+
+      trace(@"#line", 0, 450, 41, 450, 45);
+      
+      this.___completedSynchronously = false;
+
+    }
+    trace(@"#line", 0, 459, 3, 459, 31);
+    
+    this.___internalTransaction = ___tx;
+
+  }
+  
+  void ___LightweightTransaction_ctor_2(___X_LtmInternalTransaction ___tx, bool ___blocking) {
+ {
+      trace(@"#line", 0, 449, 27, 449, 31);
+      
+      this.___complete = false;
+
+      trace(@"#line", 0, 450, 41, 450, 45);
+      
+      this.___completedSynchronously = false;
+
+    }
+    trace(@"#line", 0, 463, 3, 463, 31);
+    
+    this.___internalTransaction = ___tx;
+
+    trace(@"#line", 0, 464, 3, 464, 26);
+    
+    this.___blocking = ___blocking;
+
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+
+      }
+      trace(@"#line", 0, 466, 9, 466, 32);
+    }
+    trace(@"#line", 0, 468, 4, 475, 4);
+    if (___blocking) {
+      trace(@"#line", 0, 470, 5, 470, 82);
+      this.___internalTransaction.___State.___CreateBlockingClone_LtmInternalTransaction(this.___internalTransaction);
+    }
+    else {
+      trace(@"#line", 0, 474, 5, 474, 82);
+      this.___internalTransaction.___State.___CreateAbortingClone_LtmInternalTransaction(this.___internalTransaction);
+    }
+    atomic {
+      trace(@"#line", 0, 466, 9, 466, 32);
+      
+      this.___internalTransaction.____locked = false;
+
+    }
+    trace(@"#line", 0, 466, 3, 476, 3);
+    
+    this.___blocking = ___blocking;
+
+  }
+  
+  void ___Complete() {
+    bool _____flt0;
+    trace(@"#line", 0, 480, 3, 480, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+
+      }
+      trace(@"#line", 0, 482, 9, 484, 34);
+      
+      _____flt0 = !this.___complete;
+
+    }
+    trace(@"#line", 0, 484, 4, 484, 36);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    trace(@"#line", 0, 486, 4, 486, 23);
+    
+    this.___complete = true;
+
+    trace(@"#line", 0, 488, 4, 495, 4);
+    if (this.___blocking) {
+      trace(@"#line", 0, 490, 5, 490, 84);
+      this.___internalTransaction.___State.___CompleteBlockingClone_LtmInternalTransaction(this.___internalTransaction);
+    }
+    else {
+      trace(@"#line", 0, 494, 5, 494, 84);
+      this.___internalTransaction.___State.___CompleteAbortingClone_LtmInternalTransaction(this.___internalTransaction);
+    }
+    atomic {
+      trace(@"#line", 0, 482, 9, 482, 32);
+      
+      this.___internalTransaction.____locked = false;
+
+    }
+    trace(@"#line", 0, 498, 3, 498, 17);
+    ___X_Routines.___skip();
+  }
+  
+  ___X_DurableEnlistment ___DurableEnlist_IDENotification(___X_IDENotification ___enlistmentNotification) {
+    bool _____flt0;
+    ___X_DurableEnlistment ___enlistment;
+    trace(@"#line", 0, 505, 3, 505, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 507, 20, 507, 49);
+      
+      _____flt0 = (___enlistmentNotification != null);
+
+    }
+    trace(@"#line", 0, 507, 3, 507, 51);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+
+      }
+      trace(@"#line", 0, 509, 18, 509, 41);
+    }
+    trace(@"#line", 0, 511, 21, 512, 33);
+    
+    ___enlistment = this.___internalTransaction.___State.___DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(this.___internalTransaction, ___enlistmentNotification, this);
+
+    trace(@"#line", 0, 514, 3, 514, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 516, 17, 518, 20);
+      
+      this.___internalTransaction.____locked = false;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 505, 3, 518, 20);
+      return ___enlistment;
+    }
+  }
+  
+  void ___Rollback() {
+    bool _____flt0;
+    trace(@"#line", 0, 523, 3, 523, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+
+      }
+      trace(@"#line", 0, 525, 9, 527, 58);
+      
+      _____flt0 = (this.___internalTransaction.___State != null);
+
+    }
+    trace(@"#line", 0, 527, 4, 527, 60);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    trace(@"#line", 0, 529, 4, 529, 70);
+    this.___internalTransaction.___State.___Rollback_LtmInternalTransaction(this.___internalTransaction);
+    atomic {
+      trace(@"#line", 0, 525, 9, 525, 32);
+      
+      this.___internalTransaction.____locked = false;
+
+    }
+    trace(@"#line", 0, 532, 3, 532, 17);
+    ___X_Routines.___skip();
+  }
+  
+  ___X_VolatileEnlistment ___VolatileEnlist_IVENotification_Boolean_VN(___X_IVENotification ___enlistmentNotification, bool ___enlistDuringPrepareRequired, ___X_VN ___vn) {
+    bool _____flt0;
+    ___X_VolatileEnlistment ___enlistment;
+    trace(@"#line", 0, 541, 3, 541, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 543, 20, 543, 49);
+      
+      _____flt0 = (___enlistmentNotification != null);
+
+    }
+    trace(@"#line", 0, 543, 3, 543, 51);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+
+      }
+      trace(@"#line", 0, 545, 18, 545, 41);
+    }
+    trace(@"#line", 0, 547, 22, 548, 66);
+    
+    ___enlistment = this.___internalTransaction.___State.___VolatileEnlist_LtmInternalTransaction_IVENotification_Boolean_VN_LightweightTransaction(this.___internalTransaction, ___enlistmentNotification, ___enlistDuringPrepareRequired, ___vn, this);
+
+    trace(@"#line", 0, 550, 3, 550, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 552, 17, 554, 20);
+      
+      this.___internalTransaction.____locked = false;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 541, 3, 554, 20);
+      return ___enlistment;
+    }
+  }
+  
+  void ___Commit() {
+    bool ___completionEventPreSet;
+    ___X_MyAutoResetEvent ___completionEvent;
+    bool _____flt0;
+    bool _____flt1;
+    bool _____flt2;
+    atomic {
+    trace(@"#line", 0, 561, 3, 561, 17);
+    ___X_Routines.___skip();
+
+      trace(@"#line", 0, 563, 8, 576, 34);
+      
+      ___completionEventPreSet = false;
+
+      
+      ___completionEvent = null;
+    }
+
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+      }
+
+      _____flt0 = (this.___internalTransaction.___TransactionCompletionEvent != null);
+
+      if (_____flt0) {
+        ___completionEventPreSet = true;
+      }
+      else {
+      }
+      
+      _____flt1 = !this.___complete;
+
+    trace(@"#line", 0, 576, 4, 576, 36);
+    ___X_Routines.___Assert_Boolean(_____flt1);
+    trace(@"#line", 0, 578, 4, 578, 72);
+    }
+    this.___internalTransaction.___State.___BeginCommit_LtmInternalTransaction(this.___internalTransaction);
+    atomic {
+      trace(@"#line", 0, 566, 9, 583, 29);
+      
+      ___completionEvent = this.___internalTransaction.___TransactionCompletionEvent;
+
+      
+      this.___internalTransaction.____locked = false;
+
+      
+      _____flt2 = (___completionEvent != null);
+
+    }
+    trace(@"#line", 0, 583, 3, 586, 3);
+    if (_____flt2) {
+      trace(@"#line", 0, 585, 4, 585, 28);
+      ___completionEvent.___WaitOne();
+    }
+    else {
+    }
+    trace(@"#line", 0, 588, 3, 596, 3);
+    if (!___completionEventPreSet) {
+      trace(@"#line", 0, 592, 4, 592, 61);
+      
+      this.___internalTransaction.___TransactionCompletionEvent = null;
+
+    }
+    else {
+    }
+
+    atomic {
+      select first {
+        wait (!this.___internalTransaction.____locked) ->
+          
+          this.___internalTransaction.____locked = true;
+
+      }
+      trace(@"#line", 0, 598, 9, 598, 32);
+    }
+    trace(@"#line", 0, 600, 4, 600, 71);
+    this.___internalTransaction.___State.___EndCommit_LtmInternalTransaction(this.___internalTransaction);
+    atomic {
+      trace(@"#line", 0, 598, 9, 598, 32);
+      
+      this.___internalTransaction.____locked = false;
+
+    }
+    trace(@"#line", 0, 603, 3, 603, 17);
+    ___X_Routines.___skip();
+  }
+  
+  ___X_LightweightTransaction ___Clone() {
+    bool _____flt0;
+    ___X_LightweightTransaction ___clone;
+    trace(@"#line", 0, 608, 3, 608, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 610, 20, 610, 33);
+      
+      _____flt0 = !this.___complete;
+
+    }
+    trace(@"#line", 0, 610, 3, 610, 35);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      trace(@"#line", 0, 612, 26, 612, 87);
+      
+      ___clone = new ___X_LightweightTransaction;
+
+      ___clone.___LightweightTransaction_ctor_1(this.___internalTransaction);
+    }
+    trace(@"#line", 0, 614, 3, 614, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 616, 3, 616, 15);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 608, 3, 616, 15);
+      return ___clone;
+    }
+  }
+  
+  ___X_LightweightTransaction ___DependentClone_Boolean(bool ___delayCommit) {
+    bool _____flt0;
+    ___X_LightweightTransaction ___clone;
+    trace(@"#line", 0, 623, 3, 623, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 625, 20, 625, 33);
+      
+      _____flt0 = !this.___complete;
+
+    }
+    trace(@"#line", 0, 625, 3, 625, 35);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      trace(@"#line", 0, 627, 26, 627, 100);
+      
+      ___clone = new ___X_LightweightTransaction;
+
+      ___clone.___LightweightTransaction_ctor_2(this.___internalTransaction, ___delayCommit);
+    }
+    trace(@"#line", 0, 629, 3, 629, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 631, 3, 631, 15);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 623, 3, 631, 15);
+      return ___clone;
+    }
+  }
+};
+
+enum ___X_IsolationLevel {
+  ___Serializable,
+  ___RepeatableRead,
+  ___ReadCommitted,
+  ___ReadUncommitted,
+  ___Unspecified,
+};
+
+enum ___X_TransactionStatus {
+  ___Active,
+  ___Committed,
+  ___Aborted,
+  ___InDoubt,
+};
+
+class ___X_DurableEnlistment {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_DurableEnlistmentState ___twoPhaseState;
+  
+  ___X_IDENotification ___notificationInterface;
+  
+  ___X_LtmInternalTransaction ___tx;
+  
+  ___X_LightweightTransaction ___lightweightTransaction;
+  
+  void ___DurableEnlistment_ctor(___X_LtmInternalTransaction ___tx, ___X_IDENotification ___notificationInterface, ___X_LightweightTransaction ___lightweightTransaction) {
+    trace(@"#line", 0, 673, 3, 673, 14);
+    
+    this.___tx = ___tx;
+
+    trace(@"#line", 0, 674, 3, 674, 52);
+    
+    this.___notificationInterface = ___notificationInterface;
+
+    trace(@"#line", 0, 675, 3, 675, 54);
+    
+    this.___lightweightTransaction = ___lightweightTransaction;
+
+    trace(@"#line", 0, 675, 3, 675, 54);
+    
+    this.___notificationInterface = ___notificationInterface;
+
+    trace(@"#line", 0, 675, 3, 675, 54);
+    
+    this.___tx = ___tx;
+
+    trace(@"#line", 0, 675, 3, 675, 54);
+    
+    this.___lightweightTransaction = ___lightweightTransaction;
+
+  }
+  
+  void ___EnlistmentDone() {
+    trace(@"#line", 0, 680, 3, 680, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 681, 9, 681, 15);
+    }
+    trace(@"#line", 0, 683, 4, 683, 44);
+    this.___twoPhaseState.___EnlistmentDone_DurableEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 681, 9, 681, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 685, 3, 685, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___Aborted() {
+    trace(@"#line", 0, 690, 3, 690, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 691, 9, 691, 15);
+    }
+    trace(@"#line", 0, 693, 4, 693, 37);
+    this.___twoPhaseState.___Aborted_DurableEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 691, 9, 691, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 695, 3, 695, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___Committed() {
+    trace(@"#line", 0, 700, 3, 700, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 701, 9, 701, 15);
+    }
+    trace(@"#line", 0, 703, 4, 703, 39);
+    this.___twoPhaseState.___Committed_DurableEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 701, 9, 701, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 705, 3, 705, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___InDoubt() {
+    trace(@"#line", 0, 710, 3, 710, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 711, 9, 711, 15);
+    }
+    trace(@"#line", 0, 713, 4, 713, 18);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 714, 4, 714, 37);
+    this.___twoPhaseState.___InDoubt_DurableEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 711, 9, 711, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 716, 3, 716, 17);
+    ___X_Routines.___skip();
+  }
+};
+
+enum ___X_DS {
+  ___DurableEnlistmentActive,
+  ___DurableEnlistmentAborting,
+  ___DurableEnlistmentCommitting,
+  ___DurableEnlistmentEnded,
+};
+
+class ___X_DurableEnlistmentState {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_DS ___ds;
+  
+  static ___X_DurableEnlistmentState ____DurableEnlistmentActive;
+  
+  static ___X_DurableEnlistmentState ____DurableEnlistmentAborting;
+  
+  static ___X_DurableEnlistmentState ____DurableEnlistmentCommitting;
+  
+  static ___X_DurableEnlistmentState ____DurableEnlistmentEnded;
+  
+  void ___DurableEnlistmentState_ctor(___X_DS ___x) {
+    trace(@"#line", 0, 730, 33, 730, 38);
+    
+    this.___ds = ___x;
+
+  }
+  
+  void ___EnterState_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 740, 3, 754, 3);
+    if ((this.___ds == 0)) {
+      trace(@"#line", 0, 743, 5, 743, 50);
+      this.___DurableEnlistmentActive_EnterState_DurableEnlistment(___enlistment);
+      atomic {
+        trace(@"#line", 0, 744, 5, 744, 9);
+        goto _____G_1;
+      }
+    }
+    else {
+      trace(@"#line", 0, 740, 3, 754, 3);
+      if ((this.___ds == 1)) {
+        trace(@"#line", 0, 746, 5, 746, 52);
+        this.___DurableEnlistmentAborting_EnterState_DurableEnlistment(___enlistment);
+        atomic {
+          trace(@"#line", 0, 747, 5, 747, 9);
+          goto _____G_1;
+        }
+      }
+      else {
+        trace(@"#line", 0, 740, 3, 754, 3);
+        if ((this.___ds == 2)) {
+          trace(@"#line", 0, 749, 5, 749, 54);
+          this.___DurableEnlistmentCommitting_EnterState_DurableEnlistment(___enlistment);
+          atomic {
+            trace(@"#line", 0, 750, 5, 750, 9);
+            goto _____G_1;
+          }
+        }
+        else {
+          trace(@"#line", 0, 740, 3, 754, 3);
+          if ((this.___ds == 3)) {
+            trace(@"#line", 0, 752, 5, 752, 49);
+            this.___DurableEnlistmentEnded_EnterState_DurableEnlistment(___enlistment);
+            atomic {
+              trace(@"#line", 0, 753, 5, 753, 9);
+              goto _____G_1;
+            }
+          }
+          else {
+          }
+        }
+      }
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___EnlistmentDone_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 761, 9, 761, 34);
+      
+      _____flt1 = (this.___ds == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 762, 5, 762, 54);
+    this.___DurableEnlistmentActive_EnlistmentDone_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 761, 4, 763, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 764, 9, 764, 36);
+      
+      _____flt3 = (this.___ds == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 765, 5, 765, 56);
+    this.___DurableEnlistmentAborting_EnlistmentDone_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 764, 4, 766, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 767, 9, 767, 38);
+      
+      _____flt5 = (this.___ds == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 768, 5, 768, 58);
+    this.___DurableEnlistmentCommitting_EnlistmentDone_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 767, 4, 769, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 771, 5, 771, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 770, 4, 772, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Committed_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 780, 9, 780, 38);
+      
+      _____flt1 = (this.___ds == 2);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 781, 5, 781, 53);
+    this.___DurableEnlistmentCommitting_Committed_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 780, 4, 782, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 784, 5, 784, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 783, 4, 785, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Aborted_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 793, 9, 793, 36);
+      
+      _____flt1 = (this.___ds == 1);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 794, 5, 794, 49);
+    this.___DurableEnlistmentAborting_Aborted_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 793, 4, 795, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 796, 9, 796, 38);
+      
+      _____flt3 = (this.___ds == 2);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 797, 5, 797, 51);
+    this.___DurableEnlistmentCommitting_Aborted_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 796, 4, 798, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 800, 5, 800, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 799, 4, 801, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___InDoubt_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 809, 9, 809, 38);
+      
+      _____flt1 = (this.___ds == 2);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 810, 5, 810, 51);
+    this.___DurableEnlistmentCommitting_InDoubt_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 809, 4, 811, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 813, 5, 813, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 812, 4, 814, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___InternalAborted_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 822, 9, 822, 34);
+      
+      _____flt1 = (this.___ds == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 823, 5, 823, 55);
+    this.___DurableEnlistmentActive_InternalAborted_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 822, 4, 824, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 825, 9, 825, 33);
+      
+      _____flt3 = (this.___ds == 3);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 826, 5, 826, 54);
+    this.___DurableEnlistmentEnded_InternalAborted_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 825, 4, 827, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 829, 5, 829, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 828, 4, 830, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ChangeStateCommitting_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 838, 9, 838, 34);
+      
+      _____flt1 = (this.___ds == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 839, 5, 839, 61);
+    this.___DurableEnlistmentActive_ChangeStateCommitting_DurableEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 838, 4, 840, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 842, 5, 842, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 841, 4, 843, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___DurableEnlistmentActive_EnterState_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 850, 3, 850, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___DurableEnlistmentActive_EnlistmentDone_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 858, 3, 858, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+  }
+  
+  void ___DurableEnlistmentActive_InternalAborted_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 864, 3, 864, 53);
+    ___X_DurableEnlistmentState.____DurableEnlistmentAborting.___EnterState_DurableEnlistment(___enlistment);
+  }
+  
+  void ___DurableEnlistmentActive_ChangeStateCommitting_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 870, 3, 870, 55);
+    ___X_DurableEnlistmentState.____DurableEnlistmentCommitting.___EnterState_DurableEnlistment(___enlistment);
+  }
+  
+  void ___DurableEnlistmentAborting_EnterState_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 875, 3, 875, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+    atomic {
+      trace(@"#line", 0, 877, 17, 877, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 878, 3, 878, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 880, 3, 880, 57);
+    ___enlistment.___notificationInterface.___Rollback_DurableEnlistment(___enlistment);
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 881, 18, 881, 30);
+    }
+  }
+  
+  void ___DurableEnlistmentAborting_Aborted_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 886, 3, 886, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 889, 3, 889, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+  }
+  
+  void ___DurableEnlistmentAborting_EnlistmentDone_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 895, 3, 895, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+  }
+  
+  void ___DurableEnlistmentCommitting_EnterState_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 901, 3, 901, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+    atomic {
+      trace(@"#line", 0, 903, 17, 903, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 904, 3, 904, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 905, 3, 905, 66);
+    ___enlistment.___notificationInterface.___SinglePhaseCommit_DurableEnlistment(___enlistment);
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 906, 18, 906, 30);
+    }
+  }
+  
+  void ___DurableEnlistmentCommitting_EnlistmentDone_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 915, 3, 915, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+    trace(@"#line", 0, 918, 3, 918, 70);
+    ___enlistment.___tx.___State.___ChangeStateTransactionCommitted_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___DurableEnlistmentCommitting_Committed_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 924, 3, 924, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+    trace(@"#line", 0, 927, 3, 927, 70);
+    ___enlistment.___tx.___State.___ChangeStateTransactionCommitted_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___DurableEnlistmentCommitting_Aborted_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 933, 3, 933, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+    trace(@"#line", 0, 935, 3, 935, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 938, 3, 938, 68);
+    ___enlistment.___tx.___State.___ChangeStateTransactionAborted_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___DurableEnlistmentCommitting_InDoubt_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 944, 3, 944, 50);
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___EnterState_DurableEnlistment(___enlistment);
+    trace(@"#line", 0, 946, 3, 946, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 949, 3, 949, 68);
+    ___enlistment.___tx.___State.___ChangeStateTransactionInDoubt_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___DurableEnlistmentEnded_EnterState_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+    trace(@"#line", 0, 955, 3, 955, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___DurableEnlistmentEnded_InternalAborted_DurableEnlistment(___X_DurableEnlistment ___enlistment) {
+  }
+};
+
+enum ___X_VK {
+  ___Phase0,
+  ___Phase1,
+};
+
+enum ___X_VN {
+  ___SP,
+  ___TP,
+};
+
+class ___X_VolatileEnlistment {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_VolatileEnlistmentState ___twoPhaseState;
+  
+  ___X_IVENotification ___Notifications;
+  
+  ___X_LtmInternalTransaction ___tx;
+  
+  ___X_LightweightTransaction ___lightweightTransaction;
+  
+  ___X_VK ___vk;
+  
+  ___X_VN ___vn;
+  
+  void ___VolatileEnlistment_ctor(___X_LtmInternalTransaction ___tx, ___X_IVENotification ___Notifications, ___X_LightweightTransaction ___lightweightTransaction, ___X_VK ___x, ___X_VN ___y) {
+    trace(@"#line", 0, 993, 3, 993, 14);
+    
+    this.___tx = ___tx;
+
+    trace(@"#line", 0, 994, 3, 994, 36);
+    
+    this.___Notifications = ___Notifications;
+
+    trace(@"#line", 0, 995, 3, 995, 54);
+    
+    this.___lightweightTransaction = ___lightweightTransaction;
+
+    trace(@"#line", 0, 996, 3, 996, 13);
+    
+    this.___vk = ___x;
+
+    trace(@"#line", 0, 997, 3, 997, 13);
+    
+    this.___vn = ___y;
+
+    trace(@"#line", 0, 997, 3, 997, 13);
+    
+    this.___Notifications = ___Notifications;
+
+    trace(@"#line", 0, 997, 3, 997, 13);
+    
+    this.___tx = ___tx;
+
+    trace(@"#line", 0, 997, 3, 997, 13);
+    
+    this.___lightweightTransaction = ___lightweightTransaction;
+
+  }
+  
+  void ___FinishEnlistment() {
+    trace(@"#line", 0, 1002, 3, 1014, 3);
+    if ((this.___vk == 0)) {
+      int _____asp3;
+      atomic {
+        trace(@"#line", 0, 1006, 5, 1006, 57);
+        
+        _____asp3 = this.___tx.___phase0Volatiles.___preparedVolatileEnlistments;
+
+      }
+      trace(@"#line", 0, 1006, 5, 1006, 57);
+      
+      this.___tx.___phase0Volatiles.___preparedVolatileEnlistments = (this.___tx.___phase0Volatiles.___preparedVolatileEnlistments + 1);
+
+      trace(@"#line", 0, 1007, 5, 1007, 19);
+      this.___CheckComplete();
+      atomic {
+        trace(@"#line", 0, 1008, 5, 1008, 9);
+        goto _____G_1;
+      }
+    }
+    else {
+      trace(@"#line", 0, 1002, 3, 1014, 3);
+      if ((this.___vk == 1)) {
+        int _____asp4;
+        atomic {
+          trace(@"#line", 0, 1011, 5, 1011, 57);
+          
+          _____asp4 = this.___tx.___phase1Volatiles.___preparedVolatileEnlistments;
+
+        }
+        trace(@"#line", 0, 1011, 5, 1011, 57);
+        
+        this.___tx.___phase1Volatiles.___preparedVolatileEnlistments = (this.___tx.___phase1Volatiles.___preparedVolatileEnlistments + 1);
+
+        trace(@"#line", 0, 1012, 5, 1012, 19);
+        this.___CheckComplete();
+        atomic {
+          trace(@"#line", 0, 1013, 5, 1013, 9);
+          goto _____G_1;
+        }
+      }
+      else {
+      }
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___CheckComplete() {
+    trace(@"#line", 0, 1019, 3, 1045, 3);
+    if ((this.___vk == 1)) {
+      bool _____flt0;
+      bool _____flt1;
+      atomic {
+        trace(@"#line", 0, 1023, 22, 1024, 52);
+        
+        _____flt0 = (this.___tx.___phase1Volatiles.___preparedVolatileEnlistments <= this.___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+      }
+      trace(@"#line", 0, 1023, 5, 1024, 54);
+      ___X_Routines.___Assert_Boolean(_____flt0);
+      atomic {
+        trace(@"#line", 0, 1027, 9, 1028, 52);
+        
+        _____flt1 = (this.___tx.___phase1Volatiles.___preparedVolatileEnlistments == this.___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+      }
+      trace(@"#line", 0, 1027, 5, 1031, 5);
+      if (_____flt1) {
+        trace(@"#line", 0, 1030, 6, 1030, 55);
+        this.___tx.___State.___Phase1VolatilePrepareDone_LtmInternalTransaction(this.___tx);
+      }
+      else {
+      }
+      atomic {
+        trace(@"#line", 0, 1032, 5, 1032, 9);
+        goto _____G_1;
+      }
+    }
+    else {
+      trace(@"#line", 0, 1019, 3, 1045, 3);
+      if ((this.___vk == 0)) {
+        bool _____flt2;
+        bool _____flt3;
+        atomic {
+          trace(@"#line", 0, 1035, 22, 1036, 52);
+          
+          _____flt2 = (this.___tx.___phase0Volatiles.___preparedVolatileEnlistments <= this.___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+        }
+        trace(@"#line", 0, 1035, 5, 1036, 54);
+        ___X_Routines.___Assert_Boolean(_____flt2);
+        atomic {
+          trace(@"#line", 0, 1039, 9, 1040, 36);
+          
+          _____flt3 = (this.___tx.___phase0Volatiles.___preparedVolatileEnlistments == this.___tx.___phase0VolatileWaveCount);
+
+        }
+        trace(@"#line", 0, 1039, 5, 1043, 5);
+        if (_____flt3) {
+          trace(@"#line", 0, 1042, 6, 1042, 55);
+          this.___tx.___State.___Phase0VolatilePrepareDone_LtmInternalTransaction(this.___tx);
+        }
+        else {
+        }
+        atomic {
+          trace(@"#line", 0, 1044, 5, 1044, 9);
+          goto _____G_1;
+        }
+      }
+      else {
+      }
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___EnlistmentDone() {
+    trace(@"#line", 0, 1050, 3, 1050, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1051, 9, 1051, 15);
+    }
+    trace(@"#line", 0, 1053, 4, 1053, 44);
+    this.___twoPhaseState.___EnlistmentDone_VolatileEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 1051, 9, 1051, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1055, 3, 1055, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___Prepared() {
+    trace(@"#line", 0, 1060, 3, 1060, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1061, 9, 1061, 15);
+    }
+    trace(@"#line", 0, 1063, 4, 1063, 38);
+    this.___twoPhaseState.___Prepared_VolatileEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 1061, 9, 1061, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1065, 3, 1065, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___ForceRollback() {
+    trace(@"#line", 0, 1069, 3, 1069, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1070, 9, 1070, 15);
+    }
+    trace(@"#line", 0, 1072, 4, 1072, 43);
+    this.___twoPhaseState.___ForceRollback_VolatileEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 1070, 9, 1070, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1074, 3, 1074, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___Aborted() {
+    trace(@"#line", 0, 1080, 3, 1080, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1081, 9, 1081, 15);
+    }
+    trace(@"#line", 0, 1083, 4, 1083, 37);
+    this.___twoPhaseState.___Aborted_VolatileEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 1081, 9, 1081, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1085, 3, 1085, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___Committed() {
+    trace(@"#line", 0, 1090, 3, 1090, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1091, 9, 1091, 15);
+    }
+    trace(@"#line", 0, 1093, 4, 1093, 39);
+    this.___twoPhaseState.___Committed_VolatileEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 1091, 9, 1091, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1095, 3, 1095, 17);
+    ___X_Routines.___skip();
+  }
+  
+  void ___InDoubt() {
+    trace(@"#line", 0, 1100, 3, 1100, 17);
+    ___X_Routines.___skip();
+    atomic {
+      select first {
+        wait (!this.___tx.____locked) ->
+          
+          this.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1101, 9, 1101, 15);
+    }
+    trace(@"#line", 0, 1103, 4, 1103, 18);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1104, 4, 1104, 36);
+    this.___twoPhaseState.___InDoubt_VolatileEnlistment(this);
+    atomic {
+      trace(@"#line", 0, 1101, 9, 1101, 15);
+      
+      this.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1106, 3, 1106, 17);
+    ___X_Routines.___skip();
+  }
+};
+
+class ___X_VolatileEnlistmentSet {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___PrimitiveArray_L_VolatileEnlistment_R ___volatileEnlistments;
+  
+  int ___volatileEnlistmentCount;
+  
+  int ___dependentClones;
+  
+  int ___preparedVolatileEnlistments;
+  
+  void ___VolatileEnlistmentSet_ctor() {
+ {
+      trace(@"#line", 0, 1114, 41, 1114, 41);
+      
+      this.___volatileEnlistmentCount = 0;
+
+      trace(@"#line", 0, 1115, 33, 1115, 33);
+      
+      this.___dependentClones = 0;
+
+      trace(@"#line", 0, 1118, 45, 1118, 45);
+      
+      this.___preparedVolatileEnlistments = 0;
+
+    }
+    trace(@"#line", 0, 1122, 3, 1122, 49);
+    assume((2 <= 32));
+    
+    this.___volatileEnlistments = new ___PrimitiveArray_L_VolatileEnlistment_R;
+
+    
+    this.___volatileEnlistments.repr = new  ______PrimitiveArray_L_VolatileEnlistment_R_zarray;
+
+    
+    this.___volatileEnlistments.leng = 1;
+
+  }
+};
+
+enum ___X_VS {
+  ___VolatileEnlistmentActive,
+  ___VolatileEnlistmentPreparing,
+  ___VolatileEnlistmentPrepared,
+  ___VolatileEnlistmentSPC,
+  ___VolatileEnlistmentPreparingAborting,
+  ___VolatileEnlistmentAborting,
+  ___VolatileEnlistmentCommitting,
+  ___VolatileEnlistmentEnded,
+  ___VolatileEnlistmentDone,
+};
+
+class ___X_VolatileEnlistmentState {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_VS ___vs;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentActive;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentPreparing;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentPrepared;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentSPC;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentPreparingAborting;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentAborting;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentCommitting;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentEnded;
+  
+  static ___X_VolatileEnlistmentState ____VolatileEnlistmentDone;
+  
+  void ___VolatileEnlistmentState_ctor(___X_VS ___x) {
+    trace(@"#line", 0, 1142, 34, 1142, 39);
+    
+    this.___vs = ___x;
+
+  }
+  
+  void ___EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1157, 3, 1186, 3);
+    if ((this.___vs == 0)) {
+      trace(@"#line", 0, 1160, 5, 1160, 51);
+      this.___VolatileEnlistmentActive_EnterState_VolatileEnlistment(___enlistment);
+      atomic {
+        trace(@"#line", 0, 1161, 5, 1161, 9);
+        goto _____G_1;
+      }
+    }
+    else {
+      trace(@"#line", 0, 1157, 3, 1186, 3);
+      if ((this.___vs == 1)) {
+        trace(@"#line", 0, 1163, 5, 1163, 54);
+        this.___VolatileEnlistmentPreparing_EnterState_VolatileEnlistment(___enlistment);
+        atomic {
+          trace(@"#line", 0, 1164, 5, 1164, 9);
+          goto _____G_1;
+        }
+      }
+      else {
+        trace(@"#line", 0, 1157, 3, 1186, 3);
+        if ((this.___vs == 2)) {
+          trace(@"#line", 0, 1166, 5, 1166, 53);
+          this.___VolatileEnlistmentPrepared_EnterState_VolatileEnlistment(___enlistment);
+          atomic {
+            trace(@"#line", 0, 1167, 5, 1167, 9);
+            goto _____G_1;
+          }
+        }
+        else {
+          trace(@"#line", 0, 1157, 3, 1186, 3);
+          if ((this.___vs == 3)) {
+            trace(@"#line", 0, 1169, 5, 1169, 48);
+            this.___VolatileEnlistmentSPC_EnterState_VolatileEnlistment(___enlistment);
+            atomic {
+              trace(@"#line", 0, 1170, 5, 1170, 9);
+              goto _____G_1;
+            }
+          }
+          else {
+            trace(@"#line", 0, 1157, 3, 1186, 3);
+            if ((this.___vs == 4)) {
+              trace(@"#line", 0, 1172, 5, 1172, 62);
+              this.___VolatileEnlistmentPreparingAborting_EnterState_VolatileEnlistment(___enlistment);
+              atomic {
+                trace(@"#line", 0, 1173, 5, 1173, 9);
+                goto _____G_1;
+              }
+            }
+            else {
+              trace(@"#line", 0, 1157, 3, 1186, 3);
+              if ((this.___vs == 5)) {
+                trace(@"#line", 0, 1175, 5, 1175, 53);
+                this.___VolatileEnlistmentAborting_EnterState_VolatileEnlistment(___enlistment);
+                atomic {
+                  trace(@"#line", 0, 1176, 5, 1176, 9);
+                  goto _____G_1;
+                }
+              }
+              else {
+                trace(@"#line", 0, 1157, 3, 1186, 3);
+                if ((this.___vs == 6)) {
+                  trace(@"#line", 0, 1178, 5, 1178, 55);
+                  this.___VolatileEnlistmentCommitting_EnterState_VolatileEnlistment(___enlistment);
+                  atomic {
+                    trace(@"#line", 0, 1179, 5, 1179, 9);
+                    goto _____G_1;
+                  }
+                }
+                else {
+                  trace(@"#line", 0, 1157, 3, 1186, 3);
+                  if ((this.___vs == 7)) {
+                    trace(@"#line", 0, 1181, 5, 1181, 50);
+                    this.___VolatileEnlistmentEnded_EnterState_VolatileEnlistment(___enlistment);
+                    atomic {
+                      trace(@"#line", 0, 1182, 5, 1182, 9);
+                      goto _____G_1;
+                    }
+                  }
+                  else {
+                    trace(@"#line", 0, 1157, 3, 1186, 3);
+                    if ((this.___vs == 8)) {
+                      trace(@"#line", 0, 1184, 5, 1184, 49);
+                      this.___VolatileEnlistmentDone_EnterState_VolatileEnlistment(___enlistment);
+                      atomic {
+                        trace(@"#line", 0, 1185, 5, 1185, 9);
+                        goto _____G_1;
+                      }
+                    }
+                    else {
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    bool _____flt11;
+    atomic {
+      trace(@"#line", 0, 1193, 9, 1193, 35);
+      
+      _____flt1 = (this.___vs == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1194, 5, 1194, 55);
+    this.___VolatileEnlistmentActive_EnlistmentDone_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1193, 4, 1195, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1196, 9, 1196, 38);
+      
+      _____flt3 = (this.___vs == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1197, 5, 1197, 58);
+    this.___VolatileEnlistmentPreparing_EnlistmentDone_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1196, 4, 1198, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1199, 9, 1199, 32);
+      
+      _____flt5 = (this.___vs == 3);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1200, 5, 1200, 52);
+    this.___VolatileEnlistmentSPC_EnlistmentDone_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1199, 4, 1201, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1202, 9, 1202, 46);
+      
+      _____flt7 = (this.___vs == 4);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 1203, 5, 1203, 66);
+    this.___VolatileEnlistmentPreparingAborting_EnlistmentDone_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1202, 4, 1204, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1205, 9, 1205, 37);
+      
+      _____flt9 = (this.___vs == 5);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 1206, 5, 1206, 57);
+    this.___VolatileEnlistmentAborting_EnlistmentDone_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1205, 4, 1207, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1208, 9, 1208, 39);
+      
+      _____flt11 = (this.___vs == 6);
+
+      if (!_____flt11) {
+        goto ____L_6;
+      }
+    }
+    trace(@"#line", 0, 1209, 5, 1209, 59);
+    this.___VolatileEnlistmentCommitting_EnlistmentDone_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1208, 4, 1210, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_6:
+ {
+    }
+    trace(@"#line", 0, 1212, 5, 1212, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1211, 4, 1213, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Prepared_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1221, 9, 1221, 38);
+      
+      _____flt1 = (this.___vs == 1);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1222, 5, 1222, 52);
+    this.___VolatileEnlistmentPreparing_Prepared_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1221, 4, 1223, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1224, 9, 1224, 46);
+      
+      _____flt3 = (this.___vs == 4);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1225, 5, 1225, 60);
+    this.___VolatileEnlistmentPreparingAborting_Prepared_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1224, 4, 1226, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 1228, 5, 1228, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1227, 4, 1229, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ForceRollback_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1237, 9, 1237, 38);
+      
+      _____flt1 = (this.___vs == 1);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1238, 5, 1238, 57);
+    this.___VolatileEnlistmentPreparing_ForceRollback_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1237, 4, 1239, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1240, 9, 1240, 46);
+      
+      _____flt3 = (this.___vs == 4);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1241, 5, 1241, 65);
+    this.___VolatileEnlistmentPreparingAborting_ForceRollback_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1240, 4, 1242, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 1244, 5, 1244, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1243, 4, 1245, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Committed_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 1253, 9, 1253, 32);
+      
+      _____flt1 = (this.___vs == 3);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1254, 5, 1254, 47);
+    this.___VolatileEnlistmentSPC_Committed_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1253, 4, 1255, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 1257, 5, 1257, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1256, 4, 1258, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Aborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 1266, 9, 1266, 32);
+      
+      _____flt1 = (this.___vs == 3);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1267, 5, 1267, 45);
+    this.___VolatileEnlistmentSPC_Aborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1266, 4, 1268, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 1270, 5, 1270, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1269, 4, 1271, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___InDoubt_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 1279, 9, 1279, 32);
+      
+      _____flt1 = (this.___vs == 3);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1280, 5, 1280, 45);
+    this.___VolatileEnlistmentSPC_InDoubt_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1279, 4, 1281, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 1283, 5, 1283, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1282, 4, 1284, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    bool _____flt11;
+    atomic {
+      trace(@"#line", 0, 1292, 9, 1292, 35);
+      
+      _____flt1 = (this.___vs == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1293, 5, 1293, 61);
+    this.___VolatileEnlistmentActive_ChangeStatePreparing_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1292, 4, 1294, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1295, 9, 1295, 38);
+      
+      _____flt3 = (this.___vs == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1296, 5, 1296, 64);
+    this.___VolatileEnlistmentPreparing_ChangeStatePreparing_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1295, 4, 1297, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1298, 9, 1298, 37);
+      
+      _____flt5 = (this.___vs == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1299, 5, 1299, 63);
+    this.___VolatileEnlistmentPrepared_ChangeStatePreparing_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1298, 4, 1300, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1301, 9, 1301, 37);
+      
+      _____flt7 = (this.___vs == 5);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 1302, 5, 1302, 63);
+    this.___VolatileEnlistmentAborting_ChangeStatePreparing_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1301, 4, 1303, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1304, 9, 1304, 34);
+      
+      _____flt9 = (this.___vs == 7);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 1305, 5, 1305, 60);
+    this.___VolatileEnlistmentEnded_ChangeStatePreparing_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1304, 4, 1306, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1307, 9, 1307, 33);
+      
+      _____flt11 = (this.___vs == 8);
+
+      if (!_____flt11) {
+        goto ____L_6;
+      }
+    }
+    trace(@"#line", 0, 1308, 5, 1308, 59);
+    this.___VolatileEnlistmentDone_ChangeStatePreparing_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1307, 4, 1309, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_6:
+ {
+    }
+    trace(@"#line", 0, 1311, 5, 1311, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1310, 4, 1312, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ChangeStateSinglePhaseCommit_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 1320, 9, 1320, 35);
+      
+      _____flt1 = (this.___vs == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1321, 5, 1321, 69);
+    this.___VolatileEnlistmentActive_ChangeStateSinglePhaseCommit_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1320, 4, 1322, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    trace(@"#line", 0, 1324, 5, 1324, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1323, 4, 1325, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    bool _____flt11;
+    bool _____flt13;
+    atomic {
+      trace(@"#line", 0, 1333, 9, 1333, 35);
+      
+      _____flt1 = (this.___vs == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1334, 5, 1334, 56);
+    this.___VolatileEnlistmentActive_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1333, 4, 1335, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1336, 9, 1336, 38);
+      
+      _____flt3 = (this.___vs == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1337, 5, 1337, 59);
+    this.___VolatileEnlistmentPreparing_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1336, 4, 1338, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1339, 9, 1339, 37);
+      
+      _____flt5 = (this.___vs == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1340, 5, 1340, 58);
+    this.___VolatileEnlistmentPrepared_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1339, 4, 1341, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1342, 9, 1342, 46);
+      
+      _____flt7 = (this.___vs == 4);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 1343, 5, 1343, 67);
+    this.___VolatileEnlistmentPreparingAborting_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1342, 4, 1344, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1345, 9, 1345, 37);
+      
+      _____flt9 = (this.___vs == 5);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 1346, 5, 1346, 58);
+    this.___VolatileEnlistmentAborting_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1345, 4, 1347, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1348, 9, 1348, 34);
+      
+      _____flt11 = (this.___vs == 7);
+
+      if (!_____flt11) {
+        goto ____L_6;
+      }
+    }
+    trace(@"#line", 0, 1349, 5, 1349, 55);
+    this.___VolatileEnlistmentEnded_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1348, 4, 1350, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_6:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1351, 9, 1351, 33);
+      
+      _____flt13 = (this.___vs == 8);
+
+      if (!_____flt13) {
+        goto ____L_7;
+      }
+    }
+    trace(@"#line", 0, 1352, 5, 1352, 55);
+    this.___VolatileEnlistmentEnded_InternalAborted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1351, 4, 1353, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_7:
+ {
+    }
+    trace(@"#line", 0, 1355, 5, 1355, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1354, 4, 1356, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___InternalCommitted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 1364, 9, 1364, 37);
+      
+      _____flt1 = (this.___vs == 2);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1365, 5, 1365, 60);
+    this.___VolatileEnlistmentPrepared_InternalCommitted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1364, 4, 1366, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1367, 9, 1367, 34);
+      
+      _____flt3 = (this.___vs == 7);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1368, 5, 1368, 57);
+    this.___VolatileEnlistmentEnded_InternalCommitted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1367, 4, 1369, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1370, 9, 1370, 33);
+      
+      _____flt5 = (this.___vs == 8);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1371, 5, 1371, 57);
+    this.___VolatileEnlistmentEnded_InternalCommitted_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1370, 4, 1372, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 1374, 5, 1374, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1373, 4, 1375, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___InternalIndoubt_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 1383, 9, 1383, 37);
+      
+      _____flt1 = (this.___vs == 2);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1384, 5, 1384, 58);
+    this.___VolatileEnlistmentPrepared_InternalIndoubt_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1383, 4, 1385, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1386, 9, 1386, 34);
+      
+      _____flt3 = (this.___vs == 7);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1387, 5, 1387, 55);
+    this.___VolatileEnlistmentEnded_InternalIndoubt_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1386, 4, 1388, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1389, 9, 1389, 33);
+      
+      _____flt5 = (this.___vs == 8);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1390, 5, 1390, 55);
+    this.___VolatileEnlistmentEnded_InternalIndoubt_VolatileEnlistment(___enlistment);
+    atomic {
+      trace(@"#line", 0, 1389, 4, 1391, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 1393, 5, 1393, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1392, 4, 1394, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___VolatileEnlistmentActive_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1401, 3, 1401, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___VolatileEnlistmentActive_EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1409, 3, 1409, 50);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentDone.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1412, 3, 1412, 31);
+    ___enlistment.___FinishEnlistment();
+  }
+  
+  void ___VolatileEnlistmentActive_ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1417, 3, 1417, 55);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPreparing.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentActive_ChangeStateSinglePhaseCommit_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1422, 3, 1422, 49);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentSPC.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentActive_InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1428, 3, 1428, 54);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentAborting.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentPreparing_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1434, 3, 1434, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+    atomic {
+      trace(@"#line", 0, 1436, 17, 1436, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1437, 3, 1437, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1438, 3, 1438, 48);
+    ___enlistment.___Notifications.___Prepare_VolatileEnlistment(___enlistment);
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1439, 18, 1439, 30);
+    }
+  }
+  
+  void ___VolatileEnlistmentPreparing_EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1444, 3, 1444, 50);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentDone.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1447, 3, 1447, 31);
+    ___enlistment.___FinishEnlistment();
+  }
+  
+  void ___VolatileEnlistmentPreparing_Prepared_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1453, 3, 1453, 54);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPrepared.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1456, 3, 1456, 31);
+    ___enlistment.___FinishEnlistment();
+  }
+  
+  void ___VolatileEnlistmentPreparing_ForceRollback_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1463, 3, 1463, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1465, 3, 1465, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1468, 3, 1468, 68);
+    ___enlistment.___tx.___State.___ChangeStateTransactionAborted_LtmInternalTransaction(___enlistment.___tx);
+    trace(@"#line", 0, 1471, 3, 1471, 31);
+    ___enlistment.___FinishEnlistment();
+  }
+  
+  void ___VolatileEnlistmentPreparing_ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentPreparing_InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1484, 3, 1484, 63);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPreparingAborting.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentSPC_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1490, 3, 1490, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+    trace(@"#line", 0, 1493, 3, 1493, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 1494, 17, 1494, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1495, 3, 1495, 58);
+    ___enlistment.___Notifications.___SinglePhaseCommit_VolatileEnlistment(___enlistment);
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1496, 18, 1496, 30);
+    }
+  }
+  
+  void ___VolatileEnlistmentSPC_EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1501, 3, 1501, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1502, 3, 1502, 70);
+    ___enlistment.___tx.___State.___ChangeStateTransactionCommitted_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___VolatileEnlistmentSPC_Committed_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1507, 3, 1507, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1508, 3, 1508, 70);
+    ___enlistment.___tx.___State.___ChangeStateTransactionCommitted_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___VolatileEnlistmentSPC_Aborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1513, 3, 1513, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1515, 3, 1515, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1517, 3, 1517, 68);
+    ___enlistment.___tx.___State.___ChangeStateTransactionAborted_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___VolatileEnlistmentSPC_InDoubt_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1522, 3, 1522, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1524, 3, 1524, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1526, 3, 1526, 68);
+    ___enlistment.___tx.___State.___ChangeStateTransactionInDoubt_LtmInternalTransaction(___enlistment.___tx);
+  }
+  
+  void ___VolatileEnlistmentPrepared_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1532, 3, 1532, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___VolatileEnlistmentPrepared_InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1539, 3, 1539, 54);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentAborting.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentPrepared_InternalCommitted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1544, 3, 1544, 56);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentCommitting.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentPrepared_InternalIndoubt_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    atomic {
+      trace(@"#line", 0, 1549, 17, 1549, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1550, 3, 1550, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1552, 3, 1552, 36);
+    ___enlistment.___Notifications.___InDoubt();
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1553, 18, 1553, 30);
+    }
+    trace(@"#line", 0, 1556, 3, 1556, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentPrepared_ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentPreparingAborting_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1567, 3, 1567, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___VolatileEnlistmentPreparingAborting_EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1573, 3, 1573, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentPreparingAborting_Prepared_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1579, 3, 1579, 54);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentAborting.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1582, 3, 1582, 31);
+    ___enlistment.___FinishEnlistment();
+  }
+  
+  void ___VolatileEnlistmentPreparingAborting_ForceRollback_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1589, 3, 1589, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+    trace(@"#line", 0, 1591, 3, 1591, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1594, 3, 1594, 31);
+    ___enlistment.___FinishEnlistment();
+  }
+  
+  void ___VolatileEnlistmentPreparingAborting_InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentAborting_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1606, 3, 1606, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+    atomic {
+      trace(@"#line", 0, 1608, 17, 1608, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1609, 3, 1609, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1610, 3, 1610, 49);
+    ___enlistment.___Notifications.___Rollback_VolatileEnlistment(___enlistment);
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1611, 18, 1611, 30);
+    }
+  }
+  
+  void ___VolatileEnlistmentAborting_ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentAborting_EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1622, 3, 1622, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentAborting_InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentCommitting_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1633, 3, 1633, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+    atomic {
+      trace(@"#line", 0, 1635, 17, 1635, 29);
+      
+      ___enlistment.___tx.____locked = false;
+
+    }
+    trace(@"#line", 0, 1637, 3, 1637, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 1638, 3, 1638, 47);
+    ___enlistment.___Notifications.___Commit_VolatileEnlistment(___enlistment);
+    atomic {
+      select first {
+        wait (!___enlistment.___tx.____locked) ->
+          
+          ___enlistment.___tx.____locked = true;
+
+      }
+      trace(@"#line", 0, 1639, 18, 1639, 30);
+    }
+  }
+  
+  void ___VolatileEnlistmentCommitting_EnlistmentDone_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1645, 3, 1645, 51);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___EnterState_VolatileEnlistment(___enlistment);
+  }
+  
+  void ___VolatileEnlistmentEnded_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1651, 3, 1651, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___VolatileEnlistmentEnded_ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentEnded_InternalAborted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentEnded_InternalCommitted_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentEnded_InternalIndoubt_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+  }
+  
+  void ___VolatileEnlistmentDone_EnterState_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1682, 3, 1682, 33);
+    
+    ___enlistment.___twoPhaseState = this;
+
+  }
+  
+  void ___VolatileEnlistmentDone_ChangeStatePreparing_VolatileEnlistment(___X_VolatileEnlistment ___enlistment) {
+    trace(@"#line", 0, 1689, 3, 1689, 28);
+    ___enlistment.___CheckComplete();
+  }
+};
+
+enum ___X_TS {
+  ___TransactionStateActive,
+  ___TransactionStatePhase0,
+  ___TransactionStateVolatilePhase1,
+  ___TransactionStateVolatileSPC,
+  ___TransactionStateSPC,
+  ___TransactionStateAborted,
+  ___TransactionStateCommitted,
+  ___TransactionStateInDoubt,
+};
+
+class ___X_TransactionState {
+  bool ____locked = false;
+  
+  bool ____signal = false;
+  
+  int ____waitCount = 0;
+  
+  ___X_TS ___ts;
+  
+  static ___X_TransactionState ____TransactionStateActive;
+  
+  static ___X_TransactionState ____TransactionStatePhase0;
+  
+  static ___X_TransactionState ____TransactionStateVolatilePhase1;
+  
+  static ___X_TransactionState ____TransactionStateVolatileSPC;
+  
+  static ___X_TransactionState ____TransactionStateSPC;
+  
+  static ___X_TransactionState ____TransactionStateAborted;
+  
+  static ___X_TransactionState ____TransactionStateCommitted;
+  
+  static ___X_TransactionState ____TransactionStateInDoubt;
+  
+  void ___TransactionState_ctor(___X_TS ___x) {
+    trace(@"#line", 0, 1713, 27, 1713, 32);
+    
+    this.___ts = ___x;
+
+  }
+  
+  void ___CommonEnterState_LtmInternalTransaction_TransactionState(___X_LtmInternalTransaction ___tx, ___X_TransactionState ___ts) {
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 1727, 20, 1727, 33);
+      
+      _____flt0 = (___tx.___State != ___ts);
+
+    }
+    trace(@"#line", 0, 1727, 3, 1727, 35);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    trace(@"#line", 0, 1728, 3, 1728, 15);
+    
+    ___tx.___State = ___ts;
+
+  }
+  
+  void ___AddVolatileEnlistment_VolatileEnlistmentSet_VolatileEnlistment(___X_VolatileEnlistmentSet ___enlistments, ___X_VolatileEnlistment ___enlistment) {
+    bool _____flt0;
+    int _____asp5;
+    int _____flt2;
+    ___X_VolatileEnlistment _____flt1;
+    atomic {
+      trace(@"#line", 0, 1734, 20, 1734, 58);
+      
+      _____flt0 = (___enlistments.___volatileEnlistmentCount < 2);
+
+    }
+    trace(@"#line", 0, 1734, 3, 1734, 60);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      trace(@"#line", 0, 1737, 3, 1737, 71);
+      assert(((___enlistments.___volatileEnlistmentCount >= 0) && (___enlistments.___volatileEnlistmentCount < ___enlistments.___volatileEnlistments.leng)), @"array index out of bound");
+    }
+    trace(@"#line", 0, 1737, 3, 1737, 84);
+    
+    ___enlistments.___volatileEnlistments.repr[___enlistments.___volatileEnlistmentCount] = ___enlistment;
+
+    atomic {
+      trace(@"#line", 0, 1738, 3, 1738, 39);
+      
+      _____asp5 = ___enlistments.___volatileEnlistmentCount;
+
+    }
+    trace(@"#line", 0, 1738, 3, 1738, 39);
+    
+    ___enlistments.___volatileEnlistmentCount = (___enlistments.___volatileEnlistmentCount + 1);
+
+    atomic {
+      trace(@"#line", 0, 1742, 4, 1742, 74);
+      
+      _____flt2 = (___enlistments.___volatileEnlistmentCount - 1);
+
+      assert(((_____flt2 >= 0) && (_____flt2 < ___enlistments.___volatileEnlistments.leng)), @"array index out of bound");
+      
+      _____flt1 = ___enlistments.___volatileEnlistments.repr[_____flt2];
+
+    }
+    trace(@"#line", 0, 1741, 3, 1742, 76);
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentActive.___EnterState_VolatileEnlistment(_____flt1);
+  }
+  
+  void ___EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    bool _____flt11;
+    bool _____flt13;
+    bool _____flt15;
+    atomic {
+      trace(@"#line", 0, 1749, 9, 1749, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1750, 5, 1750, 41);
+    this.___TransactionStateActive_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1749, 4, 1751, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1752, 9, 1752, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1753, 5, 1753, 41);
+    this.___TransactionStatePhase0_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1752, 4, 1754, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1755, 9, 1755, 41);
+      
+      _____flt5 = (this.___ts == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1756, 5, 1756, 49);
+    this.___TransactionStateVolatilePhase1_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1755, 4, 1757, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1758, 9, 1758, 38);
+      
+      _____flt7 = (this.___ts == 3);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 1759, 5, 1759, 46);
+    this.___TransactionStateVolatileSPC_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1758, 4, 1760, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1761, 9, 1761, 30);
+      
+      _____flt9 = (this.___ts == 4);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 1762, 5, 1762, 38);
+    this.___TransactionStateSPC_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1761, 4, 1763, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1764, 9, 1764, 34);
+      
+      _____flt11 = (this.___ts == 5);
+
+      if (!_____flt11) {
+        goto ____L_6;
+      }
+    }
+    trace(@"#line", 0, 1765, 5, 1765, 42);
+    this.___TransactionStateAborted_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1764, 4, 1766, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_6:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1767, 9, 1767, 36);
+      
+      _____flt13 = (this.___ts == 6);
+
+      if (!_____flt13) {
+        goto ____L_7;
+      }
+    }
+    trace(@"#line", 0, 1768, 5, 1768, 44);
+    this.___TransactionStateCommitted_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1767, 4, 1769, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_7:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1770, 9, 1770, 34);
+      
+      _____flt15 = (this.___ts == 7);
+
+      if (!_____flt15) {
+        goto ____L_8;
+      }
+    }
+    trace(@"#line", 0, 1771, 5, 1771, 42);
+    this.___TransactionStateInDoubt_EnterState_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1770, 4, 1772, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_8:
+ {
+    }
+    trace(@"#line", 0, 1774, 5, 1774, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1773, 4, 1775, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___BeginCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1783, 9, 1783, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1784, 5, 1784, 42);
+    this.___TransactionStateActive_BeginCommit_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1783, 4, 1785, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1786, 9, 1786, 34);
+      
+      _____flt3 = (this.___ts == 5);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1787, 5, 1787, 43);
+    assume(false);
+    this.___TransactionStateAborted_BeginCommit_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1786, 4, 1788, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 1790, 5, 1790, 26);
+    ___X_Routines.___Assume_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1789, 4, 1791, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___EndCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 1799, 9, 1799, 34);
+      
+      _____flt1 = (this.___ts == 5);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1800, 5, 1800, 41);
+    this.___TransactionStateAborted_EndCommit_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1799, 4, 1801, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1802, 9, 1802, 36);
+      
+      _____flt3 = (this.___ts == 6);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1803, 5, 1803, 43);
+    this.___TransactionStateCommitted_EndCommit_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1802, 4, 1804, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1805, 9, 1805, 34);
+      
+      _____flt5 = (this.___ts == 7);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1806, 5, 1806, 41);
+    this.___TransactionStateInDoubt_EndCommit_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1805, 4, 1807, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 1809, 5, 1809, 26);
+    ___X_Routines.___Assume_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1808, 4, 1810, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___CheckSynchronousOutcome_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 1818, 9, 1818, 34);
+      
+      _____flt1 = (this.___ts == 5);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1819, 5, 1819, 55);
+    this.___TransactionStateAborted_CheckSynchronousOutcome_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1818, 4, 1820, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1821, 9, 1821, 36);
+      
+      _____flt3 = (this.___ts == 6);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1822, 5, 1822, 57);
+    this.___TransactionStateCommitted_CheckSynchronousOutcome_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1821, 4, 1823, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1824, 9, 1824, 34);
+      
+      _____flt5 = (this.___ts == 7);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1825, 5, 1825, 55);
+    this.___TransactionStateInDoubt_CheckSynchronousOutcome_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1824, 4, 1826, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1827, 4, 1829, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    bool _____flt11;
+    atomic {
+      trace(@"#line", 0, 1837, 9, 1837, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1838, 5, 1838, 39);
+    this.___TransactionStateActive_Rollback_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1837, 4, 1839, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1840, 9, 1840, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1841, 5, 1841, 39);
+    this.___TransactionStatePhase0_Rollback_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1840, 4, 1842, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1843, 9, 1843, 41);
+      
+      _____flt5 = (this.___ts == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1844, 5, 1844, 47);
+    this.___TransactionStateVolatilePhase1_Rollback_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1843, 4, 1845, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1846, 9, 1846, 34);
+      
+      _____flt7 = (this.___ts == 5);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 1847, 5, 1847, 40);
+    this.___TransactionStateAborted_Rollback_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1846, 4, 1848, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1849, 9, 1849, 36);
+      
+      _____flt9 = (this.___ts == 6);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 1850, 5, 1850, 42);
+    this.___TransactionStateCommitted_Rollback_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1849, 4, 1851, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1852, 9, 1852, 34);
+      
+      _____flt11 = (this.___ts == 7);
+
+      if (!_____flt11) {
+        goto ____L_6;
+      }
+    }
+    trace(@"#line", 0, 1853, 5, 1853, 40);
+    this.___TransactionStateInDoubt_Rollback_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1852, 4, 1854, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_6:
+ {
+    }
+    trace(@"#line", 0, 1856, 5, 1856, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1855, 4, 1857, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  ___X_DurableEnlistment ___DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(___X_LtmInternalTransaction ___tx, ___X_IDENotification ___enlistmentNotification, ___X_LightweightTransaction ___lightweightTransaction) {
+    ___X_DurableEnlistment _____result__;
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1869, 9, 1869, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1870, 5, 1870, 94);
+    
+    _____result__ = this.___EnlistableStates_DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(___tx, ___enlistmentNotification, ___lightweightTransaction);
+
+    atomic {
+      trace(@"#line", 0, 1869, 4, 1870, 94);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1871, 9, 1871, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1872, 5, 1872, 100);
+    
+    _____result__ = this.___TransactionStatePhase0_DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(___tx, ___enlistmentNotification, ___lightweightTransaction);
+
+    atomic {
+      trace(@"#line", 0, 1871, 4, 1872, 100);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 1874, 5, 1874, 26);
+    ___X_Routines.___Assume_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1873, 4, 1874, 27);
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1867, 3, 1875, 3);
+      return _____result__;
+    }
+  }
+  
+  ___X_VolatileEnlistment ___VolatileEnlist_LtmInternalTransaction_IVENotification_Boolean_VN_LightweightTransaction(___X_LtmInternalTransaction ___tx, ___X_IVENotification ___enlistmentNotification, bool ___enlistDuringPrepareRequired, ___X_VN ___vn, ___X_LightweightTransaction ___lightweightTransaction) {
+    ___X_VolatileEnlistment _____result__;
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1888, 9, 1888, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1889, 5, 1889, 134);
+    
+    _____result__ = this.___TransactionStateActive_VolatileEnlist_LtmInternalTransaction_IVENotification_Boolean_VN_LightweightTransaction(___tx, ___enlistmentNotification, ___enlistDuringPrepareRequired, ___vn, ___lightweightTransaction);
+
+    atomic {
+      trace(@"#line", 0, 1888, 4, 1889, 134);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1890, 9, 1890, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1891, 5, 1891, 134);
+    
+    _____result__ = this.___TransactionStatePhase0_VolatileEnlist_LtmInternalTransaction_IVENotification_Boolean_VN_LightweightTransaction(___tx, ___enlistmentNotification, ___enlistDuringPrepareRequired, ___vn, ___lightweightTransaction);
+
+    atomic {
+      trace(@"#line", 0, 1890, 4, 1891, 134);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 1893, 5, 1893, 26);
+    ___X_Routines.___Assume_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1892, 4, 1893, 27);
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1886, 3, 1894, 3);
+      return _____result__;
+    }
+  }
+  
+  ___X_TransactionStatus ___get_Status_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    ___X_TransactionStatus _____result__;
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    bool _____flt11;
+    bool _____flt13;
+    bool _____flt15;
+    atomic {
+      trace(@"#line", 0, 1900, 9, 1900, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1901, 5, 1901, 39);
+    
+    _____result__ = this.___ActiveStates_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1900, 4, 1901, 39);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1902, 9, 1902, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1903, 5, 1903, 39);
+    
+    _____result__ = this.___ActiveStates_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1902, 4, 1903, 39);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1904, 9, 1904, 41);
+      
+      _____flt5 = (this.___ts == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1905, 5, 1905, 39);
+    
+    _____result__ = this.___ActiveStates_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1904, 4, 1905, 39);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1906, 9, 1906, 38);
+      
+      _____flt7 = (this.___ts == 3);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 1907, 5, 1907, 39);
+    
+    _____result__ = this.___ActiveStates_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1906, 4, 1907, 39);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1908, 9, 1908, 30);
+      
+      _____flt9 = (this.___ts == 4);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 1909, 5, 1909, 39);
+    
+    _____result__ = this.___ActiveStates_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1908, 4, 1909, 39);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1910, 9, 1910, 34);
+      
+      _____flt11 = (this.___ts == 5);
+
+      if (!_____flt11) {
+        goto ____L_6;
+      }
+    }
+    trace(@"#line", 0, 1911, 5, 1911, 50);
+    
+    _____result__ = this.___TransactionStateAborted_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1910, 4, 1911, 50);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_6:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1912, 9, 1912, 36);
+      
+      _____flt13 = (this.___ts == 6);
+
+      if (!_____flt13) {
+        goto ____L_7;
+      }
+    }
+    trace(@"#line", 0, 1913, 5, 1913, 52);
+    
+    _____result__ = this.___TransactionStateCommitted_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1912, 4, 1913, 52);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_7:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1914, 9, 1914, 34);
+      
+      _____flt15 = (this.___ts == 7);
+
+      if (!_____flt15) {
+        goto ____L_8;
+      }
+    }
+    trace(@"#line", 0, 1915, 5, 1915, 50);
+    
+    _____result__ = this.___TransactionStateInDoubt_get_Status_LtmInternalTransaction(___tx);
+
+    atomic {
+      trace(@"#line", 0, 1914, 4, 1915, 50);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_8:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1916, 4, 1917, 26);
+      assert(false, @"exception thrown: new Exception()");
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1898, 3, 1918, 3);
+      return _____result__;
+    }
+  }
+  
+  void ___CompleteBlockingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1925, 9, 1925, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1926, 5, 1926, 46);
+    this.___EnlistableStates_CompleteBlockingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1925, 4, 1927, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1928, 9, 1928, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1929, 5, 1929, 46);
+    this.___EnlistableStates_CompleteBlockingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1928, 4, 1930, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1931, 4, 1932, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___CompleteAbortingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 1940, 9, 1940, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1941, 5, 1941, 46);
+    this.___EnlistableStates_CompleteAbortingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1940, 4, 1942, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1943, 9, 1943, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1944, 5, 1944, 46);
+    this.___EnlistableStates_CompleteAbortingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1943, 4, 1945, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1946, 4, 1947, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___CreateBlockingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 1955, 9, 1955, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1956, 5, 1956, 44);
+    this.___EnlistableStates_CreateBlockingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1955, 4, 1957, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1958, 9, 1958, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1959, 5, 1959, 44);
+    this.___EnlistableStates_CreateBlockingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1958, 4, 1960, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1961, 9, 1961, 34);
+      
+      _____flt5 = (this.___ts == 5);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1962, 5, 1962, 51);
+    this.___TransactionStateAborted_CreateBlockingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1961, 4, 1963, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 1965, 5, 1965, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1964, 4, 1966, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___CreateAbortingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 1974, 9, 1974, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1975, 5, 1975, 44);
+    this.___EnlistableStates_CreateAbortingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1974, 4, 1976, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1977, 9, 1977, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1978, 5, 1978, 44);
+    this.___EnlistableStates_CreateAbortingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1977, 4, 1979, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1980, 9, 1980, 34);
+      
+      _____flt5 = (this.___ts == 5);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 1981, 5, 1981, 51);
+    this.___TransactionStateAborted_CreateAbortingClone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1980, 4, 1982, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 1984, 5, 1984, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 1983, 4, 1985, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ChangeStateTransactionAborted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    bool _____flt9;
+    atomic {
+      trace(@"#line", 0, 1993, 9, 1993, 33);
+      
+      _____flt1 = (this.___ts == 1);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 1994, 5, 1994, 60);
+    this.___TransactionStatePhase0_ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1993, 4, 1995, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1996, 9, 1996, 41);
+      
+      _____flt3 = (this.___ts == 2);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 1997, 5, 1997, 68);
+    this.___TransactionStateVolatilePhase1_ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1996, 4, 1998, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 1999, 9, 1999, 38);
+      
+      _____flt5 = (this.___ts == 3);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 2000, 5, 2000, 65);
+    this.___TransactionStateVolatileSPC_ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 1999, 4, 2001, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2002, 9, 2002, 30);
+      
+      _____flt7 = (this.___ts == 4);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 2003, 5, 2003, 57);
+    this.___TransactionStateSPC_ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2002, 4, 2004, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2005, 9, 2005, 34);
+      
+      _____flt9 = (this.___ts == 5);
+
+      if (!_____flt9) {
+        goto ____L_5;
+      }
+    }
+    trace(@"#line", 0, 2006, 5, 2006, 61);
+    this.___TransactionStateAborted_ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2005, 4, 2007, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_5:
+ {
+    }
+    trace(@"#line", 0, 2009, 5, 2009, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 2008, 4, 2010, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ChangeStateTransactionCommitted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 2018, 9, 2018, 38);
+      
+      _____flt1 = (this.___ts == 3);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2019, 5, 2019, 67);
+    this.___TransactionStateVolatileSPC_ChangeStateTransactionCommitted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2018, 4, 2020, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2021, 9, 2021, 30);
+      
+      _____flt3 = (this.___ts == 4);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 2022, 5, 2022, 59);
+    this.___TransactionStateSPC_ChangeStateTransactionCommitted_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2021, 4, 2023, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 2025, 5, 2025, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 2024, 4, 2026, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___ChangeStateTransactionInDoubt_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 2034, 9, 2034, 38);
+      
+      _____flt1 = (this.___ts == 3);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2035, 5, 2035, 65);
+    this.___TransactionStateVolatileSPC_ChangeStateTransactionInDoubt_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2034, 4, 2036, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2037, 9, 2037, 30);
+      
+      _____flt3 = (this.___ts == 4);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 2038, 5, 2038, 57);
+    this.___TransactionStateSPC_ChangeStateTransactionInDoubt_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2037, 4, 2039, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 2041, 5, 2041, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 2040, 4, 2042, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Timeout_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    atomic {
+      trace(@"#line", 0, 2050, 9, 2050, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2051, 5, 2051, 32);
+    this.___EnlistableStates_Timeout_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2050, 4, 2052, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2053, 9, 2053, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 2054, 5, 2054, 32);
+    this.___EnlistableStates_Timeout_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2053, 4, 2055, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2056, 9, 2056, 41);
+      
+      _____flt5 = (this.___ts == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 2057, 5, 2057, 46);
+    this.___TransactionStateVolatilePhase1_Timeout_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2056, 4, 2058, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2059, 9, 2059, 34);
+      
+      _____flt7 = (this.___ts == 5);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 2060, 5, 2060, 39);
+    this.___TransactionStateAborted_Timeout_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2059, 4, 2061, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2062, 4, 2063, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Phase0VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    atomic {
+      trace(@"#line", 0, 2071, 9, 2071, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2072, 5, 2072, 56);
+    this.___TransactionStateActive_Phase0VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2071, 4, 2073, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2074, 9, 2074, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 2075, 5, 2075, 56);
+    this.___TransactionStatePhase0_Phase0VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2074, 4, 2076, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2077, 9, 2077, 34);
+      
+      _____flt5 = (this.___ts == 5);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 2078, 5, 2078, 57);
+    this.___TransactionStateAborted_Phase0VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2077, 4, 2079, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    trace(@"#line", 0, 2081, 5, 2081, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 2080, 4, 2082, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___Phase1VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    bool _____flt5;
+    bool _____flt7;
+    atomic {
+      trace(@"#line", 0, 2090, 9, 2090, 33);
+      
+      _____flt1 = (this.___ts == 0);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2091, 5, 2091, 56);
+    this.___TransactionStateActive_Phase1VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2090, 4, 2092, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2093, 9, 2093, 33);
+      
+      _____flt3 = (this.___ts == 1);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 2094, 5, 2094, 56);
+    this.___TransactionStatePhase0_Phase1VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2093, 4, 2095, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2096, 9, 2096, 41);
+      
+      _____flt5 = (this.___ts == 2);
+
+      if (!_____flt5) {
+        goto ____L_3;
+      }
+    }
+    trace(@"#line", 0, 2097, 5, 2097, 64);
+    this.___TransactionStateVolatilePhase1_Phase1VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2096, 4, 2098, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_3:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2099, 9, 2099, 34);
+      
+      _____flt7 = (this.___ts == 5);
+
+      if (!_____flt7) {
+        goto ____L_4;
+      }
+    }
+    trace(@"#line", 0, 2100, 5, 2100, 57);
+    this.___TransactionStateAborted_Phase1VolatilePrepareDone_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2099, 4, 2101, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_4:
+ {
+    }
+    trace(@"#line", 0, 2103, 5, 2103, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 2102, 4, 2104, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  void ___RestartCommitIfNeeded_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt1;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 2112, 9, 2112, 33);
+      
+      _____flt1 = (this.___ts == 1);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2113, 5, 2113, 52);
+    this.___TransactionStatePhase0_RestartCommitIfNeeded_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2112, 4, 2114, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2116, 9, 2116, 34);
+      
+      _____flt3 = (this.___ts == 5);
+
+      if (!_____flt3) {
+        goto ____L_2;
+      }
+    }
+    trace(@"#line", 0, 2117, 5, 2117, 53);
+    this.___TransactionStateAborted_RestartCommitIfNeeded_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2116, 4, 2118, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_2:
+ {
+    }
+    trace(@"#line", 0, 2120, 5, 2120, 26);
+    ___X_Routines.___Assert_Boolean(false);
+    atomic {
+      trace(@"#line", 0, 2119, 4, 2121, 9);
+      goto _____G_1;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_1:
+ {
+    }
+  }
+  
+  bool ___ContinuePhase0Prepares() {
+    bool _____result__;
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 2129, 9, 2129, 33);
+      
+      _____flt1 = (this.___ts == 1);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2130, 5, 2130, 59);
+    
+    _____result__ = this.___TransactionStatePhase0_ContinuePhase0Prepares();
+
+    atomic {
+      trace(@"#line", 0, 2129, 4, 2130, 59);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2131, 4, 2132, 17);
+      
+      _____result__ = false;
+
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2127, 3, 2133, 3);
+      return _____result__;
+    }
+  }
+  
+  bool ___ContinuePhase1Prepares() {
+    bool _____result__;
+    bool _____flt1;
+    atomic {
+      trace(@"#line", 0, 2140, 9, 2140, 41);
+      
+      _____flt1 = (this.___ts == 2);
+
+      if (!_____flt1) {
+        goto ____L_1;
+      }
+    }
+    trace(@"#line", 0, 2141, 5, 2141, 67);
+    
+    _____result__ = this.___TransactionStateVolatilePhase1_ContinuePhase1Prepares();
+
+    atomic {
+      trace(@"#line", 0, 2140, 4, 2141, 67);
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_1:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2142, 4, 2143, 17);
+      
+      _____result__ = false;
+
+      goto _____G_0;
+      goto ____L_0;
+    }
+    ____L_0:
+ {
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2138, 3, 2144, 3);
+      return _____result__;
+    }
+  }
+  
+  ___X_TransactionStatus ___ActiveStates_get_Status_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    ___X_TransactionStatus _____result__;
+    atomic {
+      trace(@"#line", 0, 2149, 3, 2149, 34);
+      
+      _____result__ = ___X_TransactionStatus.___Active;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2149, 3, 2149, 34);
+      return _____result__;
+    }
+  }
+  
+  ___X_DurableEnlistment ___EnlistableStates_DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(___X_LtmInternalTransaction ___tx, ___X_IDENotification ___enlistmentNotification, ___X_LightweightTransaction ___lightweightTransaction) {
+    ___X_DurableEnlistment _____result__;
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 2158, 20, 2158, 47);
+      
+      _____flt0 = (___tx.___durableEnlistment == null);
+
+    }
+    trace(@"#line", 0, 2158, 3, 2158, 49);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      trace(@"#line", 0, 2161, 3, 2161, 100);
+      
+      ___tx.___durableEnlistment = new ___X_DurableEnlistment;
+
+      ___tx.___durableEnlistment.___DurableEnlistment_ctor(___tx, ___enlistmentNotification, ___lightweightTransaction);
+    }
+    trace(@"#line", 0, 2162, 3, 2162, 84);
+    ___X_DurableEnlistmentState.____DurableEnlistmentActive.___EnterState_DurableEnlistment(___tx.___durableEnlistment);
+    trace(@"#line", 0, 2164, 3, 2164, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 2166, 3, 2166, 30);
+      
+      _____result__ = ___tx.___durableEnlistment;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2158, 3, 2166, 30);
+      return _____result__;
+    }
+  }
+  
+  void ___EnlistableStates_Timeout_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2171, 3, 2171, 21);
+    this.___Rollback_LtmInternalTransaction(___tx);
+  }
+  
+  void ___EnlistableStates_CompleteBlockingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int _____asp6;
+    bool _____flt0;
+    int _____flt2;
+    bool _____flt1;
+    int _____flt4;
+    bool _____flt3;
+    atomic {
+      trace(@"#line", 0, 2179, 3, 2179, 38);
+      
+      _____asp6 = ___tx.___phase0Volatiles.___dependentClones;
+
+    }
+    trace(@"#line", 0, 2179, 3, 2179, 38);
+    
+    ___tx.___phase0Volatiles.___dependentClones = (___tx.___phase0Volatiles.___dependentClones - 1);
+
+    atomic {
+      trace(@"#line", 0, 2180, 20, 2180, 58);
+      
+      _____flt0 = (___tx.___phase0Volatiles.___dependentClones >= 0);
+
+    }
+    trace(@"#line", 0, 2180, 3, 2180, 60);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    atomic {
+      trace(@"#line", 0, 2183, 20, 2184, 82);
+      
+      _____flt2 = (___tx.___phase0Volatiles.___volatileEnlistmentCount + ___tx.___phase0Volatiles.___dependentClones);
+
+      
+      _____flt1 = (___tx.___phase0Volatiles.___preparedVolatileEnlistments <= _____flt2);
+
+    }
+    trace(@"#line", 0, 2183, 3, 2184, 84);
+    ___X_Routines.___Assert_Boolean(_____flt1);
+    atomic {
+      trace(@"#line", 0, 2187, 7, 2188, 66);
+      
+      _____flt4 = (___tx.___phase0VolatileWaveCount + ___tx.___phase0Volatiles.___dependentClones);
+
+      
+      _____flt3 = (___tx.___phase0Volatiles.___preparedVolatileEnlistments == _____flt4);
+
+    }
+    trace(@"#line", 0, 2187, 3, 2191, 3);
+    if (_____flt3) {
+      trace(@"#line", 0, 2190, 4, 2190, 43);
+      ___tx.___State.___Phase0VolatilePrepareDone_LtmInternalTransaction(___tx);
+    }
+    else {
+    }
+  }
+  
+  void ___EnlistableStates_CompleteAbortingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int _____asp7;
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 2200, 3, 2200, 38);
+      
+      _____asp7 = ___tx.___phase1Volatiles.___dependentClones;
+
+    }
+    trace(@"#line", 0, 2200, 3, 2200, 38);
+    
+    ___tx.___phase1Volatiles.___dependentClones = (___tx.___phase1Volatiles.___dependentClones - 1);
+
+    atomic {
+      trace(@"#line", 0, 2201, 20, 2201, 58);
+      
+      _____flt0 = (___tx.___phase1Volatiles.___dependentClones >= 0);
+
+    }
+    trace(@"#line", 0, 2201, 3, 2201, 60);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+  }
+  
+  void ___EnlistableStates_CreateBlockingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int _____asp8;
+    atomic {
+      trace(@"#line", 0, 2207, 3, 2207, 38);
+      
+      _____asp8 = ___tx.___phase0Volatiles.___dependentClones;
+
+    }
+    trace(@"#line", 0, 2207, 3, 2207, 38);
+    
+    ___tx.___phase0Volatiles.___dependentClones = (___tx.___phase0Volatiles.___dependentClones + 1);
+
+  }
+  
+  void ___EnlistableStates_CreateAbortingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int _____asp9;
+    atomic {
+      trace(@"#line", 0, 2213, 3, 2213, 38);
+      
+      _____asp9 = ___tx.___phase1Volatiles.___dependentClones;
+
+    }
+    trace(@"#line", 0, 2213, 3, 2213, 38);
+    
+    ___tx.___phase1Volatiles.___dependentClones = (___tx.___phase1Volatiles.___dependentClones + 1);
+
+  }
+  
+  void ___TransactionStateActive_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2219, 3, 2219, 49);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateActive);
+  }
+  
+  void ___TransactionStateActive_BeginCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2227, 3, 2227, 42);
+    ___X_TransactionState.____TransactionStatePhase0.___EnterState_LtmInternalTransaction(___tx);
+    trace(@"#line", 0, 2231, 3, 2231, 40);
+    ___tx.___State.___CheckSynchronousOutcome_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateActive_Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2238, 3, 2238, 43);
+    ___X_TransactionState.____TransactionStateAborted.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  ___X_VolatileEnlistment ___TransactionStateActive_VolatileEnlist_LtmInternalTransaction_IVENotification_Boolean_VN_LightweightTransaction(___X_LtmInternalTransaction ___tx, ___X_IVENotification ___enlistmentNotification, bool ___enlistDuringPrepareRequired, ___X_VN ___vn, ___X_LightweightTransaction ___lightweightTransaction) {
+    ___X_VolatileEnlistment ___enlistment;
+    atomic {
+      trace(@"#line", 0, 2249, 22, 2249, 38);
+      
+      ___enlistment = null;
+
+    }
+    trace(@"#line", 0, 2251, 3, 2260, 3);
+    if (___enlistDuringPrepareRequired) {
+      atomic {
+        trace(@"#line", 0, 2253, 4, 2253, 106);
+        
+        ___enlistment = new ___X_VolatileEnlistment;
+
+        ___enlistment.___VolatileEnlistment_ctor(___tx, ___enlistmentNotification, ___lightweightTransaction, ___X_VK.___Phase0, ___vn);
+      }
+      trace(@"#line", 0, 2254, 4, 2254, 57);
+      this.___AddVolatileEnlistment_VolatileEnlistmentSet_VolatileEnlistment(___tx.___phase0Volatiles, ___enlistment);
+    }
+    else {
+      atomic {
+        trace(@"#line", 0, 2258, 4, 2258, 106);
+        
+        ___enlistment = new ___X_VolatileEnlistment;
+
+        ___enlistment.___VolatileEnlistment_ctor(___tx, ___enlistmentNotification, ___lightweightTransaction, ___X_VK.___Phase1, ___vn);
+      }
+      trace(@"#line", 0, 2259, 4, 2259, 57);
+      this.___AddVolatileEnlistment_VolatileEnlistmentSet_VolatileEnlistment(___tx.___phase1Volatiles, ___enlistment);
+    }
+    trace(@"#line", 0, 2262, 3, 2262, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 2264, 3, 2264, 20);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2249, 22, 2264, 20);
+      return ___enlistment;
+    }
+  }
+  
+  void ___TransactionStateActive_Phase0VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateActive_Phase1VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStatePhase0_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int ___volatileCount;
+    int ___dependentCount;
+    int _____flt6;
+    bool _____flt0;
+
+    trace(@"#line", 0, 2281, 3, 2281, 49);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStatePhase0);
+
+      trace(@"#line", 0, 2285, 8, 2286, 66);
+      
+      ___volatileCount = ___tx.___phase0Volatiles.___volatileEnlistmentCount;
+
+      
+      ___dependentCount = ___tx.___phase0Volatiles.___dependentClones;
+
+
+    trace(@"#line", 0, 2289, 3, 2289, 44);
+    
+    ___tx.___phase0VolatileWaveCount = ___volatileCount;
+
+    atomic {
+      trace(@"#line", 0, 2292, 7, 2292, 85);
+      
+      _____flt6 = (___volatileCount + ___dependentCount);
+
+      
+      _____flt0 = (___tx.___phase0Volatiles.___preparedVolatileEnlistments < _____flt6);
+
+    }
+    trace(@"#line", 0, 2292, 3, 2311, 3);
+    if (_____flt0) {
+      int ___i;
+      bool _____flt1;
+
+      trace(@"#line", 0, 2295, 4, 2295, 23);
+      ___tx.___WaitForOutcome();
+
+        trace(@"#line", 0, 2298, 13, 2298, 36);
+        
+        ___i = 0;
+
+        
+        _____flt1 = (___i < ___volatileCount);
+
+
+      trace(@"#line", 0, 2298, 4, 2305, 4);
+      while (_____flt1) {
+        ___X_VolatileEnlistment _____flt2;
+        ___X_VolatileEnlistment _____flt3;
+        bool _____flt5;
+        atomic {
+          trace(@"#line", 0, 2300, 5, 2300, 125);
+          assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+          
+          _____flt2 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+          assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+          
+          _____flt3 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+        }
+        trace(@"#line", 0, 2300, 5, 2300, 127);
+        _____flt2.___twoPhaseState.___ChangeStatePreparing_VolatileEnlistment(_____flt3);
+        trace(@"#line", 0, 2301, 10, 2301, 42);
+        
+        _____flt5 = ___tx.___State.___ContinuePhase0Prepares();
+
+        atomic {
+          trace(@"#line", 0, 2298, 20, 2304, 5);
+          if (!_____flt5) {
+            goto ___break_5;
+          }
+          else {
+          }
+          
+          ___i = (___i + 1);
+
+          
+          _____flt1 = (___i < ___volatileCount);
+
+        }
+      }
+      ___break_5:
+      ;
+    }
+    else {
+      trace(@"#line", 0, 2310, 4, 2310, 51);
+      ___X_TransactionState.____TransactionStateVolatilePhase1.___EnterState_LtmInternalTransaction(___tx);
+    }
+  }
+  
+  ___X_DurableEnlistment ___TransactionStatePhase0_DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(___X_LtmInternalTransaction ___tx, ___X_IDENotification ___enlistmentNotification, ___X_LightweightTransaction ___lightweightTransaction) {
+    ___X_DurableEnlistment ___en;
+    trace(@"#line", 0, 2319, 21, 2319, 109);
+    
+    ___en = this.___EnlistableStates_DurableEnlist_LtmInternalTransaction_IDENotification_LightweightTransaction(___tx, ___enlistmentNotification, ___lightweightTransaction);
+
+    trace(@"#line", 0, 2322, 3, 2322, 38);
+    ___tx.___State.___RestartCommitIfNeeded_LtmInternalTransaction(___tx);
+    atomic {
+      trace(@"#line", 0, 2323, 3, 2323, 12);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2319, 21, 2323, 12);
+      return ___en;
+    }
+  }
+  
+  ___X_VolatileEnlistment ___TransactionStatePhase0_VolatileEnlist_LtmInternalTransaction_IVENotification_Boolean_VN_LightweightTransaction(___X_LtmInternalTransaction ___tx, ___X_IVENotification ___enlistmentNotification, bool ___enlistDuringPrepareRequired, ___X_VN ___vn, ___X_LightweightTransaction ___lightweightTransaction) {
+    ___X_VolatileEnlistment ___enlistment;
+    atomic {
+      trace(@"#line", 0, 2334, 22, 2334, 38);
+      
+      ___enlistment = null;
+
+    }
+    trace(@"#line", 0, 2336, 3, 2345, 3);
+    if (___enlistDuringPrepareRequired) {
+      atomic {
+        trace(@"#line", 0, 2338, 4, 2338, 107);
+        
+        ___enlistment = new ___X_VolatileEnlistment;
+
+        ___enlistment.___VolatileEnlistment_ctor(___tx, ___enlistmentNotification, ___lightweightTransaction, ___X_VK.___Phase0, ___vn);
+      }
+      trace(@"#line", 0, 2339, 4, 2339, 57);
+      this.___AddVolatileEnlistment_VolatileEnlistmentSet_VolatileEnlistment(___tx.___phase0Volatiles, ___enlistment);
+    }
+    else {
+      atomic {
+        trace(@"#line", 0, 2343, 4, 2343, 107);
+        
+        ___enlistment = new ___X_VolatileEnlistment;
+
+        ___enlistment.___VolatileEnlistment_ctor(___tx, ___enlistmentNotification, ___lightweightTransaction, ___X_VK.___Phase1, ___vn);
+      }
+      trace(@"#line", 0, 2344, 4, 2344, 57);
+      this.___AddVolatileEnlistment_VolatileEnlistmentSet_VolatileEnlistment(___tx.___phase1Volatiles, ___enlistment);
+    }
+    trace(@"#line", 0, 2347, 3, 2347, 17);
+    ___X_Routines.___skip();
+    atomic {
+      trace(@"#line", 0, 2349, 3, 2349, 20);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2334, 22, 2349, 20);
+      return ___enlistment;
+    }
+  }
+  
+  void ___TransactionStatePhase0_Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2354, 3, 2354, 37);
+    this.___ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStatePhase0_Phase0VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int ___volatileCount;
+    int ___dependentCount;
+    int _____flt6;
+    bool _____flt0;
+    atomic {
+      trace(@"#line", 0, 2365, 8, 2366, 57);
+      
+      ___volatileCount = ___tx.___phase0Volatiles.___volatileEnlistmentCount;
+
+      
+      ___dependentCount = ___tx.___phase0Volatiles.___dependentClones;
+
+    }
+    trace(@"#line", 0, 2369, 3, 2369, 44);
+    
+    ___tx.___phase0VolatileWaveCount = ___volatileCount;
+
+    atomic {
+      trace(@"#line", 0, 2372, 7, 2372, 85);
+      
+      _____flt6 = (___volatileCount + ___dependentCount);
+
+      
+      _____flt0 = (___tx.___phase0Volatiles.___preparedVolatileEnlistments < _____flt6);
+
+    }
+    trace(@"#line", 0, 2372, 3, 2388, 3);
+    if (_____flt0) {
+      int ___i;
+      bool _____flt1;
+      atomic {
+        trace(@"#line", 0, 2375, 13, 2375, 36);
+        
+        ___i = 0;
+
+        
+        _____flt1 = (___i < ___volatileCount);
+
+      }
+      trace(@"#line", 0, 2375, 4, 2382, 4);
+      while (_____flt1) {
+        ___X_VolatileEnlistment _____flt2;
+        ___X_VolatileEnlistment _____flt3;
+        bool _____flt5;
+        atomic {
+          trace(@"#line", 0, 2377, 5, 2377, 125);
+          assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+          
+          _____flt2 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+          assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+          
+          _____flt3 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+        }
+        trace(@"#line", 0, 2377, 5, 2377, 127);
+        _____flt2.___twoPhaseState.___ChangeStatePreparing_VolatileEnlistment(_____flt3);
+        trace(@"#line", 0, 2378, 10, 2378, 42);
+        
+        _____flt5 = ___tx.___State.___ContinuePhase0Prepares();
+
+        atomic {
+          trace(@"#line", 0, 2375, 20, 2381, 5);
+          if (!_____flt5) {
+            goto ___break_6;
+          }
+          else {
+          }
+          
+          ___i = (___i + 1);
+
+          
+          _____flt1 = (___i < ___volatileCount);
+
+        }
+      }
+      ___break_6:
+      ;
+    }
+    else {
+      trace(@"#line", 0, 2387, 4, 2387, 51);
+      ___X_TransactionState.____TransactionStateVolatilePhase1.___EnterState_LtmInternalTransaction(___tx);
+    }
+  }
+  
+  void ___TransactionStatePhase0_Phase1VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStatePhase0_RestartCommitIfNeeded_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  bool ___TransactionStatePhase0_ContinuePhase0Prepares() {
+    atomic {
+      trace(@"#line", 0, 2403, 3, 2403, 14);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2403, 3, 2403, 14);
+      return true;
+    }
+  }
+  
+  void ___TransactionStatePhase0_ChangeStateTransactionAborted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2408, 3, 2408, 43);
+    ___X_TransactionState.____TransactionStateAborted.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateVolatilePhase1_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt0;
+    bool _____flt11;
+    bool _____flt8;
+    bool _____flt1;
+    trace(@"#line", 0, 2414, 3, 2414, 57);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateVolatilePhase1);
+    trace(@"#line", 0, 2417, 3, 2417, 43);
+    
+    ___tx.___committableTransaction.___complete = true;
+
+    atomic {
+      trace(@"#line", 0, 2420, 7, 2420, 45);
+      
+      _____flt0 = (___tx.___phase1Volatiles.___dependentClones != 0);
+
+    }
+    trace(@"#line", 0, 2420, 3, 2424, 3);
+    if (_____flt0) {
+      trace(@"#line", 0, 2422, 4, 2422, 44);
+      ___X_TransactionState.____TransactionStateAborted.___EnterState_LtmInternalTransaction(___tx);
+      atomic {
+        trace(@"#line", 0, 2423, 4, 2423, 10);
+        goto _____G_0;
+      }
+    }
+    else {
+    }
+    atomic {
+      trace(@"#line", 0, 2426, 7, 2427, 60);
+      
+      _____flt11 = (___tx.___phase1Volatiles.___volatileEnlistmentCount == 1);
+
+      if (_____flt11) {
+        bool _____flt12;
+        
+        _____flt12 = (___tx.___durableEnlistment == null);
+
+        
+        _____flt8 = _____flt12;
+
+      }
+      else {
+        
+        _____flt8 = false;
+
+      }
+      if (_____flt8) {
+        ___X_VolatileEnlistment _____flt9;
+        bool _____flt10;
+        assert(((0 >= 0) && (0 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt9 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[0];
+
+        
+        _____flt10 = (_____flt9.___vn == ___X_VN.___SP);
+
+        
+        _____flt1 = _____flt10;
+
+      }
+      else {
+        
+        _____flt1 = false;
+
+      }
+    }
+    trace(@"#line", 0, 2426, 3, 2451, 3);
+    if (_____flt1) {
+      trace(@"#line", 0, 2430, 4, 2430, 48);
+      ___X_TransactionState.____TransactionStateVolatileSPC.___EnterState_LtmInternalTransaction(___tx);
+    }
+    else {
+      bool _____flt2;
+      atomic {
+        trace(@"#line", 0, 2432, 12, 2432, 57);
+        
+        _____flt2 = (___tx.___phase1Volatiles.___volatileEnlistmentCount > 0);
+
+      }
+      trace(@"#line", 0, 2432, 8, 2451, 3);
+      if (_____flt2) {
+        int ___i;
+        bool _____flt3;
+        trace(@"#line", 0, 2435, 4, 2435, 23);
+        ___tx.___WaitForOutcome();
+        atomic {
+          trace(@"#line", 0, 2438, 13, 2438, 65);
+          
+          ___i = 0;
+
+          
+          _____flt3 = (___i < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+        }
+        trace(@"#line", 0, 2438, 4, 2445, 4);
+        while (_____flt3) {
+          ___X_VolatileEnlistment _____flt4;
+          ___X_VolatileEnlistment _____flt5;
+          bool _____flt7;
+          atomic {
+            trace(@"#line", 0, 2440, 5, 2440, 125);
+            assert(((___i >= 0) && (___i < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+            
+            _____flt4 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i];
+
+            assert(((___i >= 0) && (___i < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+            
+            _____flt5 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i];
+
+          }
+          trace(@"#line", 0, 2440, 5, 2440, 127);
+          _____flt4.___twoPhaseState.___ChangeStatePreparing_VolatileEnlistment(_____flt5);
+          trace(@"#line", 0, 2441, 10, 2441, 42);
+          
+          _____flt7 = ___tx.___State.___ContinuePhase1Prepares();
+
+          atomic {
+            trace(@"#line", 0, 2438, 20, 2444, 5);
+            if (!_____flt7) {
+              goto ___break_7;
+            }
+            else {
+            }
+            
+            ___i = (___i + 1);
+
+            
+            _____flt3 = (___i < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+          }
+        }
+        ___break_7:
+        ;
+      }
+      else {
+        trace(@"#line", 0, 2450, 4, 2450, 39);
+        this.___TransactionStateSPC_EnterState_LtmInternalTransaction(___tx);
+      }
+    }
+    _____G_0:
+ {
+    }
+  }
+  
+  void ___TransactionStateVolatilePhase1_Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2456, 3, 2456, 37);
+    this.___ChangeStateTransactionAborted_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateVolatilePhase1_ChangeStateTransactionAborted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2461, 3, 2461, 43);
+    ___X_TransactionState.____TransactionStateAborted.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateVolatilePhase1_Phase1VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2467, 3, 2467, 39);
+    ___X_TransactionState.____TransactionStateSPC.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  bool ___TransactionStateVolatilePhase1_ContinuePhase1Prepares() {
+    atomic {
+      trace(@"#line", 0, 2472, 3, 2472, 14);
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2472, 3, 2472, 14);
+      return true;
+    }
+  }
+  
+  void ___TransactionStateVolatilePhase1_Timeout_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2477, 3, 2477, 21);
+    this.___Rollback_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateVolatileSPC_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt0;
+    ___X_VolatileEnlistment _____flt1;
+    ___X_VolatileEnlistment _____flt2;
+    trace(@"#line", 0, 2483, 3, 2483, 54);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateVolatileSPC);
+    atomic {
+      trace(@"#line", 0, 2485, 20, 2485, 66);
+      
+      _____flt0 = (___tx.___phase1Volatiles.___volatileEnlistmentCount == 1);
+
+    }
+    trace(@"#line", 0, 2485, 3, 2485, 68);
+    ___X_Routines.___Assert_Boolean(_____flt0);
+    trace(@"#line", 0, 2488, 3, 2488, 22);
+    ___tx.___WaitForOutcome();
+    atomic {
+      trace(@"#line", 0, 2490, 3, 2491, 45);
+      assert(((0 >= 0) && (0 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+      
+      _____flt1 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[0];
+
+      assert(((0 >= 0) && (0 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+      
+      _____flt2 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[0];
+
+    }
+    trace(@"#line", 0, 2490, 3, 2491, 47);
+    _____flt1.___twoPhaseState.___ChangeStateSinglePhaseCommit_VolatileEnlistment(_____flt2);
+  }
+  
+  void ___TransactionStateVolatileSPC_ChangeStateTransactionCommitted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2497, 3, 2497, 45);
+    ___X_TransactionState.____TransactionStateCommitted.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateVolatileSPC_ChangeStateTransactionInDoubt_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2503, 3, 2503, 43);
+    ___X_TransactionState.____TransactionStateInDoubt.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateVolatileSPC_ChangeStateTransactionAborted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2509, 3, 2509, 43);
+    ___X_TransactionState.____TransactionStateAborted.___EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateSPC_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    bool _____flt0;
+
+    trace(@"#line", 0, 2515, 3, 2515, 46);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateSPC);
+    atomic {
+      trace(@"#line", 0, 2518, 7, 2518, 34);
+      
+      _____flt0 = (___tx.___durableEnlistment != null);
+
+    }
+    trace(@"#line", 0, 2518, 3, 2530, 3);
+    if (_____flt0) {
+      trace(@"#line", 0, 2521, 4, 2521, 23);
+      ___tx.___WaitForOutcome();
+      trace(@"#line", 0, 2524, 4, 2524, 83);
+      ___tx.___durableEnlistment.___twoPhaseState.___ChangeStateCommitting_DurableEnlistment(___tx.___durableEnlistment);
+    }
+    else {
+      trace(@"#line", 0, 2529, 4, 2529, 45);
+      this.___TransactionStateCommitted_EnterState_LtmInternalTransaction(___tx);
+    }
+  }
+  
+  void ___TransactionStateSPC_ChangeStateTransactionCommitted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2536, 3, 2536, 44);
+    this.___TransactionStateCommitted_EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateSPC_ChangeStateTransactionInDoubt_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2542, 3, 2542, 42);
+    this.___TransactionStateInDoubt_EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateSPC_ChangeStateTransactionAborted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2548, 3, 2548, 42);
+    this.___TransactionStateAborted_EnterState_LtmInternalTransaction(___tx);
+  }
+  
+  void ___TransactionStateAborted_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int ___i;
+    bool _____flt0;
+    int ___i__1;
+    bool _____flt3;
+    bool _____flt5;
+    trace(@"#line", 0, 2555, 3, 2555, 50);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateAborted);
+    atomic {
+      trace(@"#line", 0, 2560, 12, 2560, 64);
+      
+      ___i = 0;
+
+      
+      _____flt0 = (___i < ___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+    }
+    trace(@"#line", 0, 2560, 3, 2563, 3);
+    while (_____flt0) {
+      ___X_VolatileEnlistment _____flt1;
+      ___X_VolatileEnlistment _____flt2;
+      atomic {
+        trace(@"#line", 0, 2562, 4, 2562, 119);
+        assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt1 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+        assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt2 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+      }
+      trace(@"#line", 0, 2562, 4, 2562, 121);
+      _____flt1.___twoPhaseState.___InternalAborted_VolatileEnlistment(_____flt2);
+      atomic {
+        trace(@"#line", 0, 2560, 19, 2560, 69);
+        
+        ___i = (___i + 1);
+
+        
+        _____flt0 = (___i < ___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+      }
+    }
+    atomic {
+      trace(@"#line", 0, 2565, 12, 2565, 64);
+      
+      ___i__1 = 0;
+
+      
+      _____flt3 = (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+    }
+    trace(@"#line", 0, 2565, 3, 2569, 3);
+    while (_____flt3) {
+      ___X_VolatileEnlistment ___ve;
+      ___X_VolatileEnlistment _____flt4;
+      atomic {
+        trace(@"#line", 0, 2567, 23, 2568, 79);
+        assert(((___i__1 >= 0) && (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        ___ve = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i__1];
+
+        assert(((___i__1 >= 0) && (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt4 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i__1];
+
+      }
+      trace(@"#line", 0, 2568, 4, 2568, 81);
+      ___ve.___twoPhaseState.___InternalAborted_VolatileEnlistment(_____flt4);
+      atomic {
+        trace(@"#line", 0, 2565, 19, 2565, 69);
+        
+        ___i__1 = (___i__1 + 1);
+
+        
+        _____flt3 = (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+      }
+    }
+    atomic {
+      trace(@"#line", 0, 2572, 7, 2572, 34);
+      
+      _____flt5 = (___tx.___durableEnlistment != null);
+
+    }
+    trace(@"#line", 0, 2572, 3, 2575, 3);
+    if (_____flt5) {
+      trace(@"#line", 0, 2574, 4, 2574, 77);
+      ___tx.___durableEnlistment.___twoPhaseState.___InternalAborted_DurableEnlistment(___tx.___durableEnlistment);
+    }
+    else {
+    }
+    trace(@"#line", 0, 2578, 3, 2578, 26);
+    ___X_Init.___tx_table.___Remove_LtmInternalTransaction(___tx);
+    trace(@"#line", 0, 2580, 3, 2580, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 2583, 3, 2583, 23);
+    ___tx.___SignalCompletion();
+  }
+  
+  ___X_TransactionStatus ___TransactionStateAborted_get_Status_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    ___X_TransactionStatus _____result__;
+    atomic {
+      trace(@"#line", 0, 2588, 3, 2588, 35);
+      
+      _____result__ = ___X_TransactionStatus.___Aborted;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2588, 3, 2588, 35);
+      return _____result__;
+    }
+  }
+  
+  void ___TransactionStateAborted_Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateAborted_BeginCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2599, 3, 2599, 24);
+    ___X_Routines.___Assume_Boolean(false);
+  }
+  
+  void ___TransactionStateAborted_EndCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2605, 3, 2605, 24);
+    ___X_Routines.___Assume_Boolean(false);
+  }
+  
+  void ___TransactionStateAborted_CheckSynchronousOutcome_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2611, 3, 2611, 25);
+    ___tx.___SynchronousOutcome();
+  }
+  
+  void ___TransactionStateAborted_RestartCommitIfNeeded_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateAborted_Timeout_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateAborted_Phase0VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateAborted_Phase1VolatilePrepareDone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateAborted_ChangeStateTransactionAborted_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateAborted_CreateBlockingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2642, 3, 2642, 24);
+    ___X_Routines.___Assert_Boolean(false);
+  }
+  
+  void ___TransactionStateAborted_CreateAbortingClone_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2647, 3, 2647, 24);
+    ___X_Routines.___Assert_Boolean(false);
+  }
+  
+  void ___TransactionStateCommitted_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int ___i;
+    bool _____flt0;
+    int ___i__1;
+    bool _____flt3;
+
+    trace(@"#line", 0, 2654, 3, 2654, 52);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateCommitted);
+    atomic {
+      trace(@"#line", 0, 2657, 12, 2657, 64);
+      
+      ___i = 0;
+
+      
+      _____flt0 = (___i < ___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+    }
+    trace(@"#line", 0, 2657, 3, 2660, 3);
+    while (_____flt0) {
+      ___X_VolatileEnlistment _____flt1;
+      ___X_VolatileEnlistment _____flt2;
+      atomic {
+        trace(@"#line", 0, 2659, 4, 2659, 121);
+        assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt1 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+        assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt2 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+      }
+      trace(@"#line", 0, 2659, 4, 2659, 123);
+      _____flt1.___twoPhaseState.___InternalCommitted_VolatileEnlistment(_____flt2);
+      atomic {
+        trace(@"#line", 0, 2657, 19, 2657, 69);
+        
+        ___i = (___i + 1);
+
+        
+        _____flt0 = (___i < ___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+      }
+    }
+    atomic {
+      trace(@"#line", 0, 2663, 12, 2663, 64);
+      
+      ___i__1 = 0;
+
+      
+      _____flt3 = (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+    }
+    trace(@"#line", 0, 2663, 3, 2666, 3);
+    while (_____flt3) {
+      ___X_VolatileEnlistment _____flt4;
+      ___X_VolatileEnlistment _____flt5;
+      atomic {
+        trace(@"#line", 0, 2665, 4, 2665, 121);
+        assert(((___i__1 >= 0) && (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt4 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i__1];
+
+        assert(((___i__1 >= 0) && (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt5 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i__1];
+
+      }
+      trace(@"#line", 0, 2665, 4, 2665, 123);
+      _____flt4.___twoPhaseState.___InternalCommitted_VolatileEnlistment(_____flt5);
+      atomic {
+        trace(@"#line", 0, 2663, 19, 2663, 69);
+        
+        ___i__1 = (___i__1 + 1);
+
+        
+        _____flt3 = (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+      }
+    }
+    trace(@"#line", 0, 2669, 3, 2669, 26);
+    ___X_Init.___tx_table.___Remove_LtmInternalTransaction(___tx);
+    trace(@"#line", 0, 2671, 3, 2671, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 2673, 3, 2673, 23);
+    ___tx.___SignalCompletion();
+  }
+  
+  ___X_TransactionStatus ___TransactionStateCommitted_get_Status_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    ___X_TransactionStatus _____result__;
+    atomic {
+      trace(@"#line", 0, 2678, 3, 2678, 37);
+      
+      _____result__ = ___X_TransactionStatus.___Committed;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2678, 3, 2678, 37);
+      return _____result__;
+    }
+  }
+  
+  void ___TransactionStateCommitted_Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2683, 3, 2683, 24);
+    ___X_Routines.___Assert_Boolean(false);
+  }
+  
+  void ___TransactionStateCommitted_EndCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+  }
+  
+  void ___TransactionStateCommitted_CheckSynchronousOutcome_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2694, 3, 2694, 25);
+    ___tx.___SynchronousOutcome();
+  }
+  
+  void ___TransactionStateInDoubt_EnterState_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    int ___i;
+    bool _____flt0;
+    int ___i__1;
+    bool _____flt3;
+    trace(@"#line", 0, 2700, 3, 2700, 50);
+    this.___CommonEnterState_LtmInternalTransaction_TransactionState(___tx, ___X_TransactionState.____TransactionStateInDoubt);
+    atomic {
+      trace(@"#line", 0, 2703, 12, 2703, 64);
+      
+      ___i = 0;
+
+      
+      _____flt0 = (___i < ___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+    }
+    trace(@"#line", 0, 2703, 3, 2706, 3);
+    while (_____flt0) {
+      ___X_VolatileEnlistment _____flt1;
+      ___X_VolatileEnlistment _____flt2;
+      atomic {
+        trace(@"#line", 0, 2705, 4, 2705, 119);
+        assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt1 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+        assert(((___i >= 0) && (___i < ___tx.___phase0Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt2 = ___tx.___phase0Volatiles.___volatileEnlistments.repr[___i];
+
+      }
+      trace(@"#line", 0, 2705, 4, 2705, 121);
+      _____flt1.___twoPhaseState.___InternalIndoubt_VolatileEnlistment(_____flt2);
+      atomic {
+        trace(@"#line", 0, 2703, 19, 2703, 69);
+        
+        ___i = (___i + 1);
+
+        
+        _____flt0 = (___i < ___tx.___phase0Volatiles.___volatileEnlistmentCount);
+
+      }
+    }
+    atomic {
+      trace(@"#line", 0, 2709, 12, 2709, 64);
+      
+      ___i__1 = 0;
+
+      
+      _____flt3 = (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+    }
+    trace(@"#line", 0, 2709, 3, 2712, 3);
+    while (_____flt3) {
+      ___X_VolatileEnlistment _____flt4;
+      ___X_VolatileEnlistment _____flt5;
+      atomic {
+        trace(@"#line", 0, 2711, 4, 2711, 119);
+        assert(((___i__1 >= 0) && (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt4 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i__1];
+
+        assert(((___i__1 >= 0) && (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistments.leng)), @"array index out of bound");
+        
+        _____flt5 = ___tx.___phase1Volatiles.___volatileEnlistments.repr[___i__1];
+
+      }
+      trace(@"#line", 0, 2711, 4, 2711, 121);
+      _____flt4.___twoPhaseState.___InternalIndoubt_VolatileEnlistment(_____flt5);
+      atomic {
+        trace(@"#line", 0, 2709, 19, 2709, 69);
+        
+        ___i__1 = (___i__1 + 1);
+
+        
+        _____flt3 = (___i__1 < ___tx.___phase1Volatiles.___volatileEnlistmentCount);
+
+      }
+    }
+    trace(@"#line", 0, 2715, 3, 2715, 26);
+    ___X_Init.___tx_table.___Remove_LtmInternalTransaction(___tx);
+    trace(@"#line", 0, 2717, 3, 2717, 17);
+    ___X_Routines.___skip();
+    trace(@"#line", 0, 2719, 3, 2719, 23);
+    ___tx.___SignalCompletion();
+  }
+  
+  ___X_TransactionStatus ___TransactionStateInDoubt_get_Status_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    ___X_TransactionStatus _____result__;
+    atomic {
+      trace(@"#line", 0, 2724, 3, 2724, 35);
+      
+      _____result__ = ___X_TransactionStatus.___InDoubt;
+
+      goto _____G_0;
+    }
+    _____G_0:
+ {
+    }
+    atomic {
+      trace(@"#line", 0, 2724, 3, 2724, 35);
+      return _____result__;
+    }
+  }
+  
+  void ___TransactionStateInDoubt_Rollback_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2729, 3, 2729, 24);
+    ___X_Routines.___Assert_Boolean(false);
+  }
+  
+  void ___TransactionStateInDoubt_EndCommit_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2733, 3, 2733, 24);
+    ___X_Routines.___Assume_Boolean(false);
+  }
+  
+  void ___TransactionStateInDoubt_CheckSynchronousOutcome_LtmInternalTransaction(___X_LtmInternalTransaction ___tx) {
+    trace(@"#line", 0, 2739, 3, 2739, 25);
+    ___tx.___SynchronousOutcome();
+  }
+};
+
+array ______PrimitiveArray_L_TransactionList_R_zarray[1] ___X_TransactionList;
+
+class ___PrimitiveArray_L_TransactionList_R {
+   ______PrimitiveArray_L_TransactionList_R_zarray repr;
+  
+  int leng;
+};
+
+array ______PrimitiveArray_L_VolatileEnlistment_R_zarray[1] ___X_VolatileEnlistment;
+
+class ___PrimitiveArray_L_VolatileEnlistment_R {
+   ______PrimitiveArray_L_VolatileEnlistment_R_zarray repr;
+  
+  int leng;
+};
+
+class ____namespace {
+  static atomic void ____InitStatics() {
+    trace(@"#line", 0, 74, 44, 1723, 109);
+    ___X_Init.count = 0;    
+    ___X_Init.___tx_table = new ___X_TransactionTable;
+
+    ___X_Init.___tx_table.___TransactionTable_ctor();
+    
+    ___X_LtmInternalTransaction.___ThreadTransactionCompletionEvent = new ___X_MyAutoResetEvent;
+
+    ___X_LtmInternalTransaction.___ThreadTransactionCompletionEvent.___MyAutoResetEvent_ctor(false);
+    
+    ___X_DurableEnlistmentState.____DurableEnlistmentActive = new ___X_DurableEnlistmentState;
+
+    ___X_DurableEnlistmentState.____DurableEnlistmentActive.___DurableEnlistmentState_ctor(___X_DS.___DurableEnlistmentActive);
+    
+    ___X_DurableEnlistmentState.____DurableEnlistmentAborting = new ___X_DurableEnlistmentState;
+
+    ___X_DurableEnlistmentState.____DurableEnlistmentAborting.___DurableEnlistmentState_ctor(___X_DS.___DurableEnlistmentAborting);
+    
+    ___X_DurableEnlistmentState.____DurableEnlistmentCommitting = new ___X_DurableEnlistmentState;
+
+    ___X_DurableEnlistmentState.____DurableEnlistmentCommitting.___DurableEnlistmentState_ctor(___X_DS.___DurableEnlistmentCommitting);
+    
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded = new ___X_DurableEnlistmentState;
+
+    ___X_DurableEnlistmentState.____DurableEnlistmentEnded.___DurableEnlistmentState_ctor(___X_DS.___DurableEnlistmentEnded);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentActive = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentActive.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentActive);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPreparing = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPreparing.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentPreparing);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPrepared = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPrepared.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentPrepared);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentSPC = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentSPC.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentSPC);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPreparingAborting = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentPreparingAborting.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentPreparingAborting);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentAborting = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentAborting.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentAborting);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentCommitting = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentCommitting.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentCommitting);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentEnded.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentEnded);
+    
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentDone = new ___X_VolatileEnlistmentState;
+
+    ___X_VolatileEnlistmentState.____VolatileEnlistmentDone.___VolatileEnlistmentState_ctor(___X_VS.___VolatileEnlistmentDone);
+    
+    ___X_TransactionState.____TransactionStateActive = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateActive.___TransactionState_ctor(___X_TS.___TransactionStateActive);
+    
+    ___X_TransactionState.____TransactionStatePhase0 = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStatePhase0.___TransactionState_ctor(___X_TS.___TransactionStatePhase0);
+    
+    ___X_TransactionState.____TransactionStateVolatilePhase1 = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateVolatilePhase1.___TransactionState_ctor(___X_TS.___TransactionStateVolatilePhase1);
+    
+    ___X_TransactionState.____TransactionStateVolatileSPC = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateVolatileSPC.___TransactionState_ctor(___X_TS.___TransactionStateVolatileSPC);
+    
+    ___X_TransactionState.____TransactionStateSPC = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateSPC.___TransactionState_ctor(___X_TS.___TransactionStateSPC);
+    
+    ___X_TransactionState.____TransactionStateAborted = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateAborted.___TransactionState_ctor(___X_TS.___TransactionStateAborted);
+    
+    ___X_TransactionState.____TransactionStateCommitted = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateCommitted.___TransactionState_ctor(___X_TS.___TransactionStateCommitted);
+    
+    ___X_TransactionState.____TransactionStateInDoubt = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateInDoubt.___TransactionState_ctor(___X_TS.___TransactionStateInDoubt);
+  }
+};

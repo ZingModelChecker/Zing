@@ -1,0 +1,56 @@
+range MyRange 0 .. 10;
+
+class A {
+	int x;	
+};
+
+class user {
+
+	static activate void main()
+	{
+		AssocArray a;
+		A obj;
+		A obj1;
+		A obj2;
+		A obj_end;
+		int n;
+		int i;
+		string key1;
+		string key2;
+		
+		a = new AssocArray;
+		a.initialize();		
+		
+		n = choose(MyRange);				
+
+		i = 1;
+		while (i <= n) {
+			key1 = a.StringHelper("key1_",  i);			
+			key2 = "abc";
+			
+			obj = new A;
+			obj.x = 0;
+			
+			a.Add(key1, obj);
+			a.Add(key2, obj);
+			
+			obj.x = i;
+			
+			obj1 = null;
+			obj2 = null;
+			
+			obj1 = a.Lookup(key1);
+			obj2 = a.Lookup(key2);
+			
+			assert(obj1 == obj2);
+			assert(obj == obj1);
+			assert(obj1.x == i);
+			
+			i = i + 1;
+		}
+		
+		obj_end = a.Lookup("key1_10");		
+		assert (obj_end == null);
+	}
+	
+};

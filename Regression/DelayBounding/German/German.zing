@@ -1,0 +1,1363 @@
+enum Machine {_Host, _SharerList, _Client, _CPU};
+
+enum Event {_unit, _req_share, _req_excl, _need_invalidate, _invalidate_ack, _grant, _ask_share, _ask_excl, _invalidate, _grant_excl, _grant_share, _normal, _wait, _asked_sh, _asked_ex, _invalidate_sharers, _sharer_id};
+
+enum Host_State {_init, _receive, _req_sh, _req_ex, _process, _inv, _inv_ack, _grant};
+
+enum SharerList_State {_init, _start, _iterate};
+
+enum Client_State {_invalid, _asked_sh, _asked_ex, _invalid_wait, _asked_ex2, _sharing, _sharing_wait, _exclusive, _invalidating};
+
+enum CPU_State {_make_req};
+
+class Host{
+SM_EVENT_SET stackDeferredSet;
+SM_HANDLE myHandle;
+int num_clients;
+bool ex_granted;
+SM_HANDLE cur_cli;
+SM_HANDLE cur_cli1;
+SM_HANDLE cur_cli2;
+SM_HANDLE cur_cli3;
+SM_HANDLE cur_cpu;
+bool is_cur_req_exc;
+SM_HANDLE sharer_list;
+int sharer_list_size;
+void runHelper(Host_State startState) {
+SM_EVENT_SET currentDeferredSet;
+SM_EVENT_SET currentIgnoredSet;
+SM_EVENT_SET savedDeferredSet;
+SM_ARG_UNION payload;
+bool nondet;
+
+init:
+if ((startState == Host_State._grant)) {
+goto execute_grant;
+} else {
+if ((startState == Host_State._inv_ack)) {
+goto execute_inv_ack;
+} else {
+if ((startState == Host_State._inv)) {
+goto execute_inv;
+} else {
+if ((startState == Host_State._process)) {
+goto execute_process;
+} else {
+if ((startState == Host_State._req_ex)) {
+goto execute_req_ex;
+} else {
+if ((startState == Host_State._req_sh)) {
+goto execute_req_sh;
+} else {
+if ((startState == Host_State._receive)) {
+goto execute_receive;
+} else {
+if ((startState == Host_State._init)) {
+goto execute_init;
+} else {
+assert(false);
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+;
+
+
+execute_init:
+trace("<StateLog> Machine Host-{0} entered State init", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+init_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+cur_cli1 = Main.CreateMachine_Client(myHandle, false);
+cur_cli2 = Main.CreateMachine_Client(myHandle, false);
+cur_cli3 = Main.CreateMachine_Client(myHandle, false);
+cur_cpu = Main.CreateMachine_CPU(cur_cli1, cur_cli2, cur_cli3);
+sharer_list = Main.CreateMachine_SharerList(0);
+sharer_list_size = 0;
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_init;goto wait_init;
+;
+
+
+wait_init:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_init;
+;
+
+
+transition_init:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_receive;
+} else {
+return;
+
+}
+
+;
+
+
+execute_receive:
+trace("<StateLog> Machine Host-{0} entered State receive", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+receive_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+goto wait_receive;
+;
+
+
+wait_receive:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_receive;
+;
+
+
+transition_receive:
+if ((myHandle.currentEvent == Main.req_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_req_ex;
+} else {
+if ((myHandle.currentEvent == Main.req_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_req_sh;
+} else {
+return;
+
+}
+
+}
+
+;
+
+
+execute_req_sh:
+trace("<StateLog> Machine Host-{0} entered State req_sh", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+req_sh_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+cur_cli = myHandle.currentArg.h;
+is_cur_req_exc = false;
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_req_sh;goto wait_req_sh;
+;
+
+
+wait_req_sh:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_req_sh;
+;
+
+
+transition_req_sh:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_process;
+} else {
+return;
+
+}
+
+;
+
+
+execute_req_ex:
+trace("<StateLog> Machine Host-{0} entered State req_ex", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+req_ex_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+cur_cli = myHandle.currentArg.h;
+is_cur_req_exc = true;
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_req_ex;goto wait_req_ex;
+;
+
+
+wait_req_ex:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_req_ex;
+;
+
+
+transition_req_ex:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_process;
+} else {
+return;
+
+}
+
+;
+
+
+execute_process:
+trace("<StateLog> Machine Host-{0} entered State process", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+process_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+if ((is_cur_req_exc || ex_granted)) {
+myHandle.currentEvent = Main.need_invalidate_SM_EVENT;
+goto transition_process;
+} else {
+myHandle.currentEvent = Main.grant_SM_EVENT;
+goto transition_process;
+}
+goto wait_process;
+;
+
+
+wait_process:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_process;
+;
+
+
+transition_process:
+if ((myHandle.currentEvent == Main.grant_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_grant;
+} else {
+if ((myHandle.currentEvent == Main.need_invalidate_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_inv;
+} else {
+return;
+
+}
+
+}
+
+;
+
+
+execute_inv:
+trace("<StateLog> Machine Host-{0} entered State inv", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+inv_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+payload = SM_ARG_UNION.ConstructInt(sharer_list_size);
+sharer_list.EnqueueEvent(Main.invalidate_sharers_SM_EVENT, payload, myHandle);
+goto wait_inv;
+;
+
+
+wait_inv:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_inv;
+;
+
+
+transition_inv:
+if ((myHandle.currentEvent == Main.invalidate_ack_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_inv_ack;
+} else {
+return;
+
+}
+
+;
+
+
+execute_inv_ack:
+trace("<StateLog> Machine Host-{0} entered State inv_ack", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+inv_ack_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+sharer_list_size = (sharer_list_size - 1);
+ex_granted = false;
+if ((sharer_list_size == 0)) {
+myHandle.currentEvent = Main.grant_SM_EVENT;
+goto transition_inv_ack;
+} else {
+
+}
+goto wait_inv_ack;
+;
+
+
+wait_inv_ack:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_inv_ack;
+;
+
+
+transition_inv_ack:
+if ((myHandle.currentEvent == Main.grant_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_grant;
+} else {
+if ((myHandle.currentEvent == Main.invalidate_ack_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_inv_ack;
+} else {
+return;
+
+}
+
+}
+
+;
+
+
+execute_grant:
+trace("<StateLog> Machine Host-{0} entered State grant", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+grant_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+if (is_cur_req_exc) {
+ex_granted = true;
+payload = null;
+cur_cli.EnqueueEvent(Main.grant_excl_SM_EVENT, payload, myHandle);
+
+} else {
+payload = null;
+cur_cli.EnqueueEvent(Main.grant_share_SM_EVENT, payload, myHandle);
+
+}
+sharer_list_size = (sharer_list_size + 1);
+payload = SM_ARG_UNION.ConstructHandle(cur_cli);
+sharer_list.EnqueueEvent(Main.sharer_id_SM_EVENT, payload, myHandle);
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_grant;goto wait_grant;
+;
+
+
+wait_grant:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_grant;
+;
+
+
+transition_grant:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_receive;
+} else {
+return;
+
+}
+
+;
+
+}
+void run() {
+
+dummy:
+runHelper(Host_State._init);
+assert(false);
+
+;
+
+}
+void grant_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void inv_ack_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+localDeferredSet = (localDeferredSet + Main.req_share_SM_EVENT);
+localDeferredSet = (localDeferredSet + Main.req_excl_SM_EVENT);
+
+;
+
+}
+void inv_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+localDeferredSet = (localDeferredSet + Main.req_share_SM_EVENT);
+localDeferredSet = (localDeferredSet + Main.req_excl_SM_EVENT);
+
+;
+
+}
+void process_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void req_ex_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void req_sh_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void receive_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+localDeferredSet = (localDeferredSet + Main.invalidate_ack_SM_EVENT);
+
+;
+
+}
+void init_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+};
+
+class SharerList{
+SM_EVENT_SET stackDeferredSet;
+SM_HANDLE myHandle;
+int counter;
+void runHelper(SharerList_State startState) {
+SM_EVENT_SET currentDeferredSet;
+SM_EVENT_SET currentIgnoredSet;
+SM_EVENT_SET savedDeferredSet;
+SM_ARG_UNION payload;
+bool nondet;
+
+init:
+if ((startState == SharerList_State._iterate)) {
+goto execute_iterate;
+} else {
+if ((startState == SharerList_State._start)) {
+goto execute_start;
+} else {
+if ((startState == SharerList_State._init)) {
+goto execute_init;
+} else {
+assert(false);
+
+}
+
+}
+
+}
+
+;
+
+
+execute_init:
+trace("<StateLog> Machine SharerList-{0} entered State init", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+init_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+goto wait_init;
+;
+
+
+wait_init:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_init;
+;
+
+
+transition_init:
+if ((myHandle.currentEvent == Main.invalidate_sharers_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_start;
+} else {
+return;
+
+}
+
+;
+
+
+execute_start:
+trace("<StateLog> Machine SharerList-{0} entered State start", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+start_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+counter = myHandle.currentArg.i;
+goto wait_start;
+;
+
+
+wait_start:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_start;
+;
+
+
+transition_start:
+if ((myHandle.currentEvent == Main.sharer_id_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_iterate;
+} else {
+return;
+
+}
+
+;
+
+
+execute_iterate:
+trace("<StateLog> Machine SharerList-{0} entered State iterate", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+iterate_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+payload = null;
+myHandle.currentArg.h.EnqueueEvent(Main.invalidate_SM_EVENT, payload, myHandle);
+counter = (counter - 1);
+if ((counter == 0)) {
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_iterate;
+} else {
+
+}
+goto wait_iterate;
+;
+
+
+wait_iterate:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_iterate;
+;
+
+
+transition_iterate:
+if ((myHandle.currentEvent == Main.sharer_id_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_iterate;
+} else {
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_init;
+} else {
+return;
+
+}
+
+}
+
+;
+
+}
+void run() {
+
+dummy:
+runHelper(SharerList_State._init);
+assert(false);
+
+;
+
+}
+void iterate_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void start_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void init_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+localDeferredSet = (localDeferredSet + Main.sharer_id_SM_EVENT);
+
+;
+
+}
+};
+
+class Client{
+SM_EVENT_SET stackDeferredSet;
+SM_HANDLE myHandle;
+SM_HANDLE host;
+bool pending;
+void runHelper(Client_State startState) {
+SM_EVENT_SET currentDeferredSet;
+SM_EVENT_SET currentIgnoredSet;
+SM_EVENT_SET savedDeferredSet;
+SM_ARG_UNION payload;
+bool nondet;
+
+init:
+if ((startState == Client_State._invalidating)) {
+goto execute_invalidating;
+} else {
+if ((startState == Client_State._exclusive)) {
+goto execute_exclusive;
+} else {
+if ((startState == Client_State._sharing_wait)) {
+goto execute_sharing_wait;
+} else {
+if ((startState == Client_State._sharing)) {
+goto execute_sharing;
+} else {
+if ((startState == Client_State._asked_ex2)) {
+goto execute_asked_ex2;
+} else {
+if ((startState == Client_State._invalid_wait)) {
+goto execute_invalid_wait;
+} else {
+if ((startState == Client_State._asked_ex)) {
+goto execute_asked_ex;
+} else {
+if ((startState == Client_State._asked_sh)) {
+goto execute_asked_sh;
+} else {
+if ((startState == Client_State._invalid)) {
+goto execute_invalid;
+} else {
+assert(false);
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+}
+
+;
+
+
+execute_invalid:
+trace("<StateLog> Machine Client-{0} entered State invalid", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+invalid_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+goto wait_invalid;
+;
+
+
+wait_invalid:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_invalid;
+;
+
+
+transition_invalid:
+if ((myHandle.currentEvent == Main.grant_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing;
+} else {
+if ((myHandle.currentEvent == Main.grant_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.invalidate_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalidating;
+} else {
+if ((myHandle.currentEvent == Main.ask_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_asked_ex;
+} else {
+if ((myHandle.currentEvent == Main.ask_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_asked_sh;
+} else {
+return;
+
+}
+
+}
+
+}
+
+}
+
+}
+
+;
+
+
+execute_asked_sh:
+trace("<StateLog> Machine Client-{0} entered State asked_sh", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+asked_sh_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+payload = SM_ARG_UNION.ConstructHandle(myHandle);
+host.EnqueueEvent(Main.req_share_SM_EVENT, payload, myHandle);
+pending = true;
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_asked_sh;goto wait_asked_sh;
+;
+
+
+wait_asked_sh:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_asked_sh;
+;
+
+
+transition_asked_sh:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalid_wait;
+} else {
+return;
+
+}
+
+;
+
+
+execute_asked_ex:
+trace("<StateLog> Machine Client-{0} entered State asked_ex", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+asked_ex_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+payload = SM_ARG_UNION.ConstructHandle(myHandle);
+host.EnqueueEvent(Main.req_excl_SM_EVENT, payload, myHandle);
+pending = true;
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_asked_ex;goto wait_asked_ex;
+;
+
+
+wait_asked_ex:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_asked_ex;
+;
+
+
+transition_asked_ex:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalid_wait;
+} else {
+return;
+
+}
+
+;
+
+
+execute_invalid_wait:
+trace("<StateLog> Machine Client-{0} entered State invalid_wait", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+invalid_wait_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+goto wait_invalid_wait;
+;
+
+
+wait_invalid_wait:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_invalid_wait;
+;
+
+
+transition_invalid_wait:
+if ((myHandle.currentEvent == Main.grant_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing;
+} else {
+if ((myHandle.currentEvent == Main.grant_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.invalidate_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalidating;
+} else {
+return;
+
+}
+
+}
+
+}
+
+;
+
+
+execute_asked_ex2:
+trace("<StateLog> Machine Client-{0} entered State asked_ex2", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+asked_ex2_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+payload = SM_ARG_UNION.ConstructHandle(myHandle);
+host.EnqueueEvent(Main.req_excl_SM_EVENT, payload, myHandle);
+pending = true;
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_asked_ex2;goto wait_asked_ex2;
+;
+
+
+wait_asked_ex2:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_asked_ex2;
+;
+
+
+transition_asked_ex2:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing_wait;
+} else {
+return;
+
+}
+
+;
+
+
+execute_sharing:
+trace("<StateLog> Machine Client-{0} entered State sharing", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+sharing_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+pending = false;
+goto wait_sharing;
+;
+
+
+wait_sharing:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_sharing;
+;
+
+
+transition_sharing:
+if ((myHandle.currentEvent == Main.ask_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_asked_ex2;
+} else {
+if ((myHandle.currentEvent == Main.ask_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing;
+} else {
+if ((myHandle.currentEvent == Main.grant_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.grant_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing;
+} else {
+if ((myHandle.currentEvent == Main.invalidate_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalidating;
+} else {
+return;
+
+}
+
+}
+
+}
+
+}
+
+}
+
+;
+
+
+execute_sharing_wait:
+trace("<StateLog> Machine Client-{0} entered State sharing_wait", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+sharing_wait_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+goto wait_sharing_wait;
+;
+
+
+wait_sharing_wait:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_sharing_wait;
+;
+
+
+transition_sharing_wait:
+if ((myHandle.currentEvent == Main.grant_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.grant_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing_wait;
+} else {
+if ((myHandle.currentEvent == Main.invalidate_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalidating;
+} else {
+return;
+
+}
+
+}
+
+}
+
+;
+
+
+execute_exclusive:
+trace("<StateLog> Machine Client-{0} entered State exclusive", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+exclusive_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+pending = false;
+goto wait_exclusive;
+;
+
+
+wait_exclusive:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_exclusive;
+;
+
+
+transition_exclusive:
+if ((myHandle.currentEvent == Main.asked_ex_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.asked_sh_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.grant_excl_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_exclusive;
+} else {
+if ((myHandle.currentEvent == Main.grant_share_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_sharing;
+} else {
+if ((myHandle.currentEvent == Main.invalidate_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalidating;
+} else {
+return;
+
+}
+
+}
+
+}
+
+}
+
+}
+
+;
+
+
+execute_invalidating:
+trace("<StateLog> Machine Client-{0} entered State invalidating", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+invalidating_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+payload = null;
+host.EnqueueEvent(Main.invalidate_ack_SM_EVENT, payload, myHandle);
+if (pending) {
+myHandle.currentEvent = Main.wait_SM_EVENT;
+goto transition_invalidating;
+} else {
+myHandle.currentEvent = Main.normal_SM_EVENT;
+goto transition_invalidating;
+}
+goto wait_invalidating;
+;
+
+
+wait_invalidating:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_invalidating;
+;
+
+
+transition_invalidating:
+if ((myHandle.currentEvent == Main.normal_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalid;
+} else {
+if ((myHandle.currentEvent == Main.wait_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_invalid_wait;
+} else {
+return;
+
+}
+
+}
+
+;
+
+}
+void run() {
+
+dummy:
+runHelper(Client_State._invalid);
+assert(false);
+
+;
+
+}
+void invalidating_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void exclusive_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void sharing_wait_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+localDeferredSet = (localDeferredSet + Main.ask_share_SM_EVENT);
+localDeferredSet = (localDeferredSet + Main.ask_excl_SM_EVENT);
+
+;
+
+}
+void sharing_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void asked_ex2_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void invalid_wait_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+localDeferredSet = (localDeferredSet + Main.ask_share_SM_EVENT);
+localDeferredSet = (localDeferredSet + Main.ask_excl_SM_EVENT);
+
+;
+
+}
+void asked_ex_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void asked_sh_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+void invalid_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+};
+
+class CPU{
+SM_EVENT_SET stackDeferredSet;
+SM_HANDLE myHandle;
+SM_HANDLE cache1;
+SM_HANDLE cache2;
+SM_HANDLE cache3;
+void runHelper(CPU_State startState) {
+SM_EVENT_SET currentDeferredSet;
+SM_EVENT_SET currentIgnoredSet;
+SM_EVENT_SET savedDeferredSet;
+SM_ARG_UNION payload;
+bool nondet;
+
+init:
+if ((startState == CPU_State._make_req)) {
+goto execute_make_req;
+} else {
+assert(false);
+
+}
+
+;
+
+
+execute_make_req:
+trace("<StateLog> Machine CPU-{0} entered State make_req", myHandle.instance);
+currentDeferredSet = new SM_EVENT_SET;
+currentIgnoredSet = new SM_EVENT_SET;
+make_req_CalculateDeferredAndIgnoredSets(currentDeferredSet, currentIgnoredSet);
+nondet = choose(bool);
+if (nondet) {
+nondet = choose(bool);
+if (nondet) {
+payload = null;
+cache1.EnqueueEvent(Main.ask_share_SM_EVENT, payload, myHandle);
+
+} else {
+payload = null;
+cache1.EnqueueEvent(Main.ask_excl_SM_EVENT, payload, myHandle);
+
+}
+
+} else {
+nondet = choose(bool);
+if (nondet) {
+nondet = choose(bool);
+if (nondet) {
+payload = null;
+cache2.EnqueueEvent(Main.ask_share_SM_EVENT, payload, myHandle);
+
+} else {
+payload = null;
+cache2.EnqueueEvent(Main.ask_excl_SM_EVENT, payload, myHandle);
+
+}
+
+} else {
+nondet = choose(bool);
+if (nondet) {
+payload = null;
+cache3.EnqueueEvent(Main.ask_share_SM_EVENT, payload, myHandle);
+
+} else {
+payload = null;
+cache3.EnqueueEvent(Main.ask_excl_SM_EVENT, payload, myHandle);
+
+}
+
+}
+
+}
+myHandle.currentEvent = Main.unit_SM_EVENT;
+goto transition_make_req;goto wait_make_req;
+;
+
+
+wait_make_req:
+myHandle.DequeueEvent(currentDeferredSet, currentIgnoredSet);
+goto transition_make_req;
+;
+
+
+transition_make_req:
+if ((myHandle.currentEvent == Main.unit_SM_EVENT)) {
+myHandle.currentEvent = null;
+goto execute_make_req;
+} else {
+return;
+
+}
+
+;
+
+}
+void run() {
+
+dummy:
+runHelper(CPU_State._make_req);
+assert(false);
+
+;
+
+}
+void make_req_CalculateDeferredAndIgnoredSets(SM_EVENT_SET localDeferredSet, SM_EVENT_SET localIgnoredSet) {
+
+dummy:
+localDeferredSet = (localDeferredSet + stackDeferredSet);
+
+;
+
+}
+};
+
+class Main{
+static int CPU_instance;
+static int Client_instance;
+static int SharerList_instance;
+static int Host_instance;
+static SM_EVENT sharer_id_SM_EVENT;
+static SM_EVENT invalidate_sharers_SM_EVENT;
+static SM_EVENT asked_ex_SM_EVENT;
+static SM_EVENT asked_sh_SM_EVENT;
+static SM_EVENT wait_SM_EVENT;
+static SM_EVENT normal_SM_EVENT;
+static SM_EVENT grant_share_SM_EVENT;
+static SM_EVENT grant_excl_SM_EVENT;
+static SM_EVENT invalidate_SM_EVENT;
+static SM_EVENT ask_excl_SM_EVENT;
+static SM_EVENT ask_share_SM_EVENT;
+static SM_EVENT grant_SM_EVENT;
+static SM_EVENT invalidate_ack_SM_EVENT;
+static SM_EVENT need_invalidate_SM_EVENT;
+static SM_EVENT req_excl_SM_EVENT;
+static SM_EVENT req_share_SM_EVENT;
+static SM_EVENT unit_SM_EVENT;
+static activate void run() {
+
+dummy:
+Main.unit_SM_EVENT = SM_EVENT.Construct(Event._unit, false);
+Main.req_share_SM_EVENT = SM_EVENT.Construct(Event._req_share, true);
+Main.req_excl_SM_EVENT = SM_EVENT.Construct(Event._req_excl, true);
+Main.need_invalidate_SM_EVENT = SM_EVENT.Construct(Event._need_invalidate, false);
+Main.invalidate_ack_SM_EVENT = SM_EVENT.Construct(Event._invalidate_ack, true);
+Main.grant_SM_EVENT = SM_EVENT.Construct(Event._grant, true);
+Main.ask_share_SM_EVENT = SM_EVENT.Construct(Event._ask_share, true);
+Main.ask_excl_SM_EVENT = SM_EVENT.Construct(Event._ask_excl, true);
+Main.invalidate_SM_EVENT = SM_EVENT.Construct(Event._invalidate, true);
+Main.grant_excl_SM_EVENT = SM_EVENT.Construct(Event._grant_excl, true);
+Main.grant_share_SM_EVENT = SM_EVENT.Construct(Event._grant_share, true);
+Main.normal_SM_EVENT = SM_EVENT.Construct(Event._normal, false);
+Main.wait_SM_EVENT = SM_EVENT.Construct(Event._wait, false);
+Main.asked_sh_SM_EVENT = SM_EVENT.Construct(Event._asked_sh, true);
+Main.asked_ex_SM_EVENT = SM_EVENT.Construct(Event._asked_ex, true);
+Main.invalidate_sharers_SM_EVENT = SM_EVENT.Construct(Event._invalidate_sharers, false);
+Main.sharer_id_SM_EVENT = SM_EVENT.Construct(Event._sharer_id, false);
+Host_instance = 0;
+SharerList_instance = 0;
+Client_instance = 0;
+CPU_instance = 0;
+Main.CreateMachine_Host(3, false, null, null, null, null, null, false, null, 0);
+scheduler.Remove(self);
+}
+static SM_HANDLE CreateMachine_CPU(SM_HANDLE cache1, SM_HANDLE cache2, SM_HANDLE cache3) {
+CPU o_CPU;
+
+dummy:
+o_CPU = new CPU;
+o_CPU.myHandle = SM_HANDLE.Construct(Machine._CPU, CPU_instance);
+CPU_instance = (CPU_instance + 1);
+o_CPU.stackDeferredSet = new SM_EVENT_SET;
+o_CPU.cache1 = cache1;
+o_CPU.cache2 = cache2;
+o_CPU.cache3 = cache3;
+async o_CPU.run();
+o_CPU.myHandle.sid = scheduler.newProc;
+yield;
+return o_CPU.myHandle;
+
+;
+
+}
+static SM_HANDLE CreateMachine_Client(SM_HANDLE host, bool pending) {
+Client o_Client;
+
+dummy:
+o_Client = new Client;
+o_Client.myHandle = SM_HANDLE.Construct(Machine._Client, Client_instance);
+Client_instance = (Client_instance + 1);
+o_Client.stackDeferredSet = new SM_EVENT_SET;
+o_Client.host = host;
+o_Client.pending = pending;
+async o_Client.run();
+o_Client.myHandle.sid = scheduler.newProc;
+yield;
+return o_Client.myHandle;
+
+;
+
+}
+static SM_HANDLE CreateMachine_SharerList(int counter) {
+SharerList o_SharerList;
+
+dummy:
+o_SharerList = new SharerList;
+o_SharerList.myHandle = SM_HANDLE.Construct(Machine._SharerList, SharerList_instance);
+SharerList_instance = (SharerList_instance + 1);
+o_SharerList.stackDeferredSet = new SM_EVENT_SET;
+o_SharerList.counter = counter;
+async o_SharerList.run();
+o_SharerList.myHandle.sid = scheduler.newProc;
+yield;
+return o_SharerList.myHandle;
+
+;
+
+}
+static SM_HANDLE CreateMachine_Host(int num_clients, bool ex_granted, SM_HANDLE cur_cli, SM_HANDLE cur_cli1, SM_HANDLE cur_cli2, SM_HANDLE cur_cli3, SM_HANDLE cur_cpu, bool is_cur_req_exc, SM_HANDLE sharer_list, int sharer_list_size) {
+Host o_Host;
+
+dummy:
+o_Host = new Host;
+o_Host.myHandle = SM_HANDLE.Construct(Machine._Host, Host_instance);
+Host_instance = (Host_instance + 1);
+o_Host.stackDeferredSet = new SM_EVENT_SET;
+o_Host.num_clients = num_clients;
+o_Host.ex_granted = ex_granted;
+o_Host.cur_cli = cur_cli;
+o_Host.cur_cli1 = cur_cli1;
+o_Host.cur_cli2 = cur_cli2;
+o_Host.cur_cli3 = cur_cli3;
+o_Host.cur_cpu = cur_cpu;
+o_Host.is_cur_req_exc = is_cur_req_exc;
+o_Host.sharer_list = sharer_list;
+o_Host.sharer_list_size = sharer_list_size;
+async o_Host.run();
+o_Host.myHandle.sid = scheduler.newProc;
+yield;
+return o_Host.myHandle;
+
+;
+
+}
+};
+

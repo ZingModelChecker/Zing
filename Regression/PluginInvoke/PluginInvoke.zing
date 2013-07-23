@@ -1,0 +1,21 @@
+enum States
+{
+	State1,
+	State2,
+	State3
+};
+class PluginInvokeTest
+{
+    // Activate a process 
+    activate static void Tester()
+    {
+		invokeplugin("StateCoveragePlugin.dll", States.State1, "State1");
+		invokeplugin("StateCoveragePlugin.dll", States.State2, "State2");
+		invokeplugin("StateCoveragePlugin.dll", States.State3, "State3");
+		invokeplugin("StateVisitCount.dll", "State1");
+		invokeplugin("StateVisitCount.dll", "State1");
+		invokeplugin("StateVisitCount.dll", "State1");
+		invokeplugin("StateVisitCount.dll", "State1");
+		invokeplugin("StateVisitCount.dll", "State1");
+    }
+};

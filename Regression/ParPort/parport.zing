@@ -1,0 +1,67 @@
+//
+// This code was manually constructed by looking at the parPort driver in Windows
+// The objective is to show that a particular race never happens if certain increment
+// and decrement operations are done atomically.
+// If increment and decrement are non-atomic then certain interleavings can lead
+// to a race
+//
+class DEVICE_EXTENSION {
+    int OpenCloseRefCount = 0;
+    bool devExtAccess;
+};
+   
+class DEVICE_OBJECT {
+    DEVICE_EXTENSION deviceExtension;
+};
+
+class IRP{
+    int dummy;
+};
+    
+class myClass {
+
+    activate static void main() { 
+        DEVICE_OBJECT Pdo = new DEVICE_OBJECT ;
+        IRP irp = new IRP;
+        Pdo.deviceExtension = new DEVICE_EXTENSION;
+        Pdo.deviceExtension.devExtAccess = false;
+        Pdo.deviceExtension.OpenCloseRefCount = 0;
+        async PptPdoCreateOpen(Pdo, irp);
+        async PptPdoCreateOpen(Pdo, irp);
+    }
+
+    static atomic int InterlockedIncrement(DEVICE_EXTENSION pd) {
+        int temp;
+        temp = pd.OpenCloseRefCount + 1;
+        pd.OpenCloseRefCount = temp;
+        return pd.OpenCloseRefCount ;
+    }
+         
+    static atomic void InterlockedDecrement(DEVICE_EXTENSION pd) {
+        int temp;
+        temp = pd.OpenCloseRefCount - 1;
+        pd.OpenCloseRefCount = temp;
+        return;
+    }
+
+    static void PptPdoCreateOpen(
+        DEVICE_OBJECT  Pdo,
+        IRP            Irp)
+    {
+        DEVICE_EXTENSION  pdx      = Pdo.deviceExtension;
+ 
+        int x;
+        x = InterlockedIncrement(pdx);
+        if( x != 1 ) {
+            InterlockedDecrement(pdx);
+            return;
+        }
+ 
+        assert(!Pdo.deviceExtension.devExtAccess);
+        Pdo.deviceExtension.devExtAccess = true;
+             // do stuff
+        Pdo.deviceExtension.devExtAccess = false;
+        InterlockedDecrement(pdx);
+        return;     
+    }
+};

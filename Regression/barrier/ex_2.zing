@@ -1,0 +1,1314 @@
+barrier barrier_2 2;
+barrier barrier_3 3;
+enum Events { synthetic_nothing, a__receiver_propose, a__receiver_receive, a__receiver_send, a_ack__sender_propose, a_ack__sender_receive, a_ack__sender_send, b__receiver_propose, b__receiver_receive, b__receiver_send, b_ack__sender_propose, b_ack__sender_receive, b_ack__sender_send, next__receiver_synthetic, next__sender_synthetic, receiver_0__receiver_state, receiver_1__receiver_state, receiver_2__receiver_state, sender_0__sender_state, sender_1__sender_state, sender_2__sender_state, start_receive__receiver_synthetic, start_receive__sender_synthetic, EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic, EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic, LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic, LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic };
+set set_Events Events;
+array array_Events[] Events;
+
+class Barriers {
+
+    static barrier_2 a__receiver_propose;
+    static barrier_3 a__receiver_receive;
+    static barrier_3 a__receiver_send;
+    static barrier_2 a_ack__sender_propose;
+    static barrier_3 a_ack__sender_receive;
+    static barrier_3 a_ack__sender_send;
+    static barrier_2 b__receiver_propose;
+    static barrier_3 b__receiver_receive;
+    static barrier_3 b__receiver_send;
+    static barrier_2 b_ack__sender_propose;
+    static barrier_3 b_ack__sender_receive;
+    static barrier_3 b_ack__sender_send;
+    static barrier_2 next__receiver_synthetic;
+    static barrier_2 next__sender_synthetic;
+    static barrier_2 receiver_0__receiver_state;
+    static barrier_2 receiver_1__receiver_state;
+    static barrier_2 receiver_2__receiver_state;
+    static barrier_2 sender_0__sender_state;
+    static barrier_2 sender_1__sender_state;
+    static barrier_2 sender_2__sender_state;
+    static barrier_2 start_receive__receiver_synthetic;
+    static barrier_2 start_receive__sender_synthetic;
+    static barrier_2 EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic;
+    static barrier_2 EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic;
+    static barrier_2 LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic;
+    static barrier_2 LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic;
+
+    static void init()
+    {
+        a__receiver_propose = new barrier_2;
+        a__receiver_receive = new barrier_3;
+        a__receiver_send = new barrier_3;
+        a_ack__sender_propose = new barrier_2;
+        a_ack__sender_receive = new barrier_3;
+        a_ack__sender_send = new barrier_3;
+        b__receiver_propose = new barrier_2;
+        b__receiver_receive = new barrier_3;
+        b__receiver_send = new barrier_3;
+        b_ack__sender_propose = new barrier_2;
+        b_ack__sender_receive = new barrier_3;
+        b_ack__sender_send = new barrier_3;
+        next__receiver_synthetic = new barrier_2;
+        next__sender_synthetic = new barrier_2;
+        receiver_0__receiver_state = new barrier_2;
+        receiver_1__receiver_state = new barrier_2;
+        receiver_2__receiver_state = new barrier_2;
+        sender_0__sender_state = new barrier_2;
+        sender_1__sender_state = new barrier_2;
+        sender_2__sender_state = new barrier_2;
+        start_receive__receiver_synthetic = new barrier_2;
+        start_receive__sender_synthetic = new barrier_2;
+        EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic = new barrier_2;
+        EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic = new barrier_2;
+        LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic = new barrier_2;
+        LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic = new barrier_2;
+    }
+
+};
+class _receiver {
+
+
+    void run()
+    {
+        _receiver__Locking_receiver_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__Locking_receiver_0", "EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_receiver__receiver_0");
+                goto _receiver__receiver_0;
+            }
+        }
+    }
+        _receiver__receiver_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.receiver_0__receiver_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__receiver_0", "receiver_0__receiver_state", "_receiver__ObservedState_receiver_0");
+                goto _receiver__ObservedState_receiver_0;
+            }
+        }
+    }
+        _receiver__ChannelProp_Unlocking_ObservedState_receiver_0_a__receiver_receive:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ChannelProp_Unlocking_ObservedState_receiver_0_a__receiver_receive", "a__receiver_receive", "_receiver__Locking_receiver_1");
+                goto _receiver__Locking_receiver_1;
+            }
+        }
+    }
+        _receiver__ChannelProp_Unlocking_ObservedState_receiver_0_b__receiver_receive:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ChannelProp_Unlocking_ObservedState_receiver_0_b__receiver_receive", "b__receiver_receive", "_receiver__Locking_receiver_2");
+                goto _receiver__Locking_receiver_2;
+            }
+        }
+    }
+        _receiver__ChannelRcv_Unlocking_ObservedState_receiver_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_propose) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ChannelRcv_Unlocking_ObservedState_receiver_0", "a__receiver_propose", "_receiver__ChannelProp_Unlocking_ObservedState_receiver_0_a__receiver_receive");
+                goto _receiver__ChannelProp_Unlocking_ObservedState_receiver_0_a__receiver_receive;
+            }
+            sync( Barriers.b__receiver_propose) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ChannelRcv_Unlocking_ObservedState_receiver_0", "b__receiver_propose", "_receiver__ChannelProp_Unlocking_ObservedState_receiver_0_b__receiver_receive");
+                goto _receiver__ChannelProp_Unlocking_ObservedState_receiver_0_b__receiver_receive;
+            }
+        }
+    }
+        _receiver__Locking_receiver_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__Locking_receiver_1", "EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_receiver__SyncOnSend_receiver_1_receiverFctA_up_to_receiverOpA");
+                goto _receiver__SyncOnSend_receiver_1_receiverFctA_up_to_receiverOpA;
+            }
+        }
+    }
+        _receiver__Locking_receiver_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__Locking_receiver_2", "EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_receiver__SyncOnSend_receiver_2_receiverFctB_up_to_receiverOpB");
+                goto _receiver__SyncOnSend_receiver_2_receiverFctB_up_to_receiverOpB;
+            }
+        }
+    }
+        _receiver__ObservedState_receiver_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ObservedState_receiver_0", "LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_receiver__Unlocking_ObservedState_receiver_0");
+                goto _receiver__Unlocking_ObservedState_receiver_0;
+            }
+        }
+    }
+        _receiver__ObservedState_receiver_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            wait( true) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ObservedState_receiver_1", "true", "_receiver__Locking_receiver_0");
+                goto _receiver__Locking_receiver_0;
+            }
+        }
+    }
+        _receiver__ObservedState_receiver_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            wait( true) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__ObservedState_receiver_2", "true", "_receiver__Locking_receiver_0");
+                goto _receiver__Locking_receiver_0;
+            }
+        }
+    }
+        _receiver__Unlocking_ObservedState_receiver_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.start_receive__receiver_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__Unlocking_ObservedState_receiver_0", "start_receive__receiver_synthetic", "_receiver__ChannelRcv_Unlocking_ObservedState_receiver_0");
+                goto _receiver__ChannelRcv_Unlocking_ObservedState_receiver_0;
+            }
+        }
+    }
+        _receiver__SyncOnSend_receiver_1_rest:
+    {
+    {
+        trace("{0}: function {1}", "_receiver", "receiverFctA_rest");
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.receiver_1__receiver_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__SyncOnSend_receiver_1_rest", "receiver_1__receiver_state", "_receiver__ObservedState_receiver_1");
+                goto _receiver__ObservedState_receiver_1;
+            }
+        }
+    }
+        _receiver__SyncOnSend_receiver_1_receiverFctA_receiverOpA_OpEntry_receiverOpA:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__SyncOnSend_receiver_1_receiverFctA_receiverOpA_OpEntry_receiverOpA", "a_ack__sender_send", "_receiver__SyncOnSend_receiver_1_rest");
+                goto _receiver__SyncOnSend_receiver_1_rest;
+            }
+        }
+    }
+        _receiver__SyncOnSend_receiver_1_receiverFctA_up_to_receiverOpA:
+    {
+    {
+        trace("{0}: function {1}", "_receiver", "receiverFctA_up_to_receiverOpA");
+        /*skip*/;
+    }
+        select  end {
+            wait( true) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__SyncOnSend_receiver_1_receiverFctA_up_to_receiverOpA", "true", "_receiver__SyncOnSend_receiver_1_receiverFctA_receiverOpA_OpEntry_receiverOpA");
+                goto _receiver__SyncOnSend_receiver_1_receiverFctA_receiverOpA_OpEntry_receiverOpA;
+            }
+        }
+    }
+        _receiver__SyncOnSend_receiver_2_rest:
+    {
+    {
+        trace("{0}: function {1}", "_receiver", "receiverFctB_rest");
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.receiver_2__receiver_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__SyncOnSend_receiver_2_rest", "receiver_2__receiver_state", "_receiver__ObservedState_receiver_2");
+                goto _receiver__ObservedState_receiver_2;
+            }
+        }
+    }
+        _receiver__SyncOnSend_receiver_2_receiverFctB_receiverOpB_OpEntry_receiverOpB:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__SyncOnSend_receiver_2_receiverFctB_receiverOpB_OpEntry_receiverOpB", "b_ack__sender_send", "_receiver__SyncOnSend_receiver_2_rest");
+                goto _receiver__SyncOnSend_receiver_2_rest;
+            }
+        }
+    }
+        _receiver__SyncOnSend_receiver_2_receiverFctB_up_to_receiverOpB:
+    {
+    {
+        trace("{0}: function {1}", "_receiver", "receiverFctB_up_to_receiverOpB");
+        /*skip*/;
+    }
+        select  end {
+            wait( true) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_receiver", "_receiver__SyncOnSend_receiver_2_receiverFctB_up_to_receiverOpB", "true", "_receiver__SyncOnSend_receiver_2_receiverFctB_receiverOpB_OpEntry_receiverOpB");
+                goto _receiver__SyncOnSend_receiver_2_receiverFctB_receiverOpB_OpEntry_receiverOpB;
+            }
+        }
+    }
+    }
+
+};
+class _sender {
+
+    bool sender_a;
+
+    void run()
+    {
+        _sender__Locking_sender_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__Locking_sender_0", "EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic", "_sender__SyncOnSend_sender_0_senderFct_up_to_senderOp");
+                goto _sender__SyncOnSend_sender_0_senderFct_up_to_senderOp;
+            }
+        }
+    }
+        _sender__ERROR:
+        assert(false);
+        _sender__sender_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.sender_1__sender_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__sender_1", "sender_1__sender_state", "_sender__ObservedState_sender_1");
+                goto _sender__ObservedState_sender_1;
+            }
+        }
+    }
+        _sender__sender_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.sender_2__sender_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__sender_2", "sender_2__sender_state", "_sender__ObservedState_sender_2");
+                goto _sender__ObservedState_sender_2;
+            }
+        }
+    }
+        _sender__ChannelProp_Unlocking_ObservedState_sender_1_a_ack__sender_receive:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelProp_Unlocking_ObservedState_sender_1_a_ack__sender_receive", "a_ack__sender_receive", "_sender__Locking_sender_0");
+                goto _sender__Locking_sender_0;
+            }
+        }
+    }
+        _sender__ChannelProp_Unlocking_ObservedState_sender_1_b_ack__sender_receive:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelProp_Unlocking_ObservedState_sender_1_b_ack__sender_receive", "b_ack__sender_receive", "_sender__ERROR");
+                goto _sender__ERROR;
+            }
+        }
+    }
+        _sender__ChannelProp_Unlocking_ObservedState_sender_2_a_ack__sender_receive:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelProp_Unlocking_ObservedState_sender_2_a_ack__sender_receive", "a_ack__sender_receive", "_sender__ERROR");
+                goto _sender__ERROR;
+            }
+        }
+    }
+        _sender__ChannelProp_Unlocking_ObservedState_sender_2_b_ack__sender_receive:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelProp_Unlocking_ObservedState_sender_2_b_ack__sender_receive", "b_ack__sender_receive", "_sender__Locking_sender_0");
+                goto _sender__Locking_sender_0;
+            }
+        }
+    }
+        _sender__ChannelRcv_Unlocking_ObservedState_sender_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a_ack__sender_propose) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelRcv_Unlocking_ObservedState_sender_1", "a_ack__sender_propose", "_sender__ChannelProp_Unlocking_ObservedState_sender_1_a_ack__sender_receive");
+                goto _sender__ChannelProp_Unlocking_ObservedState_sender_1_a_ack__sender_receive;
+            }
+            sync( Barriers.b_ack__sender_propose) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelRcv_Unlocking_ObservedState_sender_1", "b_ack__sender_propose", "_sender__ChannelProp_Unlocking_ObservedState_sender_1_b_ack__sender_receive");
+                goto _sender__ChannelProp_Unlocking_ObservedState_sender_1_b_ack__sender_receive;
+            }
+        }
+    }
+        _sender__ChannelRcv_Unlocking_ObservedState_sender_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a_ack__sender_propose) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelRcv_Unlocking_ObservedState_sender_2", "a_ack__sender_propose", "_sender__ChannelProp_Unlocking_ObservedState_sender_2_a_ack__sender_receive");
+                goto _sender__ChannelProp_Unlocking_ObservedState_sender_2_a_ack__sender_receive;
+            }
+            sync( Barriers.b_ack__sender_propose) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ChannelRcv_Unlocking_ObservedState_sender_2", "b_ack__sender_propose", "_sender__ChannelProp_Unlocking_ObservedState_sender_2_b_ack__sender_receive");
+                goto _sender__ChannelProp_Unlocking_ObservedState_sender_2_b_ack__sender_receive;
+            }
+        }
+    }
+        _sender__ObservedState_sender_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            wait( sender_a) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ObservedState_sender_0", "sender_a", "_sender__sender_1");
+                goto _sender__sender_1;
+            }
+            wait( ! (sender_a)) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ObservedState_sender_0", "Not_sender_a", "_sender__sender_2");
+                goto _sender__sender_2;
+            }
+        }
+    }
+        _sender__ObservedState_sender_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ObservedState_sender_1", "LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic", "_sender__Unlocking_ObservedState_sender_1");
+                goto _sender__Unlocking_ObservedState_sender_1;
+            }
+        }
+    }
+        _sender__ObservedState_sender_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__ObservedState_sender_2", "LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic", "_sender__Unlocking_ObservedState_sender_2");
+                goto _sender__Unlocking_ObservedState_sender_2;
+            }
+        }
+    }
+        _sender__Unlocking_ObservedState_sender_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.start_receive__sender_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__Unlocking_ObservedState_sender_1", "start_receive__sender_synthetic", "_sender__ChannelRcv_Unlocking_ObservedState_sender_1");
+                goto _sender__ChannelRcv_Unlocking_ObservedState_sender_1;
+            }
+        }
+    }
+        _sender__Unlocking_ObservedState_sender_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.start_receive__sender_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__Unlocking_ObservedState_sender_2", "start_receive__sender_synthetic", "_sender__ChannelRcv_Unlocking_ObservedState_sender_2");
+                goto _sender__ChannelRcv_Unlocking_ObservedState_sender_2;
+            }
+        }
+    }
+        _sender__SyncOnSend_sender_0_rest:
+    {
+    {
+        trace("{0}: function {1}", "_sender", "senderFct_rest");
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.sender_0__sender_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_rest", "sender_0__sender_state", "_sender__ObservedState_sender_0");
+                goto _sender__ObservedState_sender_0;
+            }
+        }
+    }
+        _sender__SyncOnSend_sender_0_senderFct_senderOp_OpEntry_senderOp:
+    {
+    {
+        trace("{0}: function {1}", "_sender", "senderFct_senderOp_OpEntry_senderOp");
+        trace("{0}: operation {1}", "_sender", "senderFct_senderOp_OpEntry_senderOp");
+        sender_a = ! (sender_a);
+    }
+        select  end {
+            wait( true) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_senderFct_senderOp_OpEntry_senderOp", "true", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a");
+                goto _sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a;
+            }
+        }
+    }
+        _sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            wait( sender_a) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a", "sender_a", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_trueBranch");
+                goto _sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_trueBranch;
+            }
+            wait( ! (sender_a)) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a", "Not_sender_a", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_falseBranch");
+                goto _sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_falseBranch;
+            }
+        }
+    }
+        _sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_falseBranch:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_falseBranch", "b__receiver_send", "_sender__SyncOnSend_sender_0_rest");
+                goto _sender__SyncOnSend_sender_0_rest;
+            }
+        }
+    }
+        _sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_trueBranch:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_senderFct_senderOp_Node_senderOp_Node_senderOp_OpEntry_senderOp_sender_a_updV_Not_sender_a_trueBranch", "a__receiver_send", "_sender__SyncOnSend_sender_0_rest");
+                goto _sender__SyncOnSend_sender_0_rest;
+            }
+        }
+    }
+        _sender__SyncOnSend_sender_0_senderFct_up_to_senderOp:
+    {
+    {
+        trace("{0}: function {1}", "_sender", "senderFct_up_to_senderOp");
+        /*skip*/;
+    }
+        select  end {
+            wait( true) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_sender", "_sender__SyncOnSend_sender_0_senderFct_up_to_senderOp", "true", "_sender__SyncOnSend_sender_0_senderFct_senderOp_OpEntry_senderOp");
+                goto _sender__SyncOnSend_sender_0_senderFct_senderOp_OpEntry_senderOp;
+            }
+        }
+    }
+    }
+
+};
+class _synthetic_sync_async_Scheduler {
+
+
+    void run()
+    {
+        _synthetic_sync_async_Scheduler__Unlocked:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_synthetic_sync_async_Scheduler", "_synthetic_sync_async_Scheduler__Unlocked", "EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_synthetic_sync_async_Scheduler__Locked__receiver");
+                goto _synthetic_sync_async_Scheduler__Locked__receiver;
+            }
+            sync( Barriers.EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_synthetic_sync_async_Scheduler", "_synthetic_sync_async_Scheduler__Unlocked", "EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic", "_synthetic_sync_async_Scheduler__Locked__sender");
+                goto _synthetic_sync_async_Scheduler__Locked__sender;
+            }
+        }
+    }
+        _synthetic_sync_async_Scheduler__Locked__receiver:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_synthetic_sync_async_Scheduler", "_synthetic_sync_async_Scheduler__Locked__receiver", "EnteringSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_synthetic_sync_async_Scheduler__Locked__receiver");
+                goto _synthetic_sync_async_Scheduler__Locked__receiver;
+            }
+            sync( Barriers.LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_synthetic_sync_async_Scheduler", "_synthetic_sync_async_Scheduler__Locked__receiver", "LeavingSync__receiver__synthetic_sync_async_Scheduler_synthetic", "_synthetic_sync_async_Scheduler__Unlocked");
+                goto _synthetic_sync_async_Scheduler__Unlocked;
+            }
+        }
+    }
+        _synthetic_sync_async_Scheduler__Locked__sender:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_synthetic_sync_async_Scheduler", "_synthetic_sync_async_Scheduler__Locked__sender", "EnteringSync__sender__synthetic_sync_async_Scheduler_synthetic", "_synthetic_sync_async_Scheduler__Locked__sender");
+                goto _synthetic_sync_async_Scheduler__Locked__sender;
+            }
+            sync( Barriers.LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_synthetic_sync_async_Scheduler", "_synthetic_sync_async_Scheduler__Locked__sender", "LeavingSync__sender__synthetic_sync_async_Scheduler_synthetic", "_synthetic_sync_async_Scheduler__Unlocked");
+                goto _synthetic_sync_async_Scheduler__Unlocked;
+            }
+        }
+    }
+    }
+
+};
+class _monitor_spec {
+
+
+    void run()
+    {
+        _monitor_spec__s0_0:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "a__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "a__receiver_send", "_monitor_spec__s0_1");
+                goto _monitor_spec__s0_1;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "a_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "a_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "b__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "b__receiver_send", "_monitor_spec__s0_4");
+                goto _monitor_spec__s0_4;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "b_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "b_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+        }
+    }
+        _monitor_spec__ERROR:
+        assert(false);
+        _monitor_spec__s0_1:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "a__receiver_receive", "_monitor_spec__s0_2");
+                goto _monitor_spec__s0_2;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "a__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "a_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "a_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "b__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "b__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "b_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_1", "b_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+        }
+    }
+        _monitor_spec__s0_2:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "a__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "a__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "a_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "a_ack__sender_send", "_monitor_spec__s0_3");
+                goto _monitor_spec__s0_3;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "b__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "b__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "b_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_2", "b_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+        }
+    }
+        _monitor_spec__s0_3:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "a__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "a__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "a_ack__sender_receive", "_monitor_spec__s0_0");
+                goto _monitor_spec__s0_0;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "a_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "b__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "b__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "b_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_3", "b_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+        }
+    }
+        _monitor_spec__s0_4:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "a__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "a__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "a_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "a_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "b__receiver_receive", "_monitor_spec__s0_5");
+                goto _monitor_spec__s0_5;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "b__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "b_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_4", "b_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+        }
+    }
+        _monitor_spec__s0_5:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "a__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "a__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "a_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "a_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "b__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "b__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "b_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_5", "b_ack__sender_send", "_monitor_spec__s0_6");
+                goto _monitor_spec__s0_6;
+            }
+        }
+    }
+        _monitor_spec__s0_6:
+    {
+    {
+        /*skip*/;
+    }
+        select  end {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "a__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "a__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "a_ack__sender_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "a_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "b__receiver_receive", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "b__receiver_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "b_ack__sender_receive", "_monitor_spec__s0_0");
+                goto _monitor_spec__s0_0;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_6", "b_ack__sender_send", "_monitor_spec__ERROR");
+                goto _monitor_spec__ERROR;
+            }
+        }
+    }
+    }
+
+};
+class Main {
+
+    static _receiver _receiver;
+    static _sender _sender;
+    static _synthetic_sync_async_Scheduler _synthetic_sync_async_Scheduler;
+    static _channel_of__receiver _channel_of__receiver;
+    static _channel_of__sender _channel_of__sender;
+    static _monitor_spec _monitor_spec;
+
+    activate static void init()
+    {
+        Barriers.init();
+        _receiver = new _receiver;
+        async _receiver.run();
+        _sender = new _sender;
+        async _sender.run();
+        _synthetic_sync_async_Scheduler = new _synthetic_sync_async_Scheduler;
+        async _synthetic_sync_async_Scheduler.run();
+        _channel_of__receiver = new _channel_of__receiver;
+        async _channel_of__receiver.run();
+        _channel_of__sender = new _channel_of__sender;
+        async _channel_of__sender.run();
+        _monitor_spec = new _monitor_spec;
+        async _monitor_spec.run();
+    }
+
+};
+class lookAheadFIFO_content {
+
+    array_Events content = new array_Events[4];
+    int endIndex = 0;
+    set_Events ignoreList = new set_Events;
+    int index = 0;
+    int size = 4;
+
+    void enqueue(Events evt)
+    {
+        if ((evt) in (ignoreList))
+            return;
+        if ((endIndex) >= (size))
+            resize();
+        content[endIndex] = evt;
+        endIndex = (endIndex) + (1);
+    }
+
+    void extract(int idx)
+    {
+        if (((idx) > (0)) && ((idx) <= (index)))
+            index = (index) - (1);
+        assert(((idx) >= (0)) && ((idx) < (endIndex)));
+        while ((idx) < ((size) - (1)))
+        {
+            content[idx] = content[(idx) + (1)];
+            idx = (1) + (idx);
+        }
+        if ((endIndex) < (size))
+            content[idx] = Events.synthetic_nothing;
+        endIndex = (endIndex) - (1);
+    }
+
+    void flushIgnored()
+    {
+        int i = 0;
+        while ((i) < (endIndex))
+            if ((content[i]) in (ignoreList))
+                extract(i);
+            else
+                i = (i) + (1);
+    }
+
+    void resize()
+    {
+        array_Events newContent = new array_Events[(2) * (size)];
+        int i = 0;
+        while ((i) < (size))
+        {
+            newContent[i] = content[i];
+            i = (1) + (i);
+        }
+        size = (2) * (size);
+        while ((i) < (size))
+        {
+            newContent[i] = Events.synthetic_nothing;
+            i = (1) + (i);
+        }
+        content = newContent;
+    }
+
+};
+class _channel_of__receiver {
+
+    lookAheadFIFO_content content = new lookAheadFIFO_content;
+    bool receive_pending = false;
+
+    void forward()
+    {
+        _channel_of__receiver_main_loop:
+        select   {
+            wait( (receive_pending) && ((content.index) < (content.endIndex))) -> 
+                goto _channel_of__receiver_forwarding;
+            wait( ! ((receive_pending) && ((content.index) < (content.endIndex)))) -> 
+                goto _channel_of__receiver_receive_and_state_loop;
+        }
+        _channel_of__receiver_receive_and_state_loop:
+        select  end {
+            sync( Barriers.a__receiver_send) -> 
+            {
+                content.enqueue(Events.a__receiver_receive);
+                goto _channel_of__receiver_main_loop;
+            }
+            sync( Barriers.b__receiver_send) -> 
+            {
+                content.enqueue(Events.b__receiver_receive);
+                goto _channel_of__receiver_main_loop;
+            }
+            sync( Barriers.receiver_0__receiver_state) -> 
+            {
+                content.ignoreList = new set_Events;
+                content.flushIgnored();
+                goto _channel_of__receiver_receive_and_state_loop;
+            }
+            sync( Barriers.receiver_1__receiver_state) -> 
+            {
+                content.ignoreList = new set_Events;
+                content.flushIgnored();
+                goto _channel_of__receiver_receive_and_state_loop;
+            }
+            sync( Barriers.receiver_2__receiver_state) -> 
+            {
+                content.ignoreList = new set_Events;
+                content.flushIgnored();
+                goto _channel_of__receiver_receive_and_state_loop;
+            }
+            sync( Barriers.start_receive__receiver_synthetic) -> 
+            {
+                receive_pending = true;
+                goto _channel_of__receiver_main_loop;
+            }
+        }
+        _channel_of__receiver_forwarding:
+        select   {
+            wait( (content.content[content.index]) == (Events.a__receiver_receive)) -> 
+                goto _channel_of__receiver_forwarding_a__receiver_receive;
+            wait( (content.content[content.index]) == (Events.b__receiver_receive)) -> 
+                goto _channel_of__receiver_forwarding_b__receiver_receive;
+        }
+        _channel_of__receiver_forwarding_a__receiver_receive:
+        select   {
+            sync( Barriers.a__receiver_propose) -> 
+                goto _channel_of__receiver_forwarding_ACK_a__receiver_receive;
+        }
+        _channel_of__receiver_forwarding_b__receiver_receive:
+        select   {
+            sync( Barriers.b__receiver_propose) -> 
+                goto _channel_of__receiver_forwarding_ACK_b__receiver_receive;
+        }
+        _channel_of__receiver_forwarding_ACK_a__receiver_receive:
+        select   {
+            sync( Barriers.a__receiver_receive) -> 
+            {
+                content.extract(content.index);
+                content.index = 0;
+                receive_pending = false;
+                goto _channel_of__receiver_main_loop;
+            }
+            sync( Barriers.next__receiver_synthetic) -> 
+            {
+                content.index = (content.index) + (1);
+                goto _channel_of__receiver_main_loop;
+            }
+        }
+        _channel_of__receiver_forwarding_ACK_b__receiver_receive:
+        select   {
+            sync( Barriers.b__receiver_receive) -> 
+            {
+                content.extract(content.index);
+                content.index = 0;
+                receive_pending = false;
+                goto _channel_of__receiver_main_loop;
+            }
+            sync( Barriers.next__receiver_synthetic) -> 
+            {
+                content.index = (content.index) + (1);
+                goto _channel_of__receiver_main_loop;
+            }
+        }
+    }
+
+    void run()
+    {
+        content.content[0] = Events.synthetic_nothing;
+        content.content[1] = Events.synthetic_nothing;
+        content.content[2] = Events.synthetic_nothing;
+        content.content[3] = Events.synthetic_nothing;
+        async forward();
+    }
+
+};
+class _channel_of__sender {
+
+    lookAheadFIFO_content content = new lookAheadFIFO_content;
+    bool receive_pending = false;
+
+    void forward()
+    {
+        _channel_of__sender_main_loop:
+        select   {
+            wait( (receive_pending) && ((content.index) < (content.endIndex))) -> 
+                goto _channel_of__sender_forwarding;
+            wait( ! ((receive_pending) && ((content.index) < (content.endIndex)))) -> 
+                goto _channel_of__sender_receive_and_state_loop;
+        }
+        _channel_of__sender_receive_and_state_loop:
+        select  end {
+            sync( Barriers.a_ack__sender_send) -> 
+            {
+                content.enqueue(Events.a_ack__sender_receive);
+                goto _channel_of__sender_main_loop;
+            }
+            sync( Barriers.b_ack__sender_send) -> 
+            {
+                content.enqueue(Events.b_ack__sender_receive);
+                goto _channel_of__sender_main_loop;
+            }
+            sync( Barriers.sender_0__sender_state) -> 
+            {
+                content.ignoreList = new set_Events;
+                content.flushIgnored();
+                goto _channel_of__sender_receive_and_state_loop;
+            }
+            sync( Barriers.sender_1__sender_state) -> 
+            {
+                content.ignoreList = new set_Events;
+                content.flushIgnored();
+                goto _channel_of__sender_receive_and_state_loop;
+            }
+            sync( Barriers.sender_2__sender_state) -> 
+            {
+                content.ignoreList = new set_Events;
+                content.flushIgnored();
+                goto _channel_of__sender_receive_and_state_loop;
+            }
+            sync( Barriers.start_receive__sender_synthetic) -> 
+            {
+                receive_pending = true;
+                goto _channel_of__sender_main_loop;
+            }
+        }
+        _channel_of__sender_forwarding:
+        select   {
+            wait( (content.content[content.index]) == (Events.a_ack__sender_receive)) -> 
+                goto _channel_of__sender_forwarding_a_ack__sender_receive;
+            wait( (content.content[content.index]) == (Events.b_ack__sender_receive)) -> 
+                goto _channel_of__sender_forwarding_b_ack__sender_receive;
+        }
+        _channel_of__sender_forwarding_a_ack__sender_receive:
+        select   {
+            sync( Barriers.a_ack__sender_propose) -> 
+                goto _channel_of__sender_forwarding_ACK_a_ack__sender_receive;
+        }
+        _channel_of__sender_forwarding_b_ack__sender_receive:
+        select   {
+            sync( Barriers.b_ack__sender_propose) -> 
+                goto _channel_of__sender_forwarding_ACK_b_ack__sender_receive;
+        }
+        _channel_of__sender_forwarding_ACK_a_ack__sender_receive:
+        select   {
+            sync( Barriers.a_ack__sender_receive) -> 
+            {
+                content.extract(content.index);
+                content.index = 0;
+                receive_pending = false;
+                goto _channel_of__sender_main_loop;
+            }
+            sync( Barriers.next__sender_synthetic) -> 
+            {
+                content.index = (content.index) + (1);
+                goto _channel_of__sender_main_loop;
+            }
+        }
+        _channel_of__sender_forwarding_ACK_b_ack__sender_receive:
+        select   {
+            sync( Barriers.b_ack__sender_receive) -> 
+            {
+                content.extract(content.index);
+                content.index = 0;
+                receive_pending = false;
+                goto _channel_of__sender_main_loop;
+            }
+            sync( Barriers.next__sender_synthetic) -> 
+            {
+                content.index = (content.index) + (1);
+                goto _channel_of__sender_main_loop;
+            }
+        }
+    }
+
+    void run()
+    {
+        content.content[0] = Events.synthetic_nothing;
+        content.content[1] = Events.synthetic_nothing;
+        content.content[2] = Events.synthetic_nothing;
+        content.content[3] = Events.synthetic_nothing;
+        async forward();
+    }
+
+};

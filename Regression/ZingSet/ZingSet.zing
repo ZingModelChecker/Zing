@@ -1,0 +1,49 @@
+set IntSet int;
+chan IntChan int;
+
+class Main
+{
+	static IntChan sender;
+
+	static void senderr()
+	{
+		IntSet xyz = new IntSet;
+		int i = 0;
+		int c ;
+		int b;
+		atomic
+		{
+			while(i<10)
+			{
+				xyz = xyz + i;
+				i =i + 1;
+			}
+		}
+		c = choose(xyz);
+		b = choose(xyz);
+		send(sender,c + b);
+	}
+	
+	static void receiverr()
+	{
+		int m;
+		while(true)
+		{
+			select
+			{
+				receive(sender,m) -> ;
+			}
+		}
+		assert(m<20);
+	}
+	activate static void Run()
+	{
+
+		atomic
+		{
+			sender = new IntChan;
+			async senderr();
+			async receiverr();
+		}
+	}
+};

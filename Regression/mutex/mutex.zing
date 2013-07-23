@@ -1,0 +1,46 @@
+class mutex
+{
+  static bool flag1; 
+  static bool flag2;
+  static bool p1InCS;
+  static bool p2InCS;
+  static int turn;
+
+  void p1(){
+ 	flag1 = true;
+	turn = 2;
+	while(flag2 && (turn == 2)) ;
+
+	// CS begins here
+	p1InCS = true;	
+	assert(!p2InCS);
+
+	// CS ends here
+
+	p1InCS = false;
+	flag1 = false;
+  }
+
+
+   void p2(){
+ 	flag2 = true;
+	turn = 1;
+	while(flag1 && (turn == 1)) ;
+
+	// CS begins here
+	p2InCS = true;	
+	assert(!p1InCS);
+	p2InCS = false;
+	// CS ends here
+
+	flag2 = false;
+   }
+
+   activate static void main(){
+	mutex m = new mutex;
+	flag1 = false;
+	flag2 = false;
+	async m.p1();
+	async m.p2();
+   }
+};

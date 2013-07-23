@@ -1,0 +1,21 @@
+
+class Hello
+{ int i;
+};
+
+chan HelloChan Hello;
+
+class Program
+{
+  static activate void main()
+  { Hello a = new Hello;
+    Hello b = a;
+    object c = b;
+    Hello d = c;
+    //
+    HelloChan ca = new HelloChan;
+    HelloChan cb = ca;
+    object cc = cb;
+    HelloChan cd = cc;
+  }
+};

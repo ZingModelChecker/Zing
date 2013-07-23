@@ -1,0 +1,1174 @@
+class SingletonLock {
+	static bool locked;
+
+	atomic static void acquire () {
+		select { wait (!locked) -> locked = true; }
+	}
+
+	atomic static void release () {
+		locked = false;
+	}
+};
+
+
+class BoolProg {
+	static bool g6;
+	static bool g5;
+	static bool g4;
+	static bool g3;
+	static bool g2;
+	static bool g1;
+	static bool g0;
+	static bool locked;
+	atomic static bool schoose(bool pos,bool neg){
+		bool s;
+		if (pos)
+			return true;
+		else if (neg)
+			return false;
+		else {s = choose (bool); return s; }}
+
+	activate static void main() {
+		bool t_l0_6;
+		bool t_l0_5;
+		bool t_l0_4;
+		bool t_l0_3;
+		bool t_l0_2;
+		bool t_l0_1;
+		bool t_l0_0;
+
+		atomic {
+		g1 = choose (bool);
+		g2 = choose (bool);
+		g4 = choose (bool);
+		g5 = choose (bool);
+		g6 = choose (bool);
+		}
+		goto L15;
+L15:;
+	atomic {
+		trace ("c2bp_b_15");
+		trace ("c2bp_i_15_1");
+		trace ("c2bp_stmt_15_1");
+	}
+	atomic {
+		trace ("c2bpcall_15_1");
+		trace ("c2bpcallrtb_12");
+	}
+		__init1_1();;
+	atomic {
+		trace ("c2bpreturnpt_15_2");
+	}
+		goto L12;
+L14:;
+	atomic {
+		trace ("c2bp_b_14");
+		trace ("c2bp_i_14_1");
+		trace ("c2bpnext_b_6"); goto L6;
+	}
+L12:;
+	atomic {
+		trace ("c2bp_b_12");
+		trace ("c2bp_i_12_1");
+		trace ("c2bpnext_b_11"); goto L11;
+	}
+L11:;
+	atomic {
+		trace ("c2bp_b_11");
+		trace ("c2bp_i_11_1");
+		trace ("c2bpnext_i_11_2");
+		trace ("c2bp_stmt_11_1");
+		trace ("C_153_11_1");
+		g0=schoose(true,false);
+	}
+	atomic {
+		trace ("c2bp_i_11_2");
+		trace ("c2bpnext_i_11_3");
+		trace ("c2bp_stmt_11_2");
+		trace ("C_154_11_2");
+		g3=schoose(true,false);
+	}
+	atomic {
+		trace ("c2bp_i_11_3");
+		trace ("c2bp_stmt_11_3");
+		t_l0_0=schoose(g3,!(g3));
+	}
+	atomic {
+		trace ("c2bpcall_11_3");
+		trace ("C_156_11_3");
+		trace ("c2bpcallrtb_10");
+	}
+		bool ret_4_0;
+		bool ret_4_1;
+		BCSP_Miniport_PnpAdd_1(t_l0_0, out ret_4_1, out ret_4_0);;
+		atomic {
+		t_l0_1 = ret_4_0;
+		t_l0_2 = ret_4_1;
+		}
+	atomic {
+		trace ("c2bpreturnpt_11_4");
+	}
+		goto L10;
+L10:;
+	atomic {
+		trace ("c2bp_b_10");
+		trace ("c2bp_i_10_1");
+		trace ("C_157_10_1");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_9"); goto L9; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_14"); goto L14; }
+			}
+	}
+L9:;
+	atomic {
+		trace ("c2bp_b_9");
+		trace ("c2bp_i_9_1");
+		trace ("c2bp_stmt_9_1");
+	}
+	atomic {
+		trace ("c2bpcall_9_1");
+		trace ("C_158_9_1");
+		trace ("c2bpcallrtb_6");
+	}
+		Loop_1();;
+	atomic {
+		trace ("c2bpreturnpt_9_2");
+	}
+		goto L6;
+L6:;
+	atomic {
+		trace ("c2bp_b_6");
+		trace ("ASYNC_1");
+		trace ("c2bp_i_6_1");
+		trace ("c2bp_stmt_6_1");
+		t_l0_0=schoose(g3,!(g3));
+	}
+	atomic {
+		trace ("c2bpcall_6_1");
+		trace ("C_161_6_1");
+	}
+		async BCSP_Miniport_SomeDispatchFunction_1(t_l0_0);
+	atomic {
+		trace ("c2bpreturnpt_6_2");
+	}
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("ASYNC_2");
+		trace ("c2bp_i_4_1");
+		trace ("c2bp_stmt_4_1");
+		t_l0_0=schoose(g3,!(g3));
+	}
+	atomic {
+		trace ("c2bpcall_4_1");
+		trace ("C_163_4_1");
+	}
+		async BCSP_Miniport_PnpStop_1(t_l0_0);
+	atomic {
+		trace ("c2bpreturnpt_4_2");
+	}
+		goto L3;
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_165_3_1");
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void KeWaitForSingleObject_1(bool l1_0, out bool f_out2, out bool f_out1) {
+		bool l1_1;
+
+		goto L9;
+L9:;
+	atomic {
+		trace ("c2bp_b_9");
+		trace ("c2bp_i_9_1");
+		trace ("c2bpnext_b_8"); goto L8;
+	}
+L8:
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("c2bpnext_i_8_2");
+		trace ("c2bp_stmt_8_1");
+		trace ("C_96_8_1");
+		l1_1=schoose(l1_0,!(l1_0));
+	}
+	atomic {
+		trace ("c2bp_i_8_2");
+		trace ("C_97_8_2");
+	}
+		atomic { select { wait (!locked) -> { assume (((true)&&(!((l1_1)&&(g2))))&&(!((l1_1)&&(g2)))); locked = true; }}}
+L5:;
+		assume (((true)&&(!((l1_1)&&(g2))))&&(!((l1_1)&&(g2))));
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("WAIT_BRANCH");
+		trace ("c2bp_i_5_1");
+		trace ("c2bpnext_i_5_2");
+		trace ("c2bp_stmt_5_1");
+		trace ("C_100_5_1");
+		bool hook_10_l1_1;
+		hook_10_l1_1 = l1_1;
+		g2=schoose(false,false);
+		assume ((!((hook_10_l1_1)&&(!(g2))))&&(!((hook_10_l1_1)&&(!(g2)))));
+	}
+	atomic {
+		trace ("c2bp_i_5_2");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_102_3_1");
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		f_out1 = l1_0;
+		f_out2 = l1_1;
+		locked = false;
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void BCSP_Miniport_SomeDispatchFunction_1(bool l2_0) {
+		bool t_l2_4;
+		bool t_l2_3;
+		bool t_l2_2;
+		bool l2_1;
+
+		goto L12;
+L15:;
+		assume (g0);
+	atomic {
+		trace ("c2bp_b_15");
+		trace ("c2bp_i_15_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L14:;
+	atomic {
+		trace ("c2bp_b_14");
+		trace ("c2bp_i_14_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L12:;
+	atomic {
+		trace ("c2bp_b_12");
+		trace ("c2bp_i_12_1");
+		trace ("c2bpnext_b_11"); goto L11;
+	}
+L11:;
+	atomic {
+		trace ("c2bp_b_11");
+		trace ("c2bp_i_11_1");
+		trace ("c2bpnext_i_11_2");
+		trace ("c2bp_stmt_11_1");
+		trace ("C_421_11_1");
+		l2_1=schoose((g1)&&(l2_0),(!(g1))&&(l2_0));
+	}
+	atomic {
+		trace ("c2bp_i_11_2");
+		trace ("c2bp_stmt_11_2");
+		t_l2_2=schoose(l2_1,!(l2_1));
+	}
+	atomic {
+		trace ("c2bpcall_11_2");
+		trace ("C_423_11_2");
+		trace ("c2bpcallrtb_10");
+	}
+		bool ret_13_0;
+		BCSP_IoIncrement_1(t_l2_2, out ret_13_0);;
+		atomic {
+		t_l2_3 = ret_13_0;
+		}
+	atomic {
+		trace ("c2bpreturnpt_11_3");
+	}
+		goto L10;
+L10:;
+	atomic {
+		trace ("c2bp_b_10");
+		trace ("c2bp_i_10_1");
+		trace ("C_425_10_1");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_14"); goto L14; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_8"); goto L8; }
+			}
+	}
+L8:;
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("C_427_8_1");
+		select {
+				wait(true) -> { assume (g0); trace ("c2bpnext_b_15"); goto L15; }
+				wait(true) -> { assume (!(g0)); trace ("c2bpnext_b_6"); goto L6; }
+			}
+	}
+L6:;
+		assume (!(g0));
+	atomic {
+		trace ("c2bp_b_6");
+		trace ("SLIC_ERROR"); assert (false);
+		trace ("c2bp_i_6_1");
+		trace ("c2bpnext_b_5"); goto L5;
+	}
+L5:;
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("c2bpnext_b_4"); goto L4;
+	}
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bp_stmt_3_1");
+		t_l2_2=schoose(l2_1,!(l2_1));
+	}
+	atomic {
+		trace ("c2bpcall_3_1");
+		trace ("C_432_3_1");
+		trace ("c2bpcallrtb_1");
+	}
+		bool ret_15_0;
+		BCSP_IoDecrement_1(t_l2_2, out ret_15_0);;
+		atomic {
+		t_l2_4 = ret_15_0;
+		}
+	atomic {
+		trace ("c2bpreturnpt_3_2");
+	}
+		goto L1;
+L1:;
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void BCSP_IoIncrement_1(bool l3_0, out bool f_out1) {
+		bool t_l3_2;
+		bool t_l3_1;
+
+		goto L13;
+L13:;
+	atomic {
+		trace ("c2bp_b_13");
+		trace ("c2bp_i_13_1");
+		trace ("c2bpnext_b_12"); goto L12;
+	}
+L12:;
+	atomic {
+		trace ("c2bp_b_12");
+		trace ("c2bp_i_12_1");
+		trace ("c2bp_stmt_12_1");
+	}
+	atomic {
+		trace ("c2bpcall_12_1");
+		trace ("C_237_12_1");
+		trace ("c2bpcallrtb_11");
+	}
+		InterlockedCompareExchange_1();;
+	atomic {
+		trace ("c2bpreturnpt_12_2");
+	}
+		goto L11;
+L11:;
+	atomic {
+		trace ("c2bp_b_11");
+		trace ("c2bp_i_11_1");
+		trace ("C_240_11_1");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_9"); goto L9; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_5"); goto L5; }
+			}
+	}
+L9:;
+	atomic {
+		trace ("c2bp_b_9");
+		trace ("c2bp_i_9_1");
+		trace ("c2bp_stmt_9_1");
+		t_l3_1=schoose(l3_0,false);
+	}
+	atomic {
+		trace ("c2bpcall_9_1");
+		trace ("C_246_9_1");
+		trace ("c2bpcallrtb_8");
+	}
+		bool ret_17_0;
+		InterlockedIncrement_1(t_l3_1, out ret_17_0);;
+		atomic {
+		t_l3_2 = ret_17_0;
+		}
+	atomic {
+		trace ("c2bpreturnpt_9_2");
+	}
+		goto L8;
+L8:;
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("c2bpnext_i_8_2");
+		trace ("c2bp_stmt_8_1");
+		trace ("C_247_8_1");
+	}
+	atomic {
+		trace ("c2bp_i_8_2");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L5:;
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("c2bpnext_i_5_2");
+		trace ("c2bp_stmt_5_1");
+		trace ("C_242_5_1");
+	}
+	atomic {
+		trace ("c2bp_i_5_2");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_251_3_1");
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		f_out1 = l3_0;
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void BCSP_IoDecrement_1(bool l4_0, out bool f_out1) {
+		bool t_l4_4;
+		bool t_l4_3;
+		bool t_l4_2;
+		bool l4_1;
+
+		goto L9;
+L11:;
+	atomic {
+		trace ("c2bp_b_11");
+		trace ("c2bp_i_11_1");
+		trace ("c2bpnext_b_1"); goto L1;
+	}
+L9:;
+	atomic {
+		trace ("c2bp_b_9");
+		trace ("c2bp_i_9_1");
+		trace ("c2bpnext_b_8"); goto L8;
+	}
+L8:;
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("c2bp_stmt_8_1");
+		t_l4_2=schoose(l4_0,false);
+	}
+	atomic {
+		trace ("c2bpcall_8_1");
+		trace ("C_278_8_1");
+		trace ("c2bpcallrtb_7");
+	}
+		bool ret_19_0;
+		bool ret_19_1;
+		InterlockedDecrement_1(t_l4_2, out ret_19_1, out ret_19_0);;
+		atomic {
+		t_l4_3 = ret_19_0;
+		t_l4_4 = ret_19_1;
+		}
+	atomic {
+		trace ("c2bpreturnpt_8_2");
+		l4_1=schoose(t_l4_3,!(t_l4_3));
+	}
+		goto L7;
+L7:;
+	atomic {
+		trace ("c2bp_b_7");
+		trace ("c2bp_i_7_1");
+		trace ("C_280_7_1");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_11"); goto L11; }
+				wait(true) -> { assume (!((l4_1)||(l4_1))); trace ("c2bpnext_b_5"); goto L5; }
+			}
+	}
+L5:;
+		assume (!((l4_1)||(l4_1)));
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("c2bp_stmt_5_1");
+	}
+	atomic {
+		trace ("c2bpcall_5_1");
+		trace ("C_285_5_1");
+		trace ("c2bpcallrtb_1");
+	}
+		KeSetEvent_1();;
+	atomic {
+		trace ("c2bpreturnpt_5_2");
+	}
+		goto L1;
+L1:;
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		f_out1 = l4_0;
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void InterlockedIncrement_1(bool l5_0, out bool f_out1) {
+		SingletonLock.acquire ();
+
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_195_3_1");
+		bool hook_21_l5_0;
+		bool hook_21_g4;
+		bool hook_21_g5;
+		hook_21_l5_0 = l5_0;
+		hook_21_g4 = g4;
+		hook_21_g5 = g5;
+		bool _21_tmp0;
+		bool _21_tmp1;
+		bool _21_tmp2;
+		_21_tmp0 = schoose ((g4)&&(!(l5_0)),(!(l5_0))&&((!(g4))||(l5_0)));
+		_21_tmp1 = schoose ((g5)&&(!(l5_0)),(!(l5_0))&&((!(g5))||(l5_0)));
+		_21_tmp2 = schoose ((g6)&&(!(l5_0)),(!(l5_0))&&((!(g6))||(l5_0)));
+		g4 = _21_tmp0;
+		g5 = _21_tmp1;
+		g6 = _21_tmp2;
+		assume (((((!(((hook_21_g4)&&(!(g4)))&&(!(g5))))&&(!(((hook_21_g5)&&(!(g5)))&&(!(g6)))))&&(!(((hook_21_g5)&&(!(g5)))&&(!(g6)))))&&(!(((hook_21_g4)&&(!(g4)))&&(!(g5)))))&&(!(((!(hook_21_g4))&&(hook_21_l5_0))&&(g5))));
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		trace ("c2bpnext_i_3_3");
+		trace ("c2bp_stmt_3_2");
+		trace ("C_196_3_2");
+	}
+	atomic {
+		trace ("c2bp_i_3_3");
+		f_out1 = l5_0;
+		SingletonLock.release ();
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void BCSP_Miniport_PnpStop_1(bool l6_0) {
+		bool t_l6_6;
+		bool t_l6_5;
+		bool t_l6_4;
+		bool t_l6_3;
+		bool t_l6_2;
+		bool l6_1;
+
+		goto L6;
+L6:;
+	atomic {
+		trace ("c2bp_b_6");
+		trace ("c2bp_i_6_1");
+		trace ("c2bpnext_b_5"); goto L5;
+	}
+L5:;
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("c2bpnext_i_5_2");
+		trace ("c2bp_stmt_5_1");
+		trace ("C_370_5_1");
+		l6_1=schoose((g1)&&(l6_0),(!(g1))&&(l6_0));
+	}
+	atomic {
+		trace ("c2bp_i_5_2");
+		trace ("c2bp_stmt_5_2");
+	}
+	atomic {
+		trace ("c2bpcall_5_2");
+		trace ("C_376_5_2");
+		trace ("c2bpcallrtb_4");
+	}
+		InterlockedExchange_1();;
+	atomic {
+		trace ("c2bpreturnpt_5_3");
+	}
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bp_stmt_4_1");
+		t_l6_2=schoose(l6_1,!(l6_1));
+	}
+	atomic {
+		trace ("c2bpcall_4_1");
+		trace ("C_381_4_1");
+		trace ("c2bpcallrtb_3");
+	}
+		bool ret_24_0;
+		BCSP_IoDecrement_1(t_l6_2, out ret_24_0);;
+		atomic {
+		t_l6_3 = ret_24_0;
+		}
+	atomic {
+		trace ("c2bpreturnpt_4_2");
+	}
+		goto L3;
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bp_stmt_3_1");
+		t_l6_4=schoose(l6_1,false);
+	}
+	atomic {
+		trace ("c2bpcall_3_1");
+		trace ("C_386_3_1");
+		trace ("c2bpcallrtb_2");
+	}
+		bool ret_26_0;
+		bool ret_26_1;
+		KeWaitForSingleObject_1(t_l6_4, out ret_26_1, out ret_26_0);;
+		atomic {
+		t_l6_5 = ret_26_0;
+		t_l6_6 = ret_26_1;
+		}
+	atomic {
+		trace ("c2bpreturnpt_3_2");
+	}
+		goto L2;
+L2:;
+	atomic {
+		trace ("c2bp_b_2");
+		trace ("c2bp_i_2_1");
+		trace ("c2bpnext_i_2_2");
+		trace ("c2bp_stmt_2_1");
+		trace ("C_393_2_1");
+		g0=schoose(false,true);
+	}
+	atomic {
+		trace ("c2bp_i_2_2");
+		trace ("c2bpnext_b_1"); goto L1;
+	}
+L1:;
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void InterlockedExchange_1() {
+		SingletonLock.acquire ();
+
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_187_3_1");
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		trace ("c2bpnext_i_3_3");
+		trace ("c2bp_stmt_3_2");
+		trace ("C_188_3_2");
+	}
+	atomic {
+		trace ("c2bp_i_3_3");
+		trace ("c2bpnext_i_3_4");
+		trace ("c2bp_stmt_3_3");
+		trace ("C_189_3_3");
+	}
+	atomic {
+		trace ("c2bp_i_3_4");
+		SingletonLock.release ();
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void InterlockedCompareExchange_1() {
+		SingletonLock.acquire ();
+
+		goto L6;
+L8:;
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L6:;
+	atomic {
+		trace ("c2bp_b_6");
+		trace ("c2bp_i_6_1");
+		trace ("c2bpnext_b_5"); goto L5;
+	}
+L5:;
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("c2bpnext_i_5_2");
+		trace ("c2bp_stmt_5_1");
+		trace ("C_175_5_1");
+	}
+	atomic {
+		trace ("c2bp_i_5_2");
+		trace ("C_176_5_2");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_8"); goto L8; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_4"); goto L4; }
+			}
+	}
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_i_4_2");
+		trace ("c2bp_stmt_4_1");
+		trace ("C_177_4_1");
+	}
+	atomic {
+		trace ("c2bp_i_4_2");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_178_3_1");
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		SingletonLock.release ();
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void KeInitializeEvent_1(bool l9_0, out bool f_out1) {
+
+		goto L11;
+L11:;
+	atomic {
+		trace ("c2bp_b_11");
+		trace ("c2bp_i_11_1");
+		trace ("c2bpnext_b_10"); goto L10;
+	}
+L10:;
+	atomic {
+		trace ("c2bp_b_10");
+		trace ("c2bp_i_10_1");
+		trace ("C_110_10_1");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_8"); goto L8; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_4"); goto L4; }
+			}
+	}
+L8:;
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("c2bpnext_i_8_2");
+		trace ("c2bp_stmt_8_1");
+		trace ("C_117_8_1");
+		bool hook_28_l9_0;
+		hook_28_l9_0 = l9_0;
+		g2=schoose(false,false);
+		assume ((!((hook_28_l9_0)&&(!(g2))))&&(!((hook_28_l9_0)&&(!(g2)))));
+	}
+	atomic {
+		trace ("c2bp_i_8_2");
+		trace ("c2bpnext_b_1"); goto L1;
+	}
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("POS_BRANCH");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_i_4_2");
+		trace ("c2bp_stmt_4_1");
+		trace ("C_113_4_1");
+		g2=schoose(false,!(g2));
+	}
+	atomic {
+		trace ("c2bp_i_4_2");
+		trace ("c2bpnext_b_1"); goto L1;
+	}
+L1:;
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		f_out1 = l9_0;
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void __init1_1() {
+
+		goto L3;
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_b_2"); goto L2;
+	}
+L2:;
+	atomic {
+		trace ("c2bp_b_2");
+		trace ("c2bp_i_2_1");
+		trace ("c2bpnext_b_1"); goto L1;
+	}
+L1:;
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void BCSP_Miniport_PnpAdd_1(bool l11_0, out bool f_out2, out bool f_out1) {
+		bool t_l11_5;
+		bool t_l11_4;
+		bool t_l11_3;
+		bool t_l11_2;
+		bool l11_1;
+
+		atomic {
+		l11_1 = choose (bool);
+		}
+		goto L11;
+L11:;
+	atomic {
+		trace ("c2bp_b_11");
+		trace ("c2bp_i_11_1");
+		trace ("c2bpnext_b_10"); goto L10;
+	}
+L10:;
+	atomic {
+		trace ("c2bp_b_10");
+		trace ("c2bp_i_10_1");
+		trace ("c2bpnext_i_10_2");
+		trace ("c2bp_stmt_10_1");
+		trace ("C_311_10_1");
+	}
+	atomic {
+		trace ("c2bp_i_10_2");
+		trace ("c2bpnext_i_10_3");
+		trace ("c2bp_stmt_10_2");
+		trace ("C_317_10_2");
+		g1=schoose(l11_0,false);
+	}
+	atomic {
+		trace ("c2bp_i_10_3");
+		trace ("C_319_10_3");
+		select {
+				wait(true) -> { assume (true); trace ("c2bpnext_b_5"); goto L5; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_8"); goto L8; }
+			}
+	}
+L8:;
+	atomic {
+		trace ("c2bp_b_8");
+		trace ("c2bp_i_8_1");
+		trace ("c2bpnext_i_8_2");
+		trace ("c2bp_stmt_8_1");
+		trace ("C_321_8_1");
+	}
+	atomic {
+		trace ("c2bp_i_8_2");
+		f_out1 = l11_0;
+		f_out2 = l11_1;
+		trace ("c2bpreturnstmt");
+		return;
+	}
+L5:;
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("c2bpnext_i_5_2");
+		trace ("c2bp_stmt_5_1");
+		trace ("C_324_5_1");
+		l11_1=schoose((g1)&&(l11_0),(!(g1))&&(l11_0));
+	}
+	atomic {
+		trace ("c2bp_i_5_2");
+		trace ("c2bpnext_i_5_3");
+		trace ("c2bp_stmt_5_2");
+		trace ("C_326_5_2");
+		bool _32_tmp0;
+		bool _32_tmp1;
+		bool _32_tmp2;
+		_32_tmp0 = schoose (l11_1,false);
+		_32_tmp1 = schoose (false,(!(g5))||(l11_1));
+		_32_tmp2 = schoose (false,(!(g6))||(l11_1));
+		g4 = _32_tmp0;
+		g5 = _32_tmp1;
+		g6 = _32_tmp2;
+	}
+	atomic {
+		trace ("c2bp_i_5_3");
+		trace ("c2bpnext_i_5_4");
+		trace ("c2bp_stmt_5_3");
+		trace ("C_327_5_3");
+	}
+	atomic {
+		trace ("c2bp_i_5_4");
+		trace ("c2bpnext_i_5_5");
+		trace ("c2bp_stmt_5_4");
+		trace ("C_333_5_4");
+	}
+	atomic {
+		trace ("c2bp_i_5_5");
+		trace ("c2bp_stmt_5_5");
+		t_l11_2=schoose(l11_1,!(l11_1));
+	}
+	atomic {
+		trace ("c2bpcall_5_5");
+		trace ("C_335_5_5");
+		trace ("c2bpcallrtb_4");
+	}
+		bool ret_34_0;
+		BCSP_IoIncrement_1(t_l11_2, out ret_34_0);;
+		atomic {
+		t_l11_3 = ret_34_0;
+		}
+	atomic {
+		trace ("c2bpreturnpt_5_6");
+	}
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bp_stmt_4_1");
+		t_l11_4=schoose(l11_1,false);
+	}
+	atomic {
+		trace ("c2bpcall_4_1");
+		trace ("C_341_4_1");
+		trace ("c2bpcallrtb_3");
+	}
+		bool ret_36_0;
+		KeInitializeEvent_1(t_l11_4, out ret_36_0);;
+		atomic {
+		t_l11_5 = ret_36_0;
+		}
+	atomic {
+		trace ("c2bpreturnpt_4_2");
+	}
+		goto L3;
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_345_3_1");
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		trace ("c2bpnext_i_3_3");
+		trace ("c2bp_stmt_3_2");
+		trace ("C_346_3_2");
+	}
+	atomic {
+		trace ("c2bp_i_3_3");
+		f_out1 = l11_0;
+		f_out2 = l11_1;
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void Loop_1() {
+
+		goto L7;
+L9:;
+	atomic {
+		trace ("c2bp_b_9");
+		trace ("c2bp_i_9_1");
+		trace ("c2bpnext_b_5"); goto L5;
+	}
+L7:;
+	atomic {
+		trace ("c2bp_b_7");
+		trace ("c2bp_i_7_1");
+		trace ("c2bpnext_b_6"); goto L6;
+	}
+L6:;
+	atomic {
+		trace ("c2bp_b_6");
+		trace ("c2bp_i_6_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L5:;
+	atomic {
+		trace ("c2bp_b_5");
+		trace ("c2bp_i_5_1");
+		trace ("C_142_5_1");
+		select {
+				wait(true) -> { assume (false); trace ("c2bpnext_b_1"); goto L1; }
+				wait(true) -> { assume (true); trace ("c2bpnext_b_9"); goto L9; }
+			}
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_b_5"); goto L5;
+	}
+L1:;
+		assume (false);
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void InterlockedDecrement_1(bool l13_0, out bool f_out2, out bool f_out1) {
+		SingletonLock.acquire ();
+		bool l13_1;
+
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_i_3_2");
+		trace ("c2bp_stmt_3_1");
+		trace ("C_202_3_1");
+		bool hook_37_l13_0;
+		bool hook_37_g5;
+		bool hook_37_g6;
+		hook_37_l13_0 = l13_0;
+		hook_37_g5 = g5;
+		hook_37_g6 = g6;
+		bool _37_tmp0;
+		bool _37_tmp1;
+		bool _37_tmp2;
+		_37_tmp0 = schoose ((g4)&&(!(l13_0)),(!(l13_0))&&((!(g4))||(l13_0)));
+		_37_tmp1 = schoose ((g5)&&(!(l13_0)),(!(l13_0))&&((!(g5))||(l13_0)));
+		_37_tmp2 = schoose ((g6)&&(!(l13_0)),(!(l13_0))&&((!(g6))||(l13_0)));
+		g4 = _37_tmp0;
+		g5 = _37_tmp1;
+		g6 = _37_tmp2;
+		assume (((((!(((hook_37_g6)&&(!(g5)))&&(!(g6))))&&(!(((hook_37_g6)&&(hook_37_l13_0))&&(!(g5)))))&&(!(((hook_37_g6)&&(hook_37_l13_0))&&(!(g5)))))&&(!(((hook_37_g6)&&(!(g5)))&&(!(g6)))))&&(!(((hook_37_g5)&&(!(g4)))&&(!(g5)))));
+	}
+	atomic {
+		trace ("c2bp_i_3_2");
+		trace ("c2bpnext_i_3_3");
+		trace ("c2bp_stmt_3_2");
+		trace ("C_203_3_2");
+		l13_1=schoose((g5)&&(l13_0),(!(g5))&&(l13_0));
+	}
+	atomic {
+		trace ("c2bp_i_3_3");
+		f_out1 = l13_1;
+		f_out2 = l13_0;
+		SingletonLock.release ();
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+	static void KeSetEvent_1() {
+
+		goto L4;
+L4:;
+	atomic {
+		trace ("c2bp_b_4");
+		trace ("c2bp_i_4_1");
+		trace ("c2bpnext_b_3"); goto L3;
+	}
+L3:;
+	atomic {
+		trace ("c2bp_b_3");
+		trace ("c2bp_i_3_1");
+		trace ("c2bpnext_b_2"); goto L2;
+	}
+L2:;
+	atomic {
+		trace ("c2bp_b_2");
+		trace ("SPEC_ASGN");
+		trace ("c2bp_i_2_1");
+		trace ("c2bpnext_i_2_2");
+		trace ("c2bp_stmt_2_1");
+		trace ("C_126_2_1");
+		g2=schoose(false,!(g2));
+	}
+	atomic {
+		trace ("c2bp_i_2_2");
+		trace ("c2bpnext_b_1"); goto L1;
+	}
+L1:;
+	atomic {
+		trace ("c2bp_b_1");
+		trace ("c2bp_i_1_1");
+		trace ("c2bpreturnstmt");
+		return;
+	}
+	}
+
+};

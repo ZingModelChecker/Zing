@@ -1,0 +1,68 @@
+
+class BlueTooth
+{
+    static bool stopped;
+    static bool driverStoppingFlag;
+    static bool stoppingEvent;
+    static int  pendingIo;
+    activate atomic static void main() {
+        pendingIo = 1;
+        stoppingEvent = false;
+        async BCSP_Miniport_PnpAdd ();
+        async BCSP_Miniport_PnpStop();
+    }
+    
+    static void BCSP_Miniport_PnpStop () {
+        driverStoppingFlag = true;
+        BCSP_IoDecrement();
+        KeWaitForStoppingEvent();
+        stopped = true;
+    }
+
+    static void BCSP_Miniport_PnpAdd () {
+        int status;
+        status = BCSP_IoIncrement ();
+        if (status > 0) {
+            // do work here
+            assert(!stopped);
+        }
+        BCSP_IoDecrement();
+    }
+
+    static int BCSP_IoIncrement() {
+        int status;
+	InterlockedIncrementPendingIo();
+        if (driverStoppingFlag == true){
+            BCSP_IoDecrement();
+            return -1;
+        }
+        else {
+            return 1;
+        }
+    }
+ 
+    static void BCSP_IoDecrement() {
+        int pendingIo;
+        pendingIo = InterlockedDecrementPendingIo();
+        if (pendingIo == 0)
+            KeSetEventStoppingEvent();
+    }
+
+    static atomic int InterlockedIncrementPendingIo() {
+        pendingIo = pendingIo + 1;
+        return pendingIo;
+    }
+
+    static atomic int InterlockedDecrementPendingIo() {
+        pendingIo = pendingIo - 1;
+        return pendingIo;
+    }
+    
+    static void KeSetEventStoppingEvent() {
+        stoppingEvent = true;
+    }
+
+    static void KeWaitForStoppingEvent() {
+        select { wait (stoppingEvent) -> ; }
+    }
+};

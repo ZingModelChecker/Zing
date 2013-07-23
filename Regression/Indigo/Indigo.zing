@@ -1,0 +1,57 @@
+class ___X_LightweightTransaction {
+  ___X_LtmInternalTransaction ___internalTransaction;
+};
+
+class ___X_LtmInternalTransaction {
+  ___X_TransactionState ___State;  
+};
+
+enum ___X_TS {
+  ___TransactionStateActive,
+  ___TransactionStatePhase0,
+};
+
+class ___X_Init {
+  static activate void ___Main() {
+    atomic {
+      
+    ___X_TransactionState.____TransactionStateActive = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStateActive.___TransactionState_ctor(___X_TS.___TransactionStateActive);
+    
+    ___X_TransactionState.____TransactionStatePhase0 = new ___X_TransactionState;
+
+    ___X_TransactionState.____TransactionStatePhase0.___TransactionState_ctor(___X_TS.___TransactionStatePhase0);
+
+    }
+    ___X_LightweightTransaction ___tx;
+    ___tx = new ___X_LightweightTransaction;
+
+    ___tx.___internalTransaction = new ___X_LtmInternalTransaction;
+
+    ___tx.___internalTransaction.___State = ___X_TransactionState.____TransactionStateActive;
+
+   if (___X_TransactionState.____TransactionStatePhase0.___ts == 0) {
+
+           assert(___tx.___internalTransaction.___State != ___X_TransactionState.____TransactionStateActive);
+
+    }
+
+  }
+  
+};
+
+class ___X_TransactionState {
+  ___X_TS ___ts;
+  
+  static ___X_TransactionState ____TransactionStateActive;
+  
+  static ___X_TransactionState ____TransactionStatePhase0;
+  
+  void ___TransactionState_ctor(___X_TS ___x) {
+    this.___ts = ___x;
+
+  }
+
+};
+

@@ -1,0 +1,148 @@
+barrier barrier_1 1;
+barrier barrier_2 2;
+enum _m1_internal { nothing, a__m1_internal, b__m1_internal };
+
+class Barriers {
+
+    static barrier_1 dummy__m1_propose;
+    static barrier_2 dummy__m1_receive;
+    static barrier_1 m1_0__m1_state;
+    static barrier_1 m1_1__m1_state;
+    static barrier_1 EnteringSync__m1__synthetic_sync_async_Scheduler_synthetic;
+    static barrier_1 LeavingSync__m1__synthetic_sync_async_Scheduler_synthetic;
+
+    static void init()
+    {
+        dummy__m1_propose = new barrier_1;
+        dummy__m1_receive = new barrier_2;
+        m1_0__m1_state = new barrier_1;
+        m1_1__m1_state = new barrier_1;
+        EnteringSync__m1__synthetic_sync_async_Scheduler_synthetic = new barrier_1;
+        LeavingSync__m1__synthetic_sync_async_Scheduler_synthetic = new barrier_1;
+    }
+
+};
+class _m1 {
+
+    _m1_internal __return__;
+
+    void run()
+    {
+        _m1__Locking_m1_0:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.EnteringSync__m1__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_m1", "_m1__Locking_m1_0", "EnteringSync__m1__synthetic_sync_async_Scheduler_synthetic", "_m1__m1_0");
+                goto _m1__m1_0;
+            }
+        }
+    }
+        _m1__ERROR:
+        assert(false);
+        _m1__m1_0:
+    {
+        trace("{0}: function {1}", "_m1", "fct");
+        trace("{0}: operation {1}", "_m1", "op");
+        if (true)
+            __return__ = _m1_internal.a__m1_internal;
+        else
+            __return__ = _m1_internal.b__m1_internal;
+        select  end {
+            sync( Barriers.m1_0__m1_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_m1", "_m1__m1_0", "m1_0__m1_state", "_m1__ObservedState_m1_0");
+                goto _m1__ObservedState_m1_0;
+            }
+        }
+    }
+        _m1__m1_1:
+    {
+        trace("{0}: function {1}", "_m1", "eraseReturn");
+        trace("{0}: operation {1}", "_m1", "eraseReturn");
+        __return__ = _m1_internal.nothing;
+        select  end {
+            sync( Barriers.m1_1__m1_state) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_m1", "_m1__m1_1", "m1_1__m1_state", "_m1__ObservedState_m1_1");
+                goto _m1__ObservedState_m1_1;
+            }
+        }
+    }
+        _m1__ObservedState_m1_0:
+    {
+        /*skip*/;
+        select  end {
+            wait( (__return__) == (_m1_internal.a__m1_internal)) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_m1", "_m1__ObservedState_m1_0", "__return___Eq__m1_internal_a__m1_internal", "_m1__m1_1");
+                goto _m1__m1_1;
+            }
+            wait( (__return__) == (_m1_internal.b__m1_internal)) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_m1", "_m1__ObservedState_m1_0", "__return___Eq__m1_internal_b__m1_internal", "_m1__ERROR");
+                goto _m1__ERROR;
+            }
+        }
+    }
+        _m1__ObservedState_m1_1:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.LeavingSync__m1__synthetic_sync_async_Scheduler_synthetic) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_m1", "_m1__ObservedState_m1_1", "LeavingSync__m1__synthetic_sync_async_Scheduler_synthetic", "_m1__Unlocking_ObservedState_m1_1");
+                goto _m1__Unlocking_ObservedState_m1_1;
+            }
+        }
+    }
+        _m1__Unlocking_ObservedState_m1_1:
+    {
+        /*skip*/;
+        select  end {
+            wait( true) -> 
+                goto _m1_final;
+        }
+    }
+        _m1_final:
+        /*skip*/;
+    }
+
+};
+class _monitor_spec {
+
+
+    void run()
+    {
+        _monitor_spec__s0_0:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.dummy__m1_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_spec", "_monitor_spec__s0_0", "dummy__m1_receive", "_monitor_spec__s0_0");
+                goto _monitor_spec__s0_0;
+            }
+        }
+    }
+        _monitor_spec__ERROR:
+        assert(false);
+    }
+
+};
+class Main {
+
+    static _m1 _m1;
+    static _monitor_spec _monitor_spec;
+
+    activate static void init()
+    {
+        Barriers.init();
+        _m1 = new _m1;
+        async _m1.run();
+        _monitor_spec = new _monitor_spec;
+        async _monitor_spec.run();
+    }
+
+};

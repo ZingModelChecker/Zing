@@ -1,0 +1,494 @@
+barrier barrier_2 2;
+barrier barrier_3 3;
+
+class Barriers {
+
+    static barrier_2 grant_excl_0__client0_receive;
+    static barrier_2 grant_excl_0__client0_send;
+    static barrier_2 grant_share_0__client0_receive;
+    static barrier_2 grant_share_0__client0_send;
+    static barrier_3 invalidate_0__client0_receive;
+    static barrier_3 invalidate_0__client0_send;
+
+    static void init()
+    {
+        grant_excl_0__client0_receive = new barrier_2;
+        grant_excl_0__client0_send = new barrier_2;
+        grant_share_0__client0_receive = new barrier_2;
+        grant_share_0__client0_send = new barrier_2;
+        invalidate_0__client0_receive = new barrier_3;
+        invalidate_0__client0_send = new barrier_3;
+    }
+
+};
+class _grant_then_invalidate {
+
+
+    void run()
+    {
+        _grant_then_invalidate__gti_0:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_0", "grant_excl_0__client0_send", "_grant_then_invalidate__gti_1e");
+                goto _grant_then_invalidate__gti_1e;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_0", "grant_share_0__client0_send", "_grant_then_invalidate__gti_1s");
+                goto _grant_then_invalidate__gti_1s;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_0", "invalidate_0__client0_receive", "_grant_then_invalidate__Weakened_invalidate_0__client0_receive");
+                goto _grant_then_invalidate__Weakened_invalidate_0__client0_receive;
+            }
+        }
+    }
+        _grant_then_invalidate__gti_1e:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_1e", "grant_excl_0__client0_receive", "_grant_then_invalidate__gti_2");
+                goto _grant_then_invalidate__gti_2;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_1e", "invalidate_0__client0_receive", "_grant_then_invalidate__Weakened_invalidate_0__client0_receive");
+                goto _grant_then_invalidate__Weakened_invalidate_0__client0_receive;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_1e", "invalidate_0__client0_send", "_grant_then_invalidate__gti_2e");
+                goto _grant_then_invalidate__gti_2e;
+            }
+        }
+    }
+        _grant_then_invalidate__gti_1s:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_1s", "grant_share_0__client0_receive", "_grant_then_invalidate__gti_2");
+                goto _grant_then_invalidate__gti_2;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_1s", "invalidate_0__client0_receive", "_grant_then_invalidate__Weakened_invalidate_0__client0_receive");
+                goto _grant_then_invalidate__Weakened_invalidate_0__client0_receive;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_1s", "invalidate_0__client0_send", "_grant_then_invalidate__gti_2s");
+                goto _grant_then_invalidate__gti_2s;
+            }
+        }
+    }
+        _grant_then_invalidate__gti_2:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_2", "invalidate_0__client0_receive", "_grant_then_invalidate__Weakened_invalidate_0__client0_receive");
+                goto _grant_then_invalidate__Weakened_invalidate_0__client0_receive;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_2", "invalidate_0__client0_send", "_grant_then_invalidate__gti_3");
+                goto _grant_then_invalidate__gti_3;
+            }
+        }
+    }
+        _grant_then_invalidate__gti_2e:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_2e", "grant_excl_0__client0_receive", "_grant_then_invalidate__gti_3");
+                goto _grant_then_invalidate__gti_3;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_2e", "invalidate_0__client0_receive", "_grant_then_invalidate__Weakened_invalidate_0__client0_receive");
+                goto _grant_then_invalidate__Weakened_invalidate_0__client0_receive;
+            }
+        }
+    }
+        _grant_then_invalidate__gti_2s:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_2s", "grant_share_0__client0_receive", "_grant_then_invalidate__gti_3");
+                goto _grant_then_invalidate__gti_3;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_2s", "invalidate_0__client0_receive", "_grant_then_invalidate__Weakened_invalidate_0__client0_receive");
+                goto _grant_then_invalidate__Weakened_invalidate_0__client0_receive;
+            }
+        }
+    }
+        _grant_then_invalidate__gti_3:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_grant_then_invalidate", "_grant_then_invalidate__gti_3", "invalidate_0__client0_receive", "_grant_then_invalidate__gti_0");
+                goto _grant_then_invalidate__gti_0;
+            }
+        }
+    }
+        _grant_then_invalidate__Weakened_invalidate_0__client0_receive:
+    {
+        /*skip*/;
+        select  end {
+            wait( true) -> 
+                goto _grant_then_invalidate_final;
+        }
+    }
+        _grant_then_invalidate_final:
+        /*skip*/;
+    }
+
+};
+class _causality_invalidate_0__client0_receive {
+
+
+    void run()
+    {
+        _causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_0:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_causality_invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_0", "invalidate_0__client0_send", "_causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_1");
+                goto _causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_1;
+            }
+        }
+    }
+        _causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_1:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_causality_invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_1", "invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_0");
+                goto _causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_0;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_causality_invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventCount_invalidate_0__client0_receive_1", "invalidate_0__client0_send", "_causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive");
+                goto _causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive;
+            }
+        }
+    }
+        _causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_causality_invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive", "invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive");
+                goto _causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_causality_invalidate_0__client0_receive", "_causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive", "invalidate_0__client0_send", "_causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive");
+                goto _causality_invalidate_0__client0_receive__EventInfty_invalidate_0__client0_receive;
+            }
+        }
+    }
+    }
+
+};
+class _monitor_grant_then_invalidate {
+
+
+    void run()
+    {
+        _monitor_grant_then_invalidate__gti_0:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_0", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_0", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__gti_1e");
+                goto _monitor_grant_then_invalidate__gti_1e;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_0", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_0", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__gti_1s");
+                goto _monitor_grant_then_invalidate__gti_1s;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_0", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_0", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+        }
+    }
+        _monitor_grant_then_invalidate__ERROR:
+        assert(false);
+        _monitor_grant_then_invalidate__gti_1e:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1e", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__gti_2");
+                goto _monitor_grant_then_invalidate__gti_2;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1e", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1e", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1e", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1e", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1e", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__gti_2e");
+                goto _monitor_grant_then_invalidate__gti_2e;
+            }
+        }
+    }
+        _monitor_grant_then_invalidate__gti_1s:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1s", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1s", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1s", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__gti_2");
+                goto _monitor_grant_then_invalidate__gti_2;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1s", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1s", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_1s", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__gti_2s");
+                goto _monitor_grant_then_invalidate__gti_2s;
+            }
+        }
+    }
+        _monitor_grant_then_invalidate__gti_2:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__gti_3");
+                goto _monitor_grant_then_invalidate__gti_3;
+            }
+        }
+    }
+        _monitor_grant_then_invalidate__gti_2e:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2e", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__gti_3");
+                goto _monitor_grant_then_invalidate__gti_3;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2e", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2e", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2e", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2e", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2e", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+        }
+    }
+        _monitor_grant_then_invalidate__gti_2s:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2s", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2s", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2s", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__gti_3");
+                goto _monitor_grant_then_invalidate__gti_3;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2s", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2s", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_2s", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+        }
+    }
+        _monitor_grant_then_invalidate__gti_3:
+    {
+        /*skip*/;
+        select  end {
+            sync( Barriers.grant_excl_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_3", "grant_excl_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_excl_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_3", "grant_excl_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_3", "grant_share_0__client0_receive", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.grant_share_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_3", "grant_share_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+            sync( Barriers.invalidate_0__client0_receive) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_3", "invalidate_0__client0_receive", "_monitor_grant_then_invalidate__gti_0");
+                goto _monitor_grant_then_invalidate__gti_0;
+            }
+            sync( Barriers.invalidate_0__client0_send) -> 
+            {
+                trace("{0}: {1} - {2} -> {3}", "_monitor_grant_then_invalidate", "_monitor_grant_then_invalidate__gti_3", "invalidate_0__client0_send", "_monitor_grant_then_invalidate__ERROR");
+                goto _monitor_grant_then_invalidate__ERROR;
+            }
+        }
+    }
+    }
+
+};
+class Main {
+
+    static _grant_then_invalidate _grant_then_invalidate;
+    static _causality_invalidate_0__client0_receive _causality_invalidate_0__client0_receive;
+    static _monitor_grant_then_invalidate _monitor_grant_then_invalidate;
+
+    activate static void init()
+    {
+        Barriers.init();
+        _grant_then_invalidate = new _grant_then_invalidate;
+        async _grant_then_invalidate.run();
+        _causality_invalidate_0__client0_receive = new _causality_invalidate_0__client0_receive;
+        async _causality_invalidate_0__client0_receive.run();
+        _monitor_grant_then_invalidate = new _monitor_grant_then_invalidate;
+        async _monitor_grant_then_invalidate.run();
+    }
+
+};

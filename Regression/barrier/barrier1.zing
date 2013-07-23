@@ -1,0 +1,47 @@
+barrier Barrier 2;
+
+class Top {
+  static Barrier a;
+  static Barrier b;
+  
+  activate static void Main() {
+    a = new Barrier;
+    b = new Barrier;
+    async Machine0.Main();
+    async Machine1.Main();
+    async Machine2.Main();
+  }
+};
+
+class Machine0 {
+  static void Main() {
+    while (true) {
+      select {
+        sync(Top.a) -> ;
+      }
+    }
+  }
+};
+
+class Machine1 {
+  static void Main() {
+    while (true) {
+      select {
+        sync(Top.a) -> ;
+      }
+      select {
+        sync(Top.b) -> ;
+      }
+    }
+  }
+};
+
+class Machine2 {
+  static void Main() {
+    while (true) {
+      select {
+        sync(Top.b) -> ;
+      }
+    }
+  }
+};

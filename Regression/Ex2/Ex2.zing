@@ -1,0 +1,23 @@
+class Foo {
+   bool y;
+   void Block() {
+	atomic {
+ 	   assume(y);
+	   y = false;
+        }
+   }
+};
+
+class Main {
+   static Foo x = new Foo;
+
+   activate static void helper2() {
+	x.Block();
+	assert(!x.y);
+   }
+
+   activate static void main2() {
+	x.y = true;
+	x.y = true;
+   }
+};

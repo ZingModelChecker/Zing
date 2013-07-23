@@ -1,0 +1,23 @@
+class Main {
+	static Foo f;
+
+	activate static void main1() {
+		bar();
+		bar();
+	} 
+
+	activate static void main2() {
+		bar();
+		bar();
+	} 
+
+	static void bar() {
+		f = new Foo;
+		f.x = 1;
+		assert(f.x == 1);
+	}
+};
+
+class Foo {
+	int x;
+};
