@@ -28,8 +28,7 @@ namespace Microsoft.Zing
             set { enableEvents = value; }
         }
 
-        // Shaz: turning the optimization off by default because of the bug uncovered by Yury's example
-        private static bool fingerprintSingleTransitionStates = false;
+        private static bool fingerprintSingleTransitionStates = true;
         public static bool FingerprintSingleTransitionStates
         {
             get { return fingerprintSingleTransitionStates; }

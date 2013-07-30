@@ -728,7 +728,7 @@ namespace Microsoft.Zing
 
                     // Add to the frontier only if we're greater than the cutoff and we're fingerprinted.
 
-                    if (BoundedSearch.checkIfIterativeCutOffReached(I.Bounds) && I.IsFingerPrinted && (!Options.FingerprintSingleTransitionStates || (Options.FingerprintSingleTransitionStates && I.HasMultipleSuccessors)))
+                    if (BoundedSearch.checkIfIterativeCutOffReached(I.Bounds) && I.IsFingerPrinted)
                     {
                         // We've reached the depth cut-off. Save this to the frontier
                         // and continue
