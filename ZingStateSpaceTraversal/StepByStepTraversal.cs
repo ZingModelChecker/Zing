@@ -296,10 +296,35 @@ namespace Microsoft.Zing
             }
             else
             {
+                
+
+                if (Options.IsSchedulerDecl && Options.BoundChoices)
+                {
+                    currChoice = numOfTimesCurrStateDelayed;
+                    if (currChoice >= numChoices)
+                        return null;
+
+                    if (doDelay)
+                    {
+                        Bounds.Delay = Bounds.Delay + 1;
+                        numOfTimesCurrStateDelayed++;
+                    }
+                    else
+                    {
+                        doDelay = true;
+                    }
+
+                    if (zbs.checkIfIterativeCutOffReached(Bounds))
+                    {
+                        return this;
+                    }
+                }
+
                 if (currChoice >= numChoices)
                     return null;
 
                 return RunChoice(currChoice++);
+                
             }
         }
 

@@ -258,6 +258,11 @@ namespace Microsoft.Zing
                         case "frontiertodisk":
                             Options.FrontierToDisk = true;
                             break;
+
+                        case "bc":
+                            Options.BoundChoices = true;
+                            break;
+
                         case "sched":
                             {
                                 Options.IsSchedulerDecl = true;
@@ -737,6 +742,7 @@ namespace Microsoft.Zing
             Console.WriteLine("  -liveness                       To perform liveness search, search for accepting cycles using NDFS <use only with sequential and non-iterative>");
             Console.WriteLine("  -cdfsstack:<int>                Limit the size of DFS Search stack to <int>, if the size of stack exceeds cutoff corresponding error trace is generated");
             Console.WriteLine("  -frontiertodisk                 Flush Frontiers to Disk < Memory Optimization >");
+            Console.WriteLine("  -bc                             Bound the internal choice points <used during delay bounding>");
         }
 
         private static bool CheckZingPlugin(string PluginDll)

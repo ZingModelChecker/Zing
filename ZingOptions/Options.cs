@@ -129,5 +129,14 @@ namespace Microsoft.Zing
             get { return Options.frontierToDisk; }
             set { Options.frontierToDisk = value; }
         }
+
+        private static bool boundChoices = false;
+
+        public static bool BoundChoices
+        {
+            get { return Options.boundChoices; }
+            set { Options.boundChoices = value; }
+        }
+
     }
 }
