@@ -130,6 +130,8 @@ namespace Microsoft.Zing
             set { Options.frontierToDisk = value; }
         }
 
+        // Added this option to bound the choice points during delay bounding
+
         private static bool boundChoices = false;
 
         public static bool BoundChoices
