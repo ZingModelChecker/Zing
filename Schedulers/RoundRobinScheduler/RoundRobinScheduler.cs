@@ -54,6 +54,13 @@ namespace ExternalDelayBoundedScheduler
     }   
     public class RoundRobinDBSched : IZingDelayingScheduler
     {
+        private bool isSealed = false;
+
+        public bool IsSealed
+        {
+            get { return isSealed; }
+            set { isSealed = value; }
+        }
         public RoundRobinDBSched()
         {
     
@@ -176,6 +183,14 @@ namespace ExternalDelayBoundedScheduler
             {
                 SchedState.ProcessIdMap.Add((int)Params[1], SchedState.createdProcessId);
             }
+            else if (par1_operation == "seal")
+            {
+                IsSealed = true;
+            }
+            else if (par1_operation == "unseal")
+            {
+                IsSealed = false;
+            }
             else
             {
                 throw new Exception("Invalid Parameter Passed to 'invokescheduler'");
@@ -232,6 +247,11 @@ namespace ExternalDelayBoundedScheduler
         {
             var SchedState = zSchedState as DBSchedulerState;
             return SchedState.TaskList.Where(proc => proc.Value).Count() - 1;
+        }
+
+        public bool IsDelaySealed()
+        {
+            return false;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace ExternalDelayBoundedScheduler
         public System.Random randGen;
         public List<int> chooseProc;
         public int currentProcess;
+
         public DBSchedulerState ()
         {
             ProcessIdMap = new Dictionary<int, int>();
@@ -87,6 +88,14 @@ namespace ExternalDelayBoundedScheduler
     
     public class RandomDelayingScheduler : IZingDelayingScheduler
     {
+        private bool isSealed = false;
+
+        public bool IsSealed
+        {
+            get { return isSealed; }
+            set { isSealed = value; }
+        }
+
         /// <summary>
         /// Adds the newly created process to the set with value 0 indicating its enabled
         /// </summary>
@@ -128,6 +137,14 @@ namespace ExternalDelayBoundedScheduler
             else if(par1_operation == "push" || par1_operation == "pop")
             {
                 // do nothing
+            }
+            else if (par1_operation == "seal")
+            {
+                IsSealed = true;
+            }
+            else if (par1_operation == "unseal")
+            {
+                IsSealed = false;
             }
             else
             {
@@ -172,5 +189,9 @@ namespace ExternalDelayBoundedScheduler
             return SchedState.TaskSet.Count();
         }
 
+        public bool IsDelaySealed()
+        {
+            return IsSealed;
+        }
     }
 }

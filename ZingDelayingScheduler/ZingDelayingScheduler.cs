@@ -64,5 +64,11 @@ namespace Microsoft.Zing
         /// <param name="ZSchedulerState"></param>
         /// <returns>Max number of delays to explore all successors of the current state </returns>
         int MaxDelay (IZingSchedulerState ZSchedulerState);
+
+        /// <summary>
+        /// this function checks if the scheduler is sealed or not
+        /// </summary>
+        /// <returns>returns true if sealed and false otherwise</returns>
+        bool IsDelaySealed();
     }
 }

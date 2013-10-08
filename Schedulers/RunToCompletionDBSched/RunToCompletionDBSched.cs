@@ -59,6 +59,14 @@ namespace ExternalDelayBoundedScheduler
     public class RunToCompletionDBSched : IZingDelayingScheduler
     {
 
+        private bool isSealed = false;
+
+        public bool IsSealed
+        {
+            get { return isSealed; }
+            set { isSealed = value; }
+        }
+
         public RunToCompletionDBSched ()
         {
         }
@@ -105,6 +113,7 @@ namespace ExternalDelayBoundedScheduler
         /// <param name="Params">parameters given with the invocation</param>
         public void Invoke (IZingSchedulerState zSchedState, params object[] Params)
         {
+
             var SchedState = zSchedState as DBSchedulerState;
             var par1_operation = (string)Params[0];
             if (par1_operation == "push")
@@ -118,11 +127,24 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "pop")
             {
-                SchedState.DBStack.Pop();
+                if (IsSealed)
+                {
+                    Delay(zSchedState);
+                }
+                else
+                    SchedState.DBStack.Pop();
             }
             else if (par1_operation == "map")
             {
                 SchedState.ProcessIdMap.Add((int)Params[1], SchedState.createdProcessId);
+            }
+            else if (par1_operation == "seal")
+            {
+                IsSealed = true;
+            }
+            else if (par1_operation == "unseal")
+            {
+                IsSealed = false;
             }
             else
             {
@@ -169,6 +191,11 @@ namespace ExternalDelayBoundedScheduler
         {
             var SchedState = zSchedState as DBSchedulerState;
             return SchedState.DBStack.Count - 1;
+        }
+
+        public bool IsDelaySealed()
+        {
+            return IsSealed;
         }
     }
 }
