@@ -529,6 +529,15 @@ namespace Microsoft.Zing
                             return true;
                         }
                         break;
+                    case 'n':
+                        string warningnumber;
+                        warningnumber = this.ParseNamedArgument(arg, "nowarning", "nowarning");
+                        if (warningnumber != null)
+                        {
+                            zoptions.Warningnumber.Add(int.Parse(warningnumber));
+                            return true;
+                        }
+                        break;
                     case 'd':
                         if (this.ParseName(arg, "dumpsource", "dumpsource"))
                         {
@@ -591,7 +600,17 @@ namespace Microsoft.Zing
             get { return ZingCompilerOptions.isPreemtive; }
             set { ZingCompilerOptions.isPreemtive = value; }
         }
- 
+
+        private System.Collections.Generic.List<int> warningnumber;
+
+        public System.Collections.Generic.List<int> Warningnumber
+        {
+            get { return warningnumber; }
+            set { warningnumber = value; }
+        }
+        
+
+
         private bool dumpSource;
         public bool DumpSource
         {
@@ -629,6 +648,7 @@ namespace Microsoft.Zing
             : base()
 		{
             AddZingRuntime();
+            this.Warningnumber = new System.Collections.Generic.List<int>();
 		}
 
 		public ZingCompilerOptions(CompilerOptions options)
@@ -639,6 +659,7 @@ namespace Microsoft.Zing
 			ZingCompilerOptions zoptions = options as ZingCompilerOptions;
 			if (zoptions == null) return;
 			this.DumpSource = zoptions.DumpSource;
+            this.Warningnumber = new System.Collections.Generic.List<int>();
         }
 
         public override string GetOptionHelp() 

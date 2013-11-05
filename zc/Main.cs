@@ -81,6 +81,11 @@ class main
 
         foreach (CompilerError e in results.Errors)
         {
+            //nowarning
+            var warningno = (options as Microsoft.Zing.ZingCompilerOptions).Warningnumber;
+            if (e.IsWarning && warningno.Contains(int.Parse(e.ErrorNumber)))
+                continue;
+
             if(e.IsWarning)
             {
                 Console.ForegroundColor = ConsoleColor.Gray;
@@ -101,7 +106,7 @@ class main
             }
             if (e.IsWarning)
             {
-                
+               
                 if (e.ErrorNumber.Length == 4)
                 {
                     if (warningString == null) warningString = compiler.GetWarningString();
