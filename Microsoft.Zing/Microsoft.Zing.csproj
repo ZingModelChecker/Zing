@@ -115,11 +115,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Comega">
+    <Reference Include="Microsoft.Comega, Version=1.0.21126.0, Culture=neutral, PublicKeyToken=736440c9b414ea16, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\external\CCI\Microsoft.Comega.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Comega.Runtime">
-      <HintPath>..\Resources\external\CCI\Microsoft.Comega.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Compiler">
@@ -128,9 +126,7 @@
     <Reference Include="System.Compiler.Framework">
       <HintPath>..\Resources\external\CCI\System.Compiler.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="System.Compiler.Runtime">
-      <HintPath>..\Resources\external\CCI\System.Compiler.Runtime.dll</HintPath>
-    </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs">

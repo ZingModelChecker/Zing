@@ -94,12 +94,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Comega">
-      <HintPath>..\Resources\external\CCI\Microsoft.Comega.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Comega.Runtime">
-      <HintPath>..\Resources\external\CCI\Microsoft.Comega.Runtime.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -108,9 +102,6 @@
     </Reference>
     <Reference Include="System.Compiler.Framework">
       <HintPath>..\Resources\external\CCI\System.Compiler.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Compiler.Runtime">
-      <HintPath>..\Resources\external\CCI\System.Compiler.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System.Data">
       <Name>System.Data</Name>
