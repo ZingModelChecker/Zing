@@ -8,6 +8,7 @@ namespace Microsoft.Zing
 {
     public interface IZingSchedulerState
     {
+        
         /// <summary>
         /// Print the current scheduler state
         /// </summary>
@@ -27,6 +28,12 @@ namespace Microsoft.Zing
     }
     public interface IZingDelayingScheduler
     {
+        /// <summary>
+        /// This functions returns whether the scheduler is sealed or not.
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <returns></returns>
+        bool IsSealed(IZingSchedulerState ZSchedulerState);
         /// <summary>
         /// This function is called by Zinger whenever a new process is created.
         /// </summary>
@@ -64,11 +71,5 @@ namespace Microsoft.Zing
         /// <param name="ZSchedulerState"></param>
         /// <returns>Max number of delays to explore all successors of the current state </returns>
         int MaxDelay (IZingSchedulerState ZSchedulerState);
-
-        /// <summary>
-        /// this function checks if the scheduler is sealed or not
-        /// </summary>
-        /// <returns>returns true if sealed and false otherwise</returns>
-        bool IsDelaySealed();
     }
 }

@@ -10,10 +10,16 @@ namespace ExternalDelayBoundedScheduler
     [Serializable]
     public class DBSchedulerState : IZingSchedulerState
     {
+        //List of all the task in the system
         public List<KeyValuePair<int, bool>> TaskList;
+        //newly created process
         public int createdProcessId;
+        //map from the process id to the state machine id 
         public Dictionary<int, int> ProcessIdMap;
+        //current process in the round robin 
         public int currentProcess;
+        //is the delaying scheduler sealed
+        public bool issealed;
 
         public DBSchedulerState()
         {
@@ -21,6 +27,7 @@ namespace ExternalDelayBoundedScheduler
             TaskList = new List<KeyValuePair<int,bool>>();
             createdProcessId = -1;
             currentProcess = 0;
+            issealed = false;
         }
 
         public void PrintState()
@@ -43,7 +50,7 @@ namespace ExternalDelayBoundedScheduler
             }
             cloned.createdProcessId = createdProcessId;
             cloned.currentProcess = currentProcess;
-
+            cloned.issealed = issealed;
             return cloned;
         }
 
@@ -54,13 +61,13 @@ namespace ExternalDelayBoundedScheduler
     }   
     public class RoundRobinDBSched : IZingDelayingScheduler
     {
-        private bool isSealed = false;
 
-        public bool IsSealed
+        public bool IsSealed(IZingSchedulerState zSchedState)
         {
-            get { return isSealed; }
-            set { isSealed = value; }
+            var SchedState = zSchedState as DBSchedulerState;
+            return SchedState.issealed;
         }
+
         public RoundRobinDBSched()
         {
     
@@ -139,6 +146,7 @@ namespace ExternalDelayBoundedScheduler
                 SchedState.ProcessIdMap.TryGetValue(machineId, out procId);
                 var enableProcess = SchedState.TaskList.Where(x => (x.Key == procId)).First();
                 enableProcess = new KeyValuePair<int,bool>(procId, true);
+                Console.WriteLine("Executed Process Push {0}", procId);
             }
             else if (par1_operation == "pop")
             {
@@ -178,6 +186,7 @@ namespace ExternalDelayBoundedScheduler
                         return;
                     }
                 }
+                Console.WriteLine("Executed Process Pop {0}", SchedState.currentProcess);
             }
             else if (par1_operation == "map")
             {
@@ -185,11 +194,11 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "seal")
             {
-                IsSealed = true;
+                SchedState.issealed = true;
             }
             else if (par1_operation == "unseal")
             {
-                IsSealed = false;
+                SchedState.issealed = false;
             }
             else
             {
@@ -249,9 +258,5 @@ namespace ExternalDelayBoundedScheduler
             return SchedState.TaskList.Where(proc => proc.Value).Count() - 1;
         }
 
-        public bool IsDelaySealed()
-        {
-            return false;
-        }
     }
 }

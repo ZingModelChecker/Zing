@@ -13,12 +13,13 @@ namespace ExternalDelayBoundedScheduler
         public Stack<uint> DBStack;
         public int createdProcessId;
         public Dictionary<int, int> ProcessIdMap;
-
+        public bool issealed;
         public DBSchedulerState ()
         {
             ProcessIdMap = new Dictionary<int, int>();
             DBStack = new Stack<uint>();
             createdProcessId = -1;
+            issealed = false;
         }
         public void PrintState ()
         {
@@ -44,7 +45,7 @@ namespace ExternalDelayBoundedScheduler
             {
                 cloned.ProcessIdMap.Add(mapId.Key, mapId.Value);
             }
-
+            cloned.issealed = issealed;
             cloned.createdProcessId = createdProcessId;
 
             return cloned;
@@ -59,12 +60,10 @@ namespace ExternalDelayBoundedScheduler
     public class RunToCompletionDBSched : IZingDelayingScheduler
     {
 
-        private bool isSealed = false;
-
-        public bool IsSealed
+        public bool IsSealed(IZingSchedulerState zSchedState)
         {
-            get { return isSealed; }
-            set { isSealed = value; }
+            var SchedState = zSchedState as DBSchedulerState;
+            return SchedState.issealed;
         }
 
         public RunToCompletionDBSched ()
@@ -127,7 +126,7 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "pop")
             {
-                if (IsSealed)
+                if (IsSealed(zSchedState))
                 {
                     Delay(zSchedState);
                 }
@@ -140,11 +139,11 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "seal")
             {
-                IsSealed = true;
+                SchedState.issealed = true;
             }
             else if (par1_operation == "unseal")
             {
-                IsSealed = false;
+                SchedState.issealed = false;
             }
             else
             {
@@ -191,11 +190,6 @@ namespace ExternalDelayBoundedScheduler
         {
             var SchedState = zSchedState as DBSchedulerState;
             return SchedState.DBStack.Count - 1;
-        }
-
-        public bool IsDelaySealed()
-        {
-            return IsSealed;
         }
     }
 }

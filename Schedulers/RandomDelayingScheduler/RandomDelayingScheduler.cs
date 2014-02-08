@@ -16,7 +16,7 @@ namespace ExternalDelayBoundedScheduler
         public System.Random randGen;
         public List<int> chooseProc;
         public int currentProcess;
-
+        public bool issealed;
         public DBSchedulerState ()
         {
             ProcessIdMap = new Dictionary<int, int>();
@@ -24,6 +24,7 @@ namespace ExternalDelayBoundedScheduler
             createdProcessId = -1;
             chooseProc = null;
             randGen = new Random(DateTime.Now.Second);
+            issealed = false;
         }
 
         public void PrintState ()
@@ -52,6 +53,7 @@ namespace ExternalDelayBoundedScheduler
             cloned.chooseProc = null;
             cloned.randGen = randGen;
             cloned.currentProcess = currentProcess;
+            cloned.issealed = issealed;
             return cloned;
         }
 
@@ -88,12 +90,10 @@ namespace ExternalDelayBoundedScheduler
     
     public class RandomDelayingScheduler : IZingDelayingScheduler
     {
-        private bool isSealed = false;
-
-        public bool IsSealed
+        public bool IsSealed(IZingSchedulerState zSchedState)
         {
-            get { return isSealed; }
-            set { isSealed = value; }
+            var SchedState = zSchedState as DBSchedulerState;
+            return SchedState.issealed;
         }
 
         /// <summary>
@@ -140,11 +140,11 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "seal")
             {
-                IsSealed = true;
+                SchedState.issealed = true;
             }
             else if (par1_operation == "unseal")
             {
-                IsSealed = false;
+                SchedState.issealed = false;
             }
             else
             {
@@ -187,11 +187,6 @@ namespace ExternalDelayBoundedScheduler
 
             var SchedState = zSchedState as DBSchedulerState;
             return SchedState.TaskSet.Count();
-        }
-
-        public bool IsDelaySealed()
-        {
-            return IsSealed;
         }
     }
 }
