@@ -126,12 +126,7 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "pop")
             {
-                if (IsSealed(zSchedState))
-                {
-                    Delay(zSchedState);
-                }
-                else
-                    SchedState.DBStack.Pop();
+                SchedState.DBStack.Pop();
             }
             else if (par1_operation == "map")
             {
