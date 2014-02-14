@@ -146,7 +146,7 @@ namespace ExternalDelayBoundedScheduler
                 SchedState.ProcessIdMap.TryGetValue(machineId, out procId);
                 var enableProcess = SchedState.TaskList.Where(x => (x.Key == procId)).First();
                 enableProcess = new KeyValuePair<int,bool>(procId, true);
-                Console.WriteLine("Executed Process Push {0}", procId);
+                
             }
             else if (par1_operation == "pop")
             {
@@ -186,7 +186,7 @@ namespace ExternalDelayBoundedScheduler
                         return;
                     }
                 }
-                Console.WriteLine("Executed Process Pop {0}", SchedState.currentProcess);
+                
             }
             else if (par1_operation == "map")
             {

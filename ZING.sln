@@ -40,63 +40,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoundRobinScheduler", "Sche
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomDelayingScheduler", "Schedulers\RandomDelayingScheduler\RandomDelayingScheduler.csproj", "{A1AE4028-A892-43D9-86A2-E3D6302DE223}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RRPlusRTCScheduler", "Schedulers\RRPlusRTCScheduler\RRPlusRTCScheduler.csproj", "{231716E0-2A16-409C-8CBC-9847F9D90447}"
+EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 16
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://vstfpg03:8080/tfs/pg03
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = zc\\zc.csproj
-		SccProjectName1 = zc
-		SccLocalPath1 = zc
-		SccProjectUniqueName2 = FrontierTree\\FrontierTree.csproj
-		SccProjectName2 = FrontierTree
-		SccLocalPath2 = FrontierTree
-		SccProjectUniqueName3 = Microsoft.Zing.Runtime\\Microsoft.Zing.Runtime.csproj
-		SccProjectName3 = Microsoft.Zing.Runtime
-		SccLocalPath3 = Microsoft.Zing.Runtime
-		SccProjectUniqueName4 = Microsoft.Zing\\Microsoft.Zing.csproj
-		SccProjectName4 = Microsoft.Zing
-		SccLocalPath4 = Microsoft.Zing
-		SccProjectUniqueName5 = ParallelExplorer\\ParallelExplorer.csproj
-		SccProjectName5 = ParallelExplorer
-		SccLocalPath5 = ParallelExplorer
-		SccProjectUniqueName6 = Zinger\\Zinger.csproj
-		SccProjectName6 = Zinger
-		SccLocalPath6 = Zinger
-		SccProjectUniqueName7 = ZingOptions\\ZingOptions.csproj
-		SccProjectName7 = ZingOptions
-		SccLocalPath7 = ZingOptions
-		SccProjectUniqueName8 = ZingStateSpaceTraversal\\ZingStateSpaceTraversal.csproj
-		SccProjectName8 = ZingStateSpaceTraversal
-		SccLocalPath8 = ZingStateSpaceTraversal
-		SccProjectUniqueName9 = ZingPlugin\\ZingPlugin.csproj
-		SccProjectName9 = ZingPlugin
-		SccLocalPath9 = ZingPlugin
-		SccProjectUniqueName10 = Plugins\\StateCoveragePlugin\\StateCoveragePlugin.csproj
-		SccProjectTopLevelParentUniqueName10 = ZING.sln
-		SccProjectName10 = Plugins/StateCoveragePlugin
-		SccLocalPath10 = Plugins\\StateCoveragePlugin
-		SccProjectUniqueName11 = Plugins\\StateVisitCount\\StateVisitCount.csproj
-		SccProjectTopLevelParentUniqueName11 = ZING.sln
-		SccProjectName11 = Plugins/StateVisitCount
-		SccLocalPath11 = Plugins\\StateVisitCount
-		SccProjectUniqueName12 = ZingDelayingScheduler\\ZingDelayingScheduler.csproj
-		SccProjectName12 = ZingDelayingScheduler
-		SccLocalPath12 = ZingDelayingScheduler
-		SccProjectUniqueName13 = Schedulers\\RunToCompletionDBSched\\RunToCompletionDBSched.csproj
-		SccProjectTopLevelParentUniqueName13 = ZING.sln
-		SccProjectName13 = Schedulers/RunToCompletionDBSched
-		SccLocalPath13 = Schedulers\\RunToCompletionDBSched
-		SccProjectUniqueName14 = Schedulers\\RoundRobinScheduler\\RoundRobinScheduler.csproj
-		SccProjectTopLevelParentUniqueName14 = ZING.sln
-		SccProjectName14 = Schedulers/RoundRobinScheduler
-		SccLocalPath14 = Schedulers\\RoundRobinScheduler
-		SccProjectUniqueName15 = Schedulers\\RandomDelayingScheduler\\RandomDelayingScheduler.csproj
-		SccProjectTopLevelParentUniqueName15 = ZING.sln
-		SccProjectName15 = Schedulers/RandomDelayingScheduler
-		SccLocalPath15 = Schedulers\\RandomDelayingScheduler
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -244,6 +190,15 @@ Global
 		{A1AE4028-A892-43D9-86A2-E3D6302DE223}.VBDebug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1AE4028-A892-43D9-86A2-E3D6302DE223}.VBDebug|Any CPU.Build.0 = Debug|Any CPU
 		{A1AE4028-A892-43D9-86A2-E3D6302DE223}.VBDebug|x64.ActiveCfg = Debug|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.Release|x64.ActiveCfg = Release|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.VBDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.VBDebug|Any CPU.Build.0 = Debug|Any CPU
+		{231716E0-2A16-409C-8CBC-9847F9D90447}.VBDebug|x64.ActiveCfg = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,5 +209,6 @@ Global
 		{372082A5-2C0B-4196-BF97-095C398666C1} = {DDF04BD2-5C57-4F24-BA58-60E6964FD122}
 		{3C041918-8ED4-48EB-90C7-DC91B5E7AB80} = {DDF04BD2-5C57-4F24-BA58-60E6964FD122}
 		{A1AE4028-A892-43D9-86A2-E3D6302DE223} = {DDF04BD2-5C57-4F24-BA58-60E6964FD122}
+		{231716E0-2A16-409C-8CBC-9847F9D90447} = {DDF04BD2-5C57-4F24-BA58-60E6964FD122}
 	EndGlobalSection
 EndGlobal
