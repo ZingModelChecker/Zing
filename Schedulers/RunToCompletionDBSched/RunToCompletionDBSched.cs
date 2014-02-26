@@ -126,7 +126,8 @@ namespace ExternalDelayBoundedScheduler
             }
             else if (par1_operation == "pop")
             {
-                SchedState.DBStack.Pop();
+                if(SchedState.DBStack.Count > 0)
+                    SchedState.DBStack.Pop();
             }
             else if (par1_operation == "map")
             {
