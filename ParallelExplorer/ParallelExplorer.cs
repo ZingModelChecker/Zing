@@ -296,98 +296,20 @@ namespace Microsoft.Zing
 
             if (!Options.UseHierarchicalFrontiers)
             {
-                (CurrentFrontier as LinkedList<KeyValuePair<Fingerprint, FrontierNode>>).AddLast(
-                    new KeyValuePair<Fingerprint, FrontierNode>(TStartState.Fingerprint, FrontierRepresentation.MakeFrontierRepresentation(TStartState, 0)));
+                globalFrontier.TryAdd(TStartState.Fingerprint, FrontierRepresentation.MakeFrontierRepresentation(TStartState, 0));
             }
             else
             {
-                (CurrentFrontier as LinkedList<KeyValuePair<Fingerprint, FrontierNode>>).AddLast(
-                    new KeyValuePair<Fingerprint, FrontierNode>(TStartState.Fingerprint, FrontierTree.InitialFrontier));
+                globalFrontier.TryAdd(TStartState.Fingerprint, FrontierTree.InitialFrontier);
             }
 
-
-            // Wrap it in a key value pair for the sequential exploration
-            KeyValuePair<IEnumerable<KeyValuePair<Fingerprint, FrontierNode>>, int> InitSeqFrontier =
-                new KeyValuePair<IEnumerable<KeyValuePair<Fingerprint, FrontierNode>>, int>(CurrentFrontier, 0);
-            // Wrap this in another list for the second param
-            IList<KeyValuePair<IEnumerable<KeyValuePair<Fingerprint, FrontierNode>>, int>> CompleteFrontierSet =
-                new List<KeyValuePair<IEnumerable<KeyValuePair<Fingerprint, FrontierNode>>, int>>();
-            CompleteFrontierSet.Add(InitSeqFrontier);
-
-            // Explore a bit before going parallel
+            
 
             DateTime loopEntryTime = DateTime.Now;
-            try
-            {
-                int count = PExploreFrontierInMemory(InitSeqFrontier, CompleteFrontierSet);
-                LiveStates.Select((liveState) =>
-                {
-                    if (liveState.Value.CompletelyExplored)
-                    {
-                        DeadStates.Insert(liveState.Key, 0);
-                    }
-                    else
-                    {
-                        DeadStates.Insert(liveState.Key, liveState.Value.ExploreIfDepthLowerThan);
-                    }
-                    return true;
-                }).ToList();
-                LiveStates.Clear();
-
-                if (Options.PrintStats)
-                {
-                    Console.WriteLine();
-                    if (Options.IsSchedulerDecl)
-                    {
-                        Console.WriteLine("Delay Bound {0}", BoundedSearch.iterativeDelayCutOff);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Depth Bound {0}", BoundedSearch.iterativeDepthCutoff);
-                    }
-                    Console.WriteLine("No. of Frontier {0}", globalFrontier.LongCount());
-                    Console.WriteLine("No. of Distinct States {0}", numDistinctStates);
-                    Console.WriteLine("Total Transitions: {0}", numTotalStates);
-                    Console.WriteLine("Peak / Current Paged Mem Usage : {0} M/{1} M", System.Diagnostics.Process.GetCurrentProcess().PeakPagedMemorySize64 / (1 << 20), System.Diagnostics.Process.GetCurrentProcess().PagedMemorySize64 / (1 << 20));
-                    Console.WriteLine("Peak / Current working set size: {0} M/{1} M", System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64 / (1 << 20), System.Diagnostics.Process.GetCurrentProcess().WorkingSet64 / (1 << 20));
-
-                }
-            }
-            catch (AggregateException e)
-            {
-                foreach (var ex in e.InnerExceptions)
-                {
-                    if (!(ex is PLINQErrorEncounteredException))
-                    {
-                        throw (e);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                Console.WriteLine("Check Failed");
-                //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
-                if (this.StopOnError)
-                {
-                    return false;
-                }
-
-            }
-            catch (PLINQErrorEncounteredException)
-            {
-                Console.WriteLine("Check Failed");
-                //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
-                if (this.StopOnError)
-                {
-                    return false;
-                }
-            }
-
+            
             // Now go parallel
             do
             {
-
 
                 BoundedSearch.IncrementIterativeBound();
 
@@ -488,6 +410,50 @@ namespace Microsoft.Zing
 
 
             } while ((globalFrontier.LongCount() > 0) && !(BoundedSearch.checkIfFinalCutOffReached()));
+
+            if(Options.Maceliveness)
+            {
+                Console.WriteLine("*******************************************************************");
+                Console.WriteLine("Mace Liveness -- Finished Exhaustive Search");
+                Console.WriteLine("Start Random Walk ......... ");
+                Console.WriteLine("*******************************************************************");
+            }
+            var frontierForRandomWalk = PartitionFrontierSet();
+            try
+            {
+                //dfsResults will be a list of key-value pairs, where each element in the list is a return value from
+                //ExploreFuncPLINQ
+                Options.IsRandomSearch = true;
+                int count = frontierForRandomWalk.AsParallel().WithCancellation(cs.Token).WithDegreeOfParallelism(
+                    Options.DegreeOfParallelism).Select(p => RandomWalkMaceLiveness(p, frontierForRandomWalk)).Max();
+
+            }
+            catch (AggregateException e)
+            {
+                foreach (var ex in e.InnerExceptions)
+                {
+                    if (!(ex is PLINQErrorEncounteredException))
+                    {
+                        throw (e);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                Console.WriteLine("Check Failed");
+                //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
+            }
+            catch (PLINQErrorEncounteredException)
+            {
+                Console.WriteLine("Check Failed");
+                //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
+            }
+            if ((SafetyErrors.ToArray().Length != 0 || AcceptingCycles.ToArray().Length != 0) && this.stopOnError)
+            {
+                // We have errors, and we have to stop on an error proceed no further
+                return false;
+            }
 
             return true;
         }
@@ -927,6 +893,187 @@ namespace Microsoft.Zing
             return globalFrontier.Count();
         }
 
+        #endregion
+
+        #region RandomWalk MaceMC
+        private int RandomWalkMaceLiveness(KeyValuePair<IEnumerable<KeyValuePair<Fingerprint, FrontierNode>>, int> FrontierSetNum,
+            IList<KeyValuePair<IEnumerable<KeyValuePair<Fingerprint, FrontierNode>>, int>> CompleteFrontierSetList)
+        {
+            TimeSpan GetTraversalTime = TimeSpan.Zero;
+            int MySerialNum = FrontierSetNum.Value;
+            LinkedList<KeyValuePair<Fingerprint, FrontierNode>> FrontierSet = FrontierSetNum.Key
+                as LinkedList<KeyValuePair<Fingerprint, FrontierNode>>;
+            DateTime StartTime, EndTime;
+            KeyValuePair<Fingerprint, FrontierNode> ResEntry;
+            LinkedList<KeyValuePair<Fingerprint, FrontierNode>> OtherList = null;
+            List<KeyValuePair<Fingerprint, FrontierNode>> StolenList = null;
+            int lastSeenStableState = 0;
+
+            while (true)
+            {
+                lock (FrontierSet)
+                {
+                    if (FrontierSet.Count == 0)
+                    {
+                        // this means I have to steal work from other frontiers
+                        ResEntry = new KeyValuePair<Fingerprint, FrontierNode>(null, null);
+                    }
+                    else
+                    {
+                        ResEntry = FrontierSet.First.Value;
+                        FrontierSet.RemoveFirst();
+                    }
+                }
+                if (ResEntry.Key == null)
+                {
+                    // My work list is empty, do work stealing if the option is enabled
+                    if (Options.WorkStealAmount == -1 || Options.WorkStealAmount == 0)
+                    {
+                        // Work stealing disabled
+                        break;
+                    }
+                    else
+                    {
+                        OtherList = null;
+                        // Steal work from someone else
+                        for (int i = 0; i < CompleteFrontierSetList.Count; ++i)
+                        {
+                            if (i == MySerialNum)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                if ((CompleteFrontierSetList[i].Key as LinkedList<KeyValuePair<Fingerprint, FrontierNode>>).Count > 0)
+                                {
+                                    OtherList = CompleteFrontierSetList[i].Key as LinkedList<KeyValuePair<Fingerprint, FrontierNode>>;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (OtherList == null)
+                        {
+                            // No one to steal work from, we're done!
+                            break;
+                        }
+                        else
+                        {
+                            // Try stealing work from the other list
+                            // Insert into a private list first to avoid races
+                            // caused by someone else trying to steal work from me!
+                            StolenList = new List<KeyValuePair<Fingerprint, FrontierNode>>();
+                            lock (OtherList)
+                            {
+                                for (int i = 0; i < Options.WorkStealAmount; ++i)
+                                {
+                                    if (OtherList.Count == 0)
+                                    {
+                                        break;
+                                    }
+                                    StolenList.Add(OtherList.First.Value);
+                                    OtherList.RemoveFirst();
+                                }
+                            }
+                            // We've (hopefully) stolen some work, continue now.
+                            // If at all this list has become empty between the time
+                            // we checked that it was not empty to the time we locked it,
+                            // then we'll try to steal again from some other list in the 
+                            // next iteration. No harm, no foul
+                            // Insert the stolen work into the main worklist
+
+                            lock (FrontierSet)
+                            {
+                                foreach (KeyValuePair<Fingerprint, FrontierNode> kvp in StolenList)
+                                {
+                                    FrontierSet.AddLast(kvp);
+                                }
+                            }
+
+                            continue;
+                        }
+                    }
+                }
+
+                //System.GC.Collect();
+                FrontierRepresentation FrontEntry = (ResEntry.Value as FrontierRepresentation);
+                Fingerprint fp = ResEntry.Key;
+
+                
+                StartTime = DateTime.Now;
+                TraversalInfo startState;
+                //If its the Initial state return it directly
+                if (ResEntry.Key.Equals(InitialState.Fingerprint))
+                {
+                    startState = new ExecutionState((StateImpl)this.InitialState.SI.Clone(MySerialNum), null, null);
+                }
+                else
+                {
+                    startState = FrontEntry.GetTraversalInfo(this.InitialState.SI, MySerialNum);
+                }
+                
+                Stack<IDBDFSStackEntry> LocalStack = new Stack<IDBDFSStackEntry>();
+                LocalStack.Push(new IDBDFSStackEntry(startState));
+
+                //do bounded depth DFS with local stack
+                while (LocalStack.Count > 0)
+                {
+                    TraversalInfo I = (TraversalInfo)LocalStack.Peek().ti;
+                    TraversalInfo newI = I.RandomSuccessor();
+                    if(newI == null)
+                    {
+                        LocalStack.Pop();
+                        continue;
+                    }
+                    if(I.IsAcceptingState)
+                    {
+                        lastSeenStableState = 0;
+                    }
+                    //check if we found a cycle
+                    if (lastSeenStableState > MaceLiveness.RandomWalkBound)
+                    {
+                        lock (this)
+                        {
+                            AcceptingCycles.Add(newI.GenerateNonCompactTrace());
+                            this.lastErrorFound = CheckerResult.AcceptanceCyleFound;
+                        }
+
+                        if (StopOnError)
+                        {
+                            cs.Cancel(true);
+                            throw new PLINQErrorEncounteredException();
+                        }
+                       
+                    }
+
+                    TerminalState ts = newI as TerminalState;
+                    if ((ts != null))
+                    {
+                        if (ts.IsErroneous)
+                        {
+                            lock (this)
+                            {
+                             
+                                SafetyErrors.Add(newI.GenerateNonCompactTrace());
+                                this.lastErrorFound = newI.ErrorCode;
+                             
+                            }
+
+                            if (stopOnError)
+                            {
+                                cs.Cancel(true);
+                                throw new PLINQErrorEncounteredException();
+                            }
+                        }
+                        continue;
+                    }
+                    LocalStack.Push(new IDBDFSStackEntry(newI));
+                    lastSeenStableState++;
+                    continue;
+                }
+            }
+            return globalFrontier.Count();
+        }
         #endregion
 
         #region Frontier To Disk

@@ -140,5 +140,12 @@ namespace Microsoft.Zing
             set { Options.boundChoices = value; }
         }
 
+        private static bool maceliveness = false;
+
+        public static bool Maceliveness
+        {
+            get { return Options.maceliveness; }
+            set { Options.maceliveness = value; }
+        }
     }
 }

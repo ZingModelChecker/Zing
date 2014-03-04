@@ -8,6 +8,7 @@ using System.Runtime;
 using Microsoft.Zing;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Zing
 {
@@ -40,9 +41,7 @@ namespace Microsoft.Zing
             int oMaxDFSStackLength = -1;
             bool oCompactTraces = false;
             bool oOptimizedIDBDFS = false;
-            bool oDryadLinqDFS = false;
             int oDegreeOfParallelism = 1;
-            int oInitSequentialDepth = 1;
             int oWorkStealAmount = 1;
             uint oNonChooseProbability = 0;
 
@@ -87,7 +86,29 @@ namespace Microsoft.Zing
                         case "ct":
                             oCompactTraces = true;
                             break;
-
+                        case "maceliveness":
+                            Options.Maceliveness = true;
+                            if(param.Length == 0)
+                            {
+                                Usage(arg, "Please provide correct parameters with maceliveness option");
+                                return;
+                            }
+                            else
+                            {
+                                var parameters = Regex.Match(param, "([0-9]*,[0-9]*)").Groups[0].ToString();
+                                var bounds = parameters.Split(',');
+                                if(bounds.Count() != 2)
+                                {
+                                    Usage(arg, "Please provide correct parameters with maceliveness option");
+                                    return;
+                                }
+                                else
+                                {
+                                    MaceLiveness.ExhaustiveSearchBound = Int32.Parse(bounds[0]);
+                                    MaceLiveness.RandomWalkBound = Int32.Parse(bounds[1]);
+                                }
+                            }
+                            break;
                         case "et":
                         case "enabletrace":
                             Options.EnableTrace = true;
@@ -234,9 +255,6 @@ namespace Microsoft.Zing
                             }
                             break;
 
-                        case "iseq":
-                            oInitSequentialDepth = int.Parse(param);
-                            break;
                         case "plugin":
                             pluginDlls.Add(param);
                             // Perform checks on plugin
@@ -384,14 +402,14 @@ namespace Microsoft.Zing
 
                 pExp.MaxDFSStackLength = oMaxDFSStackLength;
                 pExp.StopOnError = !oMultiple;
-                pExp.BoundedSearch = new ZingBoundedSearch(oInitSequentialDepth, oInitSequentialDepth, odepthInterval, odelayInterval, odepthCutoff, odelayCutoff);
+                if(Options.Maceliveness)
+                {
+                    odelayCutoff = MaceLiveness.ExhaustiveSearchBound;
+                    odepthCutoff = MaceLiveness.ExhaustiveSearchBound;
+                }
+                pExp.BoundedSearch = new ZingBoundedSearch(odepthInterval, odelayInterval, odepthCutoff, odelayCutoff);
                 Options.WorkStealAmount = oWorkStealAmount;
                 Options.CompactTraces = oCompactTraces;
-
-                if ((oOptimizedIDBDFS || oDryadLinqDFS) && oInitSequentialDepth == 0)
-                {
-                    oInitSequentialDepth = odepthInterval;
-                }
 
                 Options.DegreeOfParallelism = oDegreeOfParallelism;
 
@@ -743,6 +761,7 @@ namespace Microsoft.Zing
             Console.WriteLine("  -cdfsstack:<int>                Limit the size of DFS Search stack to <int>, if the size of stack exceeds cutoff corresponding error trace is generated");
             Console.WriteLine("  -frontiertodisk                 Flush Frontiers to Disk < Memory Optimization >");
             Console.WriteLine("  -bc                             Bound the internal choice points <used during delay bounding>");
+            Console.WriteLine("  -maceliveness:(exhaustivesearchbound, randomwalkbound) This option uses macemc liveness algorithm. It performs exhaustive search till bound \"exhaustivesearchbound\" and then performs randomwalk. An error trace is reported if no \"stable\" state is found within randomwalkbound");                   
         }
 
         private static bool CheckZingPlugin(string PluginDll)

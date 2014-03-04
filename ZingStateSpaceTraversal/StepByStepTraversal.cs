@@ -129,6 +129,11 @@ namespace Microsoft.Zing
             return null;
         }
 
+        public override TraversalInfo RandomSuccessor()
+        {
+            return null;
+        }
+
         public override TraversalInfo GetSuccessorN(int n)
         {
             return null;
@@ -279,6 +284,18 @@ namespace Microsoft.Zing
             ViaChoose v = new ViaChoose(n);
             TraversalInfo ti = TraversalInfo.MakeTraversalInfo(s, this, v, MustFingerprint);
             return ti;
+        }
+
+        public override TraversalInfo RandomSuccessor()
+        {
+            if (randomChoiceSet.Count == 0)
+                return null;
+            else
+            {
+                var currC = randomChoiceSet[TraversalInfo.randGen.Next(0, randomChoiceSet.Count)];
+                randomChoiceSet.Remove(currC);
+                return RunChoice(currC);
+            }
         }
 
         public override TraversalInfo GetNextSuccessor(ZingBoundedSearch zbs)
@@ -532,6 +549,20 @@ namespace Microsoft.Zing
             }
 
             return RunProcess(n, MustFingerprint);
+        }
+
+        public override TraversalInfo RandomSuccessor()
+        {
+            if (RandomProcessSet.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                var currProcess = RandomProcessSet[TraversalInfo.randGen.Next(0, RandomProcessSet.Count)];
+                RandomProcessSet.Remove(currProcess);
+                return RunProcess(currProcess);
+            }
         }
 
         public override TraversalInfo GetNextSuccessor(ZingBoundedSearch zbs)

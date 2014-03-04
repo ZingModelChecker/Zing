@@ -533,6 +533,8 @@ namespace Microsoft.Zing
         internal abstract void deOrphanize(StateImpl s);
         public abstract TraversalInfo GetNextSuccessor(ZingBoundedSearch zbs);
 
+        public abstract TraversalInfo RandomSuccessor();
+
         public abstract void Reset();
 
         public void DiscardStateImpl()
@@ -564,8 +566,10 @@ namespace Microsoft.Zing
             //{
             //    Debug.Assert(this.fingerprint.Equals(stateImpl.Fingerprint));
             //}
-            stateImpl.IsAcceptingState = false;
-
+            if (!Options.Maceliveness)
+            {
+                stateImpl.IsAcceptingState = false;
+            }
             return stateImpl;
         }
 

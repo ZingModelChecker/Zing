@@ -35,14 +35,14 @@ namespace Microsoft.Zing
         #endregion
 
         #region Contructor
-        public ZingBoundedSearch(int seqdepth, int seqdelay, int idepth, int idelay, int cdepth, int cdelay)
+        public ZingBoundedSearch(int idepth, int idelay, int cdepth, int cdelay)
         {
             delayCutOff = cdelay;
             depthCutOff = cdepth;
             iterativeDepthIncrement = idepth;
             iterativeDelayIncrement = idelay;
-            iterativeDelayCutOff = seqdelay;
-            iterativeDepthCutoff = seqdepth;
+            iterativeDelayCutOff = 0;
+            iterativeDepthCutoff = 0;
         }
         #endregion
 
@@ -115,5 +115,11 @@ namespace Microsoft.Zing
             }
         }
         #endregion
+    }
+
+    public class MaceLiveness
+    {
+        static public int ExhaustiveSearchBound = 15;
+        static public int RandomWalkBound = 1000;
     }
 }
