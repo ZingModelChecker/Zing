@@ -266,9 +266,11 @@ namespace Microsoft.Zing
                             }
                             break;
                         case "liveness":
-                            Options.CheckLiveNess = true;
+                            {
+                                Options.CheckLiveNess = true;
+                                odepthInterval = int.MaxValue;
+                            }
                             break;
-
                         case "cdfsstack":
                             Options.CheckDFSStackLength = true;
                             oMaxDFSStackLength = int.Parse(param);
