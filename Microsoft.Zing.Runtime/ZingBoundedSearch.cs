@@ -121,5 +121,6 @@ namespace Microsoft.Zing
     {
         static public int ExhaustiveSearchBound = 15;
         static public int RandomWalkBound = 1000;
+        static public int FinalBound = 100000;
     }
 }

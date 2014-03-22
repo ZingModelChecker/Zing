@@ -1067,9 +1067,16 @@ namespace Microsoft.Zing
                         }
                         continue;
                     }
-                    LocalStack.Push(new IDBDFSStackEntry(newI));
-                    lastSeenStableState++;
-                    continue;
+                    if (MaceLiveness.FinalBound < newI.Bounds.Delay || MaceLiveness.FinalBound < newI.Bounds.Depth)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        LocalStack.Push(new IDBDFSStackEntry(newI));
+                        lastSeenStableState++;
+                        continue;
+                    }
                 }
             }
             return globalFrontier.Count();
