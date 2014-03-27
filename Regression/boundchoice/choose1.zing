@@ -1,0 +1,30 @@
+
+class SimpleTest
+{
+    activate static void Main()
+    {
+        bool f;
+        bool t;
+		int x;
+		t = choose(bool);
+		if(t)
+		{
+			x = x + 2;
+			trace("x = {0}", x);
+		}
+		else
+		{
+			x = x + 1;
+			trace("x = {0}", x);
+		}
+        f = choose(bool);
+		if(f)
+		{
+			assert(false);
+		}
+		else
+		{
+			assert(x == 1);
+		}
+    }
+};

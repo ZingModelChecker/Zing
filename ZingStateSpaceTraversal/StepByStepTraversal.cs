@@ -315,15 +315,14 @@ namespace Microsoft.Zing
             {
                 
 
-                if (Options.IsSchedulerDecl && Options.BoundChoices)
+                if (Options.BoundChoices)
                 {
-                    currChoice = numOfTimesCurrStateDelayed;
                     if (currChoice >= numChoices)
                         return null;
 
                     if (doDelay)
                     {
-                        Bounds.Delay = Bounds.Delay + 1;
+                        Bounds.ChoiceCost = Bounds.ChoiceCost + 1;
                         numOfTimesCurrStateDelayed++;
                     }
                     else
@@ -332,9 +331,8 @@ namespace Microsoft.Zing
                     }
 
                     if (zbs.checkIfIterativeCutOffReached(Bounds))
-                    {
                         return this;
-                    }
+
                 }
 
                 if (currChoice >= numChoices)

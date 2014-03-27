@@ -10,17 +10,19 @@ namespace Microsoft.Zing
     {
         public Int32 Depth;
         public Int32 Delay;
-
-        public ZingBounds(Int32 dpt, Int32 dly)
+        public Int32 ChoiceCost;
+        public ZingBounds(Int32 dpt, Int32 dly, Int32 cb)
         {
             Depth = dpt;
             Delay = dly;
+            ChoiceCost = cb;
         }
 
         public ZingBounds()
         {
             Depth = 0;
             Delay = 0;
+            ChoiceCost = 0;
         }
     }
     public class ZingBoundedSearch
@@ -28,19 +30,25 @@ namespace Microsoft.Zing
         #region Bounds
         public int depthCutOff;
         public int delayCutOff;
+        public int choiceCutOff;
         public int iterativeDepthCutoff;
         public int iterativeDepthIncrement;
         public int iterativeDelayCutOff;
         public int iterativeDelayIncrement;
+        public int iterativeChoiceIncrement;
+        public int iterativeChoiceCutOff;
         #endregion
 
         #region Contructor
-        public ZingBoundedSearch(int idepth, int idelay, int cdepth, int cdelay)
+        public ZingBoundedSearch(int idepth, int idelay, int ichoice, int cdepth, int cdelay, int cchoice)
         {
             delayCutOff = cdelay;
             depthCutOff = cdepth;
+            choiceCutOff = cchoice;
             iterativeDepthIncrement = idepth;
             iterativeDelayIncrement = idelay;
+            iterativeChoiceIncrement = ichoice;
+            iterativeChoiceCutOff = cchoice;
             iterativeDelayCutOff = 0;
             iterativeDepthCutoff = 0;
         }
@@ -51,7 +59,7 @@ namespace Microsoft.Zing
         {
             if (Options.IsSchedulerDecl)
             {
-                if (iterativeDelayCutOff >= delayCutOff)
+                if ((iterativeDelayCutOff >= delayCutOff))
                 {
                     return true;
                 }
@@ -63,7 +71,7 @@ namespace Microsoft.Zing
             }
             else
             {
-                if (iterativeDepthCutoff >= depthCutOff)
+                if ((iterativeDepthCutoff >= depthCutOff))
                 {
                     return true;
                 }
@@ -78,7 +86,7 @@ namespace Microsoft.Zing
         {
             if (Options.IsSchedulerDecl)
             {
-                if (currBounds.Delay >= iterativeDelayCutOff)
+                if ((currBounds.Delay >= iterativeDelayCutOff) || (Options.BoundChoices && currBounds.ChoiceCost >= iterativeChoiceCutOff))
                 {
                     return true;
                 }
@@ -90,7 +98,7 @@ namespace Microsoft.Zing
             }
             else
             {
-                if (currBounds.Depth >= iterativeDepthCutoff)
+                if ((currBounds.Depth >= iterativeDepthCutoff) || (Options.BoundChoices && currBounds.ChoiceCost >= iterativeChoiceCutOff))
                 {
                     return true;
                 }
@@ -107,11 +115,17 @@ namespace Microsoft.Zing
             {
                 iterativeDelayCutOff += iterativeDelayIncrement;
                 iterativeDelayCutOff = Math.Min(delayCutOff, iterativeDelayCutOff);
+                
             }
             else
             {
                 iterativeDepthCutoff += iterativeDepthIncrement;
                 iterativeDepthCutoff = Math.Min(depthCutOff, iterativeDepthCutoff);
+            }
+            if (Options.BoundChoices)
+            {
+                //iterativeChoiceCutOff += iterativeChoiceIncrement;
+                iterativeChoiceCutOff = Math.Min(choiceCutOff, iterativeChoiceCutOff);
             }
         }
         #endregion

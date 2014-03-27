@@ -353,7 +353,7 @@ namespace Microsoft.Zing
             if (pred != null)
             {
                 Predecessor = pred;
-                Bounds = new ZingBounds(pred.Bounds.Depth + 1, pred.Bounds.Delay);
+                Bounds = new ZingBounds(pred.Bounds.Depth + 1, pred.Bounds.Delay, pred.Bounds.ChoiceCost);
                 doDelay = false;
                 if (Options.IsSchedulerDecl)
                 {

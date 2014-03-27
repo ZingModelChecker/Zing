@@ -265,7 +265,7 @@ namespace Microsoft.Zing
         public FrontierTree(TraversalInfo ti, int SerialNum)
         {
             Stack<KeyValuePair<FrontierTree, TraversalInfo>> MyStack = PerTaskStacks[SerialNum];
-            this.Bounds = new ZingBounds(ti.Bounds.Depth, ti.Bounds.Delay);
+            this.Bounds = new ZingBounds(ti.Bounds.Depth, ti.Bounds.Delay, ti.Bounds.ChoiceCost);
             this.level = MyStack.Peek().Key.Level + 1;
             this.parent = MyStack.Peek().Key;
             this.fp = ti.Fingerprint;
@@ -376,7 +376,7 @@ namespace Microsoft.Zing
         public TraceFrontier(TraversalInfo ti)
             : base(ti)
         {
-            this.Bounds = new ZingBounds(ti.Bounds.Depth, ti.Bounds.Delay);
+            this.Bounds = new ZingBounds(ti.Bounds.Depth, ti.Bounds.Delay, ti.Bounds.ChoiceCost);
             if(Options.IsSchedulerDecl)
             {
                 schedulerState = ti.ZingDBSchedState.CloneF();

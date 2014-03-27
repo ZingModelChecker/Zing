@@ -411,50 +411,50 @@ namespace Microsoft.Zing
 
             } while ((globalFrontier.LongCount() > 0) && !(BoundedSearch.checkIfFinalCutOffReached()));
 
-            if(Options.Maceliveness)
+            if (Options.Maceliveness)
             {
                 Console.WriteLine("*******************************************************************");
                 Console.WriteLine("Mace Liveness -- Finished Exhaustive Search");
                 Console.WriteLine("Start Random Walk ......... ");
                 Console.WriteLine("*******************************************************************");
-            }
-            var frontierForRandomWalk = PartitionFrontierSet();
-            try
-            {
-                //dfsResults will be a list of key-value pairs, where each element in the list is a return value from
-                //ExploreFuncPLINQ
-                Options.IsRandomSearch = true;
-                int count = frontierForRandomWalk.AsParallel().WithCancellation(cs.Token).WithDegreeOfParallelism(
-                    Options.DegreeOfParallelism).Select(p => RandomWalkMaceLiveness(p, frontierForRandomWalk)).Max();
 
-            }
-            catch (AggregateException e)
-            {
-                foreach (var ex in e.InnerExceptions)
+                var frontierForRandomWalk = PartitionFrontierSet();
+                try
                 {
-                    if (!(ex is PLINQErrorEncounteredException))
-                    {
-                        throw (e);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                Console.WriteLine("Check Failed");
-                //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
-            }
-            catch (PLINQErrorEncounteredException)
-            {
-                Console.WriteLine("Check Failed");
-                //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
-            }
-            if ((SafetyErrors.ToArray().Length != 0 || AcceptingCycles.ToArray().Length != 0) && this.stopOnError)
-            {
-                // We have errors, and we have to stop on an error proceed no further
-                return false;
-            }
+                    //dfsResults will be a list of key-value pairs, where each element in the list is a return value from
+                    //ExploreFuncPLINQ
+                    Options.IsRandomSearch = true;
+                    int count = frontierForRandomWalk.AsParallel().WithCancellation(cs.Token).WithDegreeOfParallelism(
+                        Options.DegreeOfParallelism).Select(p => RandomWalkMaceLiveness(p, frontierForRandomWalk)).Max();
 
+                }
+                catch (AggregateException e)
+                {
+                    foreach (var ex in e.InnerExceptions)
+                    {
+                        if (!(ex is PLINQErrorEncounteredException))
+                        {
+                            throw (e);
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    Console.WriteLine("Check Failed");
+                    //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
+                }
+                catch (PLINQErrorEncounteredException)
+                {
+                    Console.WriteLine("Check Failed");
+                    //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
+                }
+                if ((SafetyErrors.ToArray().Length != 0 || AcceptingCycles.ToArray().Length != 0) && this.stopOnError)
+                {
+                    // We have errors, and we have to stop on an error proceed no further
+                    return false;
+                }
+            }
             return true;
         }
 
