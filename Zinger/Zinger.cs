@@ -292,17 +292,16 @@ namespace Microsoft.Zing
                                 }
                                 else
                                 {
-                                    var parameters = Regex.Match(param, "([0-9]*,[0-9]*)").Groups[0].ToString();
-                                    var bounds = parameters.Split(',');
-                                    if (bounds.Count() != 2)
+                                    var bound = Int32.Parse(param);
+                                    if (bound <= 0)
                                     {
-                                        Usage(arg, "Please provide correct parameters with maceliveness option");
+                                        Usage(arg, "Please provide correct parameters with bc option (>=1)");
                                         return;
                                     }
                                     else
                                     {
-                                        ochoiceInterval = Int32.Parse(bounds[0]);
-                                        ochoiceCutoff = Int32.Parse(bounds[1]);
+                                        ochoiceInterval = bound;
+                                        ochoiceCutoff = bound;
                                         
                                     }
                                 }
