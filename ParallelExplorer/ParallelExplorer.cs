@@ -631,7 +631,10 @@ namespace Microsoft.Zing
 
                 if (BoundedSearch.checkIfIterativeCutOffReached(FrontEntry.Bounds))
                 {
-                    AddToFrontier(FrontEntry, fp, MySerialNum);
+                    //no need of adding it to the frontier if choice bound is reached
+                    if(!(Options.BoundChoices && FrontEntry.Bounds.ChoiceCost >= BoundedSearch.choiceCutOff))
+                        AddToFrontier(FrontEntry, fp, MySerialNum);
+                    
                     continue;
                 }
                 System.Diagnostics.Stopwatch time3 = new System.Diagnostics.Stopwatch();
@@ -698,7 +701,9 @@ namespace Microsoft.Zing
                     {
                         // We've reached the depth cut-off. Save this to the frontier
                         // and continue
-                        AddToFrontier(I, MySerialNum);
+                        //no need of adding it to the frontier if the final choice cutoff has reached
+                        if (!(Options.BoundChoices && FrontEntry.Bounds.ChoiceCost >= BoundedSearch.choiceCutOff))
+                            AddToFrontier(I, MySerialNum);
                         //I.DiscardStateImpl();
                         LocalStack.Pop();
 
@@ -1498,8 +1503,8 @@ namespace Microsoft.Zing
         {
             //start all worker threads
             frontierCounter = 0;
-            currFrontier = new BlockingCollection<FrontierWorkItem>(numberWorker);
-            newFrontier = new BlockingCollection<FrontierWorkItem>(4 * numberWorker);
+            currFrontier = new BlockingCollection<FrontierWorkItem>(4* numberWorker);
+            newFrontier = new BlockingCollection<FrontierWorkItem>(40 * numberWorker);
             frontierSet = new HashSet<Fingerprint>();
             z_Workers = new System.Threading.Tasks.Task[Options.DegreeOfParallelism];
             for (int i = 0; i < z_Workers.Length; i++)
@@ -1509,8 +1514,8 @@ namespace Microsoft.Zing
                 System.Threading.Thread.Sleep(10);
             }
 
-            readerWorkers = new System.Threading.Tasks.Task[2 * Options.DegreeOfParallelism];
-            writerWorkers = new System.Threading.Tasks.Task[2 * Options.DegreeOfParallelism];
+            readerWorkers = new System.Threading.Tasks.Task[Options.DegreeOfParallelism];
+            writerWorkers = new System.Threading.Tasks.Task[Options.DegreeOfParallelism];
             for (int i = 0; i < readerWorkers.Length; i++)
             {
                 readerWorkers[i] = System.Threading.Tasks.Task.Factory.StartNew(FrontierReader, "i_" + i.ToString());
