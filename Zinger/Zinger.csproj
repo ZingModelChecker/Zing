@@ -98,9 +98,6 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Compiler.Runtime">
-      <HintPath>..\Resources\external\CCI\System.Compiler.Runtime.dll</HintPath>
-    </Reference>
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
