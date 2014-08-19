@@ -67,7 +67,7 @@ namespace Microsoft.Zing
 
             this.processes = new ArrayList(6);  // probably a good default size
             this.savedNumProcesses = -1;
-            this.nextProcessId = 0;
+            this.nextProcessId = 1;
             if(Options.IsSchedulerDecl)
             {
                 ZingDBSchedState = Options.ZSchedOptions.zSchedState;

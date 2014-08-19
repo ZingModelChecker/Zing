@@ -513,7 +513,7 @@ namespace Microsoft.Zing
                     State[] states;
                     states = trace.GetStates(pExp.InitialState);
 
-                    Console.WriteLine(" *******************         Safety Error Trace          ***********************");
+                    //Console.WriteLine(" *******************         Safety Error Trace          ***********************");
                     Console.WriteLine(" *******************************************************************************");
                     Console.WriteLine(" Error trace {0}: length: {1} states", i, states.Length);
 
@@ -582,7 +582,7 @@ namespace Microsoft.Zing
 
                             for (int k = 0; k < traceLogs.Length; k++)
                             {
-                                tracer.Write("  {0}\r\n", traceLogs[k]);
+                                tracer.Write("{0}", traceLogs[k]);
                             }
                         }
 
@@ -620,7 +620,7 @@ namespace Microsoft.Zing
                     State[] states;
                     states = trace.GetStates(pExp.InitialState);
 
-                    Console.WriteLine(" *******************         Liveness Error Trace          ***********************");
+                    //Console.WriteLine(" *******************         Liveness Error Trace          ***********************");
                     Console.WriteLine(" *******************************************************************************");
                     Console.WriteLine(" Error trace {0}: length: {1} states", i, states.Length);
 

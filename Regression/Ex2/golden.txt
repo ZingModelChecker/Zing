@@ -1,7 +1,7 @@
 Check Failed
 Check failed
  *******************************************************************************
- Error trace 0: length: 8 states
+ Error trace 0: length: 7 states
 #### State 0 : 
  State:[fingerprint =65d39c3d:256da45d]
 
@@ -176,8 +176,8 @@ State:[fingerprint =05db3484:748d1138]
           Outputs:
           Locals:
 
-#### State 4 (ran process 1) :
-State:[fingerprint =2339a9d2:4b7c9bb7]
+#### State 4 (ran process 0) :
+State:[fingerprint =1237590b:10c129f4]
 
   Globals:
   ZingPointer Main____x = 1
@@ -186,7 +186,7 @@ State:[fingerprint =2339a9d2:4b7c9bb7]
     Addr= 1
     Type= Microsoft.Zing.Application+Foo
     Contents:
-      System.Boolean y = True
+      System.Boolean y = False
 
 
   Processes: (2)
@@ -196,14 +196,8 @@ State:[fingerprint =2339a9d2:4b7c9bb7]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+Main+helper2
       Stack:
-        Function : Microsoft.Zing.Application+Foo+Block
-          NextBlock: B0
-          Inputs:
-          Outputs:
-          Locals:
-
         Function : Microsoft.Zing.Application+Main+helper2
-          NextBlock: B2
+          NextBlock: B1
           Inputs:
           Outputs:
           Locals:
@@ -215,54 +209,13 @@ State:[fingerprint =2339a9d2:4b7c9bb7]
       Entry point: Microsoft.Zing.Application+Main+main2
       Stack:
         Function : Microsoft.Zing.Application+Main+main2
-          NextBlock: B0
+          NextBlock: B1
           Inputs:
           Outputs:
           Locals:
 
 #### State 5 (ran process 1) :
-State:[fingerprint =442bb7d7:265d750c]
-
-  Events:
-    TerminateProcess - process='main2'
-
-  Globals:
-  ZingPointer Main____x = 1
-
-  Heap: (1 items)
-    Addr= 1
-    Type= Microsoft.Zing.Application+Foo
-    Contents:
-      System.Boolean y = True
-
-
-  Processes: (2)
-
-    Process 0: Name='helper2', Id=1
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+Main+helper2
-      Stack:
-        Function : Microsoft.Zing.Application+Foo+Block
-          NextBlock: B0
-          Inputs:
-          Outputs:
-          Locals:
-
-        Function : Microsoft.Zing.Application+Main+helper2
-          NextBlock: B2
-          Inputs:
-          Outputs:
-          Locals:
-
-
-    Process 1: Name='main2', Id=2
-      Status: Completed
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+Main+main2
-      Stack:
-#### State 6 (ran process 0) :
-State:[fingerprint =6bc39b53:29ae1546]
+State:[fingerprint =46ef8edc:00fbfa6e]
 
   Globals:
   ZingPointer Main____x = 1
@@ -289,11 +242,18 @@ State:[fingerprint =6bc39b53:29ae1546]
 
 
     Process 1: Name='main2', Id=2
-      Status: Completed
+      Status: Runnable
       Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+main2
       Stack:
-#### State 7 (ran process 0) :
-State:[fingerprint =100fbc77:6292ddab]
+        Function : Microsoft.Zing.Application+Main+main2
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 6 (ran process 0) :
+State:[fingerprint =3d23a9f8:4bc73283]
 
   Globals:
   ZingPointer Main____x = 1
@@ -320,9 +280,16 @@ State:[fingerprint =100fbc77:6292ddab]
 
 
     Process 1: Name='main2', Id=2
-      Status: Completed
+      Status: Runnable
       Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+main2
       Stack:
+        Function : Microsoft.Zing.Application+Main+main2
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
 
 Error in state:
 Zing Assertion failed:

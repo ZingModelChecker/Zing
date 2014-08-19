@@ -129,6 +129,10 @@
     <Reference Include="System.Compiler.Framework">
       <HintPath>..\Resources\external\CCI\System.Compiler.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="System.Compiler.Runtime, Version=1.0.21126.0, Culture=neutral, PublicKeyToken=736440c9b414ea16, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\external\CCI\System.Compiler.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
