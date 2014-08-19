@@ -323,7 +323,6 @@ namespace Microsoft.Zing
                     if (doDelay)
                     {
                         Bounds.ChoiceCost = Bounds.ChoiceCost + 1;
-                        numOfTimesCurrStateDelayed++;
                     }
                     else
                     {

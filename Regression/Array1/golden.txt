@@ -187,10 +187,10 @@ Error in state:
 A Zing null pointer was dereferenced.
 
 Microsoft.Zing.ZingNullReferenceException: Exception of type 'Microsoft.Zing.ZingNullReferenceException' was thrown.
-   at Microsoft.Zing.StateImpl.LookupObject(Pointer ptr) in C:\Users\qadeer\Work\zing\src.simplified\Microsoft.Zing.Runtime\StateImpl.cs:line 814
+   at Microsoft.Zing.StateImpl.LookupObject(Pointer ptr) in c:\Workspace\Zing_CodePlex\Code\Microsoft.Zing.Runtime\StateImpl.cs:line 851
    at Microsoft.Zing.Application.___Foo.___main.B1(Process p)
    at Microsoft.Zing.Application.___Foo.___main.Dispatch(Process p)
-   at Microsoft.Zing.Process.RunNextBlock() in C:\Users\qadeer\Work\zing\src.simplified\Microsoft.Zing.Runtime\Process.cs:line 458
+   at Microsoft.Zing.Process.RunNextBlock() in c:\Workspace\Zing_CodePlex\Code\Microsoft.Zing.Runtime\Process.cs:line 442
 
 Stack trace:
     Foo.main (Array1.zing, Line 13)
