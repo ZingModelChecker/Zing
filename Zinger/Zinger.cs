@@ -689,7 +689,7 @@ namespace Microsoft.Zing
 
                             for (int k = 0; k < traceLogs.Length; k++)
                             {
-                                tracer.Write("  {0}\r\n", traceLogs[k]);
+                                tracer.Write("{0}", traceLogs[k]);
                             }
                         }
 
