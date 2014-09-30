@@ -23,7 +23,6 @@ namespace Microsoft.Zing
         /// </summary>
         
         private static ParallelExplorer pExp;
-        private static ArrayList Filters;
         [STAThread]
         static void Main(string[] args)
         {
@@ -113,7 +112,6 @@ namespace Microsoft.Zing
                             }
                             break;
                         case "et":
-                        case "enabletrace":
                             Options.EnableTrace = true;
                             if (param.Length == 0)
                             {
@@ -125,6 +123,10 @@ namespace Microsoft.Zing
                                 tracelogFile = param;
                             }
 
+                            break;
+
+                        case "detailedzingtrace":
+                            Options.DetailedZingTrace = true;
                             break;
 
                         case "s":
@@ -143,8 +145,7 @@ namespace Microsoft.Zing
                             oMultiple = true;
                             break;
 
-                        case "c":
-                        case "cutoff":
+                        case "depthc":
                             if (param.Length == 0)
                             {
                                 Usage(arg, "Missing cutoff depth value");
@@ -190,8 +191,8 @@ namespace Microsoft.Zing
                                 return;
                             }
                             break;
-                        case "inc":
-                        case "i":
+
+                        case "depthi":
                             if (param.Length == 0)
                             {
                                 Usage(arg, "Missing iterative deepening interval value");
@@ -247,14 +248,12 @@ namespace Microsoft.Zing
                             oOptimizedIDBDFS = true;
                             if (param.Length == 0)
                             {
-                                Console.WriteLine("Using Degree of Parallelism = {0} for parallel exploration", Environment.ProcessorCount);
-                                oDegreeOfParallelism = Environment.ProcessorCount;
-                                Options.DegreeOfParallelism = oDegreeOfParallelism;
+                                //Console.WriteLine("Using Degree of Parallelism = {0} for parallel exploration", Environment.ProcessorCount);
+                                Options.DegreeOfParallelism = Environment.ProcessorCount;
                             }
                             else
                             {
-                                oDegreeOfParallelism = int.Parse(param);
-                                Options.DegreeOfParallelism = oDegreeOfParallelism;
+                                Options.DegreeOfParallelism = int.Parse(param);
                             }
                             break;
 
@@ -376,7 +375,6 @@ namespace Microsoft.Zing
 
             try
             {
-                Filters = new ArrayList();
 
                 Trace[] SafetyErrorTraces;
                 Trace[] AcceptanceErrorTraces;
@@ -437,8 +435,6 @@ namespace Microsoft.Zing
                 Options.WorkStealAmount = oWorkStealAmount;
                 Options.CompactTraces = oCompactTraces;
 
-                Options.DegreeOfParallelism = oDegreeOfParallelism;
-
                 DateTime startTime = DateTime.Now;
 
                 {
@@ -456,21 +452,17 @@ namespace Microsoft.Zing
 
                 if (result == CheckerResult.Success)
                     Console.WriteLine("Check passed");
-                else
-                    Console.WriteLine("Check failed");
 
+                Console.WriteLine("{0} distinct states, {1} total transitions, {2} steps max depth",
+                        pExp.NumDistinctStates, pExp.NumTotalStates, pExp.MaxDepth);
                 if (Options.PrintStats)
                 {
-                    Console.WriteLine("{0} distinct states, {1} total transitions, {2} steps max depth",
-                        pExp.NumDistinctStates, pExp.NumTotalStates, pExp.MaxDepth);
-
                     TimeSpan elapsedTime = finishTime.Subtract(startTime);
 
                     Console.WriteLine("Elapsed time: {0:00}:{1:00}:{2:00}\r\nTransitions/sec: {3}",
                         (int)elapsedTime.TotalHours, (int)elapsedTime.Minutes, (int)elapsedTime.Seconds,
                         ((int)(pExp.NumTotalStates / elapsedTime.TotalSeconds)).ToString());
                     Console.WriteLine("Unique states/sec: {0}.", (pExp.NumDistinctStates / elapsedTime.TotalSeconds).ToString());
-                    ;
                 }
                 if (Options.PrintStats)
                 {
@@ -484,14 +476,6 @@ namespace Microsoft.Zing
                 }
 
 
-                Hashtable methodNameToLabelMap = null;
-                string modelName = modelFile.Substring(0, modelFile.Length - 4);
-                string labelFile = modelName + ".labels";
-                if (File.Exists(labelFile))
-                {
-                    methodNameToLabelMap = ParseLabelFile(labelFile);
-                }
-
                 #region Safety Error Trace
                 StreamWriter tracer = null;
                 if (Options.EnableTrace)
@@ -501,64 +485,58 @@ namespace Microsoft.Zing
                 for (int i = 0; i < SafetyErrorTraces.Length; i++)
                 {
                     Trace trace = SafetyErrorTraces[i];
-
-                    if (methodNameToLabelMap != null)
-                    {
-                        string tempName = modelName + ".trace" + i;
-                        StreamWriter sw = File.CreateText(tempName);
-                        sw.Write(trace.GetErrorTraceWithLabels(pExp.InitialState, methodNameToLabelMap));
-                        sw.Close();
-                    }
-
                     State[] states;
                     states = trace.GetStates(pExp.InitialState);
 
-                    //Console.WriteLine(" *******************         Safety Error Trace          ***********************");
-                    Console.WriteLine(" *******************************************************************************");
-                    Console.WriteLine(" Error trace {0}: length: {1} states", i, states.Length);
-
-                    if (oEventsOnly)
+                    if (Options.DetailedZingTrace)
                     {
-                        for (int j = 0; j < states.Length; j++)
-                        {
-                            ZingEvent[] events;
-                            events = states[j].GetEvents();
+                        //Console.WriteLine(" *******************         Safety Error Trace          ***********************");
+                        Console.WriteLine(" *******************************************************************************");
+                        Console.WriteLine(" Error trace {0}: length: {1} states", i, states.Length);
 
-                            for (int k = 0; k < events.Length; k++)
+                        if (oEventsOnly)
+                        {
+                            for (int j = 0; j < states.Length; j++)
                             {
-                                Console.Write("  {0}\r\n", events[k]);
+                                ZingEvent[] events;
+                                events = states[j].GetEvents();
+
+                                for (int k = 0; k < events.Length; k++)
+                                {
+                                    Console.Write("  {0}\r\n", events[k]);
+                                }
+                                if (states[j].Error != null)
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("Error in state:");
+                                    Console.WriteLine("{0}", states[j].Error);
+                                }
                             }
-                            if (states[j].Error != null)
-                            {
-                                Console.WriteLine();
-                                Console.WriteLine("Error in state:");
-                                Console.WriteLine("{0}", states[j].Error);
-                            }
+
+                            Console.WriteLine("Depth on error {0}", states.Length);
+
                         }
-
-                        Console.WriteLine("Depth on error {0}", states.Length);
-
-                    }
-                    else
-                    {
-
-                        for (int j = 0; j < states.Length; j++)
+                        else
                         {
-                            if (j == 0)
-                                Console.Write("#### State {0} : \r\n {1}", j, states[j]);
-                            else
-                            {
-                                if (trace[j - 1].IsExecution)
-                                    Console.Write("#### State {0} (ran process {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
-                                else
-                                    Console.Write("#### State {0} (took choice {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
-                            }
 
-                            if (states[j].Error != null)
+                            for (int j = 0; j < states.Length; j++)
                             {
-                                Console.WriteLine();
-                                Console.WriteLine("Error in state:");
-                                Console.WriteLine("{0}", states[j].Error);
+                                if (j == 0)
+                                    Console.Write("#### State {0} : \r\n {1}", j, states[j]);
+                                else
+                                {
+                                    if (trace[j - 1].IsExecution)
+                                        Console.Write("#### State {0} (ran process {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
+                                    else
+                                        Console.Write("#### State {0} (took choice {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
+                                }
+
+                                if (states[j].Error != null)
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("Error in state:");
+                                    Console.WriteLine("{0}", states[j].Error);
+                                }
                             }
                             if (pExp.DFSStackOverFlowError)
                             {
@@ -566,8 +544,8 @@ namespace Microsoft.Zing
                                 Console.WriteLine("Zing Error : DFS Stack Overflow");
                                 Console.WriteLine("Size of DFS Stack exceeded {0}", pExp.MaxDFSStackLength);
                             }
+                            Console.WriteLine();
                         }
-                        Console.WriteLine();
                     }
 
                     //Print trace into the file
@@ -583,6 +561,12 @@ namespace Microsoft.Zing
                             for (int k = 0; k < traceLogs.Length; k++)
                             {
                                 tracer.Write("{0}", traceLogs[k]);
+                            }
+                            if (states[j].Error != null)
+                            {
+                                tracer.WriteLine();
+                                tracer.WriteLine("Error:");
+                                tracer.WriteLine("{0}", states[j].Error);
                             }
                         }
 
@@ -608,75 +592,68 @@ namespace Microsoft.Zing
                 for (int i = 0; i < AcceptanceErrorTraces.Length; i++)
                 {
                     Trace trace = AcceptanceErrorTraces[i];
-
-                    if (methodNameToLabelMap != null)
-                    {
-                        string tempName = modelName + ".trace" + i;
-                        StreamWriter sw = File.CreateText(tempName);
-                        sw.Write(trace.GetErrorTraceWithLabels(pExp.InitialState, methodNameToLabelMap));
-                        sw.Close();
-                    }
-
                     State[] states;
                     states = trace.GetStates(pExp.InitialState);
 
-                    //Console.WriteLine(" *******************         Liveness Error Trace          ***********************");
-                    Console.WriteLine(" *******************************************************************************");
-                    Console.WriteLine(" Error trace {0}: length: {1} states", i, states.Length);
-
-                    if (oEventsOnly)
+                    if (Options.DetailedZingTrace)
                     {
-                        for (int j = 0; j < states.Length; j++)
-                        {
-                            ZingEvent[] events;
-                            events = states[j].GetEvents();
+                        //Console.WriteLine(" *******************         Liveness Error Trace          ***********************");
+                        Console.WriteLine(" *******************************************************************************");
+                        Console.WriteLine(" Error trace {0}: length: {1} states", i, states.Length);
 
-                            for (int k = 0; k < events.Length; k++)
+                        if (oEventsOnly)
+                        {
+                            for (int j = 0; j < states.Length; j++)
                             {
-                                Console.Write("  {0}\r\n", events[k]);
+                                ZingEvent[] events;
+                                events = states[j].GetEvents();
+
+                                for (int k = 0; k < events.Length; k++)
+                                {
+                                    Console.Write("  {0}\r\n", events[k]);
+                                }
+                                if (states[j].Error != null)
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("Error in state:");
+                                    Console.WriteLine("{0}", states[j].Error);
+                                }
                             }
-                            if (states[j].Error != null)
-                            {
-                                Console.WriteLine();
-                                Console.WriteLine("Error in state:");
-                                Console.WriteLine("{0}", states[j].Error);
-                            }
+
+                            Console.WriteLine("Depth on error {0}", states.Length);
+
                         }
-
-                        Console.WriteLine("Depth on error {0}", states.Length);
-
-                    }
-                    else
-                    {
-
-                        for (int j = 0; j < states.Length; j++)
+                        else
                         {
-                            if (states[j].IsAcceptanceState)
-                            {
-                                Console.WriteLine();
-                                Console.WriteLine("#### Accepting State ####");
-                            }
 
-                            if (j == 0)
-                                Console.Write("#### State {0} : \r\n {1}", j, states[j]);
-                            else
+                            for (int j = 0; j < states.Length; j++)
                             {
-                                if (trace[j - 1].IsExecution)
-                                    Console.Write("#### State {0} (ran process {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
+                                if (states[j].IsAcceptanceState)
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("#### Accepting State ####");
+                                }
+
+                                if (j == 0)
+                                    Console.Write("#### State {0} : \r\n {1}", j, states[j]);
                                 else
-                                    Console.Write("#### State {0} (took choice {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
-                            }
+                                {
+                                    if (trace[j - 1].IsExecution)
+                                        Console.Write("#### State {0} (ran process {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
+                                    else
+                                        Console.Write("#### State {0} (took choice {1}) :\r\n{2}", j, trace[j - 1].Selection, states[j]);
+                                }
 
-                            if (states[j].Error != null)
-                            {
-                                Console.WriteLine();
-                                Console.WriteLine("Error in state:");
-                                Console.WriteLine("{0}", states[j].Error);
+                                if (states[j].Error != null)
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("Error in state:");
+                                    Console.WriteLine("{0}", states[j].Error);
+                                }
                             }
+                            Console.WriteLine();
                         }
-                        Console.WriteLine();
                     }
-
                     //Print trace into the file
                     if (Options.EnableTrace)
                     {
@@ -690,6 +667,12 @@ namespace Microsoft.Zing
                             for (int k = 0; k < traceLogs.Length; k++)
                             {
                                 tracer.Write("{0}", traceLogs[k]);
+                            }
+                            if (states[j].Error != null)
+                            {
+                                tracer.WriteLine();
+                                tracer.WriteLine("Error in state:");
+                                tracer.WriteLine("{0}", states[j].Error);
                             }
                         }
 
@@ -768,14 +751,14 @@ namespace Microsoft.Zing
             Console.WriteLine("Usage: zinger [options] <ZingModel>");
             Console.WriteLine("  -help                           display this message (-h or -?)");
             Console.WriteLine("  -randomdfs                      uses random dfs, instead of ordered dfs");
-            Console.WriteLine("  -cutoff:<int> | -c:<int>        limit search depth to <depth> steps (-c)");
-            Console.WriteLine("  -delayc:<int>                   limit search delay budget to <int>, delay cutoff");
-            Console.WriteLine("  -delayi:<int>                   increment the iterative delay bound by <int>");
-            Console.WriteLine("  -inc:<int> | -i:<int>           increment amount for depth cutoff (-i)");
+            Console.WriteLine("  -depthc:<int>                   final depth cutoff");
+            Console.WriteLine("  -delayc:<int>                   final delay cutoff");
+            Console.WriteLine("  -delayi:<int>                   iterative delay budget (default 1)");
+            Console.WriteLine("  -depthi:<int>                   iterative depth budget (default 1)");
             Console.WriteLine("  -multiple | -m                  search all errors, dont stop exploration after one error(-m)");
             Console.WriteLine("  -stats | -s                     show search statistics during exploration");
-            Console.WriteLine("  -parallel:<int> | -p:<int>      Use Parallel Optimized Iterative Depth Bounding Search");
-            Console.WriteLine("                                  With the specified number of concurrent tasks <default = 1>");
+            Console.WriteLine("  -detailedzingtrace              show complete zing error trace");
+            Console.WriteLine("  -p:<int>                        Use Parallel Search (default if no value provided : no of cores)");
             Console.WriteLine("  -iseq:<int>                     The initial sequential exploration depth <default = 5>");
             Console.WriteLine("  -eo                             Print only the event logs in the error trace");
             Console.WriteLine("  -ct                             Compact the traces used for TraversalInfo Regeneration");

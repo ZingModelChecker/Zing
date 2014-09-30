@@ -21,6 +21,13 @@ namespace Microsoft.Zing
             set { Options.enableTrace = value; }
         }
 
+        private static bool detailedZingTrace = false;
+        public static bool DetailedZingTrace
+        {
+            get { return Options.detailedZingTrace; }
+            set { Options.detailedZingTrace = value; }
+        }
+
         private static bool enableEvents = true;
         public static bool EnableEvents
         {
