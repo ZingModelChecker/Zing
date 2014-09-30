@@ -451,8 +451,14 @@ namespace Microsoft.Zing
                 DateTime finishTime = DateTime.Now;
 
                 if (result == CheckerResult.Success)
-                    Console.WriteLine("Check passed");
-
+                {
+                    var prevColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("##################");
+                    Console.WriteLine("Check Passed");
+                    Console.WriteLine("##################");
+                    Console.ForegroundColor = prevColor;
+                }
                 Console.WriteLine("{0} distinct states, {1} total transitions, {2} steps max depth",
                         pExp.NumDistinctStates, pExp.NumTotalStates, pExp.MaxDepth);
                 if (Options.PrintStats)

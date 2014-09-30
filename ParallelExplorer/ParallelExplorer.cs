@@ -366,12 +366,23 @@ namespace Microsoft.Zing
                                 continue;
                             }
                         }
+                        var prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("##################");
                         Console.WriteLine("Check Failed");
+                        Console.WriteLine("##################");
+                        Console.ForegroundColor = prevColor;
+                        
                         //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                     }
                     catch (PLINQErrorEncounteredException)
                     {
+                        var prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("##################");
                         Console.WriteLine("Check Failed");
+                        Console.WriteLine("##################");
+                        Console.ForegroundColor = prevColor;
                         //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                     }
 
@@ -441,12 +452,22 @@ namespace Microsoft.Zing
                             continue;
                         }
                     }
+                    var prevColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("##################");
                     Console.WriteLine("Check Failed");
+                    Console.WriteLine("##################");
+                    Console.ForegroundColor = prevColor;
                     //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                 }
                 catch (PLINQErrorEncounteredException)
                 {
+                    var prevColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("##################");
                     Console.WriteLine("Check Failed");
+                    Console.WriteLine("##################");
+                    Console.ForegroundColor = prevColor;
                     //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                 }
                 if ((SafetyErrors.ToArray().Length != 0 || AcceptingCycles.ToArray().Length != 0) && this.stopOnError)
@@ -1603,7 +1624,12 @@ namespace Microsoft.Zing
                         continue;
                     }
                 }
+                var prevColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("##################");
                 Console.WriteLine("Check Failed");
+                Console.WriteLine("##################");
+                Console.ForegroundColor = prevColor;
                 //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                 if (this.StopOnError)
                 {
@@ -1613,7 +1639,12 @@ namespace Microsoft.Zing
             }
             catch (PLINQErrorEncounteredException)
             {
+                var prevColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("##################");
                 Console.WriteLine("Check Failed");
+                Console.WriteLine("##################");
+                Console.ForegroundColor = prevColor;
                 //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                 if (this.StopOnError)
                 {
@@ -1701,12 +1732,22 @@ namespace Microsoft.Zing
                                 continue;
                             }
                         }
+                        var prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("##################");
                         Console.WriteLine("Check Failed");
+                        Console.WriteLine("##################");
+                        Console.ForegroundColor = prevColor;
                         //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                     }
                     catch (PLINQErrorEncounteredException)
                     {
+                        var prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("##################");
                         Console.WriteLine("Check Failed");
+                        Console.WriteLine("##################");
+                        Console.ForegroundColor = prevColor;
                         //Console.WriteLine("Total Time: {0}", DateTime.Now - loopEntryTime);
                     }
 
