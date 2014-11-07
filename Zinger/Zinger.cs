@@ -570,9 +570,20 @@ namespace Microsoft.Zing
                             }
                             if (states[j].Error != null)
                             {
-                                tracer.WriteLine();
-                                tracer.WriteLine("Error:");
-                                tracer.WriteLine("{0}", states[j].Error);
+                                if (states[j].Error is ZingAssertionFailureException)
+                                {
+                                    tracer.WriteLine();
+                                    tracer.WriteLine("Error:");
+                                    tracer.WriteLine("P Assertion failed:");
+                                    tracer.WriteLine("Expression: assert({0})", (states[j].Error as ZingAssertionFailureException).Expression);
+                                    tracer.WriteLine("Comment: {0}", (states[j].Error as ZingAssertionFailureException).Comment);
+                                }
+                                else
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("Error:");
+                                    Console.WriteLine("{0}", states[j].Error);
+                                }
                             }
                         }
 
@@ -677,8 +688,21 @@ namespace Microsoft.Zing
                             if (states[j].Error != null)
                             {
                                 tracer.WriteLine();
-                                tracer.WriteLine("Error in state:");
-                                tracer.WriteLine("{0}", states[j].Error);
+                                tracer.WriteLine("Error:");
+                                if(states[j].Error is ZingAssertionFailureException)
+                                {
+                                    tracer.WriteLine("P Assertion failed:");
+                                    tracer.WriteLine("Expression: assert({0})", (states[j].Error as ZingAssertionFailureException).Expression);
+                                    tracer.WriteLine("Comment: {0}", (states[j].Error as ZingAssertionFailureException).Comment);
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("Error:");
+                                    Console.WriteLine("{0}", states[j].Error);
+                                }
+                                
                             }
                         }
 
