@@ -37,8 +37,13 @@ namespace Microsoft.Zing
             try
             {
 
-                ZingerResult result; 
-                var zingExplorer = new ZingExplorerasModelChecker();
+                ZingerResult result;
+
+                ZingExplorer zingExplorer;
+                if (ZingerConfiguration.DoNDFSLiveness)
+                    zingExplorer = null;//new ZingExplorerNDFSLiveness();
+                else
+                    zingExplorer = new ZingExplorerAsModelChecker();
                 
                 //start periodic stats
                 if(ZingerConfiguration.PrintStats)

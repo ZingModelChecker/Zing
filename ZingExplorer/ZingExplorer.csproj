@@ -93,7 +93,8 @@
   <ItemGroup>
     <Compile Include="ZingerStateTable.cs" />
     <Compile Include="ZingExplorer.cs" />
-    <Compile Include="ZingExplorerasModelChecker.cs" />
+    <Compile Include="ZingExplorerAsModelChecker.cs" />
+    <Compile Include="ZingExplorerNDFSLiveness.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
