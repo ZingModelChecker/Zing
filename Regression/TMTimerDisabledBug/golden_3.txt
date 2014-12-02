@@ -20576,11 +20576,6 @@ State:[fingerprint =6aa5fc0b:465dd688]
 Error in state:
 A Zing null pointer was dereferenced.
 
-Microsoft.Zing.ZingNullReferenceException: Exception of type 'Microsoft.Zing.ZingNullReferenceException' was thrown.
-   at Microsoft.Zing.StateImpl.LookupObject(Pointer ptr) in c:\Workspace\TempSpace\New folder\Microsoft.Zing.Runtime\StateImpl.cs:line 842
-   at Microsoft.Zing.Application.______X_TransactionState.______Timeout_LtmInternalTransaction.B63(Process p)
-   at Microsoft.Zing.Application.______X_TransactionState.______Timeout_LtmInternalTransaction.Dispatch(Process p)
-   at Microsoft.Zing.Process.RunNextBlock() in c:\Workspace\TempSpace\New folder\Microsoft.Zing.Runtime\Process.cs:line 442
 
 Stack trace:
     ___X_TransactionState.___Timeout_LtmInternalTransaction (TMTimerDisabledBug.zing, Line 5374)
@@ -20588,4 +20583,5 @@ Stack trace:
     ___X_TransactionTable.___threadTimer (TMTimerDisabledBug.zing, Line 393)
     ___X_TransactionTable.___RunTimer (TMTimerDisabledBug.zing, Line 199)
 
-58 distinct states, 65 total transitions, 61 steps max depth
+
+58 distinct states explored

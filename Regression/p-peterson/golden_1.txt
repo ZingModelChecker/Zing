@@ -1,4 +1,4 @@
 ##################
 Check Passed
 ##################
-9451 distinct states, 32681 total transitions, 112 steps max depth
+9451 distinct states explored

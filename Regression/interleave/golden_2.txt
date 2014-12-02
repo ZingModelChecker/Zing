@@ -288,9 +288,9 @@ Zing Assertion failed:
     Expression: false
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     BoolProg.foo_1 (interleave.zing, Line 31)
 
-16 distinct states, 49 total transitions, 6 steps max depth
+
+16 distinct states explored

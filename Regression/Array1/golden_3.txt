@@ -184,13 +184,9 @@ State:[fingerprint =517195c9:3102d47e]
 Error in state:
 A Zing null pointer was dereferenced.
 
-Microsoft.Zing.ZingNullReferenceException: Exception of type 'Microsoft.Zing.ZingNullReferenceException' was thrown.
-   at Microsoft.Zing.StateImpl.LookupObject(Pointer ptr) in c:\Workspace\TempSpace\New folder\Microsoft.Zing.Runtime\StateImpl.cs:line 842
-   at Microsoft.Zing.Application.___Foo.___main.B1(Process p)
-   at Microsoft.Zing.Application.___Foo.___main.Dispatch(Process p)
-   at Microsoft.Zing.Process.RunNextBlock() in c:\Workspace\TempSpace\New folder\Microsoft.Zing.Runtime\Process.cs:line 442
 
 Stack trace:
     Foo.main (Array1.zing, Line 13)
 
-1 distinct states, 5 total transitions, 4 steps max depth
+
+1 distinct states explored

@@ -2027,6 +2027,6 @@ State:[fingerprint =0e5f1291:64c2db19]
 Error in state:
 Deadlock: no processes are runnable and one or more processes is blocked in an invalid end state
 
-Microsoft.Zing.ZingInvalidEndStateException: Exception of type 'Microsoft.Zing.ZingInvalidEndStateException' was thrown.
 
-97 distinct states, 154 total transitions, 38 steps max depth
+
+97 distinct states explored

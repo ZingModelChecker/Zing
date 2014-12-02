@@ -293,9 +293,9 @@ Zing Assertion failed:
     Expression: !x.y)
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     Main.helper2 (Ex2.zing, Line 16)
 
-14 distinct states, 40 total transitions, 6 steps max depth
+
+14 distinct states explored

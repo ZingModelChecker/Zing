@@ -1617,10 +1617,10 @@ Zing Assertion failed:
     Expression: false
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     BoolProg.assert_1 (n-peterson.zing, Line 135)
     BoolProg.p1_1 (n-peterson.zing, Line 266)
 
-26 distinct states, 50 total transitions, 49 steps max depth
+
+26 distinct states explored

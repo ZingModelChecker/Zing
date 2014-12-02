@@ -8288,10 +8288,10 @@ For Preemptive : A select statement nested within an atomic region in not runnab
 For Cooperative : There should be an explicit yield before a select statement that can block
 
 
-Microsoft.Zing.ZingInvalidBlockingSelectException: Exception of type 'Microsoft.Zing.ZingInvalidBlockingSelectException' was thrown.
 
 Stack trace:
     ___X_TransactionTable.___Remove_LtmInternalTransaction (TMTimerDisabledBug.zing, Line 338)
     ___X_Init.___Main (TMTimerDisabledBug.zing, Line 157)
 
-227 distinct states, 858 total transitions, 26 steps max depth
+
+227 distinct states explored

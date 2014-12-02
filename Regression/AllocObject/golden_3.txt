@@ -775,10 +775,10 @@ Zing Assertion failed:
     Expression: f.x == 1
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     Main.bar (AllocObject.zing, Line 17)
     Main.main2 (AllocObject.zing, Line 11)
 
-158 distinct states, 411 total transitions, 21 steps max depth
+
+158 distinct states explored

@@ -109,9 +109,9 @@ State:[fingerprint =39c33035:454f6afc]
 Error in state:
 Invalid index in a Zing array reference.
 
-Microsoft.Zing.ZingIndexOutOfRangeException: Exception of type 'Microsoft.Zing.ZingIndexOutOfRangeException' was thrown.
 
 Stack trace:
     Foo.main (Array3.zing, Line 7)
 
-1 distinct states, 3 total transitions, 2 steps max depth
+
+1 distinct states explored

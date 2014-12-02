@@ -202,9 +202,9 @@ Zing Assertion failed:
     Expression: false
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     ___X_Init.___Main (Ex3.zing, Line 14)
 
-3 distinct states, 10 total transitions, 4 steps max depth
+
+3 distinct states explored
