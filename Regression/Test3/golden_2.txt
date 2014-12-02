@@ -219,9 +219,9 @@ Zing Assertion failed:
     Expression: f.x == 3
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     Foo.Main (Test3.zing, Line 24)
 
-1 distinct states, 7 total transitions, 6 steps max depth
+
+1 distinct states explored

@@ -523,8 +523,8 @@ State:[fingerprint =3d8f59ba:3fe4a997]
           Locals:
             ZingPointer deviceExtension = 2
 
-#### State 11 (ran process 1) :
-State:[fingerprint =19d84031:025ee919]
+#### State 11 (ran process 2) :
+State:[fingerprint =0a4a4dc1:309fce85]
 
   Globals:
 
@@ -563,16 +563,8 @@ State:[fingerprint =19d84031:025ee919]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-            ZingPointer e = 2
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B7
+          NextBlock: Enter
           Inputs:
             ZingPointer e = 2
           Outputs:
@@ -595,15 +587,23 @@ State:[fingerprint =19d84031:025ee919]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
       Stack:
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoDecrement
+          NextBlock: Enter
+          Inputs:
+            ZingPointer e = 2
+          Outputs:
+          Locals:
+            System.Int32 pendingIo = 0
+
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-          NextBlock: B5
+          NextBlock: B4
           Inputs:
             ZingPointer BtDevice = 1
           Outputs:
           Locals:
             ZingPointer deviceExtension = 2
 
-#### State 12 (ran process 2) :
+#### State 12 (ran process 1) :
 State:[fingerprint =25280ddf:7806240b]
 
   Globals:
@@ -2172,6 +2172,6 @@ State:[fingerprint =0e5f1291:64c2db19]
 Error in state:
 Deadlock: no processes are runnable and one or more processes is blocked in an invalid end state
 
-Microsoft.Zing.ZingInvalidEndStateException: Exception of type 'Microsoft.Zing.ZingInvalidEndStateException' was thrown.
 
-850 distinct states, 2883 total transitions, 31 steps max depth
+
+850 distinct states explored

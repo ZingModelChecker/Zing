@@ -1298,9 +1298,9 @@ Zing Assertion failed:
     Expression: !stopped
     Comment: 
 
-Microsoft.Zing.ZingAssertionFailureException: Exception of type 'Microsoft.Zing.ZingAssertionFailureException' was thrown.
 
 Stack trace:
     BlueTooth.BCSP_Miniport_PnpAdd (BlueGlobal.zing, Line 27)
 
-281 distinct states, 635 total transitions, 28 steps max depth
+
+281 distinct states explored
