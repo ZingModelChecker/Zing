@@ -13,17 +13,6 @@ using System.Runtime.Serialization;
 
 namespace Microsoft.Zing
 {
-#if DEBUG
-    /// <summary>
-    /// The Zing Object Model includes types for examining and executing Zing models, for
-    /// performing state-space exploration, and for returning error traces from the model
-    /// checker and refinement checker.
-    /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public class NamespaceDoc 
-    {
-    }
-#endif
 
     #region Types related to getting information from a Zing state
 
@@ -252,13 +241,13 @@ namespace Microsoft.Zing
             throw new NotImplementedException("The method or operation is not implemented.");
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public static bool operator ==(ProcessInfo p1, ProcessInfo p2)
         {
             return p1.Equals(p2);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public static bool operator !=(ProcessInfo p1, ProcessInfo p2)
         {
             return p1.Equals(p2);
@@ -273,8 +262,7 @@ namespace Microsoft.Zing
     /// This enum lists the possible results of running the model-checker or
     /// refinement checker.
     /// </summary>
-    [ComVisible(true)]
-    public enum CheckerResult
+    public enum ZingerResult
     {
         /// <summary>
         /// No errors were found within the specified limits of the search (if any).
@@ -311,204 +299,20 @@ namespace Microsoft.Zing
         /// </summary>
         ZingRuntimeError    = 5,
 
-        // Results for refinement checker:
-
-        /// <summary>
-        /// The implementation can do an action that is not allowed by the specification.
-        /// </summary>
-        SimulationFailure   = 6,
-
-        /// <summary>
-        /// The implementation may fail to do an action that is required by the specification.
-        /// </summary>
-        RefusalsFailure     = 7,
-
-        /// <summary>
-        /// The implementation may deadlock or drop a message.
-        /// </summary>
-        ReadinessFailure    = 8,
-
-        /// <summary>
-        /// The implementation may fail to do an action that is required by the specification,
-        /// or the implementation may deadlock or drop a message.
-        /// </summary>
-        ReadyRefusalsFailure = 9,
-
-        /// <summary>
-        /// Erroneous terminal state 
-        /// </summary>
-        ErroneousTerminalState = 10,
         /// <summary>
         /// Acceptance Cycle 
         /// </summary>
-        AcceptanceCyleFound = 11
-    }
+        AcceptanceCyleFound = 6,
 
-    public abstract class Diagnostic
-    {
-    }
+        /// <summary>
+        /// Invalid Parameters Passed
+        /// </summary>
+        InvalidParameters = 7,
 
-    public class ReadinessFailure: Diagnostic
-    {
-        public ReadinessFailure()
-        {
-        }
-    }
-
-    public class RefusalsFailure: Diagnostic
-    {
-        internal RefusalsFailure(LTSEvent refusalEvent)
-        {
-            this.refusalEvent = refusalEvent;
-        }
-
-        internal LTSEvent refusalEvent;
-        public ExternalEvent RefusalEvent
-        {
-            get
-            {
-                if (refusalEvent != null)
-                    return refusalEvent.externalEvent;
-                else
-                    return new ExternalEvent(); // return an "unused" event
-            }
-        }
-    }
-
-    public class ReadyRefusalsFailure: Diagnostic
-    {
-        internal ReadyRefusalsFailure(LTSEvent refusalEvent)
-        {
-            this.refusalEvent = refusalEvent;
-        }
-
-        internal LTSEvent refusalEvent;
-        public ExternalEvent RefusalEvent
-        {
-            get
-            {
-                if (refusalEvent != null)
-                    return refusalEvent.externalEvent;
-                else
-                    return new ExternalEvent(); // return an "unused" event
-            }
-        }
-    }
-
-    public abstract class RefinementFailure
-    {       
-    }
-
-    /// <summary>
-    /// A ReadinessOrRefusalsFailure gives detailed information about
-    /// ReadinessFailures, RefusalsFailures, or ReadyRefusalsFailures 
-    /// for each stable successor of a specification.
-    /// </summary>
-    public class ReadinessOrRefusalsFailure: RefinementFailure
-    {
-        internal ReadinessOrRefusalsFailure(LTSEvent[] IEvents,
-            TraceDiagnostic[] tracediag,
-            LTSEvent readyEvent,
-            Trace[] readySetTraces)
-        {
-            if (IEvents != null)
-            {
-                Debug.Assert(readySetTraces != null);
-                // NOte: Cannot guarantee following invariant, since traces
-                // may not be aligned with events for LTSIntermediate nodes
-                // Debug.Assert(IEvents.Length == readySetTraces.Length);
-            }
-
-            readySet = IEvents; 
-            this.readyEvent = readyEvent;
-            this.tracediag = tracediag;
-            this.readySetTraces = readySetTraces;
-        }
-        
-        internal LTSEvent [] readySet;
-        internal Trace[] readySetTraces;
-        internal LTSEvent readyEvent;
-        internal TraceDiagnostic[] tracediag;
-        public IEnumerable<ExternalEvent> ReadySet
-        {
-            get
-            {
-                ExternalEvent[] events = new ExternalEvent[readySet.Length];
-                for (int i = 0; i < readySet.Length; i++)
-                    events[i] = readySet[i].externalEvent;
-                return events;
-            }
-        }
-        public ExternalEvent ReadyEvent
-        {
-            get
-            {
-                if (readyEvent != null)
-                    return readyEvent.externalEvent;
-                else
-                    return new ExternalEvent(); // return an "unused" event
-            }
-        }
-        public Trace GetReadySetTrace(int index) { return readySetTraces[index]; }
-        public int FailureDiagnosticCount { get { return tracediag.Length; } }
-        public TraceDiagnostic GetFailureDiagnostic(int index) { return tracediag[index]; }
-    }
-
-    // Wrapper for TraceStep structures, to allow null value.
-    internal class LTSTraceStep
-    {
-        internal LTSTraceStep(TraceStep step)
-        {
-            this.step = step;
-        }
-        internal TraceStep step;
-    }
-
-    public class SimulationFailure: RefinementFailure
-    {
-        internal SimulationFailure(LTSEvent e, LTSTraceStep step)
-        {
-            this.e = e;
-            this.step = step;
-        }
-
-        internal LTSEvent e;
-        internal LTSTraceStep step;
-
-        public ExternalEvent Event { get{ return e.externalEvent; }}
-        public TraceStep Step { get{ return step.step; }}
-    }
-
-    /// <summary>
-    /// Placeholder for failures in specification that are 
-    /// not encompassed by the definition of conformance 
-    /// (e.g. assertion failure, deadlock)
-    /// </summary>
-    public class SpecificationFailure: RefinementFailure
-    {
-    }
-
-    /// <summary>
-    /// Placeholder for failures in specification that are 
-    /// not encompassed by the definition of conformance 
-    /// (e.g. assertion failure, deadlock)
-    /// </summary>
-    public class ImplementationFailure: RefinementFailure
-    {
-    }
-
-    public class TraceDiagnostic
-    {
-        public TraceDiagnostic(Trace specTrace, Diagnostic diagnostic)
-        {
-            this.diag = diagnostic;
-            this.specTrace = specTrace;
-        }
-
-        internal Diagnostic diag;
-        internal Trace specTrace;
-        public Trace Trace { get{ return specTrace; }}
-        public Diagnostic Diagnostic { get{ return diag; }}
+        /// <summary>
+        /// DFS search stack size exceeded the maximum size.
+        /// </summary>
+        DFSStackOverFlowError = 8
     }
 
     /// <summary>
@@ -523,21 +327,21 @@ namespace Microsoft.Zing
     public struct TraceStep 
     {
         [CLSCompliant(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public TraceStep(uint data)
         {
             stepData = (ushort)data;
         }
 
 #if UNUSED
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         internal TraceStep(bool isExecutionStep, uint selection)
         {
             stepData = (selection << 1) | (isExecutionStep ? 0u : 1u);
         }
 #endif
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public TraceStep(bool isExecutionStep, int selection)
         {
             stepData = (ushort)selection;
@@ -547,29 +351,29 @@ namespace Microsoft.Zing
 
         private ushort stepData;
         [CLSCompliant(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public UInt32 StepData { get { return stepData; } }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override bool Equals(object obj)
         {
             TraceStep other = (TraceStep) obj;
             return (other.stepData == this.stepData);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override int GetHashCode()
         {
             return stepData.GetHashCode();
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public static bool operator == (TraceStep step1, TraceStep step2)
         {
             return step1.Equals(step2);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public static bool operator != (TraceStep step1, TraceStep step2)
         {
             return !step1.Equals(step2);
@@ -649,7 +453,7 @@ namespace Microsoft.Zing
         // This constructor is only needed for the distributed checker
         //
         [CLSCompliant(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public Trace(uint[] stepList)
         {
             this.steps = new List<TraceStep>(stepList.Length);
@@ -760,79 +564,6 @@ namespace Microsoft.Zing
             return stateList;
         }
 
-        public System.Text.StringBuilder GetErrorTraceWithLabels(State initialState, Hashtable methodNameToLabelMap)
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-            StateImpl stateImpl = (StateImpl)initialState.SI.Clone();
-
-            for (int i = 0; i < this.Count; i++)
-            {
-                Debug.Assert(this[i].IsExecution);
-                int processNumber = this[i].Selection;
-                stateImpl.RunProcess(processNumber);
-                ZingMethod method = stateImpl.GetProcess(processNumber).TopOfStack;
-
-                if (i == this.Count - 1)
-                {
-                    sb.Append(processNumber);
-                    sb.Append("\n");
-                }
-                else if (method == null)
-                {
-                    sb.Append(processNumber);
-                    sb.Append(" END\n");
-                }
-                else
-                {
-                    string methodName = method.MethodName;
-                    Hashtable labelMap = (Hashtable)methodNameToLabelMap[methodName];
-                    string programCounter = method.ProgramCounter;
-                    string label = (string)labelMap[programCounter];
-                    if (label != null)
-                    {
-                        sb.Append(processNumber);
-                        sb.Append(" ");
-                        sb.Append(label);
-                        sb.Append("\n");
-                    }
-                }
-            }
-            return sb;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters")]
-        public State[] GetStatesAtContextBoundaries(State initialState, out Trace trace)
-        {
-            ArrayList stateList = new ArrayList();
-            trace = new Trace();
-            stateList.Add(initialState);
-
-            State currentState = initialState;
-            int i = 0;
-            while (i < this.Count)
-            {
-                if (this[i].IsChoice)
-                {
-                    currentState = currentState.RunChoice(this[i].Selection);
-                    stateList.Add(currentState);
-                    trace.AddStep(this[i]);
-                    i++;
-                }
-                else
-                {
-                    int j = i;
-                    while (j < this.Count && TraceStep.Equals(this[i], this[j]))
-                        j++;
-                    currentState = currentState.RunProcess(this[i].Selection, j - i);
-                    stateList.Add(currentState);
-                    trace.AddStep(this[i]);
-                    i = j;
-                }
-            }
-
-            return (State [])stateList.ToArray(System.Type.GetType("Microsoft.Zing.State"));
-        }
 
         public State GetLastState(State initialState)
         {
@@ -1187,44 +918,6 @@ namespace Microsoft.Zing
                 return this.RunChoice((int) step.Selection);
             else
                 return this.RunProcess((int) step.Selection);
-        }
-
-        private static Random rng;   // for random execution
-
-        /// <summary>
-        /// Generate a random successor of the current state by either execution or choice as appropriate.
-        /// </summary>
-        /// <returns>Returns a <see cref="State"/> object representing the new state.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if this is a terminal state.</exception>
-        public State RunRandom()
-        {
-            if (this.Type != StateType.Execution && this.Type != StateType.Choice)
-                throw new InvalidOperationException("RunRandom must be called on execution or choice state.");
-
-            if (State.rng == null)
-                State.rng = new Random(unchecked((int) DateTime.Now.Ticks));
-
-            if (this.Type == StateType.Execution)
-            {
-                int i, p;
-
-                for (i=0, p=rng.Next(si.NumProcesses); i < si.NumProcesses ;i++, p = (p+1) % si.NumProcesses)
-                {
-                    ProcessInfo pInfo = this.GetProcessInfo(p);
-                    if (pInfo.Status == ProcessStatus.Runnable)
-                        break;
-                }
-
-                if (i == si.NumProcesses)
-                    throw new InvalidOperationException("Can't find runnable process");
-
-                return this.RunProcess(p);
-            }
-            else // this.Type == StateType.Choice
-            {
-                int c = rng.Next(this.NumChoices);
-                return this.RunChoice(c);
-            }
         }
 
         /// <summary>

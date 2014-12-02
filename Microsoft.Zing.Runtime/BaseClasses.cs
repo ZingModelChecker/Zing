@@ -18,7 +18,7 @@ namespace Microsoft.Zing
     /// Base class for all Zing classes
     /// </summary>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingClass : HeapElement
 	{
 		protected ZingClass(StateImpl app) : base(app)
@@ -154,7 +154,7 @@ namespace Microsoft.Zing
     /// Base class for all classes directly defined in ZOM
     /// </summary>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZOMClass : HeapElement
     {
 
@@ -298,7 +298,7 @@ namespace Microsoft.Zing
     // class for sets, channels, and arrays.
     //
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingCollectionType : HeapElement
     {
 		protected ZingCollectionType() { }
@@ -318,7 +318,7 @@ namespace Microsoft.Zing
     }
 
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingChan : ZingCollectionType
     {
         protected ZingChan()
@@ -406,9 +406,9 @@ namespace Microsoft.Zing
             ZingAttribute contextAttribute)
         {
 			SetDirty();
-            if (Options.EnableEvents)
+            if (ZingerConfiguration.ExecuteTraceStatements)
             {
-                if (Options.DegreeOfParallelism == 1)
+                if (ZingerConfiguration.DegreeOfParallelism == 1)
                 {
                     stateImpl.ReportEvent(new SendEvent(context, contextAttribute, this, obj));
                 }
@@ -417,7 +417,6 @@ namespace Microsoft.Zing
                     stateImpl.ReportEvent(new SendEvent(context, contextAttribute, this, obj, stateImpl.MySerialNum));
                 }
             }
-
             queue.Enqueue(obj);
         }
 
@@ -429,9 +428,9 @@ namespace Microsoft.Zing
 			object obj;
             obj = queue.Dequeue();
 
-            if (Options.EnableEvents)
+            if (ZingerConfiguration.ExecuteTraceStatements)
             {
-                if (Options.DegreeOfParallelism == 1)
+                if (ZingerConfiguration.DegreeOfParallelism == 1)
                 {
                     stateImpl.ReportEvent(new ReceiveEvent(context, contextAttribute, this, obj));
                 }
@@ -465,7 +464,7 @@ namespace Microsoft.Zing
     /// Base class for all Zing set types.
     /// </summary>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingSet : ZingCollectionType
     {
         protected ZingSet()
@@ -632,7 +631,7 @@ namespace Microsoft.Zing
     /// Base class for all Zing array types.
     /// </summary>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingArray : ZingCollectionType
     {
         protected ZingArray() {}
@@ -724,7 +723,7 @@ namespace Microsoft.Zing
     /// as being "activated". A process is created for each method so marked.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     sealed public class ActivateAttribute : Attribute
     {
         public ActivateAttribute()
@@ -733,7 +732,7 @@ namespace Microsoft.Zing
     }
 
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class UndoableStorage
     {
         private bool dirty;
@@ -844,7 +843,7 @@ namespace Microsoft.Zing
     }
 
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingGlobals : UndoableStorage
     {
         private StateImpl app;

@@ -12,65 +12,38 @@ goto :EOF
 	echo %1
 	cd %1
 	if exist compile_param (
-		for /f "delims=" %%n in (compile_param) do ..\..\zc\bin\Debug\zc.exe %1.zing %%n
+		for /f "delims=;" %%n in (compile_param) do ..\..\zc\bin\Debug\zc.exe %%n %1.zing 
 	) else (
-		..\..\zc\bin\Debug\zc.exe -preemptive %1.zing
+		@echo no compile_param declared. 
 	)
-	for /f %%n in (param) do call :CHECKFILE %1 %%n
-	call :COMPARE_OUTPUT
-	@echo --------------------------------------------------------------
-	cd ..
-	goto :EOF
+	set /A counter = 1
+	if exist param (
+		for /f "delims=;" %%n in (param) do call :CHECKFILE %1 "%%n"
+		@echo --------------------------------------------------------------
+		cd ..
+		goto :EOF
+	) else (
+		@echo no param file declared.
+	)
+	
+	
+	
 
 :CHECKFILE
-	set arg=%2
-	set opt=%arg::=%
-	if "%opt%" == "" ( 
-		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll >output.txt"
-		sleep 1
-		cmd /c "grep -v State: golden.txt >stripped_golden.txt"
-		cmd /c "grep -v State: output.txt >stripped_output.txt"
-		cmd /c "diff stripped_golden.txt stripped_output.txt >diff.txt" 
-		fc stripped_golden.txt stripped_output.txt >regression_tmp
+	set "arg=%~2"
+	cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >output_%counter%.txt"
+	sleep 1
+	cmd /c "grep -v State: golden_%counter%.txt >stripped_golden_%counter%.txt"
+	cmd /c "grep -v State: output_%counter%.txt >stripped_output_%counter%.txt"
+	cmd /c "diff stripped_golden_%counter%.txt stripped_output_%counter%.txt >diff_%counter%.txt" 
+	fc stripped_golden_%counter%.txt stripped_output_%counter%.txt >regression_tmp
 	) 
-
 	if %ERRORLEVEL% == 1 ( 
-		@echo %1 failed with options %opt% 
+		@echo %1 failed with options %arg% 
 	) else ( 
-		@echo %1 passed with options %opt%
+		@echo %1 passed with options %arg%
 	)
+	set /A counter = counter + 1
 	del regression_tmp
 	goto :EOF
 
-:COMPARE_OUTPUT
-	set flag=0
-	set status=0
-	set biterror=0
-	for /f %%n in (param) do call :FIND_STATUS %%n
-	if %biterror% == 1 (
-		@echo At least one option reports a status different from others
-	) else (
-		@echo All options report the same status
-	)
-	goto :EOF
-
-:FIND_STATUS
-	set arg=%1
-	set opt=%arg::=%
-	if "%arg%" == ":" (
-		grep "Check passed" output.txt >regression_tmp
-	) else (
-		grep "Check passed" output_%opt%.txt >regression_tmp
-	)
-	if %flag% == 0 (
-		set flag=1
-		set status=%ERRORLEVEL%
-	) else (
-		if %status% == %ERRORLEVEL% ( 
-			set biterror=0
-		) else (
-			set biterror=1
-		)
-	)
-	del regression_tmp
-	goto :EOF

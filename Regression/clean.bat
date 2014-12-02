@@ -8,6 +8,6 @@ goto :EOF
 :CLEAN
 	echo %1
 	cd %1
-	del %1.dll output*.txt diff*.txt *~
+	del %1.dll i_* o_* stripped*.txt output*.txt diff*.txt *~
 	cd ..
 	goto :EOF

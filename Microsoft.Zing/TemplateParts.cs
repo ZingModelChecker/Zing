@@ -521,42 +521,6 @@ namespace Microsoft.Zing    // NOTE: namespace is fixed
                 }
             }
 
-            #region hints
-            private static Hints hints = new Hints();
-            public override Hints Hints
-            {
-                get { return hints; }
-            }
-            #endregion
-
-            #region summaries
-            private static Hashtable summaries = new Hashtable(); //pc --> ArrayList of summaries
-            public override Hashtable SummaryHashtable
-            {
-                get { return summaries; }
-            }
-
-            private static SortedList summaryTable = new SortedList();
-            public override SortedList SummaryTable
-            {
-                get { return summaryTable; }
-            }
-
-
-            private static Hashtable transientStates = new Hashtable();
-            public override Hashtable TransientStates
-            {
-                get { return transientStates; }
-            }
-
-            public static int executionCount = 0;
-            public override int ExecutionCount
-            {
-                get { return executionCount; }
-                set { executionCount = value; }
-            }
-            #endregion
-
             #region Comparison
 
             public override int CompareTo(object obj)
@@ -815,30 +779,7 @@ namespace Microsoft.Zing    // NOTE: namespace is fixed
 			public void TraverseFields(FieldTraverser ft)
 			{
 			}
-	
-#if false
-            public unsafe int CompareTo(void* obj)
-            {
-                userStructType* other = (userStructType*) obj;
 
-                if (userStructMember1 < other->userStructMember1)
-                    return -1;
-                else if (userStructMember1 > other->userStructMember1)
-                    return 1;
-                    //
-                    // Continue looking for inequalities on each of the other non-pointer
-                    // members.
-                    //
-                else
-                    return 0;
-
-                //
-                // Note that we ignore members here that reference the Zing heap. This
-                // may cause us to miss some opportunities to collapse equivalent states
-                // but we suspect these opportunities would be rare.
-                //
-            }
-#endif
         }
      
         #region Sets

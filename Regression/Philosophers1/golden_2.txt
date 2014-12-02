@@ -1,0 +1,319 @@
+##################
+Check Failed
+##################
+ *******************************************************************************
+ Error trace 0: length: 8 states
+#### State 0 : 
+ State:[fingerprint =3b82bf9f:791691c8]
+
+  Globals:
+
+
+  Processes: (1)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Init+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Init+Run
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer p = 0
+            ZingPointer f = 0
+
+#### State 1 (ran process 0) :
+State:[fingerprint =7f0d2978:7bd241a8]
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 0
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Init+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Init+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer p = 1
+            ZingPointer f = 2
+
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 2 (ran process 0) :
+State:[fingerprint =74e06dda:30533657]
+
+  Events:
+    TerminateProcess - process='Run'
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 0
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Init+Run
+      Stack:
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 3 (ran process 1) :
+State:[fingerprint =3217bc12:028f75df]
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 0
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: B8
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 4 (ran process 1) :
+State:[fingerprint =41bd325a:0ed3aead]
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 0
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Fork+PickUp
+          NextBlock: Enter
+          Inputs:
+            ZingPointer eater = 1
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: B7
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 5 (ran process 1) :
+State:[fingerprint =482d1e5a:204df2ec]
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 1
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Fork+PickUp
+          NextBlock: B0
+          Inputs:
+            ZingPointer eater = 1
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: B7
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 6 (ran process 1) :
+State:[fingerprint =50bdaccb:48f1bbf2]
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 1
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: B6
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 7 (ran process 1) :
+State:[fingerprint =4d692d05:346ee3f5]
+
+  Globals:
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+Philosopher
+    Contents:
+      ZingPointer leftFork = 2
+      ZingPointer rightFork = 2
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+Fork
+    Contents:
+      ZingPointer holder = 1
+
+
+  Processes: (2)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Philosopher.Run', Id=1
+      Status: Blocked
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Philosopher+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Fork+PickUp
+          NextBlock: Enter
+          Inputs:
+            ZingPointer eater = 1
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+Philosopher+Run
+          NextBlock: B5
+          Inputs:
+          Outputs:
+          Locals:
+
+
+Error in state:
+Deadlock: no processes are runnable and one or more processes is blocked in an invalid end state
+
+Microsoft.Zing.ZingInvalidEndStateException: Exception of type 'Microsoft.Zing.ZingInvalidEndStateException' was thrown.
+
+11 distinct states, 29 total transitions, 6 steps max depth

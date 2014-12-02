@@ -16,33 +16,26 @@ namespace Microsoft.Zing
     [Serializable]
     public abstract class ZingException : Exception
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
         protected ZingException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         protected ZingException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         protected ZingException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         protected ZingException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData (info, context);
@@ -81,25 +74,22 @@ namespace Microsoft.Zing
                 return (stackTrace);
             }
         }
-        //private string stackTrace = BuildStackTrace();
 
-        protected int mySerialNumber;
-        public int SerialNumber
-        {
-            get { return mySerialNumber; }
-            set { mySerialNumber = value; }
-        }
+        /// <summary>
+        /// Useful in the case of multithreaded execution of Zinger
+        /// </summary>
+        public int myThreadId;
 
         private string BuildStackTrace()
         {
             //
             // We encounter many exceptions during state-space exploration, so
             // we only want to build a stack trace when we're preparing a Zing
-            // trace for viewing. Options.EnableEvents is the best way to tell
+            // trace for viewing. Options.ExecuteTraceStatements is the best way to tell
             // if that is the case.
             //
 
-            // Abhishek: ZingInvalidEndStateException does not need a stack trace
+            //ZingInvalidEndStateException does not need a stack trace
             if (this is ZingInvalidEndStateException)
             {
                 return "";
@@ -107,20 +97,20 @@ namespace Microsoft.Zing
 
             ZingSourceContext SourceContext;
             bool IsInnerMostFrame = true;
-            if (Options.EnableEvents && Process.LastProcess[mySerialNumber] != null &&
-                Process.LastProcess[mySerialNumber].TopOfStack != null)
+            if (ZingerConfiguration.ExecuteTraceStatements && Process.LastProcess[myThreadId] != null &&
+                Process.LastProcess[myThreadId].TopOfStack != null)
             {
-                StateImpl s = Process.LastProcess[mySerialNumber].StateImpl;
+                StateImpl s = Process.LastProcess[myThreadId].StateImpl;
                 StringBuilder sb = new StringBuilder();
                 string[] sourceFiles = s.GetSourceFiles();
 
                 sb.AppendFormat(CultureInfo.CurrentUICulture, "\r\nStack trace:\r\n");
 
-                for (ZingMethod sf = Process.LastProcess[mySerialNumber].TopOfStack; sf != null ;sf = sf.Caller)
+                for (ZingMethod sf = Process.LastProcess[myThreadId].TopOfStack; sf != null; sf = sf.Caller)
                 {
                     if (this is ZingAssertionFailureException && IsInnerMostFrame)
                     {
-                        SourceContext = Process.AssertionFailureCtx[mySerialNumber];
+                        SourceContext = Process.AssertionFailureCtx[myThreadId];
                         IsInnerMostFrame = false;
                     }
                     else
@@ -173,25 +163,25 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingUnexpectedFailureException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnexpectedFailureException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnexpectedFailureException(string message)
             : this(message, null)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnexpectedFailureException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingUnexpectedFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
@@ -223,45 +213,45 @@ namespace Microsoft.Zing
         public string Comment { get { return comment; } set { comment = value; } }
         private string comment;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssertionFailureException()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssertionFailureException(string expression)
         {
             this.Expression = expression;
             this.Comment = string.Empty;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssertionFailureException(string expression, string comment)
         {
             this.Expression = expression;
             this.Comment = comment;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssertionFailureException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingAssertionFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter=true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData (info, context);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -290,30 +280,30 @@ namespace Microsoft.Zing
         public string Expression { get { return expression; } set { expression = value; } }
         private string expression;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssumeFailureException()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssumeFailureException(string expression)
         {
             this.Expression = expression;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingAssumeFailureException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingAssumeFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter=true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -321,7 +311,7 @@ namespace Microsoft.Zing
         }
 
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -338,30 +328,30 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingDivideByZeroException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingDivideByZeroException()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingDivideByZeroException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingDivideByZeroException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingDivideByZeroException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -377,30 +367,30 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingOverflowException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingOverflowException()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingOverflowException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingOverflowException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingOverflowException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -416,30 +406,30 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingIndexOutOfRangeException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingIndexOutOfRangeException()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingIndexOutOfRangeException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingIndexOutOfRangeException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingIndexOutOfRangeException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -459,31 +449,31 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInvalidEndStateException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidEndStateException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidEndStateException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidEndStateException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingInvalidEndStateException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -505,31 +495,31 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInvalidBlockingSelectException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidBlockingSelectException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidBlockingSelectException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidBlockingSelectException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingInvalidBlockingSelectException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -549,25 +539,25 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingUnhandledExceptionException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnhandledExceptionException()
         {
             throw new NotImplementedException();
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnhandledExceptionException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnhandledExceptionException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingUnhandledExceptionException(int exception)
             : base()
         {
@@ -580,20 +570,20 @@ namespace Microsoft.Zing
         public int Exception { get { return exception; } set { exception = value; } }
         private int exception;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingUnhandledExceptionException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter=true)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData (info, context);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -611,31 +601,31 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingNullReferenceException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingNullReferenceException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingNullReferenceException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingNullReferenceException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingNullReferenceException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -645,47 +635,6 @@ namespace Microsoft.Zing
             }
         }
     }
-
-	/// <summary>
-	/// Attempting to do summarization with unsupported constructs
-	/// </summary>
-	[Serializable]
-	public class ZingUnsupportedFeatureException : ZingException
-	{
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		public ZingUnsupportedFeatureException()
-			: base()
-		{
-		}
-
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		public ZingUnsupportedFeatureException(string message)
-			: base(message)
-		{
-		}
-
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		public ZingUnsupportedFeatureException(string message, Exception innerException)
-			: base(message, innerException)
-		{
-		}
-
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		protected ZingUnsupportedFeatureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-			: base(serializationInfo, streamingContext)
-		{
-		}
-
-		[EditorBrowsable(EditorBrowsableState.Never)]
-		protected override string ZingMessage
-		{
-			get
-			{
-				return string.Format(CultureInfo.CurrentUICulture,
-					"Summarization is currently not supported for sets, channels and symbolic datatypes.\r\n");
-			}
-		}
-	}
 
     /// <summary>
     /// This exception is thrown for choose statements without any possible choices.
@@ -697,31 +646,31 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInvalidChooseException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidChooseException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidChooseException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInvalidChooseException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingInvalidChooseException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
@@ -732,177 +681,42 @@ namespace Microsoft.Zing
         }
     }
 
-    /// <summary>
-    /// This exception is thrown when non-determinism is encountered while running a predicate method
-    /// </summary>
-    /// <remarks>
-    /// A predicate method is one that returns bool and is used within a "wait" condition. Non-determinism
-    /// cannot be permitted in this context for obvious reasons.
-    /// </remarks>
-    [Serializable]
-    public class ZingNondeterministicPredicateException : ZingException
-    {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingNondeterministicPredicateException()
-            : base()
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingNondeterministicPredicateException(string message)
-            : base(message)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingNondeterministicPredicateException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected ZingNondeterministicPredicateException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override string ZingMessage
-        {
-            get
-            {
-                return string.Format(CultureInfo.CurrentUICulture,
-                    "Non-determinism was encountered while executing a predicate method\r\n");
-            }
-        }
-    }
-
-    /// <summary>
-    /// This exception is thrown when an exception occurs while running a predicate method
-    /// </summary>
-    /// <remarks>
-    /// A predicate method is one that returns bool and is used within a "wait" condition.
-    /// </remarks>
-    [Serializable]
-    public class ZingPredicateExceptionException : ZingException
-    {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingPredicateExceptionException()
-            : base()
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingPredicateExceptionException(string message)
-            : base(message)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingPredicateExceptionException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected ZingPredicateExceptionException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override string ZingMessage
-        {
-            get
-            {
-                return string.Format(CultureInfo.CurrentUICulture,
-                    "An unhandled or uncatchable exception occurred while executing a predicate method. Inner exception:\r\n{0}",
-                    this.InnerException);
-            }
-        }
-    }
-
-    /// <summary>
-    /// This exception is thrown when we encounter a predicate-style wait condition while
-    /// executing a predicate method.
-    /// </summary>
-    /// <remarks>
-    /// A predicate method is one that returns bool and is used within a "wait" condition.
-    /// </remarks>
-    [Serializable]
-    public class ZingNestedPredicateException : ZingException
-    {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingNestedPredicateException()
-            : base()
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingNestedPredicateException(string message)
-            : base(message)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ZingNestedPredicateException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected ZingNestedPredicateException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override string ZingMessage
-        {
-            get
-            {
-                return string.Format(CultureInfo.CurrentUICulture,
-                    "A select statement containing a predicate method call was encountered while executing a predicate method\r\n");
-            }
-        }
-    }
-
 
     [Serializable]
     public class ZingerDFSStackOverFlow : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingerDFSStackOverFlow ()
             : base()
         {
 
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingerDFSStackOverFlow (string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingerDFSStackOverFlow (string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingerDFSStackOverFlow (SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get
             {
                 return string.Format(CultureInfo.CurrentUICulture,
-                    "The length of zing Depth First Search Stack exceeded the cutoff\r\n");
+                    "The length of Zinger Depth First Search Stack exceeded the cutoff\r\n");
             }
         }
     }
@@ -917,31 +731,31 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInfiniteLoopException : ZingException
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInfiniteLoopException()
             : base()
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInfiniteLoopException(string message)
             : base(message)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public ZingInfiniteLoopException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingInfiniteLoopException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected override string ZingMessage
         {
             get

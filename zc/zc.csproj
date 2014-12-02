@@ -168,10 +168,6 @@
       <Project>{8DE6F528-36BB-487E-908F-62B9485098C0}</Project>
       <Name>Microsoft.Zing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ZingOptions\ZingOptions.csproj">
-      <Project>{9143187E-C13C-4974-8762-E74B182E7C90}</Project>
-      <Name>ZingOptions</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

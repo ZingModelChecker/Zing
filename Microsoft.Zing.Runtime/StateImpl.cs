@@ -49,7 +49,7 @@ namespace Microsoft.Zing
     /// </remarks>
     [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class StateImpl : ICloneable
     {
         #region Constructors and factory methods
@@ -68,10 +68,11 @@ namespace Microsoft.Zing
             this.processes = new ArrayList(6);  // probably a good default size
             this.savedNumProcesses = -1;
             this.nextProcessId = 0;
-            if(Options.IsSchedulerDecl)
+            
+            if(ZingerConfiguration.DoDelayBounding)
             {
-                ZingDBSchedState = Options.ZSchedOptions.zSchedState;
-                ZingDBScheduler = Options.ZSchedOptions.zSched;
+                ZingDBSchedState = ZingerConfiguration.ZExternalScheduler.zSchedState;
+                ZingDBScheduler = ZingerConfiguration.ZExternalScheduler.zDelaySched;
             }
 
             foreach (Type nestedClassType in this.GetType().GetNestedTypes(BindingFlags.NonPublic))
@@ -102,6 +103,9 @@ namespace Microsoft.Zing
         #endregion
 
         #region AcceptingCycles
+        /// <summary>
+        /// This bit is set when the accepting transition is executed
+        /// </summary>
         private Boolean isAcceptingState = false;
 
         public Boolean IsAcceptingState
@@ -179,23 +183,25 @@ namespace Microsoft.Zing
             get { return Exception != null && Exception is ZingAssumeFailureException; }
         }
         //IExplorable
-        public CheckerResult ErrorCode
+        public ZingerResult ErrorCode
         {
             get
             {
                 if (!this.IsErroneous)
-                    return CheckerResult.Success;
+                    return ZingerResult.Success;
 
                 Exception e = this.Exception;
 
                 if (e is ZingAssertionFailureException)
-                    return CheckerResult.Assertion;
+                    return ZingerResult.Assertion;
                 else if (e is ZingInvalidEndStateException)
-                    return CheckerResult.Deadlock;
+                    return ZingerResult.Deadlock;
                 else if (e is ZingUnexpectedFailureException)
-                    return CheckerResult.ZingRuntimeError;
+                    return ZingerResult.ZingRuntimeError;
+                else if (e is ZingerDFSStackOverFlow)
+                    return ZingerResult.DFSStackOverFlowError;
                 else
-                    return CheckerResult.ModelRuntimeError;
+                    return ZingerResult.ModelRuntimeError;
             }
         }
         #endregion
@@ -349,7 +355,6 @@ namespace Microsoft.Zing
             nextProcessId = ule.nextProcessId;
             stepNumber = ule.stepNumber;
             events = null;
-            externalEvents = null;
             lastHeapId = ule.lastHeapId;
             exception = ule.exception;
             
@@ -543,12 +548,11 @@ namespace Microsoft.Zing
         }
         #endregion
 
-        #region Zing Plugin
-        public Dictionary<string, IZingPlugin> ZingPlugin = new Dictionary<string,IZingPlugin>();
-        #endregion
-
-        public IZingDelayingScheduler ZingDBScheduler = null;
-        public IZingSchedulerState ZingDBSchedState = null;
+        /// <summary>
+        /// Fields for storing the delaying scheduler information
+        /// </summary>
+        public ZingerDelayingScheduler ZingDBScheduler = null;
+        public ZingerSchedulerState ZingDBSchedState = null;
 
         //IExplorable
         public virtual string[] GetSources() { return null; }
@@ -621,7 +625,7 @@ namespace Microsoft.Zing
         }
 
         #region Throw Stack Length Over Flow Exception
-        public void ThrowStackOverFlowException ()
+        public void ThrowDFSStackOverFlowException ()
         {
             exception = new ZingerDFSStackOverFlow();
         }
@@ -655,23 +659,10 @@ namespace Microsoft.Zing
         {
             uint id = nextProcessId++;
             processes.Add(new Process(state, entryPoint, name, id, this.MySerialNum));
-
-            if (Options.EnableEvents)
-            {
-                if (Options.DegreeOfParallelism == 1)
-                {
-                    ReportEvent(new CreateProcessEvent(context, contextAttribute, name));
-                }
-                else
-                {
-                    ReportEvent(new CreateProcessEvent(context, contextAttribute, name, this.MySerialNum));
-                }
-            }
-
-            if(Options.IsSchedulerDecl)
+            if(ZingerConfiguration.DoDelayBounding)
             {
                 //call Start Process function of the External Scheduler
-                ZingDBScheduler.Start(ZingDBSchedState, id);
+                ZingDBScheduler.Start(ZingDBSchedState, (int)id);
             }
         }
 
@@ -1073,9 +1064,9 @@ namespace Microsoft.Zing
             if (IsInvalidEndState())
                 this.exception = new ZingInvalidEndStateException(); 
 
-            if(Options.IsSchedulerDecl && p.CurrentStatus == ProcessStatus.Completed)
+            if(ZingerConfiguration.DoDelayBounding && p.CurrentStatus == ProcessStatus.Completed)
             {
-                this.ZingDBScheduler.Finish(this.ZingDBSchedState, p.Id);
+                this.ZingDBScheduler.Finish(this.ZingDBSchedState, (int)p.Id);
             }
         }
 
@@ -1119,9 +1110,9 @@ namespace Microsoft.Zing
         //
         // Abhishek: Not if we're using a parallel exploration model!
 
-        private static MemoryStream[] memStream = new MemoryStream[Options.DegreeOfParallelism];
+        private static MemoryStream[] memStream = new MemoryStream[ZingerConfiguration.DegreeOfParallelism];
         protected static MemoryStream MemoryStream { get { return memStream[0]; } }
-        private static BinaryWriter[] binWriter = new BinaryWriter[Options.DegreeOfParallelism];
+        private static BinaryWriter[] binWriter = new BinaryWriter[ZingerConfiguration.DegreeOfParallelism];
         protected static BinaryWriter BinaryWriter { get { return binWriter[0]; } }
 
         public static MemoryStream GetMemoryStream(int SerialNumber)
@@ -1271,11 +1262,6 @@ namespace Microsoft.Zing
             if (choices.Length == 0)
                 throw new ZingInvalidChooseException();
 
-            // If we encounter non-determinism in a dummy process, then we're
-            // executing a predicate method in the context of a wait condition.
-            if (process.Name != null && process.Name.Length == 0)
-                throw new ZingNondeterministicPredicateException();
-
             process.choicePending = true;
 
             // TODO: this is gross - fix it
@@ -1395,12 +1381,6 @@ namespace Microsoft.Zing
             get { return this.Exception; }
         }
 
-        //IExplorable
-        public ExternalEvent[] GetExternalEvents()
-        {
-            return externalEvents;
-        }
-
         public static StateImpl Load (string zingAssemblyPath)
         {
             Assembly asm;
@@ -1412,7 +1392,7 @@ namespace Microsoft.Zing
 
         [ZoneIdentityPermissionAttribute(SecurityAction.Demand, Zone=SecurityZone.MyComputer)]
         //IExplorable
-        public static StateImpl Load (Assembly zingAssembly, IZingDelayingScheduler ZShed, IZingSchedulerState ZShedState)
+        public static StateImpl Load (Assembly zingAssembly, ZingerDelayingScheduler ZShed, ZingerSchedulerState ZShedState)
         {
             StateImpl s =
                 (StateImpl) zingAssembly.CreateInstance("Microsoft.Zing.Application", false, 
@@ -1447,22 +1427,9 @@ namespace Microsoft.Zing
         private ArrayList events;
         private ArrayList traceLog;
 
-        //IExplorable
-        public void InvokePlugin(params object[] arguments)
-        {
-            string par1_dllname = ((string)arguments[0]).ToLower();
-            if (!ZingPlugin.ContainsKey(par1_dllname))
-            {
-                return;
-            }
-            
-            ZingPlugin[par1_dllname].Invoke(arguments.Skip(1).ToArray());
-
-        }
-
         public void InvokeScheduler(params object[] arguments)
         {
-            if(Options.IsSchedulerDecl)
+            if(ZingerConfiguration.DoDelayBounding)
             {
                 ZingDBScheduler.Invoke(ZingDBSchedState, arguments);
             }
@@ -1471,61 +1438,27 @@ namespace Microsoft.Zing
         public void Trace(ZingSourceContext context, ZingAttribute contextAttribute,
             string message, params object[] arguments)
         {
-            if (!Options.EnableEvents)
+            if (!ZingerConfiguration.ExecuteTraceStatements)
                 return;
 
-            if (Process.RunningPredicateMethod[MySerialNum])
+
+            if (ZingerConfiguration.DegreeOfParallelism == 1)
             {
-                if (contextAttribute != null)
-                    Process.PredicateContext[MySerialNum] = contextAttribute;
+                ReportEvent(new TraceEvent(context, contextAttribute, message, arguments));
+                if (ZingerConfiguration.EnableTrace)
+                {
+                    ReportTrace(new TraceEvent(context, contextAttribute, message, arguments));
+                }
             }
             else
             {
-                if (Options.DegreeOfParallelism == 1)
+                ReportEvent(new TraceEvent(context, contextAttribute, message,  this.MySerialNum, arguments));
+                if (ZingerConfiguration.EnableTrace)
                 {
-                    ReportEvent(new TraceEvent(context, contextAttribute, message, arguments));
-                    if (Options.EnableTrace)
-                    {
-                        ReportTrace(new TraceEvent(context, contextAttribute, message, arguments));
-                    }
-                }
-                else
-                {
-                    ReportEvent(new TraceEvent(context, contextAttribute, message,  this.MySerialNum, arguments));
-                    if (Options.EnableTrace)
-                    {
-                        ReportTrace(new TraceEvent(context, contextAttribute, message, this.MySerialNum, arguments));
-                    }
+                    ReportTrace(new TraceEvent(context, contextAttribute, message, this.MySerialNum, arguments));
                 }
             }
-        }
-
-        //IExplorable
-        public void Trace(ZingSourceContext context, ZingAttribute contextAttribute, ZingAttributeBaseAttribute attribute)
-        {
-            if (!Options.EnableEvents)
-                return;
-
-            if (Process.RunningPredicateMethod[MySerialNum])
-            {
-                if (contextAttribute != null)
-                    Process.PredicateContext[MySerialNum] = contextAttribute;
-                else
-                {
-                    ZingAttribute zingAttr = attribute as ZingAttribute;
-
-                    if (zingAttr != null)
-                        Process.PredicateContext[MySerialNum] = zingAttr;
-                }
-            }
-            else if (Options.DegreeOfParallelism == 1)
-            {
-                ReportEvent(new AttributeEvent(context, contextAttribute, attribute));
-            }
-            else
-            {
-                ReportEvent(new AttributeEvent(context, contextAttribute, attribute, this.MySerialNum));
-            }
+            
         }
 
         //IExplorable
@@ -1547,7 +1480,7 @@ namespace Microsoft.Zing
 
         internal void ReportEvent(ZingEvent ev)
         {
-            Debug.Assert(Options.EnableEvents, 
+            Debug.Assert(ZingerConfiguration.ExecuteTraceStatements, 
                 "Shouldn't call ReportEvent with events disabled");
 
             if (events == null)
@@ -1562,7 +1495,7 @@ namespace Microsoft.Zing
         #region Trace
         internal void ReportTrace(ZingEvent ev)
         {
-            Debug.Assert(Options.EnableTrace,
+            Debug.Assert(ZingerConfiguration.ExecuteTraceStatements,
                 "Shouldn't call ReportTrace with tracing disabled");
 
             if (traceLog == null)
@@ -1570,51 +1503,6 @@ namespace Microsoft.Zing
 
             traceLog.Add(ev);
         }
-        #endregion
-
-        #region External Channels & events
-
-        //IExplorable
-        internal ExternalEvent[] externalEvents;
-
-        //IExplorable
-        public void AddExternalEvent(ExternalEvent externalEvent,
-            ZingSourceContext context, ZingAttribute contextAttribute)
-        {
-            if (Options.EnableEvents)
-            {
-                if (Options.DegreeOfParallelism == 1)
-                {
-                    Process.CurrentProcess.StateImpl.ReportEvent(
-                        new ExternalEventEvent(context, contextAttribute, externalEvent));
-                }
-                else
-                {
-                    Process CurrProc = Process.GetCurrentProcess(MySerialNum);
-                    CurrProc.StateImpl.ReportEvent(new ExternalEventEvent(context, contextAttribute, externalEvent, this.MySerialNum));
-                }
-            }
-
-            if (externalEvents == null)
-                externalEvents = new ExternalEvent[4];
-
-            int i;
-            for (i=0; i < externalEvents.Length ;i++)
-            {
-                if (!externalEvents[i].IsUsed)
-                {
-                    externalEvents[i] = externalEvent;
-                    return;
-                }
-            }
-
-            ExternalEvent[] newExternalEvents = new ExternalEvent[externalEvents.Length * 2];
-            externalEvents.CopyTo(newExternalEvents, 0);
-            externalEvents = newExternalEvents;
-
-            externalEvents[i] = externalEvent;
-        }
-
         #endregion
 
         #region Cloning
@@ -1643,7 +1531,7 @@ namespace Microsoft.Zing
             // Set the serial numbers of the processes
             foreach (Process proc in ClonedState.processes)
             {
-                proc.MySerialNumber = ClonedState.mySerialNum;
+                proc.MyThreadId = ClonedState.mySerialNum;
             }
             return (retval);
         }
@@ -1670,12 +1558,11 @@ namespace Microsoft.Zing
             fp = this.Fingerprint;
 
             StateImpl newState = MakeSkeleton();
-            if (Options.IsSchedulerDecl)
+            if (ZingerConfiguration.DoDelayBounding)
             {
                 newState.ZingDBSchedState = ZingDBSchedState.Clone();
                 newState.ZingDBScheduler = ZingDBScheduler;
             }
-            newState.ZingPlugin = ZingPlugin;
             newState.choiceList = this.choiceList;
             newState.choiceProcessNumber = this.choiceProcessNumber;
 
@@ -1695,7 +1582,7 @@ namespace Microsoft.Zing
                 if (processes[i] != null)
                 {
                     newState.processes.Add(((Process)processes[i]).Clone(newState, false));
-                    (newState.processes[i] as Process).MySerialNumber = this.MySerialNum;
+                    (newState.processes[i] as Process).MyThreadId = this.MySerialNum;
                 }
                 else
                 {
@@ -1748,7 +1635,7 @@ namespace Microsoft.Zing
 
         // This ought not to be static here for parallel explorations!
         // private static HeapCanonicalizer heapCanonicalizer = new HeapCanonicalizer();
-        private static HeapCanonicalizer[] heapCanonicalizers = new HeapCanonicalizer[Options.DegreeOfParallelism];
+        private static HeapCanonicalizer[] heapCanonicalizers = new HeapCanonicalizer[ZingerConfiguration.DegreeOfParallelism];
 
         private static HeapCanonicalizer HeapCanonicalizer
         {
@@ -1884,16 +1771,6 @@ namespace Microsoft.Zing
                 sb.Append("\r\n");
             }
 
-            if (this.externalEvents != null)
-            {
-                sb.Append("  External Events:\r\n");
-                sb.Append("    ");
-                foreach (ExternalEvent e in this.externalEvents)
-                    sb.AppendFormat("{0} ", e);
-
-                sb.Append("\r\n\r\n");
-            }
-
             sb.Append("  Globals:\r\n");
             DumpGlobals(sb);
             sb.Append("\r\n");
@@ -1945,15 +1822,6 @@ namespace Microsoft.Zing
                 sb.Append("\r\n");
             }
 
-            if (this.externalEvents != null)
-            {
-                sb.Append("  External Events:\r\n");
-                sb.Append("    ");
-                foreach (ExternalEvent e in this.externalEvents)
-                    sb.AppendFormat("{0} ", e);
-
-                sb.Append("\r\n\r\n");
-            }
 
             sb.Append("  Globals:\r\n");
             DumpGlobals(sb);
@@ -2204,15 +2072,6 @@ namespace Microsoft.Zing
                 rootElement.AppendChild(elem);
 
                 foreach (ZingEvent e in this.events)
-                    e.ToXml(elem);
-            }
-
-            if (this.externalEvents != null)
-            {
-                elem = doc.CreateElement("ExternalEvents");
-                rootElement.AppendChild(elem);
-
-                foreach (ExternalEvent e in this.externalEvents)
                     e.ToXml(elem);
             }
 
@@ -2538,27 +2397,6 @@ namespace Microsoft.Zing
         #endregion
     }
 
-    internal struct AllocationInfo 
-    {
-        internal System.Type objectType;
-        internal int arraySize;  // -1 if the allocated object is not an array
-
-        internal AllocationInfo(System.Type type)
-        {
-            // Check that type is not a subclass of Z.ZingArray
-            objectType = type;
-            arraySize = -1;
-        }
-
-        internal AllocationInfo(System.Type type, int i)
-        {
-            // Check that type is a subclass of Z.ZingArray
-            Debug.Assert(i >= 0);
-            objectType = type;
-            arraySize = i;
-        }
-    }
-
 
     #region Field Traversal Interface
     /// <summary>
@@ -2571,7 +2409,7 @@ namespace Microsoft.Zing
     /// in the Everett/Whidbey CLR is around 6 times slower than a regular virtual function call --- madanm
     /// </summary>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class FieldTraverser
     {
         /// <summary>
@@ -2599,7 +2437,7 @@ namespace Microsoft.Zing
     // </summary>
     //public class Pointer
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public struct Pointer :IComparable
     {
         // <summary>
@@ -2764,7 +2602,7 @@ namespace Microsoft.Zing
     /// candidate, but this will be entirely driven by the needs of the heap.
     /// </remarks>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class HeapElement : ICloneable
     {
         internal Int64 version;

@@ -21,7 +21,6 @@ namespace Microsoft.Zing
     /// </summary>
     [Serializable]
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class Process
     {
         // <summary>
@@ -40,10 +39,10 @@ namespace Microsoft.Zing
             this.Call(entryPoint);
         }
 
-        public Process(StateImpl stateObj, ZingMethod entryPoint, string name, uint id, int SerialNum)
+        public Process(StateImpl stateObj, ZingMethod entryPoint, string name, uint id, int threadID)
             : this(stateObj, entryPoint, name, id)
         {
-            this.MySerialNumber = SerialNum;
+            this.MyThreadId = threadID;
         }
 
         // <summary>
@@ -56,6 +55,11 @@ namespace Microsoft.Zing
             id = myId;
         }
 
+        /// <summary>
+        /// Check if the vaiable is declared in this process
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <returns></returns>
         public bool ContainsVariable(string variableName)
         {
             if (topOfStack == null)
@@ -72,38 +76,39 @@ namespace Microsoft.Zing
             return topOfStack.LookupValueByName(variableName);
         }
 
-
-        // Abishek: Added last process field to allow us to print a
-        // stack trace if an error state is encountered during exploration
-
-        private static Process[] lastProcess = new Process[Options.DegreeOfParallelism];
+        /// <summary>
+        /// Field to store the last zing process executed by each thread during parallel exploration
+        /// </summary>
+        private static Process[] lastProcess = new Process[ZingerConfiguration.DegreeOfParallelism];
 
         public static Process[] LastProcess
         {
             get { return lastProcess; }
         }
 
-        public static ZingSourceContext[] AssertionFailureCtx = new ZingSourceContext[Options.DegreeOfParallelism];
+        /// <summary>
+        /// Field to store the assertion failure context
+        /// </summary>
+        public static ZingSourceContext[] AssertionFailureCtx = new ZingSourceContext[ZingerConfiguration.DegreeOfParallelism];
         
-        
-        // Abhishek: Changed to array to support parallel exploration
-        // private static Process currentProcess;
-
-        private static Process[] currentProcess = new Process[Options.DegreeOfParallelism];
+        /// <summary>
+        /// Field to store the 
+        /// </summary>
+        private static Process[] currentProcess = new Process[ZingerConfiguration.DegreeOfParallelism];
 
         public static Process CurrentProcess {
             get { return currentProcess[0]; }
             set { currentProcess[0] = value; }
         }
 
-        public static Process GetCurrentProcess(int SerialNum)
+        public static Process GetCurrentProcess(int threadId)
         {
-            return currentProcess[SerialNum];
+            return currentProcess[threadId];
         }
 
         public static void ClearCurrentProcesses()
         {
-            for (int i = 0; i < Options.DegreeOfParallelism; i++)
+            for (int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
             {
                 lastProcess[i] = null;
                 currentProcess[i] = null;
@@ -142,7 +147,7 @@ namespace Microsoft.Zing
             set { entryPoint = value; } 
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public enum Status
         {
             Runnable,       // runnable, but in a "stable" state
@@ -227,11 +232,7 @@ namespace Microsoft.Zing
                 if (context != null)
                     return context;
 
-                Process.PredicateContext[MySerialNumber] = null;
                 this.topOfStack.IsRunnable(this);
-                if (Process.PredicateContext[MySerialNumber] != null)
-                    return Process.PredicateContext[MySerialNumber];
-
                 return null;
             }
         }
@@ -310,23 +311,24 @@ namespace Microsoft.Zing
                 middleOfTransition = false;
             }
 
-            if (this.topOfStack == null && Options.EnableEvents && (this.name != null && this.name.Length != 0))
+            if (this.topOfStack == null && ZingerConfiguration.ExecuteTraceStatements && (this.name != null && this.name.Length != 0))
             {
-                if (Options.DegreeOfParallelism == 1)
+                if (ZingerConfiguration.DegreeOfParallelism == 1)
                 {
                     this.StateImpl.ReportEvent(new TerminateProcessEvent(context, contextAttribute));
                 }
                 else
                 {
-                    this.StateImpl.ReportEvent(new TerminateProcessEvent(context, contextAttribute, this.MySerialNumber));
+                    this.StateImpl.ReportEvent(new TerminateProcessEvent(context, contextAttribute, this.MyThreadId));
                 }
             }
         }
 
-        private static bool[] runningPredicateMethod = new bool[Options.DegreeOfParallelism];
+        #region some predicate nonsense
+        private static bool[] runningPredicateMethod = new bool[ZingerConfiguration.DegreeOfParallelism];
         internal static bool[] RunningPredicateMethod
         {
-            get { return runningPredicateMethod; } 
+            get { return runningPredicateMethod; }
         }
 
         public class PredicateContextIndexer
@@ -345,7 +347,7 @@ namespace Microsoft.Zing
             }
         }
 
-        public static PredicateContextIndexer PredicateContext = new PredicateContextIndexer(Options.DegreeOfParallelism);
+        public static PredicateContextIndexer PredicateContext = new PredicateContextIndexer(ZingerConfiguration.DegreeOfParallelism);
 
         /*
         public static ZingAttribute PredicateContext
@@ -357,10 +359,10 @@ namespace Microsoft.Zing
 
         public bool CallPredicateMethod(ZingMethod predicateMethod)
         {
-            if (runningPredicateMethod[MySerialNumber])
+            if (runningPredicateMethod[MyThreadId])
             {
                 Debugger.Break();
-                throw new ZingNestedPredicateException();
+                throw new Exception("Predicate !");
             }
 
             Process dummyProc = new Process(this.StateImpl, predicateMethod, string.Empty, 0);
@@ -370,17 +372,15 @@ namespace Microsoft.Zing
 
             while (dummyProc.TopOfStack != null)
             {
-                runningPredicateMethod[MySerialNumber] = true;
+                runningPredicateMethod[MyThreadId] = true;
                 this.StateImpl.RunBlocks(dummyProc);
-                runningPredicateMethod[MySerialNumber] = false;
+                runningPredicateMethod[MyThreadId] = false;
 
                 if (this.StateImpl.Exception != null)
                 {
                     if (savedException == null)
                     {
-                        if (!(this.StateImpl.Exception is ZingNondeterministicPredicateException))
-                            this.StateImpl.Exception = new ZingPredicateExceptionException(
-                                "Exception in predicate: " + predicateMethod.MethodName, this.StateImpl.Exception);
+                        this.StateImpl.Exception = new Exception("Predicate");
                         throw this.StateImpl.Exception;
                     }
                     else
@@ -393,12 +393,12 @@ namespace Microsoft.Zing
                 }
 
                 if (dummyProc.choicePending)
-                    throw new ZingNondeterministicPredicateException();
+                    throw new Exception("Predicate");
             }
             this.StateImpl.Exception = savedException;
             return predicateMethod.BooleanReturnValue;
         }
-
+        #endregion
         //
         // Find a stack frame capable of handling the exception, peeling off
         // stack frames as necessary to find someone. If nobody has a handler
@@ -428,43 +428,38 @@ namespace Microsoft.Zing
         {
             try
             {
-                if (Options.EnableEvents)
-                    Process.currentProcess[MySerialNumber] = this;
+                if (ZingerConfiguration.ExecuteTraceStatements)
+                    Process.currentProcess[MyThreadId] = this;
                 // Save the source context. This seems to be off by
                 // one block if a ZingAssertionFailureException occurs
-                if (Process.AssertionFailureCtx[MySerialNumber] == null)
+                if (Process.AssertionFailureCtx[MyThreadId] == null)
                 {
-                    Process.AssertionFailureCtx[MySerialNumber] = new ZingSourceContext();
+                    Process.AssertionFailureCtx[MyThreadId] = new ZingSourceContext();
                 }
 
-                topOfStack.Context.CopyTo(Process.AssertionFailureCtx[MySerialNumber]);
-                Process.LastProcess[MySerialNumber] = this;
+                topOfStack.Context.CopyTo(Process.AssertionFailureCtx[MyThreadId]);
+                Process.LastProcess[MyThreadId] = this;
                 topOfStack.Dispatch(this);
-            }
-            catch (ZingUnsupportedFeatureException e) 
-            {
-                e.SerialNumber = this.MySerialNumber;
-                throw;
             }
             catch (ZingException e)
             {
                 this.StateImpl.Exception = e;
-                (this.StateImpl.Exception as ZingException).SerialNumber = mySerialNumber;
+                (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
             }
             catch (DivideByZeroException)
             {
                 this.StateImpl.Exception = new ZingDivideByZeroException();
-                (this.StateImpl.Exception as ZingException).SerialNumber = mySerialNumber;
+                (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
             }
             catch (OverflowException)
             {
                 this.StateImpl.Exception = new ZingOverflowException();
-                (this.StateImpl.Exception as ZingException).SerialNumber = mySerialNumber;
+                (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
             }
             catch (IndexOutOfRangeException)
             {
                 this.StateImpl.Exception = new ZingIndexOutOfRangeException();
-                (this.StateImpl.Exception as ZingException).SerialNumber = mySerialNumber;
+                (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
             }
             catch (Exception e)
             {
@@ -473,16 +468,16 @@ namespace Microsoft.Zing
 
                 this.StateImpl.Exception = 
                     new ZingUnexpectedFailureException("Unhandled exception in the Zing runtime", e);
-                (this.StateImpl.Exception as ZingException).SerialNumber = mySerialNumber;
+                (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
             }
             finally
             {
                 // Add check for other ZingExceptions which are not thrown and append the serial number
                 if (this.StateImpl.Exception != null && (this.StateImpl.Exception is ZingException))
                 {
-                    (this.StateImpl.Exception as ZingException).SerialNumber = mySerialNumber;
+                    (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
                 }
-                Process.currentProcess[MySerialNumber] = null;
+                Process.currentProcess[MyThreadId] = null;
             }
         }
 
@@ -505,31 +500,15 @@ namespace Microsoft.Zing
                 lastFunctionCompleted = value; 
             }
         }
-
-#if NOT_YET_NEEDED  // Turn this on when we're ready to sort processes
-        // <summary>
-        // Implementation of IComparable.CompareTo()
-        // </summary>
-        // <remarks>
-        // We can compare processes based on coarse metrics like entry
-        // points and stack sizes. If these fail to distinguish between
-        // processes, we can begin to look more deeply into their stacks.
-        // </remarks>
-        // <param name="obj"></param>
-        // <returns></returns>
-        internal int CompareTo(object obj)
+        
+        /// <summary>
+        /// Field indicating the thread Id when used during parallel exploration
+        /// </summary>
+        private int myThreadId = 0;
+        public int MyThreadId
         {
-            // TODO: Implementation needed
-            return 0;
-        }
-#endif
-        // Field indicating my unique serial number when used for parallel exploration
-
-        private int mySerialNumber = 0;
-        public int MySerialNumber
-        {
-            get { return mySerialNumber; }
-            set { mySerialNumber = value; }
+            get { return myThreadId; }
+            set { myThreadId = value; }
         }
 
         internal object Clone(StateImpl myState, bool shallowCopy)
@@ -541,7 +520,7 @@ namespace Microsoft.Zing
             clone.backTransitionEncountered = this.backTransitionEncountered;
             clone.choicePending = this.choicePending;
             // For parallel exploration
-            clone.mySerialNumber = myState.MySerialNum;
+            clone.myThreadId = myState.MySerialNum;
 
             // Recursively clone the entire stack
             if (this.topOfStack != null)

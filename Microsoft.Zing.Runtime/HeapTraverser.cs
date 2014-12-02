@@ -8,7 +8,7 @@ namespace Microsoft.Zing
     /// Summary description for HeapTraverser
     /// </summary>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     sealed public class HeapTraverser
     {
         private HeapTraverser()

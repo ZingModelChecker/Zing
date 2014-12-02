@@ -10,7 +10,7 @@
     <SccProvider>SAK</SccProvider>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ApplicationIcon>App.ico</ApplicationIcon>
+    <ApplicationIcon>Source_Zing.ico</ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>Zinger</AssemblyName>
@@ -50,7 +50,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>.\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -148,6 +148,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ZingerCommandLine.cs" />
     <Content Include="App.ico" />
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -156,6 +157,7 @@
     <Compile Include="Zinger.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Content Include="Source_Zing.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -192,21 +194,9 @@
       <Project>{FAF10DEB-0879-4FBE-A08E-EF23F9016AE6}</Project>
       <Name>Microsoft.Zing.Runtime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ParallelExplorer\ParallelExplorer.csproj">
-      <Project>{1498D554-6C2A-4F8C-BCF3-A6F7C8803700}</Project>
-      <Name>ParallelExplorer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ZingDelayingScheduler\ZingDelayingScheduler.csproj">
-      <Project>{f75bedf8-b6ab-48fa-ac71-840628768ecd}</Project>
-      <Name>ZingDelayingScheduler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ZingOptions\ZingOptions.csproj">
-      <Project>{9143187E-C13C-4974-8762-E74B182E7C90}</Project>
-      <Name>ZingOptions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ZingPlugin\ZingPlugin.csproj">
-      <Project>{28330c0b-864d-44e7-b665-4845f55035a8}</Project>
-      <Name>ZingPlugin</Name>
+    <ProjectReference Include="..\ZingExplorer\ZingExplorer.csproj">
+      <Project>{1498d554-6c2a-4f8c-bcf3-a6f7c8803700}</Project>
+      <Name>ZingExplorer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

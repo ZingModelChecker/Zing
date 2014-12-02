@@ -223,19 +223,13 @@
     <Compile Include="Fingerprint.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FrontierTree.cs" />
     <Compile Include="HeapCanonicalizer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HeapTraverser.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hints.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MathSet.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ModuleSuppressions.cs" />
     <Compile Include="Process.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -246,16 +240,19 @@
     <Compile Include="StateImpl.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="TCancel.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="StepByStepTraversal.cs" />
+    <Compile Include="TraversalInfo.cs" />
     <Compile Include="Utils.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ZingBoundedSearch.cs" />
+    <Compile Include="ZingDelayingScheduler.cs" />
+    <Compile Include="ZingerConfiguration.cs" />
+    <Compile Include="ZingerUtilities.cs" />
     <Compile Include="ZingMethod.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ZingerOptimizations.cs" />
+    <Compile Include="ZingRNG.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -283,20 +280,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ZingDelayingScheduler\ZingDelayingScheduler.csproj">
-      <Project>{f75bedf8-b6ab-48fa-ac71-840628768ecd}</Project>
-      <Name>ZingDelayingScheduler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ZingOptions\ZingOptions.csproj">
-      <Project>{9143187E-C13C-4974-8762-E74B182E7C90}</Project>
-      <Name>ZingOptions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ZingPlugin\ZingPlugin.csproj">
-      <Project>{28330c0b-864d-44e7-b665-4845f55035a8}</Project>
-      <Name>ZingPlugin</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

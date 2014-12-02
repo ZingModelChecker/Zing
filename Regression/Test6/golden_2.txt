@@ -1,0 +1,4 @@
+##################
+Check Passed
+##################
+9 distinct states, 21 total transitions, 5 steps max depth

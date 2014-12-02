@@ -15,7 +15,7 @@ namespace Microsoft.Zing
     /// Subclasses of ZingMethod are always nested within a subclass of ZingClass.
     /// </remarks>
     [CLSCompliant(false)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    
     public abstract class ZingMethod
     {
         // this property should be overridden in the generated code for instance methods
@@ -109,33 +109,7 @@ namespace Microsoft.Zing
 
         public abstract StateImpl StateImpl { get; set; }
 
-        // all these are actually static members of each derived method
-        // thus, they are abstract in tbe base class and
-        // are overridden using static members in TemplateParts.cs
-        public abstract Hashtable TransientStates { get; }
-        public abstract SortedList SummaryTable { get; }
-        public abstract Hashtable SummaryHashtable { get; }
         public abstract ZingMethod Clone(StateImpl myState, Process myProcess, bool shallowCopy);
-        public abstract int ExecutionCount{ get; set;}
-
-        #region Hints for each method
-        public abstract Hints Hints { get; }
-        #endregion
-
-       
-
-        public bool  IsTransient(StateImpl state) 
-        {
-            Fingerprint fp = state.Fingerprint;
-            return (TransientStates.ContainsKey(fp));
-        }        
-
-       
-
-        public void RemoveTransient(Fingerprint fp)
-        {
-            TransientStates.Remove(fp);
-        }
  
 
         public object DoCheckIn()

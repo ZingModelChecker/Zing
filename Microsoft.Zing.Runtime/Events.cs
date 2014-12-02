@@ -8,154 +8,6 @@ using System.Xml;
 namespace Microsoft.Zing
 {
 
-    public class LTSEvent
-    {
-        public ExternalEvent externalEvent;
-
-        public LTSEvent(ExternalEvent e)
-        {
-            externalEvent = e;
-        }
-    }
-    /// <summary>
-    /// Contains information about external communication made visible with event
-    /// statements and join conditions.
-    /// </summary>
-    /// <remarks>
-    /// External events are used for refinement checking. These are used to report sends
-    /// and receives on "external" channels. These events are generated when Zing executes
-    /// an "event" statement or a join statement within a select that contains an "event"
-    /// join condition. Because these are used during checking, they must be as efficient
-    /// as possible.
-    /// </remarks>
-    public struct ExternalEvent
-    {
-        private byte    eventData;
-        private byte    msgType;
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ExternalEvent(int channel, int msgType, bool isSend)
-        {
-            eventData = (byte) ((channel & chanMask) | (isSend ? sendEvent : recvEvent));
-            this.msgType = (byte) msgType;
-        }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ExternalEvent(bool isTau)
-        {
-            eventData = tauEvent;
-            msgType = 0;
-        }
-
-        private const byte statusMask = 0xc0;
-        private const byte unusedEvent = 0;
-        private const byte tauEvent = 0x40;
-        private const byte sendEvent = 0x80;
-        private const byte recvEvent = 0xc0;
-
-        private const byte chanMask = 0x3f;
-
-        /// <summary>
-        /// Returns true if the external event slot contains an actual event.
-        /// </summary>
-        public bool IsUsed    { get { return (eventData & statusMask) != unusedEvent; } }
-        /// <summary>
-        /// Returns true if the event represents a tau (internal) event.
-        /// </summary>
-        public bool IsTau     { get { return (eventData & statusMask) == tauEvent; } }
-        /// <summary>
-        /// Returns true if the event represents an outgoing message.
-        /// </summary>
-        public bool IsSend    { get { return (eventData & statusMask) == sendEvent; } }
-        /// <summary>
-        /// Returns true if the event represents an incoming message.
-        /// </summary>
-        public bool IsReceive { get { return (eventData & statusMask) == recvEvent; } }
-        /// <summary>
-        /// Returns the number of the logical channel through which the message passed.
-        /// </summary>
-        public int Channel { get { return (int) (eventData & chanMask); } }
-        /// <summary>
-        /// Returns an integer value denoting the type of message sent or received.
-        /// </summary>
-        public int MessageType { get { return (int) this.msgType; } }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static bool operator==(ExternalEvent e1, ExternalEvent e2)
-        {
-            return e1.eventData == e2.eventData && e1.msgType == e2.msgType;
-        }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static bool operator!=(ExternalEvent e1, ExternalEvent e2)
-        {
-            return e1.eventData != e2.eventData || e1.msgType != e2.msgType;
-        }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
-        {
-            ExternalEvent other = (ExternalEvent) obj;
-            return other.eventData == this.eventData && other.msgType == this.msgType;
-        }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode()
-        {
-            return (int) this.eventData | (((int) this.msgType) << 8);
-        }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
-        {
-            if (this.IsUsed)
-            {
-                if (this.IsSend)
-                    return string.Format(CultureInfo.CurrentUICulture, "{0}/{1}!", this.Channel, this.MessageType);
-                else if (this.IsReceive)
-                    return string.Format(CultureInfo.CurrentUICulture, "{0}/{1}?", this.Channel, this.MessageType);
-                else
-                    return "tau";
-            }
-            else
-                return string.Empty;
-        }
-
-        /// <exclude/>
-        public void ToXml(XmlElement parent)
-        {
-            if (!IsUsed)
-                return;
-
-            XmlDocument doc = parent.OwnerDocument;
-
-            XmlElement eventElem = doc.CreateElement("ExternalEvent");
-            parent.AppendChild(eventElem);
-
-            XmlAttribute dir = doc.CreateAttribute("type");
-            dir.Value = IsSend ? "send" : (IsReceive ? "receive" : "tau");
-            eventElem.SetAttributeNode(dir);
-
-            if (!IsTau)
-            {
-                XmlAttribute chan = doc.CreateAttribute("channel");
-                chan.Value = Channel.ToString(CultureInfo.CurrentUICulture);
-                eventElem.SetAttributeNode(chan);
-
-                XmlAttribute type = doc.CreateAttribute("msgType");
-                type.Value = MessageType.ToString(CultureInfo.CurrentUICulture);
-                eventElem.SetAttributeNode(type);
-            }
-        }
-    }
-
     /// <summary>
     /// This is the abstract class from which all Zing events are derived.
     /// <seealso cref="State.GetEvents"/>
@@ -197,7 +49,7 @@ namespace Microsoft.Zing
         public ZingAttribute ContextAttribute { get { return contextAttribute; } }
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingEvent(ZingSourceContext context, ZingAttribute contextAttribute)
         {
             this.context = context;
@@ -216,7 +68,7 @@ namespace Microsoft.Zing
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected ZingEvent(ZingSourceContext context, ZingAttribute contextAttribute, int SerialNum)
         {
             this.context = context;
@@ -236,11 +88,11 @@ namespace Microsoft.Zing
         }
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public abstract void ToXml(XmlElement parent);
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         protected void AddBaseData(XmlElement element)
         {
             XmlDocument doc = element.OwnerDocument;
@@ -255,104 +107,6 @@ namespace Microsoft.Zing
         }
     }
 
-    /// <summary>
-    /// This event is generated when an external event is produced.
-    /// <seealso cref="State.GetEvents"/>
-    /// </summary>
-    /// <remarks>
-    /// This event class corresponds directly to external events, but when full eventing is
-    /// enabled, this event allows external events to be temporally ordered wrt other kinds
-    /// of events.
-    /// </remarks>
-    public class ExternalEventEvent : ZingEvent
-    {
-        private ExternalEvent @event;
-
-        /// <exclude/>
-        internal ExternalEventEvent(ZingSourceContext context, ZingAttribute contextAttribute,
-            ExternalEvent @event)
-            : base(context, contextAttribute)
-        {
-            this.@event = @event;
-        }
-
-        internal ExternalEventEvent(ZingSourceContext context, ZingAttribute contextAttribute,
-            ExternalEvent @event, int SerialNumber)
-            : base(context, contextAttribute, SerialNumber)
-        {
-            this.@event = @event;
-        }
-
-        /// <summary>
-        /// Returns the underlying ExternalEvent.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ExternalEvent Event { get { return @event; } }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
-        {
-            return @event.ToString();
-        }
-
-        /// <summary>
-        /// Returns true if the event represents a "tau" action by the model.
-        /// </summary>
-        public bool IsTau     { get { return @event.IsTau; } }
-
-        /// <summary>
-        /// Returns true if the event represents an outgoing message on an
-        /// external channel.
-        /// </summary>
-        public bool IsSend    { get { return @event.IsSend; } }
-
-        /// <summary>
-        /// Returns true if the event represents an incoming message on an
-        /// external channel.
-        /// </summary>
-        public bool IsReceive { get { return @event.IsReceive; } }
-
-        /// <summary>
-        /// Returns the number of the external channel on which the
-        /// communication was observed.
-        /// </summary>
-        public int Channel { get { return @event.Channel; } }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override void ToXml(XmlElement parent)
-        {
-            XmlDocument doc = parent.OwnerDocument;
-
-            XmlElement elem = doc.CreateElement("ExternalEventEvent");
-            parent.AppendChild(elem);
-
-            XmlElement elemBody;
-
-            if (@event.IsTau)
-                elemBody = doc.CreateElement("Tau");
-            else
-            {
-                if (@event.IsSend)
-                    elemBody = doc.CreateElement("Send");
-                else
-                    elemBody = doc.CreateElement("Receive");
-
-                XmlAttribute chanAttr = doc.CreateAttribute("channel");
-                chanAttr.Value = @event.Channel.ToString(CultureInfo.CurrentUICulture);
-                elemBody.SetAttributeNode(chanAttr);
-
-                XmlAttribute typeAttr = doc.CreateAttribute("type");
-                typeAttr.Value = @event.MessageType.ToString(CultureInfo.CurrentUICulture);
-                elemBody.SetAttributeNode(typeAttr);
-            }
-
-            elem.AppendChild(elemBody);
-
-            base.AddBaseData(elem);
-        }
-    }
 
     /// <summary>
     /// This event is generated when a "trace" statement is executed.
@@ -371,7 +125,7 @@ namespace Microsoft.Zing
         private string message;
         private object[] arguments;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         internal TraceEvent(ZingSourceContext context, ZingAttribute contextAttribute,
             string message, params object[] arguments)
             : base(context, contextAttribute)
@@ -380,7 +134,7 @@ namespace Microsoft.Zing
             this.arguments = arguments;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         internal TraceEvent(ZingSourceContext context, ZingAttribute contextAttribute,
             string message, int SerialNumber, params object[] arguments)
             : base(context, contextAttribute, SerialNumber)
@@ -408,13 +162,13 @@ namespace Microsoft.Zing
         /// for any additional parameters.
         /// </summary>
         /// <returns>A formatted string based on the parameters of the trace statement.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, message, arguments);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -442,63 +196,6 @@ namespace Microsoft.Zing
                     elemArgs.AppendChild(elemArg);
                 }
             }
-
-            base.AddBaseData(elem);
-        }
-    }
-
-    /// <summary>
-    /// This event is generated when an attributed statement is executed.
-    /// <seealso cref="State.GetEvents"/>
-    /// </summary>
-    /// <remarks>
-    /// Attribute events are generated when an attributed statement is executed.
-    /// </remarks>
-    public class AttributeEvent : ZingEvent
-    {
-        private ZingAttributeBaseAttribute attr;
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal AttributeEvent(ZingSourceContext context, ZingAttribute contextAttribute,
-            ZingAttributeBaseAttribute attr)
-            : base(context, contextAttribute)
-        {
-            this.attr = attr;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal AttributeEvent(ZingSourceContext context, ZingAttribute contextAttribute,
-            ZingAttributeBaseAttribute attr, int SerialNumber)
-            : base(context, contextAttribute, SerialNumber)
-        {
-            this.attr = attr;
-        }
-
-        /// <summary>
-        /// Returns the attribute associated with the executed statement.
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        public Attribute Attribute { get { return attr; } }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.CurrentUICulture, "AttributeEvent: {0}", attr);
-        }
-
-        /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override void ToXml(XmlElement parent)
-        {
-            XmlDocument doc = parent.OwnerDocument;
-
-            XmlElement elem = doc.CreateElement("AttributeEvent");
-            parent.AppendChild(elem);
-
-            attr.ToXml(elem);
 
             base.AddBaseData(elem);
         }
@@ -543,14 +240,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the event showing the names of the new process and its parent.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "CreateProcess - process='{0}', child='{1}'", this.ProcName, this.newProcName);
         }
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -590,14 +287,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the event showing the name of the terminating process.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "TerminateProcess - process='{0}'", this.ProcName);
         }
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -671,14 +368,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the Send event showing the channel type, number, and message data.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "Send(chan='{0}({1})', data='{2}')", chanType, chanPtr, data);
         }
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -764,14 +461,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the Receive event showing the channel type, number, and message data.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "Receive(chan='{0}({1}', data='{2}')", chanType, chanPtr, data);
         }
 
         /// <exclude/>
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;

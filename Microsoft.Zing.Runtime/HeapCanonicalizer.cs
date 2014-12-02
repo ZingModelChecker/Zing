@@ -477,8 +477,8 @@ namespace Microsoft.Zing
             return he.currFingerprint;
         }
 
-        private static MemoryStream[] memStream = new MemoryStream[Options.DegreeOfParallelism];
-        private static BinaryWriter[] binWriter = new BinaryWriter[Options.DegreeOfParallelism];
+        private static MemoryStream[] memStream = new MemoryStream[ZingerConfiguration.DegreeOfParallelism];
+        private static BinaryWriter[] binWriter = new BinaryWriter[ZingerConfiguration.DegreeOfParallelism];
 
         // Gives the fingerprint offset for each canonId
         //   Hashtable for integers is expensive due to boxing overhead 

@@ -12,18 +12,18 @@ goto :EOF
 	echo %1
 	cd %1
 	if exist compile_param (
-		for /f "delims=" %%n in (compile_param) do ..\..\zc\bin\Debug\zc.exe %1.zing %%n
+		for /f "delims=;" %%n in (compile_param) do ..\..\zc\bin\Debug\zc.exe %%n %1.zing 
 	) else (
-		..\..\zc\bin\Debug\zc.exe %1.zing
+		@echo no compile_param declared. 
 	)
-	for /f %%n in (param) do call :CHECKFILE %1 %%n
+	set /A counter = 1
+	for /f "delims=;" %%n in (param) do call :CHECKFILE %1 "%%n"
 	cd ..
 	goto :EOF
 
 :CHECKFILE
-	set arg=%2
-	set opt=%arg::=%
-	if "%opt%" == "" ( 
-		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll >golden.txt"
-	) 
+	set "arg=%~2"
+	@echo golden for %arg%
+	cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
+	set /A counter = counter + 1
 	goto :EOF

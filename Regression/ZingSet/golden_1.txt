@@ -1,0 +1,985 @@
+##################
+Check Failed
+##################
+ *******************************************************************************
+ Error trace 0: length: 16 states
+#### State 0 : 
+ State:[fingerprint =14fd81bc:3019d12e]
+
+  Globals:
+  ZingPointer Main____sender = 0
+
+
+  Processes: (1)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 1 (ran process 0) :
+State:[fingerprint =49c92d3f:18ab2b5a]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 0
+            System.Int32 i = 0
+            System.Int32 c = 0
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 2 (ran process 1) :
+State:[fingerprint =48f5af35:5c0bb92b]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 0 elements
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B8
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 0
+            System.Int32 c = 0
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 3 (ran process 1) :
+State:[fingerprint =74ddbcb8:11cb4a4e]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 0 elements
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B7
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 0
+            System.Int32 c = 0
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 4 (ran process 1) :
+State:[fingerprint =720d4604:10b12b7e]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B5
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 0
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 5 (ran process 1) :
+State:[fingerprint =<no fingerprint - state is not stable>]
+    10 choices pending
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: True
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B4
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 0
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 6 (took choice 7) :
+State:[fingerprint =4e7bfdf6:0801dda8]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B3
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 7 (ran process 1) :
+State:[fingerprint =<no fingerprint - state is not stable>]
+    10 choices pending
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: True
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 0
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 8 (took choice 2) :
+State:[fingerprint =7eb9f91c:3e7edfc0]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B1
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 2
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 9 (ran process 1) :
+State:[fingerprint =47cef7fb:409118cb]
+
+  Events:
+    Send(chan='Microsoft.Zing.Application+___IntChan(1)', data='9')
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 1 elements
+        0: 9
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 2
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 10 (ran process 2) :
+State:[fingerprint =327513f1:2eff74e1]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 1 elements
+        0: 9
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 2
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: B7
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 0
+
+#### State 11 (ran process 2) :
+State:[fingerprint =7c1daef6:1b69aa5f]
+
+  Events:
+    Receive(chan='Microsoft.Zing.Application+___IntChan(1', data='9')
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+        Function : Microsoft.Zing.Application+Main+Run
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 2
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 9
+
+#### State 12 (ran process 0) :
+State:[fingerprint =765c77cd:6f108a8c]
+
+  Events:
+    TerminateProcess - process='Run'
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+Run
+      Stack:
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 2
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 9
+
+#### State 13 (ran process 2) :
+State:[fingerprint =40afa1eb:48411b5a]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (2 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+    Addr= 2
+    Type= Microsoft.Zing.Application+IntSet
+    Contents:
+      Set: ElementType=System.Int32, 10 elements
+        0: 0
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
+        6: 6
+        7: 7
+        8: 8
+        9: 9
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+senderr
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+            ZingPointer xyz = 2
+            System.Int32 i = 10
+            System.Int32 c = 7
+            System.Int32 b = 2
+
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 9
+
+#### State 14 (ran process 1) :
+State:[fingerprint =65f40ee2:087b2511]
+
+  Events:
+    TerminateProcess - process='Main.senderr'
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Completed
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+senderr
+      Stack:
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 9
+
+#### State 15 (ran process 2) :
+State:[fingerprint =174022db:33b84cb3]
+
+  Globals:
+  ZingPointer Main____sender = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntChan
+    Contents:
+      Chan: MsgType=System.Int32, 0 elements
+
+
+  Processes: (3)
+
+    Process 0: Name='Run', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='Main.senderr', Id=1
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 2: Name='Main.receiverr', Id=2
+      Status: Blocked
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Main+receiverr
+      Stack:
+        Function : Microsoft.Zing.Application+Main+receiverr
+          NextBlock: B7
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 m = 9
+
+
+Error in state:
+Deadlock: no processes are runnable and one or more processes is blocked in an invalid end state
+
+Microsoft.Zing.ZingInvalidEndStateException: Exception of type 'Microsoft.Zing.ZingInvalidEndStateException' was thrown.
+
+1535 distinct states, 5297 total transitions, 14 steps max depth
