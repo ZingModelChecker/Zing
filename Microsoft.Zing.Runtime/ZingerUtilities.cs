@@ -47,7 +47,7 @@ namespace Microsoft.Zing
         {
             var finishTime = DateTime.Now;
             var elapsedTime = finishTime.Subtract(startTime);
-            ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states, {1} total transitions, {2} steps max depth", NumOfStatesVisited, NumOfTransitionExplored, maxDepth));
+            ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states explored", NumOfStatesVisited, NumOfTransitionExplored, maxDepth));
             if (ZingerConfiguration.PrintStats)
             {
                 ZingerUtilities.PrintMessage(String.Format("Elapsed time : {0:00}:{1:00}:{2:00}", (int)elapsedTime.TotalHours, (int)elapsedTime.TotalMinutes, (int)elapsedTime.TotalSeconds));

@@ -53,7 +53,7 @@ namespace Microsoft.Zing
 
             if (zingMessage != null && zingMessage.Length > 0)
                 return string.Format(CultureInfo.CurrentUICulture,
-                    "{0}\r\n{1}\r\n{2}", this.ZingMessage, base.ToString(),StackTrace);
+                    "{0}\r\n{1}\r\n", this.ZingMessage, StackTrace);
             else
                 return base.ToString();
         }
