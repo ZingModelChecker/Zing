@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Zing
 {
-    public class ZingExplorerasModelChecker : ZingExplorer
+    public class ZingExplorerAsModelChecker : ZingExplorer
     {
         /// <summary>
         /// Global hash table for storing the system state space during exploration.
@@ -27,7 +27,7 @@ namespace Microsoft.Zing
         /// </summary>
         private Task[] searchWorkers;
 
-        public ZingExplorerasModelChecker() : base()
+        public ZingExplorerAsModelChecker() : base()
         {
             GlobalStateTable = new ZingerStateTable();
             GLobalFrontierSet = new FrontierSet(StartStateTraversalInfo);

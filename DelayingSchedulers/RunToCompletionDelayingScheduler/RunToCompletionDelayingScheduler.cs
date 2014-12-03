@@ -29,7 +29,12 @@ namespace ExternalDelayBoundedScheduler
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            string ret = "";
+            foreach(var item in DBStack)
+            {
+                ret = ret + "," + item.ToString();
+            }
+            return ret;
         }
 
         public override ZingerSchedulerState Clone ()
@@ -55,6 +60,7 @@ namespace ExternalDelayBoundedScheduler
         {
             var SchedState = zSchedState as RTCDBSchedulerState;
             SchedState.DBStack.Push(processId);
+            SchedState.Start(processId);
         }
         /// <summary>
         /// Remove the process from DB Stack
@@ -81,14 +87,17 @@ namespace ExternalDelayBoundedScheduler
             {
                 SchedState.DBStack.Push(tempStack.Pop());
             }
+            SchedState.Finish(processId);
         }
 
         public override void OnEnabled(ZingerSchedulerState ZSchedulerState, int targetSM, int sourceSM)
         {
             var SchedState = ZSchedulerState as RTCDBSchedulerState;
             var procId = SchedState.GetZingProcessId(targetSM);
+            
             if (!SchedState.DBStack.Contains(procId))
                 SchedState.DBStack.Push(procId);
+
         }
         /// <summary>
         /// Move the process on top of stack to the bottom of the stack
@@ -131,6 +140,7 @@ namespace ExternalDelayBoundedScheduler
         {
             var SchedState = zSchedState as RTCDBSchedulerState;
             return zSchedState.numOfTimesCurrStateDelayed >= (SchedState.DBStack.Count - 1);
+
         }
     }
 }

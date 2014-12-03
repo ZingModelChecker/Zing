@@ -275,8 +275,12 @@ namespace Microsoft.Zing
                         doDelay = true;
                     }
 
+                    //if the final cutoff is already exceeded then return null !
+                    if (ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff < zBounds.ChoiceCost)
+                        return null;
+
                     if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
-                        return this;  //Fix this return null if the choose bound is exceeded.
+                        return this;
 
                 }
 

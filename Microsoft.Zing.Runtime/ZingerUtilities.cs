@@ -112,7 +112,7 @@ namespace Microsoft.Zing
         public static void StartPeriodicStats()
         {
             TimerCallback tcb = PeriodicTimerFunction;
-            PeriodicTimer = new Timer(tcb, null, 600000, 600000);
+            PeriodicTimer = new Timer(tcb, null, 300000, 300000);
         }
 
         public static void StopPeriodicStats()
