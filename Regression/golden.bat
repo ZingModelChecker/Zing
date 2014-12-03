@@ -2,9 +2,9 @@
 @if not "%ECHO%" == "" echo %ECHO%
 
 if {%1} == {} (
-	for /d %%d in (*) do call :CHECKDIR %%d
+	for /d %%d in (*) do call :CHECKDIR %%d %2
 ) else (
-	call :CHECKDIR %1
+	call :CHECKDIR %1 %2
 )
 goto :EOF
 
@@ -16,14 +16,23 @@ goto :EOF
 	) else (
 		@echo no compile_param declared. 
 	)
-	set /A counter = 1
-	for /f "delims=;" %%n in (param) do call :CHECKFILE %1 "%%n"
+	set /A counter = 0
+	for /f "delims=;" %%n in (param) do call :CHECKFILE %1 "%%n" %2
 	cd ..
 	goto :EOF
 
 :CHECKFILE
-	set "arg=%~2"
-	@echo golden for %arg%
-	cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
 	set /A counter = counter + 1
-	goto :EOF
+	set "arg=%~2"
+	if "%3" == "" (
+		@echo golden for %arg%
+		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
+		goto :EOF
+	) else if "%3" == "%counter%" (
+		@echo golden for %arg%
+		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
+		goto :EOF
+	) else (
+		goto :EOF
+	)
+	

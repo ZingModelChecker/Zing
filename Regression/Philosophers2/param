@@ -1,6 +1,7 @@
 -entirezingtrace -p;
 -entirezingtrace -frontiertodisk -p;
--entirezingtrace -p -delayb:../../DelayingSchedulers/RunToCompletionDelayingScheduler/bin/debug/RunToCompletionDelayingScheduler.dll
+-entirezingtrace -p -delayb:../../DelayingSchedulers/RunToCompletionDelayingScheduler/bin/debug/RunToCompletionDelayingScheduler.dll;
+-entirezingtrace -p -delayb:../../DelayingSchedulers/RoundRobinDelayingScheduler/bin/debug/RoundRobinDelayingScheduler.dll;
 
 
 
