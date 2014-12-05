@@ -41,7 +41,7 @@ namespace Microsoft.Zing
 
                 ZingExplorer zingExplorer;
                 if (ZingerConfiguration.DoNDFSLiveness)
-                    zingExplorer = null;//new ZingExplorerNDFSLiveness();
+                    zingExplorer = new ZingExplorerNDFSLiveness();
                 else
                     zingExplorer = new ZingExplorerAsModelChecker();
                 

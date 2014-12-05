@@ -721,6 +721,45 @@ namespace Microsoft.Zing
         }
     }
 
+    [Serializable]
+    public class ZingerAcceptingCycleFound : ZingException
+    {
+
+        public ZingerAcceptingCycleFound()
+            : base()
+        {
+
+        }
+
+
+        public ZingerAcceptingCycleFound(string message)
+            : base(message)
+        {
+        }
+
+
+        public ZingerAcceptingCycleFound(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+
+        protected ZingerAcceptingCycleFound(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
+        {
+        }
+
+
+        protected override string ZingMessage
+        {
+            get
+            {
+                return string.Format(CultureInfo.CurrentUICulture,
+                    "Accepting Cycle Found\r\n");
+            }
+        }
+    }
+
     /// <summary>
     /// This exception is thrown when we execute more than 10000 basic blocks in a single
     /// state transition.

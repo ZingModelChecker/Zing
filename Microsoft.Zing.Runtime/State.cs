@@ -300,7 +300,7 @@ namespace Microsoft.Zing
         ZingRuntimeError    = 5,
 
         /// <summary>
-        /// Acceptance Cycle 
+        /// Liveness Acceptance Cycle 
         /// </summary>
         AcceptanceCyleFound = 6,
 

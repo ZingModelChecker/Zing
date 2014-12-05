@@ -69,8 +69,7 @@ namespace Microsoft.Zing
                     {
                         if((inner is ZingException))
                         {
-                            //catch the exception and return
-                            return ZingerResult.Assertion;
+                            return lastErrorFound;
                         }
                         else
                         {
@@ -228,7 +227,6 @@ namespace Microsoft.Zing
             //else
 
             Fingerprint fp = ti.Fingerprint;
-            var currentSearchDepth = ti.CurrentDepth;
 
             //check if this is in the frontier
             
