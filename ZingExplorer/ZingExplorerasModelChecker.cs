@@ -140,8 +140,18 @@ namespace Microsoft.Zing
                     //start exploring the top of stack
                     TraversalInfo currentState = LocalSearchStack.Peek();
 
-                    //initliaze the max depth variable for stats
-                    ZingerStats.maxDepth = Math.Max(ZingerStats.maxDepth, currentState.CurrentDepth);
+                    //Check if the DFS Stack Overflow has occured.
+                    if (LocalSearchStack.Count > ZingerConfiguration.BoundDFSStackLength)
+                    {
+                        //BUG FOUND
+                        //update the safety traces
+                        SafetyErrors.Add(currentState.GenerateNonCompactTrace());
+                        // return value
+                        this.lastErrorFound = ZingerResult.DFSStackOverFlowError;
+
+                        throw new ZingerDFSStackOverFlow();
+                    }
+
 
                     //Add current state to frontier if the bound is greater than the cutoff and we have fingerprinted the state (its not a single successor state)
                     if(ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(currentState.zBounds) && currentState.IsFingerPrinted)
@@ -169,11 +179,15 @@ namespace Microsoft.Zing
                     {
                         if(terminalState.IsErroneousTI)
                         {
-                            //BUG FOUND
-                            //update the safety traces
-                            SafetyErrors.Add(nextState.GenerateNonCompactTrace());
-                            // return value
-                            this.lastErrorFound = nextState.ErrorCode;
+                            lock(SafetyErrors)
+                            {
+                                //BUG FOUND
+                                //update the safety traces
+                                SafetyErrors.Add(nextState.GenerateNonCompactTrace());
+                                // return value
+                                this.lastErrorFound = nextState.ErrorCode;
+                            }
+                            
 
                             //find all errors ??
                             if (ZingerConfiguration.StopOnError)
@@ -208,6 +222,7 @@ namespace Microsoft.Zing
                         continue;
                     }
 
+                    
                 }
 
             

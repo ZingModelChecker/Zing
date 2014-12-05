@@ -42,12 +42,11 @@ namespace Microsoft.Zing
         public static Int64 NumOfTransitionExplored = 0;
         public static Int64 NumOfFrontiers = 0;
         public static DateTime startTime = DateTime.Now;
-        public static Int64 maxDepth = 0;
         public static void PrintFinalStats()
         {
             var finishTime = DateTime.Now;
             var elapsedTime = finishTime.Subtract(startTime);
-            ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states explored", NumOfStatesVisited, NumOfTransitionExplored, maxDepth));
+            ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states explored", NumOfStatesVisited));
             if (ZingerConfiguration.PrintStats)
             {
                 ZingerUtilities.PrintMessage(String.Format("Elapsed time : {0:00}:{1:00}:{2:00}", (int)elapsedTime.TotalHours, (int)elapsedTime.TotalMinutes, (int)elapsedTime.TotalSeconds));

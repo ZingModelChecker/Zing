@@ -55,8 +55,17 @@ namespace Microsoft.Zing
                 //start exploring the top of stack
                 TraversalInfo currentState = LocalSearchStack.Peek();
 
-                //Initialize the max depth variable
-                ZingerStats.maxDepth = Math.Max(ZingerStats.maxDepth, currentState.CurrentDepth);
+                //Check if the DFS Stack Overflow has occured.
+                if (LocalSearchStack.Count > ZingerConfiguration.BoundDFSStackLength)
+                {
+                    //BUG FOUND
+                    //update the safety traces
+                    SafetyErrors.Add(currentState.GenerateNonCompactTrace());
+                    // return value
+                    this.lastErrorFound = ZingerResult.DFSStackOverFlowError;
+
+                    throw new ZingerDFSStackOverFlow();
+                }
 
                 //Explore Successors
                 TraversalInfo nextState = currentState.GetNextSuccessor();

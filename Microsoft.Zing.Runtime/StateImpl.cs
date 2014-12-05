@@ -624,13 +624,6 @@ namespace Microsoft.Zing
             return (cp.TopOfStack);
         }
 
-        #region Throw Stack Length Over Flow Exception
-        public void ThrowDFSStackOverFlowException ()
-        {
-            exception = new ZingerDFSStackOverFlow();
-        }
-        #endregion
-
         #region Process management
         // <summary>Collection class holding our process list</summary>
         // <remarks>

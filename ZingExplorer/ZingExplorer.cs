@@ -117,6 +117,9 @@ namespace Microsoft.Zing
                     ZingerUtilities.PrintErrorMessage("##################");
                     break;
                 case ZingerResult.DFSStackOverFlowError:
+                    ZingerUtilities.PrintErrorMessage("##################");
+                    ZingerUtilities.PrintErrorMessage("Check Failed");
+                    ZingerUtilities.PrintErrorMessage("##################");
                     ZingerUtilities.PrintErrorMessage(String.Format("DFS Stack Size Exceeded {0}", ZingerConfiguration.BoundDFSStackLength));
                     break;
             }

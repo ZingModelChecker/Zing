@@ -66,7 +66,7 @@ namespace Microsoft.Zing
         /// <summary>
         /// Depth of the current state from the initial state
         /// </summary>
-        public long CurrentDepth;
+        public long CurrentDepth = 0;
 
         /// <summary>
         /// Magic bit used during NDFS exploration 
@@ -157,19 +157,6 @@ namespace Microsoft.Zing
             return newTi;
         }
 
-        /// <summary>
-        /// Throw stack overflow exception
-        /// </summary>
-        /// <returns></returns>
-        public TraversalInfo ThrowZingerStackOverFlowException ()
-        {
-            var S = this.reclaimState();
-            //throw exception
-            S.ThrowDFSStackOverFlowException();
-            var newTI = MakeTraversalInfo(S, Predecessor, Via);
-            return newTI;
-        }
-
         public Trace GenerateTrace()
         {
             Trace t = new Trace();
@@ -212,28 +199,6 @@ namespace Microsoft.Zing
             get { return Exception != null && Exception is ZingAssumeFailureException; }
         }
 
-        public ZingerResult CheckerResult
-        {
-            get
-            {
-                if (!this.IsErroneousTI)
-                    return ZingerResult.Success;
-
-                Exception e = this.Exception;
-
-                if (e is ZingAssertionFailureException)
-                    return ZingerResult.Assertion;
-                else if (e is ZingInvalidEndStateException)
-                    return ZingerResult.Deadlock;
-                else if (e is ZingUnexpectedFailureException)
-                    return ZingerResult.ZingRuntimeError;
-                else if (e is ZingerDFSStackOverFlow)
-                    return ZingerResult.DFSStackOverFlowError;
-                else
-                    return ZingerResult.ModelRuntimeError;
-            }
-        }
-
         /// <summary>
         /// Total number of processes (blocked or enabled) 
         /// </summary>
@@ -272,11 +237,6 @@ namespace Microsoft.Zing
         protected TraversalInfo(StateImpl s, StateType st,
             TraversalInfo pred, Via bt)
         {
-            //check if the depth is greater than the dfs stack max size
-            if (CurrentDepth > ZingerConfiguration.BoundDFSStackLength)
-            {
-                s.ThrowDFSStackOverFlowException();
-            }
 
             stateType = st;
             if (pred != null)
@@ -300,7 +260,6 @@ namespace Microsoft.Zing
             {
                 zBounds = new ZingerBounds();
                 MagicBit = false;
-                CurrentDepth = 0;
                 if (ZingerConfiguration.DoDelayBounding)
                 {
                     ZingDBSchedState = s.ZingDBSchedState.Clone();
