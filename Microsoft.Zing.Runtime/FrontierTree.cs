@@ -53,7 +53,7 @@ namespace Microsoft.Zing
         /// <summary>
         /// Concurrent Dictionary to store the entire frontier set after each iteration (in memory)
         /// </summary>
-        private ConcurrentBag<FrontierNode> InMemoryCurrentGlobalFrontier;
+        private ConcurrentQueue<FrontierNode> InMemoryCurrentGlobalFrontier;
 
         private ConcurrentDictionary<Fingerprint, FrontierNode> InMemoryNextGlobalFrontier;
         #endregion
@@ -163,12 +163,19 @@ namespace Microsoft.Zing
            
             if(!ZingerConfiguration.FrontierToDisk)
             {
-                InMemoryCurrentGlobalFrontier = new ConcurrentBag<FrontierNode>();
+                InMemoryCurrentGlobalFrontier = new ConcurrentQueue<FrontierNode>();
                 
                 //Move all the next iteration frontiers to current set.
                 if(InMemoryNextGlobalFrontier.Count > 0)
                 {
-                    var temp = InMemoryNextGlobalFrontier.AsParallel().WithDegreeOfParallelism(ZingerConfiguration.DegreeOfParallelism).Select(fNode => { InMemoryCurrentGlobalFrontier.Add(fNode.Value); return false; }).Min();
+                    if (ZingerConfiguration.DegreeOfParallelism == 1)
+                    {
+                        var temp = InMemoryNextGlobalFrontier.OrderBy(x => x.Key).AsParallel().WithDegreeOfParallelism(ZingerConfiguration.DegreeOfParallelism).Select(fNode => { InMemoryCurrentGlobalFrontier.Enqueue(fNode.Value); return false; }).Min();
+                    }
+                    else
+                    {
+                        var temp = InMemoryNextGlobalFrontier.AsParallel().WithDegreeOfParallelism(ZingerConfiguration.DegreeOfParallelism).Select(fNode => { InMemoryCurrentGlobalFrontier.Enqueue(fNode.Value); return false; }).Min();
+                    }
                 }
                 
 
@@ -271,7 +278,7 @@ namespace Microsoft.Zing
             else
             {
                 FrontierNode frontier;
-                if(InMemoryCurrentGlobalFrontier.TryTake(out frontier))
+                if(InMemoryCurrentGlobalFrontier.TryDequeue(out frontier))
                 {
                     return frontier;
                 }
@@ -289,7 +296,7 @@ namespace Microsoft.Zing
             
             if (!ZingerConfiguration.FrontierToDisk)
             {
-                InMemoryCurrentGlobalFrontier = new ConcurrentBag<FrontierNode>();
+                InMemoryCurrentGlobalFrontier = new ConcurrentQueue<FrontierNode>();
                 InMemoryNextGlobalFrontier = new ConcurrentDictionary<Fingerprint, FrontierNode>();
                 InMemoryNextGlobalFrontier.TryAdd(startState.Fingerprint, new FrontierNode(startState));
 
@@ -335,6 +342,7 @@ namespace Microsoft.Zing
                 {
                     FrontierNode fNode = new FrontierNode(ti);
                     counter++;
+                    nextFrontierSetHT.Add(fp);
                     //Add the item into current next frontier blocking collection
                     nextFrontierSet.Add(new KeyValuePair<Fingerprint, FrontierNode>(fp, fNode));
                 }
@@ -351,6 +359,18 @@ namespace Microsoft.Zing
             
         }
 
+        public void Remove(Fingerprint fp)
+        {
+            if(ZingerConfiguration.FrontierToDisk)
+            {
+                return;
+            }
+            else
+            {
+                FrontierNode temp;
+                InMemoryNextGlobalFrontier.TryRemove(fp, out temp);
+            }
+        }
         public long Count()
         {
             if (!ZingerConfiguration.FrontierToDisk)
@@ -368,6 +388,25 @@ namespace Microsoft.Zing
             else
             {
                 return InMemoryNextGlobalFrontier.ContainsKey(fp);
+            }
+        }
+
+        //For Debug
+        public void PrintAll()
+        {
+            if(ZingerConfiguration.FrontierToDisk)
+            {
+                foreach(var item in nextFrontierSetHT.OrderBy(x => x))
+                {
+                    Console.WriteLine(item);
+                }
+            }
+            else
+            {
+                foreach(var item in InMemoryNextGlobalFrontier.OrderBy(x => x.Key))
+                {
+                    Console.WriteLine(item.Key);
+                }
             }
         }
 

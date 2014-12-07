@@ -61,6 +61,8 @@ namespace Microsoft.Zing
                     Task.WaitAll(searchWorkers);
                     // Wait for all writer to Finish
                     GLobalFrontierSet.WaitForAllWriters(CancelTokenZingExplorer.Token);
+                    //For Debug
+                    //GLobalFrontierSet.PrintAll();
     
                 }
                 catch(AggregateException ex)
@@ -104,7 +106,7 @@ namespace Microsoft.Zing
                 }
                 TraversalInfo startState = fNode.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
-                //Check if we need to explore the current frontier state
+               //Check if we need to explore the current frontier state
                 if(!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding)
                 {
                     continue;
@@ -165,6 +167,7 @@ namespace Microsoft.Zing
 
                     // OK. Current state is not at the frontier cutoff so lets explore further
                     TraversalInfo nextState = currentState.GetNextSuccessor();
+                    
                     //All successors explored already
                     if(nextState == null)
                     {
@@ -172,7 +175,7 @@ namespace Microsoft.Zing
                         LocalSearchStack.Pop();
                         continue;
                     }
-
+                    
                     //Check if its a terminal state
                     TerminalState terminalState = nextState as TerminalState;
                     if(terminalState != null)
@@ -270,7 +273,10 @@ namespace Microsoft.Zing
                 return;
 
             Fingerprint fp = ti.Fingerprint;
-
+            if(GLobalFrontierSet.Contains(fp) && !ZingerConfiguration.DoDelayBounding)
+            {
+                GLobalFrontierSet.Remove(fp);
+            }
             if(!GlobalStateTable.Contains(fp))
             {
                 GlobalStateTable.AddOrUpdate(fp, null);
