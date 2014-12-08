@@ -362,6 +362,8 @@ namespace Microsoft.Zing
         internal abstract void deOrphanize(StateImpl s);
         public abstract TraversalInfo GetNextSuccessor();
 
+        public abstract TraversalInfo GetNextSuccessorUniformRandomly();
+
         public abstract void Reset();
 
         public void DiscardStateImpl()
@@ -405,6 +407,7 @@ namespace Microsoft.Zing
 
         public abstract TraversalInfo GetSuccessorNForReplay(int n, bool MustFingerprint);
 
+       
         //#if UNUSED_CODE
         public StateImpl GetStateImpl()
         {

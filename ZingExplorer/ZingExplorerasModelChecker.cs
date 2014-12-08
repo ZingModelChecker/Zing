@@ -32,6 +32,7 @@ namespace Microsoft.Zing
             GlobalStateTable = new ZingerStateTable();
             GLobalFrontierSet = new FrontierSet(StartStateTraversalInfo);
         }
+
         protected override ZingerResult IterativeSearchStateSpace()
         {
             

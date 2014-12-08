@@ -246,6 +246,15 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.doRandomWalk = value; }
         }
 
+        //maximum number of schedules per iteration
+        private static int maxSchedulesPerIteration = int.MaxValue;
+        public static int MaxSchedulesPerIteration
+        {
+            get { return ZingerConfiguration.maxSchedulesPerIteration; }
+            set { ZingerConfiguration.maxSchedulesPerIteration = value; }
+        }
+
+
 
         //do stateless search
         private static bool doStateLess = false;
@@ -378,6 +387,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Frontier to Disk :{0}", frontierToDisk));
             ZingerUtilities.PrintMessage(String.Format("Max memory : {0}", maxMemoryConsumption));
             ZingerUtilities.PrintMessage(String.Format("Stop on First Error: {0}", stopOnError));
+            ZingerUtilities.PrintMessage("");
         }
 
     }

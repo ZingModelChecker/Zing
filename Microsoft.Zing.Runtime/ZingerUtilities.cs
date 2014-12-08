@@ -8,6 +8,7 @@ namespace Microsoft.Zing
 {
     public class ZingerUtilities
     {
+        public static Random rand = new Random(DateTime.Now.Millisecond);
         public static void PrintSuccessMessage(string message)
         {
             var prevColor = Console.ForegroundColor;

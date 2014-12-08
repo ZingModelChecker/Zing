@@ -55,7 +55,7 @@ namespace Microsoft.Zing
             if (ZingerConfiguration.FingerprintSingleTransitionStates)
             {
                 // Fingerprint with probability p
-                if (ZingRNG.GetUniformRV() <= ZingerConfiguration.NonChooseProbability)
+                if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
                 {
                     this.fingerprint = s.Fingerprint;
                     this.IsFingerPrinted = true;
@@ -122,6 +122,12 @@ namespace Microsoft.Zing
 
         public override void Reset() {}
 
+
+        public override TraversalInfo GetNextSuccessorUniformRandomly()
+        {
+            return null;
+        }
+        
         public override TraversalInfo GetNextSuccessor()
         {
             return null;
@@ -171,7 +177,7 @@ namespace Microsoft.Zing
                 else
                 {
                     // Fingerprint with probability p
-                    if (ZingRNG.GetUniformRV() <= ZingerConfiguration.NonChooseProbability)
+                    if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
                     {
                         this.fingerprint = s.Fingerprint;
                         this.IsFingerPrinted = true;
@@ -256,6 +262,12 @@ namespace Microsoft.Zing
             ViaChoose v = new ViaChoose(n);
             TraversalInfo ti = TraversalInfo.MakeTraversalInfo(s, this, v, MustFingerprint);
             return ti;
+        }
+
+        public override TraversalInfo GetNextSuccessorUniformRandomly()
+        {
+            var nextChoice = ZingerUtilities.rand.Next(0, numChoices);
+            return RunChoice(nextChoice);
         }
 
         public override TraversalInfo GetNextSuccessor()
@@ -354,7 +366,7 @@ namespace Microsoft.Zing
                 else
                 {
                     // Fingerprint with probability p
-                    if (ZingRNG.GetUniformRV() <= ZingerConfiguration.NonChooseProbability)
+                    if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
                     {
                         this.fingerprint = s.Fingerprint;
                         this.IsFingerPrinted = true;
@@ -464,6 +476,22 @@ namespace Microsoft.Zing
             }
 
             return RunProcess(n, MustFingerprint);
+        }
+
+        public override TraversalInfo GetNextSuccessorUniformRandomly()
+        {
+            
+            var nextProcess = ZingerUtilities.rand.Next(0, NumProcesses);
+
+            if(ProcessInfo[nextProcess].Status != RUNNABLE)
+            {
+                return null;
+            }
+            else
+            {
+                return RunProcess(nextProcess);
+            }
+
         }
 
         public override TraversalInfo GetNextSuccessor()
