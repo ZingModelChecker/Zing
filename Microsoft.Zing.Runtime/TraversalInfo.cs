@@ -58,6 +58,7 @@ namespace Microsoft.Zing
         public TraversalInfo Predecessor;
         internal TraversalInfo Successor;
         
+       
         /// <summary>
         /// Search bounds at the current state
         /// </summary>
@@ -260,6 +261,7 @@ namespace Microsoft.Zing
             {
                 zBounds = new ZingerBounds();
                 MagicBit = false;
+                CurrentDepth = 0;
                 if (ZingerConfiguration.DoDelayBounding)
                 {
                     ZingDBSchedState = s.ZingDBSchedState.Clone();
@@ -362,8 +364,10 @@ namespace Microsoft.Zing
         internal abstract void deOrphanize(StateImpl s);
         public abstract TraversalInfo GetNextSuccessor();
 
+        #region RandomWalk
         public abstract TraversalInfo GetNextSuccessorUniformRandomly();
-
+        public abstract TraversalInfo GetNextSuccessorUnderDelayZeroForRW();
+        #endregion
         public abstract void Reset();
 
         public void DiscardStateImpl()

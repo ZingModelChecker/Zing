@@ -143,8 +143,10 @@ namespace Microsoft.Zing
                     //start exploring the top of stack
                     TraversalInfo currentState = LocalSearchStack.Peek();
 
+					//update the maximum depth
+                    ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
                     //Check if the DFS Stack Overflow has occured.
-                    if (LocalSearchStack.Count > ZingerConfiguration.BoundDFSStackLength)
+                    if (currentState.CurrentDepth > ZingerConfiguration.BoundDFSStackLength)
                     {
                         //BUG FOUND
                         //update the safety traces
@@ -169,6 +171,8 @@ namespace Microsoft.Zing
                     // OK. Current state is not at the frontier cutoff so lets explore further
                     TraversalInfo nextState = currentState.GetNextSuccessor();
                     
+                    
+
                     //All successors explored already
                     if(nextState == null)
                     {

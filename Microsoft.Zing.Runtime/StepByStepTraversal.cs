@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Diagnostics.Contracts;
 
 
 namespace Microsoft.Zing
@@ -122,6 +122,10 @@ namespace Microsoft.Zing
 
         public override void Reset() {}
 
+        public override TraversalInfo GetNextSuccessorUnderDelayZeroForRW()
+        {
+            return null;
+        }
 
         public override TraversalInfo GetNextSuccessorUniformRandomly()
         {
@@ -264,12 +268,18 @@ namespace Microsoft.Zing
             return ti;
         }
 
+        #region Random Walk
         public override TraversalInfo GetNextSuccessorUniformRandomly()
         {
             var nextChoice = ZingerUtilities.rand.Next(0, numChoices);
             return RunChoice(nextChoice);
         }
 
+        public override TraversalInfo GetNextSuccessorUnderDelayZeroForRW()
+        {
+            return GetNextSuccessorUniformRandomly();
+        }
+        #endregion
         public override TraversalInfo GetNextSuccessor()
         {
 
@@ -478,6 +488,7 @@ namespace Microsoft.Zing
             return RunProcess(n, MustFingerprint);
         }
 
+        #region RandomWalk
         public override TraversalInfo GetNextSuccessorUniformRandomly()
         {
             
@@ -494,6 +505,57 @@ namespace Microsoft.Zing
 
         }
 
+        public TraversalInfo GetDelayedSuccessor()
+        {
+            Contract.Assert(ZingerConfiguration.DoDelayBounding);
+            ZingDBScheduler.Delay(ZingDBSchedState);
+            int nextProcess;
+            while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
+            {
+
+                if (ProcessInfo[nextProcess].Status != RUNNABLE)
+                {
+                    ZingDBScheduler.Delay(ZingDBSchedState);
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (nextProcess == -1)
+                return null;
+
+            return RunProcess(nextProcess);
+
+        }
+        public override TraversalInfo GetNextSuccessorUnderDelayZeroForRW()
+        {
+            Contract.Assert(ZingerConfiguration.DoDelayBounding);
+
+            int nextProcess = -1;
+            //get the runnable process
+            while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
+            {
+
+                if (ProcessInfo[nextProcess].Status != RUNNABLE)
+                {
+                    ZingDBScheduler.Delay(ZingDBSchedState);
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (nextProcess == -1)
+                return null;
+
+            return RunProcess(nextProcess);
+        }
+        #endregion
         public override TraversalInfo GetNextSuccessor()
         {
             

@@ -42,8 +42,10 @@ namespace Microsoft.Zing
                 ZingExplorer zingExplorer;
                 if (ZingerConfiguration.DoNDFSLiveness)
                     zingExplorer = new ZingExplorerNDFSLiveness();
-                else if(ZingerConfiguration.DoRandomWalk)
+                else if (ZingerConfiguration.DoRandomWalk && !ZingerConfiguration.DoDelayBounding)
                     zingExplorer = new ZingExplorerNaiveRandomWalk();
+                else if (ZingerConfiguration.DoRandomWalk && ZingerConfiguration.DoDelayBounding)
+                    zingExplorer = new ZingExplorerDelayBoundedRandomWalk();
                 else
                     zingExplorer = new ZingExplorerAsModelChecker();
                 

@@ -42,6 +42,8 @@ namespace Microsoft.Zing
         public static Int64 NumOfStatesVisited = 0;
         public static Int64 NumOfTransitionExplored = 0;
         public static Int64 NumOfFrontiers = 0;
+        public static Int64 MaxDepth = 0;
+
         public static DateTime startTime = DateTime.Now;
         public static void PrintFinalStats()
         {
@@ -50,6 +52,8 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states explored", NumOfStatesVisited));
             if (ZingerConfiguration.PrintStats)
             {
+                ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
+
                 ZingerUtilities.PrintMessage(String.Format("Elapsed time : {0:00}:{1:00}:{2:00}", (int)elapsedTime.TotalHours, (int)elapsedTime.TotalMinutes, (int)elapsedTime.TotalSeconds));
                 ZingerUtilities.PrintMessage("Memory Stats:");
                 ZingerUtilities.PrintMessage(String.Format("Peak Virtual Memory Size: {0} MB",
