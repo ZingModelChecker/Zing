@@ -162,21 +162,15 @@ namespace Microsoft.Zing
         /// </summary>
         protected int maxScheduleLength;
 
-        /// <summary>
-        /// search stack
-        /// </summary>
-        protected Stack<TraversalInfo> searchStack;
-
         public ZingExplorerDelayBoundedRandomWalk() :base ()
         {
             maxScheduleLength = 10000;
-            searchStack = new Stack<TraversalInfo>();
         }
         
         /// <summary>
         /// Explores a deterministic schedule from the peek of the stack to the terminal state.
         /// </summary>
-        protected void RunToCompletionWithDelayZero()
+        protected void RunToCompletionWithDelayZero(Stack<TraversalInfo> searchStack)
         {
             var currentState = searchStack.Peek();
 
@@ -217,7 +211,7 @@ namespace Microsoft.Zing
             }
         }
 
-        protected int RandomBackTrackAndDelay(int startPoint)
+        protected int RandomBackTrackAndDelay(Stack<TraversalInfo> searchStack,  int startPoint)
         {
             //back track the stack randomly to some point 
             var backtrackAt = ZingerUtilities.rand.Next(startPoint, searchStack.Count() + 1);
@@ -325,12 +319,21 @@ namespace Microsoft.Zing
             int myThreadId = (int)obj;
             int numberOfSchedulesExplored = 0;
             int delayBudget = 0;
+            Stack<TraversalInfo> searchStack = new Stack<TraversalInfo>();
             //frontier
             FrontierNode startfN = new FrontierNode(StartStateTraversalInfo);
             TraversalInfo startState = startfN.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
             while (numberOfSchedulesExplored < ZingerConfiguration.MaxSchedulesPerIteration)
             {
+                //kil the exploration if bug found
+                //Check if cancelation token triggered
+                if (CancelTokenZingExplorer.IsCancellationRequested)
+                {
+                    //some task found bug and hence cancelling this task
+                    return;
+                }
+
                 delayBudget = ZingerConfiguration.zBoundedSearch.IterativeCutoff;
                 //increment the schedule count
                 numberOfSchedulesExplored++;
@@ -339,8 +342,8 @@ namespace Microsoft.Zing
                 int lastStartPoint = 1;
                 while(delayBudget > 0)
                 {
-                    RunToCompletionWithDelayZero();
-                    lastStartPoint = RandomBackTrackAndDelay(lastStartPoint);
+                    RunToCompletionWithDelayZero(searchStack);
+                    lastStartPoint = RandomBackTrackAndDelay(searchStack, lastStartPoint);
                     if(lastStartPoint == -1)
                     {
                         break;
