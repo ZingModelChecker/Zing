@@ -207,4 +207,4 @@ Stack trace:
     ___X_Init.___Main (Ex3.zing, Line 14)
 
 
-3 distinct states explored
+4 distinct states explored

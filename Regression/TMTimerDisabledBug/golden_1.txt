@@ -1,6 +1,4 @@
-##################
-Check Failed
-##################
+Model Internal Runtime Error
  *******************************************************************************
  Error trace 0: length: 27 states
 #### State 0 : 
@@ -8294,4 +8292,4 @@ Stack trace:
     ___X_Init.___Main (TMTimerDisabledBug.zing, Line 157)
 
 
-208 distinct states explored
+214 distinct states explored

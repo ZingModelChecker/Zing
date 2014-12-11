@@ -292,4 +292,4 @@ Stack trace:
     Main.helper2 (Ex2.zing, Line 16)
 
 
-13 distinct states explored
+14 distinct states explored

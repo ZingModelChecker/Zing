@@ -1623,4 +1623,4 @@ Stack trace:
     BoolProg.p1_1 (n-peterson.zing, Line 266)
 
 
-1087 distinct states explored
+1159 distinct states explored

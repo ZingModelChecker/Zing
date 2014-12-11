@@ -1,6 +1,4 @@
-##################
-Check Failed
-##################
+Deadlock Detected !
  *******************************************************************************
  Error trace 0: length: 32 states
 #### State 0 : 
@@ -2029,4 +2027,4 @@ Deadlock: no processes are runnable and one or more processes is blocked in an i
 
 
 
-97 distinct states explored
+151 distinct states explored
