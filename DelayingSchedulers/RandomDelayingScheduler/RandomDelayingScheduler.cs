@@ -98,6 +98,10 @@ namespace ExternalDelayBoundedScheduler
             //Do nothing
         }
 
+        public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
+        {
+            //do nothing
+        }
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
             return zSchedState.numOfTimesCurrStateDelayed > (zSchedState.AllActiveProcessIds.Count() - 1);

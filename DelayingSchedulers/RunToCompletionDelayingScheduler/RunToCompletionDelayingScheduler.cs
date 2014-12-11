@@ -99,6 +99,15 @@ namespace ExternalDelayBoundedScheduler
                 SchedState.DBStack.Push(procId);
 
         }
+
+        public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
+        {
+            var SchedState = ZSchedulerState as RTCDBSchedulerState;
+            if(SchedState.DBStack.Count > 0)
+            {
+                SchedState.DBStack.Pop();
+            }
+        }
         /// <summary>
         /// Move the process on top of stack to the bottom of the stack
         /// </summary>

@@ -167,6 +167,11 @@ namespace Microsoft.Zing
                 var param3_source = (int)Params[2];
                 OnEnabled(ZSchedulerState, param2_target, param3_source);
             }
+            else if(param1_operation == "blocked")
+            {
+                var param2_source = (int)Params[1];
+                OnBlocked(ZSchedulerState, param2_source);
+            }
             else
             {
                 throw new Exception("Delaying Scheduler Does not support this Operation");
@@ -181,6 +186,12 @@ namespace Microsoft.Zing
         /// <param name="sourceSM"></param>
         public abstract void OnEnabled(ZingerSchedulerState ZSchedulerState, int targetSM, int sourceSM);
 
+        /// <summary>
+        /// This function is called when a P process is blocked on a dequeue
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="sourceSM"></param>
+        public abstract void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM);
         /// <summary>
         /// This function is called by Zinger to delay the DBScheduler.
         /// </summary>

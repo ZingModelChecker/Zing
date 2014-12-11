@@ -96,5 +96,10 @@ namespace ExternalDelayBoundedScheduler
             // do nothing
         }
 
+        public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
+        {
+            // do nothing
+        }
+
     }
 }
