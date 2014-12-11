@@ -83,6 +83,7 @@ namespace Microsoft.Zing
                 ZingerUtilities.PrintMessage(String.Format("No. of Frontiers {0}", NumOfFrontiers));
                 ZingerUtilities.PrintMessage(String.Format("No. of Distinct States {0}", NumOfStatesVisited));
                 ZingerUtilities.PrintMessage(String.Format("Total Transitions: {0}", NumOfTransitionExplored));
+                ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
                 ZingerUtilities.PrintMessage(String.Format("Total Exploration time so far = {0}", elapsedTime.ToString()));
                 ZingerUtilities.PrintMessage(String.Format("Peak / Current Paged Mem Usage : {0} M/{1} M", System.Diagnostics.Process.GetCurrentProcess().PeakPagedMemorySize64 / (1 << 20), System.Diagnostics.Process.GetCurrentProcess().PagedMemorySize64 / (1 << 20)));
                 ZingerUtilities.PrintMessage(String.Format("Peak / Current working set size: {0} M/{1} M", System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64 / (1 << 20), System.Diagnostics.Process.GetCurrentProcess().WorkingSet64 / (1 << 20)));

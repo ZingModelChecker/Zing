@@ -22,11 +22,9 @@ namespace Microsoft.Zing
         /// </summary>
         private Task[] searchWorkers;
 
-        private int maxSearchDepth;
- 
         public ZingExplorerNaiveRandomWalk() : base()
         {
-            maxSearchDepth = 10000;
+            
         }
 
         protected override ZingerResult IterativeSearchStateSpace()
@@ -95,7 +93,7 @@ namespace Microsoft.Zing
                 //random walk always starts from the start state ( no frontier ).
                 TraversalInfo currentState = startState;
 
-                while(currentState.CurrentDepth < maxSearchDepth)
+                while(currentState.CurrentDepth < ZingerConfiguration.zBoundedSearch.IterativeCutoff)
                 {
                     //kil the exploration if bug found
                     //Check if cancelation token triggered
@@ -104,6 +102,8 @@ namespace Microsoft.Zing
                         //some task found bug and hence cancelling this task
                         return;
                     }
+
+                    ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
 
                     TraversalInfo nextSuccessor = currentState.GetNextSuccessorUniformRandomly();
                     ZingerStats.IncrementTransitionsCount();
@@ -177,6 +177,7 @@ namespace Microsoft.Zing
             while(currentState.CurrentDepth < maxScheduleLength)
             {
 
+                ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
                 TraversalInfo nextState = currentState.GetNextSuccessorUnderDelayZeroForRW();
                 ZingerStats.IncrementTransitionsCount();
                 ZingerStats.IncrementStatesCount();

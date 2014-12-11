@@ -41,7 +41,7 @@ goto :EOF
 		cmd /c "diff stripped_golden_%counter%.txt stripped_output_%counter%.txt >diff_%counter%.txt" 
 		fc stripped_golden_%counter%.txt stripped_output_%counter%.txt >regression_tmp
 		 
-		if %ERRORLEVEL% == 1 ( 
+		if ERRORLEVEL 1 ( 
 			@echo %1 failed with options %arg% 
 		) else ( 
 			@echo %1 passed with options %arg%
@@ -60,7 +60,7 @@ goto :EOF
 		cmd /c "diff stripped_golden_%counter%.txt stripped_output_%counter%.txt >diff_%counter%.txt" 
 		fc stripped_golden_%counter%.txt stripped_output_%counter%.txt >regression_tmp
 		 
-		if %ERRORLEVEL% == 1 ( 
+		if ERRORLEVEL 1 ( 
 			@echo %1 failed with options %arg% 
 		) else ( 
 			@echo %1 passed with options %arg%
