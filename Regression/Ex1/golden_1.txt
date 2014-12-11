@@ -522,4 +522,4 @@ Stack trace:
     Main.main1 (Ex1.zing, Line 16)
 
 
-34 distinct states explored
+35 distinct states explored

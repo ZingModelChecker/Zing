@@ -1,6 +1,4 @@
-##################
-Check Failed
-##################
+Model Internal Runtime Error
  *******************************************************************************
  Error trace 0: length: 4 states
 #### State 0 : 

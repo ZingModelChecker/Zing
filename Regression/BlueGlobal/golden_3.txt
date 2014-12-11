@@ -169,12 +169,12 @@ State:[fingerprint =2fb5af84:75e5e734]
           Outputs:
           Locals:
 
-#### State 4 (ran process 1) :
-State:[fingerprint =7041573b:3950263c]
+#### State 4 (ran process 2) :
+State:[fingerprint =4aefbd22:365ab448]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
-  System.Boolean BlueTooth____driverStoppingFlag = False
+  System.Boolean BlueTooth____driverStoppingFlag = True
   System.Boolean BlueTooth____stoppingEvent = False
   System.Int32 BlueTooth____pendingIo = 1
 
@@ -191,15 +191,8 @@ State:[fingerprint =7041573b:3950263c]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -220,13 +213,13 @@ State:[fingerprint =7041573b:3950263c]
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
       Stack:
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-          NextBlock: Enter
+          NextBlock: B5
           Inputs:
           Outputs:
           Locals:
 
 #### State 5 (ran process 2) :
-State:[fingerprint =4b120ebb:03c022a5]
+State:[fingerprint =362397ff:2499ec92]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -247,71 +240,8 @@ State:[fingerprint =4b120ebb:03c022a5]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-            System.Int32 status = 0
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
-          NextBlock: B5
-          Inputs:
-          Outputs:
-          Locals:
-            System.Int32 status = 0
-
-
-    Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-      Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-          NextBlock: B5
-          Inputs:
-          Outputs:
-          Locals:
-
-#### State 6 (ran process 2) :
-State:[fingerprint =4a0a7972:1a97f4c3]
-
-  Globals:
-  System.Boolean BlueTooth____stopped = False
-  System.Boolean BlueTooth____driverStoppingFlag = True
-  System.Boolean BlueTooth____stoppingEvent = False
-  System.Int32 BlueTooth____pendingIo = 1
-
-
-  Processes: (3)
-
-    Process 0: Name='main', Id=0
-      Status: Completed
-      Choice pending: False
-      Stack:
-
-    Process 1: Name='BlueTooth.BCSP_Miniport_PnpAdd', Id=1
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
-      Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -344,8 +274,8 @@ State:[fingerprint =4a0a7972:1a97f4c3]
           Outputs:
           Locals:
 
-#### State 7 (ran process 2) :
-State:[fingerprint =1bbc6e12:15948f06]
+#### State 6 (ran process 2) :
+State:[fingerprint =0c47dd85:306ed2fa]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -366,15 +296,8 @@ State:[fingerprint =1bbc6e12:15948f06]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -414,8 +337,8 @@ State:[fingerprint =1bbc6e12:15948f06]
           Outputs:
           Locals:
 
-#### State 8 (ran process 2) :
-State:[fingerprint =3971b525:2c45a099]
+#### State 7 (ran process 2) :
+State:[fingerprint =773bf98f:60f33b2b]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -436,15 +359,8 @@ State:[fingerprint =3971b525:2c45a099]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -477,8 +393,8 @@ State:[fingerprint =3971b525:2c45a099]
           Outputs:
           Locals:
 
-#### State 9 (ran process 2) :
-State:[fingerprint =07edb759:604efba5]
+#### State 8 (ran process 2) :
+State:[fingerprint =7d3137d2:17f8bc6a]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -499,15 +415,8 @@ State:[fingerprint =07edb759:604efba5]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -540,8 +449,8 @@ State:[fingerprint =07edb759:604efba5]
           Outputs:
           Locals:
 
-#### State 10 (ran process 2) :
-State:[fingerprint =2b41f062:20a9cf78]
+#### State 9 (ran process 2) :
+State:[fingerprint =4cb87008:6c7642f7]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -562,15 +471,8 @@ State:[fingerprint =2b41f062:20a9cf78]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -592,6 +494,68 @@ State:[fingerprint =2b41f062:20a9cf78]
       Stack:
         Function : Microsoft.Zing.Application+BlueTooth+KeSetEventStoppingEvent
           NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoDecrement
+          NextBlock: B1
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 pendingIo = 0
+
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
+          NextBlock: B4
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 10 (ran process 2) :
+State:[fingerprint =26e5b444:150d23c3]
+
+  Globals:
+  System.Boolean BlueTooth____stopped = False
+  System.Boolean BlueTooth____driverStoppingFlag = True
+  System.Boolean BlueTooth____stoppingEvent = True
+  System.Int32 BlueTooth____pendingIo = 0
+
+
+  Processes: (3)
+
+    Process 0: Name='main', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='BlueTooth.BCSP_Miniport_PnpAdd', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
+      Stack:
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
+          NextBlock: B4
+          Inputs:
+          Outputs:
+            System.Int32 urnValue = 0
+          Locals:
+            System.Int32 status = 0
+
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
+          NextBlock: B5
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 status = 0
+
+
+    Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
+      Stack:
+        Function : Microsoft.Zing.Application+BlueTooth+KeSetEventStoppingEvent
+          NextBlock: B0
           Inputs:
           Outputs:
           Locals:
@@ -610,7 +574,7 @@ State:[fingerprint =2b41f062:20a9cf78]
           Locals:
 
 #### State 11 (ran process 2) :
-State:[fingerprint =19e0110e:6945a637]
+State:[fingerprint =3577938a:4199fa01]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -631,15 +595,8 @@ State:[fingerprint =19e0110e:6945a637]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -659,14 +616,8 @@ State:[fingerprint =19e0110e:6945a637]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+KeSetEventStoppingEvent
-          NextBlock: B0
-          Inputs:
-          Outputs:
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoDecrement
-          NextBlock: B1
+          NextBlock: B0
           Inputs:
           Outputs:
           Locals:
@@ -679,7 +630,7 @@ State:[fingerprint =19e0110e:6945a637]
           Locals:
 
 #### State 12 (ran process 2) :
-State:[fingerprint =11a25827:4f00ea2b]
+State:[fingerprint =43b1770a:2451259a]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -700,15 +651,8 @@ State:[fingerprint =11a25827:4f00ea2b]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -728,21 +672,14 @@ State:[fingerprint =11a25827:4f00ea2b]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoDecrement
-          NextBlock: B0
-          Inputs:
-          Outputs:
-          Locals:
-            System.Int32 pendingIo = 0
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-          NextBlock: B4
+          NextBlock: B3
           Inputs:
           Outputs:
           Locals:
 
 #### State 13 (ran process 2) :
-State:[fingerprint =2e262d92:1a5c6771]
+State:[fingerprint =6e696e72:67f98a4c]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -763,71 +700,8 @@ State:[fingerprint =2e262d92:1a5c6771]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-            System.Int32 status = 0
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
-          NextBlock: B5
-          Inputs:
-          Outputs:
-          Locals:
-            System.Int32 status = 0
-
-
-    Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-      Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-          NextBlock: B3
-          Inputs:
-          Outputs:
-          Locals:
-
-#### State 14 (ran process 2) :
-State:[fingerprint =157735eb:32b3de82]
-
-  Globals:
-  System.Boolean BlueTooth____stopped = False
-  System.Boolean BlueTooth____driverStoppingFlag = True
-  System.Boolean BlueTooth____stoppingEvent = True
-  System.Int32 BlueTooth____pendingIo = 0
-
-
-  Processes: (3)
-
-    Process 0: Name='main', Id=0
-      Status: Completed
-      Choice pending: False
-      Stack:
-
-    Process 1: Name='BlueTooth.BCSP_Miniport_PnpAdd', Id=1
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
-      Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -849,6 +723,61 @@ State:[fingerprint =157735eb:32b3de82]
       Stack:
         Function : Microsoft.Zing.Application+BlueTooth+KeWaitForStoppingEvent
           NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 14 (ran process 2) :
+State:[fingerprint =052b68d7:02dfe36e]
+
+  Globals:
+  System.Boolean BlueTooth____stopped = False
+  System.Boolean BlueTooth____driverStoppingFlag = True
+  System.Boolean BlueTooth____stoppingEvent = True
+  System.Int32 BlueTooth____pendingIo = 0
+
+
+  Processes: (3)
+
+    Process 0: Name='main', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='BlueTooth.BCSP_Miniport_PnpAdd', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
+      Stack:
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
+          NextBlock: B4
+          Inputs:
+          Outputs:
+            System.Int32 urnValue = 0
+          Locals:
+            System.Int32 status = 0
+
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
+          NextBlock: B5
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 status = 0
+
+
+    Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
+      Stack:
+        Function : Microsoft.Zing.Application+BlueTooth+KeWaitForStoppingEvent
+          NextBlock: B1
           Inputs:
           Outputs:
           Locals:
@@ -860,7 +789,7 @@ State:[fingerprint =157735eb:32b3de82]
           Locals:
 
 #### State 15 (ran process 2) :
-State:[fingerprint =125fda4f:5c0263a6]
+State:[fingerprint =0f21a68a:75d4642f]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -881,77 +810,8 @@ State:[fingerprint =125fda4f:5c0263a6]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-            System.Int32 status = 0
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
-          NextBlock: B5
-          Inputs:
-          Outputs:
-          Locals:
-            System.Int32 status = 0
-
-
-    Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-      Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+KeWaitForStoppingEvent
-          NextBlock: B1
-          Inputs:
-          Outputs:
-          Locals:
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
-          NextBlock: B2
-          Inputs:
-          Outputs:
-          Locals:
-
-#### State 16 (ran process 2) :
-State:[fingerprint =2cc3d833:1009389a]
-
-  Globals:
-  System.Boolean BlueTooth____stopped = False
-  System.Boolean BlueTooth____driverStoppingFlag = True
-  System.Boolean BlueTooth____stoppingEvent = True
-  System.Int32 BlueTooth____pendingIo = 0
-
-
-  Processes: (3)
-
-    Process 0: Name='main', Id=0
-      Status: Completed
-      Choice pending: False
-      Stack:
-
-    Process 1: Name='BlueTooth.BCSP_Miniport_PnpAdd', Id=1
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
-      Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
-        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -983,8 +843,8 @@ State:[fingerprint =2cc3d833:1009389a]
           Outputs:
           Locals:
 
-#### State 17 (ran process 2) :
-State:[fingerprint =337cce58:5e44f9a8]
+#### State 16 (ran process 2) :
+State:[fingerprint =00e2dfe6:1966eca6]
 
   Globals:
   System.Boolean BlueTooth____stopped = False
@@ -1005,15 +865,8 @@ State:[fingerprint =337cce58:5e44f9a8]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -1039,8 +892,8 @@ State:[fingerprint =337cce58:5e44f9a8]
           Outputs:
           Locals:
 
-#### State 18 (ran process 2) :
-State:[fingerprint =5115463e:7ad1bc98]
+#### State 17 (ran process 2) :
+State:[fingerprint =561d9ba1:06f375eb]
 
   Globals:
   System.Boolean BlueTooth____stopped = True
@@ -1061,15 +914,8 @@ State:[fingerprint =5115463e:7ad1bc98]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
-        Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-            System.Int32 urnValue = 0
-          Locals:
-
         Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
-          NextBlock: B3
+          NextBlock: B4
           Inputs:
           Outputs:
             System.Int32 urnValue = 0
@@ -1095,8 +941,8 @@ State:[fingerprint =5115463e:7ad1bc98]
           Outputs:
           Locals:
 
-#### State 19 (ran process 2) :
-State:[fingerprint =1e417cdf:48b11edc]
+#### State 18 (ran process 2) :
+State:[fingerprint =248ea24e:2d578fda]
 
   Events:
     TerminateProcess - process='BlueTooth.BCSP_Miniport_PnpStop'
@@ -1120,6 +966,49 @@ State:[fingerprint =1e417cdf:48b11edc]
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
       Stack:
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_IoIncrement
+          NextBlock: B4
+          Inputs:
+          Outputs:
+            System.Int32 urnValue = 0
+          Locals:
+            System.Int32 status = 0
+
+        Function : Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
+          NextBlock: B5
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 status = 0
+
+
+    Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
+      Status: Completed
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
+      Stack:
+#### State 19 (ran process 1) :
+State:[fingerprint =1e417cdf:48b11edc]
+
+  Globals:
+  System.Boolean BlueTooth____stopped = True
+  System.Boolean BlueTooth____driverStoppingFlag = True
+  System.Boolean BlueTooth____stoppingEvent = True
+  System.Int32 BlueTooth____pendingIo = 0
+
+
+  Processes: (3)
+
+    Process 0: Name='main', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
+
+    Process 1: Name='BlueTooth.BCSP_Miniport_PnpAdd', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpAdd
+      Stack:
         Function : Microsoft.Zing.Application+BlueTooth+InterlockedIncrementPendingIo
           NextBlock: Enter
           Inputs:
@@ -1146,7 +1035,6 @@ State:[fingerprint =1e417cdf:48b11edc]
     Process 2: Name='BlueTooth.BCSP_Miniport_PnpStop', Id=2
       Status: Completed
       Choice pending: False
-      Entry point: Microsoft.Zing.Application+BlueTooth+BCSP_Miniport_PnpStop
       Stack:
 #### State 20 (ran process 1) :
 State:[fingerprint =721a7bea:18c62ea7]
@@ -1303,4 +1191,4 @@ Stack trace:
     BlueTooth.BCSP_Miniport_PnpAdd (BlueGlobal.zing, Line 27)
 
 
-281 distinct states explored
+268 distinct states explored

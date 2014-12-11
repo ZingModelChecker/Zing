@@ -57,15 +57,15 @@ State:[fingerprint =326e8c8f:06d93e73]
           Outputs:
           Locals:
 
-#### State 2 (ran process 0) :
-State:[fingerprint =770b1a80:4952b407]
+#### State 2 (ran process 1) :
+State:[fingerprint =4d13aab0:404412d7]
 
   Globals:
   System.Boolean SingletonLock____locked = False
-  System.Boolean BoolProg____g0 = False
+  System.Boolean BoolProg____g0 = True
 
 
-  Processes: (3)
+  Processes: (2)
 
     Process 0: Name='main', Id=0
       Status: Runnable
@@ -73,7 +73,7 @@ State:[fingerprint =770b1a80:4952b407]
       Entry point: Microsoft.Zing.Application+BoolProg+main
       Stack:
         Function : Microsoft.Zing.Application+BoolProg+main
-          NextBlock: B0
+          NextBlock: B1
           Inputs:
           Outputs:
           Locals:
@@ -85,24 +85,12 @@ State:[fingerprint =770b1a80:4952b407]
       Entry point: Microsoft.Zing.Application+BoolProg+foo_1
       Stack:
         Function : Microsoft.Zing.Application+BoolProg+foo_1
-          NextBlock: Enter
+          NextBlock: B2
           Inputs:
           Outputs:
           Locals:
 
-
-    Process 2: Name='BoolProg.bar_1', Id=2
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+bar_1
-      Stack:
-        Function : Microsoft.Zing.Application+BoolProg+bar_1
-          NextBlock: Enter
-          Inputs:
-          Outputs:
-          Locals:
-
-#### State 3 (ran process 1) :
+#### State 3 (ran process 0) :
 State:[fingerprint =08763cbf:0fcf98a3]
 
   Globals:
@@ -293,4 +281,4 @@ Stack trace:
     BoolProg.foo_1 (interleave.zing, Line 31)
 
 
-16 distinct states explored
+14 distinct states explored
