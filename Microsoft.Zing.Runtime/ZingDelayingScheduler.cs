@@ -115,7 +115,7 @@ namespace Microsoft.Zing
         /// Clone current scheduler state for new zing state.
         /// </summary>
         /// <returns></returns>
-        public abstract ZingerSchedulerState Clone ();
+        public abstract ZingerSchedulerState Clone (bool isCloneForFrontier);
 
     }
     public abstract class ZingerDelayingScheduler

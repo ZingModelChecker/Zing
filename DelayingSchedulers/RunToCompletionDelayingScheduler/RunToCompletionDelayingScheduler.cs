@@ -37,7 +37,7 @@ namespace ExternalDelayBoundedScheduler
             return ret;
         }
 
-        public override ZingerSchedulerState Clone ()
+        public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
             RTCDBSchedulerState cloned = new RTCDBSchedulerState(this);
             return cloned;

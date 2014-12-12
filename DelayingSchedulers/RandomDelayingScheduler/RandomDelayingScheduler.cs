@@ -13,7 +13,7 @@ namespace ExternalDelayBoundedScheduler
         public System.Random randGen;
         public List<int> NextSuccessors;
         public int currentProcess;
-
+        public List<bool> isBlocked;
         /// <summary>
         /// default constructor
         /// </summary>
@@ -21,6 +21,7 @@ namespace ExternalDelayBoundedScheduler
         {
             NextSuccessors = null;
             randGen = new Random(DateTime.Now.Second);
+            isBlocked = new List<bool>();
             currentProcess = -1;
         }
 
@@ -28,16 +29,38 @@ namespace ExternalDelayBoundedScheduler
         {
             randGen = copyThis.randGen;
             currentProcess = copyThis.currentProcess;
+            isBlocked = new List<bool>();
+            foreach(var item in copyThis.isBlocked)
+            {
+                isBlocked.Add(item);
+            }
             NextSuccessors = null;
         }
         public override string ToString()
         {
-            throw new NotImplementedException();
+            string ret = "";
+            foreach(var item in isBlocked)
+            {
+                ret = ret + item.ToString() + ","; 
+            }
+            return ret;
         }
 
-        public override ZingerSchedulerState Clone ()
+        public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
+            
             RandomDBSchedulerState cloned = new RandomDBSchedulerState(this);
+            if (isCloneForFrontier)
+            {
+                if (NextSuccessors != null)
+                {
+                    cloned.NextSuccessors = new List<int>();
+                    foreach (var item in NextSuccessors)
+                    {
+                        cloned.NextSuccessors.Add(item);
+                    }
+                }
+            }
             return cloned;
         }
     }

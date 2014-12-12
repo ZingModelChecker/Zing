@@ -264,7 +264,7 @@ namespace Microsoft.Zing
                 CurrentDepth = 0;
                 if (ZingerConfiguration.DoDelayBounding)
                 {
-                    ZingDBSchedState = s.ZingDBSchedState.Clone();
+                    ZingDBSchedState = s.ZingDBSchedState.Clone(false);
                     ZingDBScheduler = s.ZingDBScheduler;
 
                 }
@@ -387,7 +387,7 @@ namespace Microsoft.Zing
             stateImpl.Rollback(receipt);
             if (ZingerConfiguration.DoDelayBounding)
             {
-                stateImpl.ZingDBSchedState = ZingDBSchedState.Clone();
+                stateImpl.ZingDBSchedState = ZingDBSchedState.Clone(false);
             }
 
             // let's get ready for a new child by orphanizing all

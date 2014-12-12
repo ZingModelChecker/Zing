@@ -12,23 +12,36 @@ namespace ExternalDelayBoundedScheduler
     {
         //current process in the round robin 
         public int currentProcess;
+        //blocking information
+        public Dictionary<int, bool> isBlocked;
 
         public RoundRobinDBSchedulerState() : base()
         {
             currentProcess = 0;
+            isBlocked = new Dictionary<int, bool>();
         }
 
         public RoundRobinDBSchedulerState(RoundRobinDBSchedulerState copyThis) : base(copyThis)
         {
             currentProcess = copyThis.currentProcess;
+            isBlocked = new Dictionary<int, bool>();
+            foreach (var item in copyThis.isBlocked)
+            {
+                isBlocked.Add(item.Key, item.Value);
+            }
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
-        }   
+            string ret = "";
+            foreach (var item in isBlocked)
+            {
+                ret = ret + item.ToString() + ",";
+            }
+            return ret;
+        }
 
-        public override ZingerSchedulerState Clone()
+        public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
             RoundRobinDBSchedulerState cloned = new RoundRobinDBSchedulerState(this);
             return cloned;
@@ -50,6 +63,7 @@ namespace ExternalDelayBoundedScheduler
         public override void Start(ZingerSchedulerState ZSchedulerState, int processId)
         {
             ZSchedulerState.Start(processId);
+            (ZSchedulerState as RoundRobinDBSchedulerState).isBlocked.Add(processId, false);
         }
 
         /// <summary>
@@ -59,6 +73,10 @@ namespace ExternalDelayBoundedScheduler
         public override void Finish(ZingerSchedulerState ZSchedulerState, int processId)
         {
             ZSchedulerState.Finish(processId);
+            var schedState = ZSchedulerState as RoundRobinDBSchedulerState;
+            (schedState).isBlocked.Remove(processId);
+            schedState.currentProcess = 0;
+            
         }
 
         public override void Delay(ZingerSchedulerState zSchedState)
@@ -67,13 +85,14 @@ namespace ExternalDelayBoundedScheduler
             var SchedState = zSchedState as RoundRobinDBSchedulerState;
             if (SchedState.AllActiveProcessIds.Count == 0)
                 return;
-            SchedState.currentProcess++;
+            SchedState.currentProcess = (SchedState.currentProcess + 1) % SchedState.AllActiveProcessIds.Count;
             zSchedState.numOfTimesCurrStateDelayed++;
         }
 
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
-            return zSchedState.numOfTimesCurrStateDelayed > (zSchedState.AllActiveProcessIds.Count() - 1);
+            var SchedState = zSchedState as RoundRobinDBSchedulerState;
+            return zSchedState.numOfTimesCurrStateDelayed > (SchedState.isBlocked.Where(x => x.Value == false).Count() - 1);
         }
 
         public override int Next (ZingerSchedulerState zSchedState)
@@ -82,23 +101,35 @@ namespace ExternalDelayBoundedScheduler
             var SchedState = zSchedState as RoundRobinDBSchedulerState;
             if (SchedState.AllActiveProcessIds.Count == 0)
                 return -1;
-            if (SchedState.currentProcess < SchedState.AllActiveProcessIds.Count())
-                return SchedState.AllActiveProcessIds.ElementAt(SchedState.currentProcess);
-            else
+            int iter = 0;
+            while (iter < SchedState.AllActiveProcessIds.Count)
             {
-                SchedState.currentProcess = 0;
-                return SchedState.AllActiveProcessIds.ElementAt(SchedState.currentProcess);
+                System.Diagnostics.Debug.Assert(SchedState.currentProcess < SchedState.AllActiveProcessIds.Count);
+                var currProcessId = SchedState.AllActiveProcessIds[SchedState.currentProcess];
+
+                if (!SchedState.isBlocked[currProcessId])
+                    return currProcessId;
+                else
+                    SchedState.currentProcess = (SchedState.currentProcess + 1) % SchedState.AllActiveProcessIds.Count;
+                
+                iter++;
             }
+
+            return -1;
         }
 
         public override void OnEnabled(ZingerSchedulerState ZSchedulerState, int targetSM, int sourceSM)
         {
-            // do nothing
+            var SchedState = (ZSchedulerState as RoundRobinDBSchedulerState);
+            var procId = SchedState.GetZingProcessId(targetSM);
+            SchedState.isBlocked[procId] = false;
         }
 
         public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
         {
-            // do nothing
+            var SchedState = (ZSchedulerState as RoundRobinDBSchedulerState);
+            var procId = SchedState.GetZingProcessId(sourceSM);
+            SchedState.isBlocked[procId] = true;
         }
 
     }

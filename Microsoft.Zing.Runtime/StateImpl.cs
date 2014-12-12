@@ -1553,7 +1553,7 @@ namespace Microsoft.Zing
             StateImpl newState = MakeSkeleton();
             if (ZingerConfiguration.DoDelayBounding)
             {
-                newState.ZingDBSchedState = ZingDBSchedState.Clone();
+                newState.ZingDBSchedState = ZingDBSchedState.Clone(false);
                 newState.ZingDBScheduler = ZingDBScheduler;
             }
             newState.choiceList = this.choiceList;

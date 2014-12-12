@@ -442,7 +442,7 @@ namespace Microsoft.Zing
             this.Bounds = new ZingerBounds(ti.zBounds.ExecutionCost, ti.zBounds.ChoiceCost);
             if (ZingerConfiguration.DoDelayBounding)
             {
-                schedulerState = ti.ZingDBSchedState.Clone();
+                schedulerState = ti.ZingDBSchedState.Clone(true);
                 numOfTimesCurrStateDelayed = ti.ZingDBSchedState.numOfTimesCurrStateDelayed;
             }
             ti.IsFingerPrinted = true;
