@@ -247,7 +247,7 @@ namespace Microsoft.Zing
         }
 
         //maximum number of schedules per iteration
-        private static int maxSchedulesPerIteration = int.MaxValue;
+        private static int maxSchedulesPerIteration = 10000;
         public static int MaxSchedulesPerIteration
         {
             get { return ZingerConfiguration.maxSchedulesPerIteration; }
@@ -357,11 +357,13 @@ namespace Microsoft.Zing
             {
                 DoStateLess = true;
             }
-
+            
             if(DoNDFSLiveness)
             {
                 zBoundedSearch.IterativeIncrement = zBoundedSearch.FinalExecutionCutOff;
                 DegreeOfParallelism = 1;
+                DoStateLess = false;
+                DoRandomWalk = false;
             }
 
         }
@@ -376,7 +378,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Print Statistics: {0}", PrintStats));
             ZingerUtilities.PrintMessage(String.Format("Compact Trace : {0}", CompactTraces));
             ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0} with Scheduler : {1}", doDelayBounding, delayingSchedDll));
-            ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0}", doRandomWalk));
+            ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}", doRandomWalk, maxSchedulesPerIteration));
             ZingerUtilities.PrintMessage(String.Format("Do Stateless : {0}", doStateLess));
             ZingerUtilities.PrintMessage(String.Format("Do NDFLiveness : {0}", doNDFSLiveness));
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));

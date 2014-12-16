@@ -102,6 +102,10 @@ namespace Microsoft.Zing
                             }
                             break;
                         case "stateless":
+                            if (param.Length != 0)
+                            {
+                                ZingerConfiguration.MaxSchedulesPerIteration = int.Parse(param);
+                            }
                             ZingerConfiguration.DoStateLess = true;
                             break;
                         case "delayb":
@@ -267,8 +271,8 @@ namespace Microsoft.Zing
             Console.WriteLine("Maximum size of the DFS search stack. A counter example is generated if size of the stack exceeds the bound.\n");
             Console.WriteLine("-randomWalk:<int>");
             Console.WriteLine("Zinger performs random walk without DFS stack. <int> represents the maximum number of schedules explored per iteration. (default is int max).\n");
-            Console.WriteLine("-stateless");
-            Console.WriteLine("Zinger performs stateless search. No state caching ! (default is stateful)\n");
+            Console.WriteLine("-stateless:<int>");
+            Console.WriteLine("Zinger performs stateless search. <int> max search depth(default is 10000). No state caching ! (default is stateful)\n");
             Console.WriteLine("-delayB:<scheduler.dll>");
             Console.WriteLine("Zinger performs delay bounding using the deterministic scheduler (scheduler.dll).\n");
             Console.WriteLine("-bc:<int>");
