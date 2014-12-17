@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunToCompletionDelayingSche
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriorityDelayingScheduler", "DelayingSchedulers\PriorityScheduler\PriorityDelayingScheduler.csproj", "{AEEAA9E8-6622-4C65-8798-646EC7F67C04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCTDelayingScheduler", "DelayingSchedulers\PCTDelayingScheduler\PCTDelayingScheduler.csproj", "{9044F684-FD5F-4317-B24A-1CED7FBD890F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +144,14 @@ Global
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04}.Release|x64.ActiveCfg = Release|Any CPU
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04}.Release|x86.ActiveCfg = Release|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|x64.ActiveCfg = Release|Any CPU
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,5 +161,6 @@ Global
 		{3C041918-8ED4-48EB-90C7-DC91B5E7AB80} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 		{372082A5-2C0B-4196-BF97-095C398666C1} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
+		{9044F684-FD5F-4317-B24A-1CED7FBD890F} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 	EndGlobalSection
 EndGlobal

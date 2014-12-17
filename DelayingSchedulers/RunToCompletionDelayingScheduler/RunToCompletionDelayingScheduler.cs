@@ -151,5 +151,10 @@ namespace ExternalDelayBoundedScheduler
             return zSchedState.numOfTimesCurrStateDelayed >= (SchedState.DBStack.Count - 1);
 
         }
+
+        public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)
+        {
+            //do nothing
+        }
     }
 }

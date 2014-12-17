@@ -132,5 +132,9 @@ namespace ExternalDelayBoundedScheduler
             SchedState.isBlocked[procId] = true;
         }
 
+        public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)
+        {
+            //do nothing
+        }
     }
 }

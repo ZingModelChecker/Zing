@@ -20,7 +20,7 @@ namespace ExternalDelayBoundedScheduler
         public RandomDBSchedulerState () : base()
         {
             NextSuccessors = null;
-            randGen = new Random(DateTime.Now.Second);
+            randGen = new Random(DateTime.Now.Millisecond);
             isBlocked = new List<bool>();
             currentProcess = -1;
         }
@@ -128,6 +128,11 @@ namespace ExternalDelayBoundedScheduler
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
             return zSchedState.numOfTimesCurrStateDelayed > (zSchedState.AllActiveProcessIds.Count() - 1);
+        }
+
+        public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)
+        {
+            //do nothing
         }
     }
 }

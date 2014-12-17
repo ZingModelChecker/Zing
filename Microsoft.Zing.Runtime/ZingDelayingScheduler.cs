@@ -142,6 +142,23 @@ namespace Microsoft.Zing
         public abstract void Finish(ZingerSchedulerState ZSchedulerState, int processId);
 
         /// <summary>
+        /// This function is invoked from within the zinger explorer
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="Params"></param>
+        public abstract void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params);
+
+        /// <summary>
+        /// Unhandled operation or a special operation.
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="Params"></param>
+        public virtual void OtherOperations(ZingerSchedulerState ZSchedulerState, params object[] Params)
+        {
+            throw new Exception("This operation is not supported by the delaying scheduler");
+        }
+
+        /// <summary>
         /// This function is called in response to invoke-scheduler function in the zing model.
         /// </summary>
         /// <param name="Params"></param>
@@ -172,9 +189,13 @@ namespace Microsoft.Zing
                 var param2_source = (int)Params[1];
                 OnBlocked(ZSchedulerState, param2_source);
             }
+            else if(param1_operation == "zingerop")
+            {
+                ZingerOperation(ZSchedulerState, Params);
+            }
             else
             {
-                throw new Exception("Delaying Scheduler Does not support this Operation");
+                OtherOperations(ZSchedulerState, Params);
             }
         }
 
