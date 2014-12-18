@@ -12,7 +12,7 @@ namespace ExternalDelayBoundedScheduler
     {
         //priority queue with enable and block information
         public Dictionary<int, KeyValuePair<int, bool>> PriorityMap;
-
+        
         public PriorityDBSchedulerState():base()
         {
             PriorityMap = new Dictionary<int, KeyValuePair<int, bool>>();
@@ -59,7 +59,7 @@ namespace ExternalDelayBoundedScheduler
         public override void Start(ZingerSchedulerState ZSchedulerState, int processId)
         {
             var schedState = ZSchedulerState as PriorityDBSchedulerState;
-            schedState.PriorityMap.Add(processId, new KeyValuePair<int, bool>(1, true));
+            schedState.PriorityMap.Add(processId, new KeyValuePair<int, bool>(processId, true));
             schedState.Start(processId);
         }
 
@@ -81,6 +81,12 @@ namespace ExternalDelayBoundedScheduler
         /// <param name="ZSchedulerState"></param>
         public override void Delay(ZingerSchedulerState ZSchedulerState)
         {
+            var schedState = ZSchedulerState as PriorityDBSchedulerState;
+            var nextId = Next(ZSchedulerState);
+            if (nextId == -1)
+                return;
+            
+            schedState.PriorityMap[nextId] = new KeyValuePair<int, bool>(schedState.PriorityMap[nextId].Key + 50, schedState.PriorityMap[nextId].Value);
             ZSchedulerState.numOfTimesCurrStateDelayed++;
         }
 
@@ -97,18 +103,13 @@ namespace ExternalDelayBoundedScheduler
             if (schedState.PriorityMap.Count == 0)
                 return -1;
 
-            int counter = 0;
-            foreach(var item in schedState.PriorityMap.OrderBy(item => item.Value.Key).OrderBy(item2 => item2.Key))
+            foreach(var item in schedState.PriorityMap.OrderBy(item => item.Value.Key))
             {
-                if(counter == schedState.numOfTimesCurrStateDelayed && item.Value.Value)
+                if(item.Value.Value)
                 {
                     return item.Key;
                 }
-                else
-                {
-                    if (item.Value.Value)
-                        counter++;
-                }
+                
             }
 
             return -1;

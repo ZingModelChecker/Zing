@@ -49,7 +49,7 @@ namespace ExternalDelayBoundedScheduler
         }
     }
 
-    public class PriorityDelayingScheduler : ZingerDelayingScheduler
+    public class PCTDelayingScheduler : ZingerDelayingScheduler
     {
         private class UniquePriorityGenerator
         {
@@ -67,7 +67,7 @@ namespace ExternalDelayBoundedScheduler
             }
 
         }
-        public PriorityDelayingScheduler()
+        public PCTDelayingScheduler()
         {
 
         }
@@ -108,6 +108,9 @@ namespace ExternalDelayBoundedScheduler
             {
                 var schedState = ZSchedulerState as PCTDBSchedulerState;
                 var nextId = Next(ZSchedulerState);
+                if (nextId == -1)
+                    return;
+
                 schedState.PriorityMap[nextId] = new KeyValuePair<int,bool>(UniquePriorityGenerator.GetHighRange(), schedState.PriorityMap[nextId].Value);
             }
             else
@@ -133,17 +136,11 @@ namespace ExternalDelayBoundedScheduler
             if (schedState.PriorityMap.Count == 0)
                 return -1;
 
-            int counter = 0;
-            foreach (var item in schedState.PriorityMap.OrderBy(item => item.Value.Key).OrderBy(item2 => item2.Key))
+            foreach (var item in schedState.PriorityMap.OrderBy(item => item.Value.Key))
             {
-                if (counter == schedState.numOfTimesCurrStateDelayed && item.Value.Value)
+                if (item.Value.Value)
                 {
                     return item.Key;
-                }
-                else
-                {
-                    if (item.Value.Value)
-                        counter++;
                 }
             }
 
