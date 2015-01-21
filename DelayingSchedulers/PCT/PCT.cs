@@ -54,7 +54,7 @@ namespace ExternalDelayBoundedScheduler
         private class UniquePriorityGenerator
         {
             static int low_Range = 100;
-            static int high_range = 200;
+            static int high_range = 1000;
             static Random rand = new Random(DateTime.Now.Millisecond);
             public static int GetLowRange()
             {
@@ -80,7 +80,7 @@ namespace ExternalDelayBoundedScheduler
         public override void Start(ZingerSchedulerState ZSchedulerState, int processId)
         {
             var schedState = ZSchedulerState as PCTDBSchedulerState;
-
+            
             schedState.PriorityMap.Add(processId, new KeyValuePair<int, bool>(UniquePriorityGenerator.GetLowRange(), true));
             schedState.Start(processId);
         }
@@ -105,12 +105,12 @@ namespace ExternalDelayBoundedScheduler
         {
             ZSchedulerState.numOfTimesCurrStateDelayed++;
 
-            var schedState = ZSchedulerState as PCTDBSchedulerState;
-            var nextId = Next(ZSchedulerState);
-            if (nextId == -1)
-                return;
+                var schedState = ZSchedulerState as PCTDBSchedulerState;
+                var nextId = Next(ZSchedulerState);
+                if (nextId == -1)
+                    return;
 
-            schedState.PriorityMap[nextId] = new KeyValuePair<int, bool>(UniquePriorityGenerator.GetHighRange() + schedState.PriorityMap[nextId].Key, schedState.PriorityMap[nextId].Value);
+                schedState.PriorityMap[nextId] = new KeyValuePair<int,bool>(UniquePriorityGenerator.GetHighRange(), schedState.PriorityMap[nextId].Value);
         }
 
         public override bool MaxDelayReached(ZingerSchedulerState ZSchedulerState)

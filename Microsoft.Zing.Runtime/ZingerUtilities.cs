@@ -42,6 +42,7 @@ namespace Microsoft.Zing
         public static Int64 NumOfStatesVisited = 0;
         public static Int64 NumOfTransitionExplored = 0;
         public static Int64 NumOfFrontiers = 0;
+        public static Int64 NumOfSchedulesExplored = 0;
         public static Int64 MaxDepth = 0;
 
         public static DateTime startTime = DateTime.Now;
@@ -53,7 +54,10 @@ namespace Microsoft.Zing
             if (ZingerConfiguration.PrintStats)
             {
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
-
+                
+                if(ZingerConfiguration.DoRandomWalk)
+                    ZingerUtilities.PrintMessage(String.Format("Number of Schedules Explored : {0}", NumOfSchedulesExplored));
+                
                 ZingerUtilities.PrintMessage(String.Format("Elapsed time : {0:00}:{1:00}:{2:00}", (int)elapsedTime.TotalHours, (int)elapsedTime.TotalMinutes, (int)elapsedTime.TotalSeconds));
                 ZingerUtilities.PrintMessage("Memory Stats:");
                 ZingerUtilities.PrintMessage(String.Format("Peak Virtual Memory Size: {0} MB",
@@ -84,6 +88,10 @@ namespace Microsoft.Zing
                 ZingerUtilities.PrintMessage(String.Format("No. of Distinct States {0}", NumOfStatesVisited));
                 ZingerUtilities.PrintMessage(String.Format("Total Transitions: {0}", NumOfTransitionExplored));
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
+                
+                if (ZingerConfiguration.DoRandomWalk)
+                    ZingerUtilities.PrintMessage(String.Format("Number of Schedules Explored : {0}", NumOfSchedulesExplored));
+
                 ZingerUtilities.PrintMessage(String.Format("Total Exploration time so far = {0}", elapsedTime.ToString()));
                 ZingerUtilities.PrintMessage(String.Format("Peak / Current Paged Mem Usage : {0} M/{1} M", System.Diagnostics.Process.GetCurrentProcess().PeakPagedMemorySize64 / (1 << 20), System.Diagnostics.Process.GetCurrentProcess().PagedMemorySize64 / (1 << 20)));
                 ZingerUtilities.PrintMessage(String.Format("Peak / Current working set size: {0} M/{1} M", System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64 / (1 << 20), System.Diagnostics.Process.GetCurrentProcess().WorkingSet64 / (1 << 20)));
@@ -120,6 +128,10 @@ namespace Microsoft.Zing
             PeriodicTimer = new Timer(tcb, null, 300000, 300000);
         }
 
+        public static void IncrementNumberOfSchedules()
+        {
+            Interlocked.Increment(ref NumOfSchedulesExplored);
+        }
         public static void StopPeriodicStats()
         {
             PeriodicTimer.Dispose();

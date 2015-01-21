@@ -89,7 +89,7 @@ namespace Microsoft.Zing
                 
                 //increment the schedule count
                 numberOfSchedulesExplored++;
-
+                ZingerStats.IncrementNumberOfSchedules();
                 //random walk always starts from the start state ( no frontier ).
                 TraversalInfo currentState = startState;
 
@@ -336,8 +336,11 @@ namespace Microsoft.Zing
                 }
 
                 delayBudget = ZingerConfiguration.zBoundedSearch.IterativeCutoff;
+                
                 //increment the schedule count
                 numberOfSchedulesExplored++;
+                ZingerStats.IncrementNumberOfSchedules();
+
                 searchStack = new Stack<TraversalInfo>();
                 searchStack.Push(startState);
                 int lastStartPoint = 1;
