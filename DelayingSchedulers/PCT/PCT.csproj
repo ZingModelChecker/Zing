@@ -7,8 +7,8 @@
     <ProjectGuid>{9044F684-FD5F-4317-B24A-1CED7FBD890F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PCTDelayingScheduler</RootNamespace>
-    <AssemblyName>PCTDelayingScheduler</AssemblyName>
+    <RootNamespace>PCT</RootNamespace>
+    <AssemblyName>PCT</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
