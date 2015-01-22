@@ -12,10 +12,12 @@ namespace ExternalDelayBoundedScheduler
     {
         //priority queue with enable and block information
         public Dictionary<int, KeyValuePair<int, bool>> PriorityMap;
-        
+        //current process
+        public int currentProcess;
         public PriorityDBSchedulerState():base()
         {
             PriorityMap = new Dictionary<int, KeyValuePair<int, bool>>();
+            currentProcess = 0;
         }
 
         public PriorityDBSchedulerState(PriorityDBSchedulerState copyThis):base(copyThis)
@@ -25,6 +27,7 @@ namespace ExternalDelayBoundedScheduler
             {
                 PriorityMap.Add(item.Key, new KeyValuePair<int, bool>(item.Value.Key, item.Value.Value));
             }
+            currentProcess = copyThis.currentProcess;
         }
 
         public override string ToString()
@@ -107,6 +110,7 @@ namespace ExternalDelayBoundedScheduler
             {
                 if(item.Value.Value)
                 {
+                    schedState.currentProcess = item.Key;
                     return item.Key;
                 }
                 
@@ -141,10 +145,8 @@ namespace ExternalDelayBoundedScheduler
             var schedState = ZSchedulerState as PriorityDBSchedulerState;
             if(param1_operation == "setpriority")
             {
-                var param2_targetSM = (int)Params[1];
-                var param3_priority = (int)Params[2];
-                var procId = schedState.GetZingProcessId(param2_targetSM);
-                schedState.PriorityMap[procId] = new KeyValuePair<int, bool>(param3_priority, schedState.PriorityMap[procId].Value);
+                var param2_priority = (int)Params[1];
+                schedState.PriorityMap[schedState.currentProcess] = new KeyValuePair<int, bool>(param2_priority, schedState.PriorityMap[schedState.currentProcess].Value);
             }
         }
     }
