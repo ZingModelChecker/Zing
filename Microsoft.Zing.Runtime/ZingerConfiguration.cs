@@ -27,7 +27,7 @@ namespace Microsoft.Zing
 
         public void IncrementDepthCost()
         {
-            if(!ZingerConfiguration.DoDelayBounding)
+            if(!ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
             {
                 ExecutionCost++;
             }
@@ -36,6 +36,14 @@ namespace Microsoft.Zing
         public void IncrementDelayCost()
         {
             if(ZingerConfiguration.DoDelayBounding)
+            {
+                ExecutionCost++;
+            }
+        }
+
+        public void IncrementPreemptionCost()
+        {
+            if(ZingerConfiguration.DoPreemptionBounding)
             {
                 ExecutionCost++;
             }
@@ -229,6 +237,14 @@ namespace Microsoft.Zing
             set { compactTraces = value; }
         }
 
+        //do preemption bounding
+        private static bool doPreemptionBounding = false;
+        public static bool DoPreemptionBounding
+        {
+            get { return ZingerConfiguration.doPreemptionBounding; }
+            set { ZingerConfiguration.doPreemptionBounding = value; }
+        }
+
         //do delay bounding
         private static bool doDelayBounding = false;
         public static bool DoDelayBounding
@@ -366,6 +382,10 @@ namespace Microsoft.Zing
                 DoRandomWalk = false;
             }
 
+            if(DoDelayBounding)
+            {
+                DoPreemptionBounding = false;
+            }
         }
 
         public static void PrintConfiguration()
@@ -377,6 +397,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Degree Of Parallelism: {0}", DegreeOfParallelism));
             ZingerUtilities.PrintMessage(String.Format("Print Statistics: {0}", PrintStats));
             ZingerUtilities.PrintMessage(String.Format("Compact Trace : {0}", CompactTraces));
+            ZingerUtilities.PrintMessage(String.Format("Do Preemption Bounding :{0}", doPreemptionBounding));
             ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0} with Scheduler : {1}", doDelayBounding, delayingSchedDll));
             ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}", doRandomWalk, maxSchedulesPerIteration));
             ZingerUtilities.PrintMessage(String.Format("Do Stateless : {0}", doStateLess));

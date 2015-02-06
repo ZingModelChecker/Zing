@@ -80,6 +80,10 @@ namespace Microsoft.Zing
                 {
                     ZingerUtilities.PrintMessage(String.Format("Delay Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));
                 }
+                else if (ZingerConfiguration.DoPreemptionBounding)
+                {
+                    ZingerUtilities.PrintMessage(String.Format("Preemption Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));
+                }
                 else
                 {
                    ZingerUtilities.PrintMessage(String.Format("Depth Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));

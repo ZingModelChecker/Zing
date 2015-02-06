@@ -92,6 +92,9 @@ namespace Microsoft.Zing
                         case "maxdfsstack":
                             ZingerConfiguration.BoundDFSStackLength = int.Parse(param);
                             break;
+                        case "pb":
+                            ZingerConfiguration.DoPreemptionBounding = true;
+                            break;
                         case "randomwalk":
                             {
                                 if(param.Length != 0)
@@ -273,6 +276,8 @@ namespace Microsoft.Zing
             Console.WriteLine("Zinger performs random walk without DFS stack. <int> represents the maximum number of schedules explored per iteration. (default is int max).\n");
             Console.WriteLine("-stateless:<int>");
             Console.WriteLine("Zinger performs stateless search. <int> max search depth(default is 10000). No state caching ! (default is stateful)\n");
+            Console.WriteLine("-pb");
+            Console.WriteLine("Perform preemption bounding\n");
             Console.WriteLine("-delayB:<scheduler.dll>");
             Console.WriteLine("Zinger performs delay bounding using the deterministic scheduler (scheduler.dll).\n");
             Console.WriteLine("-bc:<int>");

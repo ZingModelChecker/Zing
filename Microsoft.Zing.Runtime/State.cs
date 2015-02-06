@@ -291,7 +291,7 @@ namespace Microsoft.Zing
         /// Zing exception, and index out of range, invalid blocking select, invalid
         /// choose).
         /// </summary>
-        ModelRuntimeError   = 4,
+        ProgramRuntimeError   = 4,
 
         /// <summary>
         /// This error is returned when an unexpected runtime error is encountered. This

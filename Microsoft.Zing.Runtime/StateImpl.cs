@@ -201,7 +201,7 @@ namespace Microsoft.Zing
                 else if (e is ZingerDFSStackOverFlow)
                     return ZingerResult.DFSStackOverFlowError;
                 else
-                    return ZingerResult.ModelRuntimeError;
+                    return ZingerResult.ProgramRuntimeError;
             }
         }
         #endregion

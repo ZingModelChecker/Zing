@@ -100,8 +100,8 @@ namespace Microsoft.Zing
                 case ZingerResult.ZingRuntimeError:
                     ZingerUtilities.PrintErrorMessage("Zinger Internal Runtime Exception");
                     break;
-                case ZingerResult.ModelRuntimeError:
-                    ZingerUtilities.PrintErrorMessage("Model Internal Runtime Error");
+                case ZingerResult.ProgramRuntimeError:
+                    ZingerUtilities.PrintErrorMessage("Program Runtime Error");
                     break;
                 case ZingerResult.Assertion:
                     ZingerUtilities.PrintErrorMessage("##################");

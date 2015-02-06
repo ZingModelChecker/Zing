@@ -605,6 +605,26 @@ namespace Microsoft.Zing
                         return RunProcess(nextProcess);
                     }
                 }
+                else if (ZingerConfiguration.DoPreemptionBounding)
+                {
+                    while (currProcess < NumProcesses &&
+                        ProcessInfo[currProcess].Status != RUNNABLE)
+                        currProcess++;
+
+                    if (currProcess >= NumProcesses)
+                        return null;
+   
+                    if(doDelay)
+                    {
+                        zBounds.IncrementPreemptionCost();
+                    }
+                    else
+                    {
+                        doDelay = true;
+                    }
+
+                    return RunProcess(currProcess++);
+                }
                 else
                 {
                     while (currProcess < NumProcesses &&
