@@ -68,7 +68,7 @@ namespace Microsoft.Zing
             {
                 StateData oldValue;
                 hashTable.TryGetValue(fp, out oldValue);
-                Contract.Assert(hashTable.TryUpdate(fp, sd, oldValue), "Old value could not be Replaced in ZingerStateTable");
+                hashTable.TryUpdate(fp, sd, oldValue);
             }
             else
             {
