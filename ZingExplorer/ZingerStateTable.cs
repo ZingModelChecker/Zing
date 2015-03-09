@@ -40,7 +40,7 @@ namespace Microsoft.Zing
             {
                 if (obj is StateData)
                 {
-                    return magicBit = (obj as StateData).magicBit;
+                    return magicBit == (obj as StateData).magicBit;
                 }
                 else
                     return false;
@@ -68,7 +68,7 @@ namespace Microsoft.Zing
             {
                 StateData oldValue;
                 hashTable.TryGetValue(fp, out oldValue);
-                hashTable.TryUpdate(fp, sd, oldValue);
+                Contract.Assert(hashTable.TryUpdate(fp, sd, oldValue), "Old value could not be Replaced in ZingerStateTable");
             }
             else
             {
