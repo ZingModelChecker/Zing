@@ -290,7 +290,11 @@ namespace Microsoft.Zing
 
                     if (doDelay)
                     {
+                        //increment the choice cost for choice bounding.
                         zBounds.ChoiceCost = zBounds.ChoiceCost + 1;
+                        //increment the delay budget when using delaying explorers
+                        if (ZingerConfiguration.DoDelayBounding)
+                            zBounds.IncrementDelayCost();
                     }
                     else
                     {

@@ -1,21 +1,33 @@
-﻿using System;
+﻿/************************************************
+ * Scheduler Information:
+ * The run to completion (RTC) explorer was introduced in P: Safe event-driven programming language paper for testing device drivers written in P. 
+ * The default strategy in RTC is to follow the causal sequence of events, giving priority to the receiver of the most recently sent event.
+ * When a delay is applied, the highest priority process is moved to the lowest priority position.
+ * Even for small values of delay bound, this explorer is able to explore long paths in the program since it follows the chain of generated events.
+ * In our experience, this explorer is able to find bugs that are at large depth better than any other explorer.
+
+**************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Zing;
 
-namespace ExternalDelayBoundedScheduler
+namespace ExternalDelayingExplorer
 {
     [Serializable]
     public class RTCDBSchedulerState : ZingerSchedulerState
     {
+        //stack to maintain the scheduler information
         public Stack<int> DBStack;
         public RTCDBSchedulerState () : base()
         {
             DBStack = new Stack<int>();
         }
         
+        //copy consttuctor
         public RTCDBSchedulerState(RTCDBSchedulerState copyThis) : base(copyThis)
         {
             DBStack = new Stack<int>();
@@ -27,6 +39,7 @@ namespace ExternalDelayBoundedScheduler
             } 
         }
 
+        //print the scheduler state
         public override string ToString()
         {
             string ret = "";
@@ -37,6 +50,7 @@ namespace ExternalDelayBoundedScheduler
             return ret;
         }
 
+        //clone 
         public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
             RTCDBSchedulerState cloned = new RTCDBSchedulerState(this);
@@ -48,12 +62,12 @@ namespace ExternalDelayBoundedScheduler
     public class RunToCompletionDelayingScheduler : ZingerDelayingScheduler
     {
 
-
         public RunToCompletionDelayingScheduler ()
         {
         }
+
         /// <summary>
-        /// Push current process on top of Db Stack
+        /// Push newly created process on top of Stack
         /// </summary>
         /// <param name="processId"> process Id of the newly created process</param>
         public override void Start(ZingerSchedulerState zSchedState, int processId)
@@ -62,10 +76,11 @@ namespace ExternalDelayBoundedScheduler
             SchedState.DBStack.Push(processId);
             SchedState.Start(processId);
         }
+
         /// <summary>
-        /// Remove the process from DB Stack
+        /// Remove the completed process from Stack so that it is never scheduled again.
         /// </summary>
-        /// <param name="processId">Process to be removed from the stack</param>
+        /// <param name="processId">Process id to be removed from the stack</param>
         public override void Finish(ZingerSchedulerState zSchedState, int processId)
         {
             var SchedState = zSchedState as RTCDBSchedulerState;
@@ -87,9 +102,15 @@ namespace ExternalDelayBoundedScheduler
             {
                 SchedState.DBStack.Push(tempStack.Pop());
             }
-            SchedState.Finish(processId);
         }
 
+        /// <summary>
+        /// This function is called when an enqueue is performed on a process, hence it has a pending event to be serviced.
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="targetSM"> targetSM is the target process in which the event was enqueued. 
+        /// This process is pushed on top of the stack to follow event enqueue order.</param>
+        /// <param name="sourceSM">This parameter is passed for debugging purposes</param>
         public override void OnEnabled(ZingerSchedulerState ZSchedulerState, int targetSM, int sourceSM)
         {
             var SchedState = ZSchedulerState as RTCDBSchedulerState;
@@ -100,6 +121,13 @@ namespace ExternalDelayBoundedScheduler
 
         }
 
+        /// <summary>
+        /// This function is called when a process is blocked. In the context of asynchronous message
+        /// passing programs, a process is blocked when its queue is empty and the process is waiting for an event.
+        /// The process that gets blocked is poped off the stack.
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="sourceSM">This parameter is passed for debugging purposes</param>
         public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
         {
             var SchedState = ZSchedulerState as RTCDBSchedulerState;
@@ -109,7 +137,8 @@ namespace ExternalDelayBoundedScheduler
             }
         }
         /// <summary>
-        /// Move the process on top of stack to the bottom of the stack
+        /// Move the process on top of stack to the bottom of the stack. Moving the process to the bottom of the stack deviates
+        /// the scheduler from following the casual order of events (RTC strategy).
         /// </summary>
         public override void Delay(ZingerSchedulerState zSchedState)
         {
@@ -133,7 +162,8 @@ namespace ExternalDelayBoundedScheduler
         }
 
         /// <summary>
-        /// Return process at the top of stack to be scheduled next
+        /// Return process at the top of stack. 
+        /// This process is executed next and follows the deterministic schedule.
         /// </summary>
         /// <returns>next process to be scheduled</returns>
         public override int Next(ZingerSchedulerState zSchedState)
@@ -145,6 +175,14 @@ namespace ExternalDelayBoundedScheduler
             return (int)SchedState.DBStack.Peek();
         }
 
+        /// <summary>
+        /// This function is used internally by the ZING explorer.
+        /// It checks if we have applied the maximum number of delays in the current state. 
+        /// Applying any more delay operations will not lead to new transitions/states being explored.
+        /// Maximum delay operations for a state is always (totalEnabledProcesses - 1).
+        /// </summary>
+        /// <param name="zSchedState"></param>
+        /// <returns>If max bound for the given state has reached</returns>
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RTCDBSchedulerState;
@@ -152,6 +190,11 @@ namespace ExternalDelayBoundedScheduler
 
         }
 
+        /// <summary>
+        /// This function is provided for extending or customizing the delayingExplorer.
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="Params"></param>
         public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)
         {
             //do nothing

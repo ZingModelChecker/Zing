@@ -26,11 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoundRobinDelayingScheduler
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunToCompletionDelayingScheduler", "DelayingSchedulers\RunToCompletionDelayingScheduler\RunToCompletionDelayingScheduler.csproj", "{372082A5-2C0B-4196-BF97-095C398666C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriorityDelayingScheduler", "DelayingSchedulers\PriorityScheduler\PriorityDelayingScheduler.csproj", "{AEEAA9E8-6622-4C65-8798-646EC7F67C04}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCT", "DelayingSchedulers\PCT\PCT.csproj", "{9044F684-FD5F-4317-B24A-1CED7FBD890F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCTDelayingScheduler", "DelayingSchedulers\PCTDelayingScheduler\PCTDelayingScheduler.csproj", "{7DD02C13-9608-4F80-939E-4879BC858C86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomDelayingScheduler", "DelayingSchedulers\CustomDelayingScheduler\CustomDelayingScheduler.csproj", "{AEEAA9E8-6622-4C65-8798-646EC7F67C04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -188,38 +184,6 @@ Global
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04}.Release|x64.Build.0 = Release|x64
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04}.Release|x86.ActiveCfg = Release|x86
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04}.Release|x86.Build.0 = Release|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|x64.ActiveCfg = Debug|x64
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|x64.Build.0 = Debug|x64
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|x86.ActiveCfg = Debug|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Debug|x86.Build.0 = Debug|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|Mixed Platforms.Build.0 = Release|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|x64.ActiveCfg = Release|x64
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|x64.Build.0 = Release|x64
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|x86.ActiveCfg = Release|x86
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F}.Release|x86.Build.0 = Release|x86
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|x64.ActiveCfg = Debug|x64
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|x64.Build.0 = Debug|x64
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|x86.ActiveCfg = Debug|x86
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Debug|x86.Build.0 = Debug|x86
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|Mixed Platforms.Build.0 = Release|x64
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|x64.ActiveCfg = Release|x64
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|x64.Build.0 = Release|x64
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|x86.ActiveCfg = Release|x86
-		{7DD02C13-9608-4F80-939E-4879BC858C86}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -229,7 +193,5 @@ Global
 		{3C041918-8ED4-48EB-90C7-DC91B5E7AB80} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 		{372082A5-2C0B-4196-BF97-095C398666C1} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
-		{9044F684-FD5F-4317-B24A-1CED7FBD890F} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
-		{7DD02C13-9608-4F80-939E-4879BC858C86} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 	EndGlobalSection
 EndGlobal

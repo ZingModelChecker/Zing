@@ -20,11 +20,6 @@ namespace Microsoft.Zing
         }
 
         /// <summary>
-        /// List of all the active processes
-        /// </summary>
-        public List<int> AllActiveProcessIds;
-
-        /// <summary>
         /// Map from the P Statemachine id to Zing Process Id.
         /// </summary>
         protected Dictionary<int, int> PprocessToZingprocess;
@@ -41,7 +36,6 @@ namespace Microsoft.Zing
         {
             PprocessToZingprocess = new Dictionary<int, int>();
             lastZingProcessCreatedId = -1;
-            AllActiveProcessIds = new List<int>();
             isSealed = false;
             numOfTimesCurrStateDelayed = 0;
         }
@@ -53,7 +47,6 @@ namespace Microsoft.Zing
         public ZingerSchedulerState(ZingerSchedulerState copyThis)
         {
             this.PprocessToZingprocess = new Dictionary<int,int>();
-            AllActiveProcessIds = new List<int>();
             //map
             foreach(var item in copyThis.PprocessToZingprocess)
             {
@@ -62,10 +55,6 @@ namespace Microsoft.Zing
             }
             lastZingProcessCreatedId = copyThis.lastZingProcessCreatedId;
             isSealed = copyThis.isSealed;
-            foreach(var item in copyThis.AllActiveProcessIds)
-            {
-                this.AllActiveProcessIds.Add(item);
-            }
             numOfTimesCurrStateDelayed = 0;
         }
         /// <summary>
@@ -75,7 +64,6 @@ namespace Microsoft.Zing
         public void Start(int processId)
         {
             lastZingProcessCreatedId = processId;
-            AllActiveProcessIds.Add(processId);
         }
 
         /// <summary>
@@ -103,7 +91,7 @@ namespace Microsoft.Zing
         /// <param name="processId"></param>
         public void Finish(int processId)
         {
-            AllActiveProcessIds.Remove(processId);
+            throw new NotImplementedException("Not implemented");
         }
 
         /// <summary>
