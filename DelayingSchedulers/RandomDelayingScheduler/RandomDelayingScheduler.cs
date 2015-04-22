@@ -32,7 +32,7 @@ namespace ExternalDelayingExplorer
         /// </summary>
         public RandomDBSchedulerState () : base()
         {
-            setOfProcesses = null;
+            setOfProcesses = new List<int>();
             randGen = new Random(DateTime.Now.Millisecond);
             scheculedProcess = -1;
             EnabledProcesses = new List<int>();
@@ -43,12 +43,18 @@ namespace ExternalDelayingExplorer
         {
             randGen = copyThis.randGen; 
             scheculedProcess = copyThis.scheculedProcess;
-            setOfProcesses = copyThis.EnabledProcesses.ToList();
-            EnabledProcesses = copyThis.EnabledProcesses.ToList();
+            setOfProcesses = new List<int>();
+            EnabledProcesses = new List<int>();
+            foreach(var item in copyThis.EnabledProcesses)
+            {
+                setOfProcesses.Add(item);
+                EnabledProcesses.Add(item);
+            }
         }
         public override string ToString()
         {
             string ret = "";
+            ret = "s = " + scheculedProcess + " ";
             foreach (var item in setOfProcesses)
             {
                 ret = ret + item.ToString() + ","; 
@@ -63,7 +69,6 @@ namespace ExternalDelayingExplorer
             RandomDBSchedulerState cloned = new RandomDBSchedulerState(this);
             if (isCloneForFrontier)
             {
-               
                 cloned.setOfProcesses = new List<int>();
                 foreach (var item in setOfProcesses)
                 {
@@ -146,7 +151,10 @@ namespace ExternalDelayingExplorer
             var SchedState = ZSchedulerState as RandomDBSchedulerState;
             var procId = SchedState.GetZingProcessId(targetSM);
             if (!SchedState.EnabledProcesses.Contains(procId))
+            {
                 SchedState.EnabledProcesses.Add(procId);
+                SchedState.setOfProcesses.Add(procId);
+            }
         }
 
         /// <summary>
@@ -159,7 +167,10 @@ namespace ExternalDelayingExplorer
         {
             var SchedState = ZSchedulerState as RandomDBSchedulerState;
             var procId = SchedState.GetZingProcessId(sourceSM);
+           // Console.WriteLine(SchedState.ToString());
+            SchedState.setOfProcesses.Remove(procId);
             SchedState.EnabledProcesses.Remove(procId);
+            
         }
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
