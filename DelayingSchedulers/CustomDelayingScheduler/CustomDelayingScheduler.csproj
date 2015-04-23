@@ -7,8 +7,8 @@
     <ProjectGuid>{AEEAA9E8-6622-4C65-8798-646EC7F67C04}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PriorityDelayingScheduler</RootNamespace>
-    <AssemblyName>PriorityDelayingScheduler</AssemblyName>
+    <RootNamespace>CustomDelayingScheduler</RootNamespace>
+    <AssemblyName>CustomDelayingScheduler</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

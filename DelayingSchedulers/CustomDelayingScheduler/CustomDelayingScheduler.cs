@@ -61,9 +61,13 @@ namespace ExternalDelayingExplorer
         public override string ToString()
         {
             string ret = "";
-            foreach(var item in PriorityMap)
+            foreach(var item in EnabledProcessesWithPriority)
             {
                 ret = ret + String.Format("({0} - {1}), ", item.Key, item.Value);
+            }
+            foreach (var item in sortedProcesses)
+            {
+                ret = ret + String.Format("--", item);
             }
             return ret;
         }
@@ -71,6 +75,19 @@ namespace ExternalDelayingExplorer
         public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
             CustomDBSchedulerState cloned = new CustomDBSchedulerState(this);
+            if(isCloneForFrontier)
+            {
+                cloned.EnabledProcessesWithPriority = new Dictionary<int, int>();
+                foreach (var item in EnabledProcessesWithPriority)
+                {
+                    cloned.EnabledProcessesWithPriority.Add(item.Key, item.Value);
+                }
+                cloned.sortedProcesses = new List<int>();
+                foreach (var item in sortedProcesses)
+                {
+                    cloned.sortedProcesses.Add(item);
+                }
+            }
             return cloned;
         }
     }
@@ -92,6 +109,7 @@ namespace ExternalDelayingExplorer
             var schedState = ZSchedulerState as CustomDBSchedulerState;
             schedState.PriorityMap.Add(processId, schedState.randGen.Next());
             schedState.EnabledProcessesWithPriority.Add(processId, schedState.PriorityMap[processId]);
+            schedState.sortedProcesses.Add(processId);
             schedState.Start(processId);
         }
 
@@ -103,9 +121,9 @@ namespace ExternalDelayingExplorer
         public override void Finish(ZingerSchedulerState ZSchedulerState, int processId)
         {
             var schedState = ZSchedulerState as CustomDBSchedulerState;
-            schedState.Finish(processId);
             schedState.PriorityMap.Remove(processId);
             schedState.EnabledProcessesWithPriority.Remove(processId);
+            schedState.sortedProcesses.Remove(processId);
         }
 
         /// <summary>
@@ -150,10 +168,13 @@ namespace ExternalDelayingExplorer
         public override int Next(ZingerSchedulerState ZSchedulerState)
         {
             var schedState = ZSchedulerState as CustomDBSchedulerState;
-            if (schedState.EnabledProcessesWithPriority.Count == 0)
+            if (schedState.sortedProcesses.Count == 0)
                 return -1;
             else
-            return schedState.sortedProcesses.ElementAt(0);
+            {
+                return schedState.sortedProcesses.ElementAt(0);
+            }
+            
         }
 
         /// <summary>
@@ -168,6 +189,7 @@ namespace ExternalDelayingExplorer
             var schedState = ZSchedulerState as CustomDBSchedulerState;
             var procId = schedState.GetZingProcessId(sourceSM);
             schedState.EnabledProcessesWithPriority.Remove(procId);
+            schedState.sortedProcesses.Remove(procId);
         }
 
         /// <summary>
@@ -182,7 +204,10 @@ namespace ExternalDelayingExplorer
             var schedState = ZSchedulerState as CustomDBSchedulerState;
             var procId = schedState.GetZingProcessId(targetSM);
             if (!schedState.EnabledProcessesWithPriority.ContainsKey(procId))
+            {
                 schedState.EnabledProcessesWithPriority.Add(procId, schedState.PriorityMap[procId]);
+                schedState.sortedProcesses.Add(procId);
+            }
         }
 
         public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)
