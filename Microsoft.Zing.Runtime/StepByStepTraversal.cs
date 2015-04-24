@@ -366,7 +366,7 @@ namespace Microsoft.Zing
                 ProcessInfo.Length == NumProcesses);
             hasMultipleSuccessors = NumSuccessors() > 1;
             stateImpl = s;
-            
+            currProcess = 0;
             receipt = s.CheckIn();
 
 #if true
@@ -611,23 +611,37 @@ namespace Microsoft.Zing
                 }
                 else if (ZingerConfiguration.DoPreemptionBounding)
                 {
-                    while (currProcess < NumProcesses &&
-                        ProcessInfo[currProcess].Status != RUNNABLE)
-                        currProcess++;
-
-                    if (currProcess >= NumProcesses)
-                        return null;
-   
+                    int executeProcess;
                     if(doDelay)
                     {
-                        zBounds.IncrementPreemptionCost();
+                        if(!preemptionBounding.preempted)
+                        {
+                            preemptionBounding.preempted = true;
+                            zBounds.IncrementPreemptionCost();
+                        }
+                        executeProcess = preemptionBounding.GetNextProcessToExecute();
+                        if (executeProcess == -1)
+                            return null;
                     }
                     else
                     {
                         doDelay = true;
+                        executeProcess = preemptionBounding.currentProcess;
+                        if (ProcessInfo[executeProcess].Status != ProcessStatus.Runnable)
+                        {
+                            while (ProcessInfo[executeProcess].Status != ProcessStatus.Runnable)
+                            {
+                                executeProcess = preemptionBounding.GetNextProcessToExecute();
+                                if(executeProcess == -1)
+                                {
+                                    return null;
+                                }
+                            }
+                        }
+
                     }
 
-                    return RunProcess(currProcess++);
+                    return RunProcess(executeProcess);
                 }
                 else
                 {

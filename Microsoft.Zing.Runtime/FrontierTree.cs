@@ -428,6 +428,11 @@ namespace Microsoft.Zing
         public ZingerBounds Bounds;
 
         /// <summary>
+        /// Used in the case of preemption bounding
+        /// </summary>
+        private ZingPreemptionBounding preemptionBounding;
+        
+        /// <summary>
         /// For storing the scheduler state in the frontier for delay bounding
         /// </summary>
         private ZingerSchedulerState schedulerState;
@@ -445,6 +450,10 @@ namespace Microsoft.Zing
                 schedulerState = ti.ZingDBSchedState.Clone(true);
                 numOfTimesCurrStateDelayed = ti.ZingDBSchedState.numOfTimesCurrStateDelayed;
             }
+            else if(ZingerConfiguration.DoPreemptionBounding)
+            {
+                preemptionBounding = ti.preemptionBounding.Clone();
+            }
             ti.IsFingerPrinted = true;
             TheTrace = ti.GenerateTrace();
         }
@@ -461,6 +470,10 @@ namespace Microsoft.Zing
             {
                 retTraversalInfo.ZingDBSchedState = schedulerState;
                 retTraversalInfo.ZingDBSchedState.numOfTimesCurrStateDelayed = numOfTimesCurrStateDelayed;
+            }
+            else if (ZingerConfiguration.DoPreemptionBounding)
+            {
+                retTraversalInfo.preemptionBounding = preemptionBounding.Clone();
             }
             retTraversalInfo.IsFingerPrinted = true;
             return retTraversalInfo;

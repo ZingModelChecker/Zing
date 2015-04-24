@@ -102,7 +102,6 @@ namespace ExternalDelayingExplorer
         public override void Finish(ZingerSchedulerState ZSchedulerState, int processId)
         {
             var schedState = (ZSchedulerState as RandomDBSchedulerState);
-            ZSchedulerState.Finish(processId);
             schedState.EnabledProcesses.Remove(processId);
             schedState.setOfProcesses.Remove(processId);
         }

@@ -108,7 +108,7 @@ namespace Microsoft.Zing
                 TraversalInfo startState = fNode.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
                //Check if we need to explore the current frontier state
-                if(!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding)
+                if(!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
                 {
                     continue;
                 }

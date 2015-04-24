@@ -57,8 +57,11 @@ namespace Microsoft.Zing
         /// </summary>
         public TraversalInfo Predecessor;
         internal TraversalInfo Successor;
-        
-       
+
+        /// <summary>
+        /// Information for preemption bounding.
+        /// </summary>
+        public ZingPreemptionBounding preemptionBounding;
         /// <summary>
         /// Search bounds at the current state
         /// </summary>
@@ -240,6 +243,13 @@ namespace Microsoft.Zing
         {
 
             stateType = st;
+            Via = bt;
+            NumProcesses = s.NumProcesses;
+            ProcessInfo = s.GetProcessInfo();
+            events = s.GetEvents();
+            exception = s.Exception;
+            IsAcceptingState = s.IsAcceptingState;
+
             if (pred != null)
             {
                 Predecessor = pred;
@@ -254,8 +264,14 @@ namespace Microsoft.Zing
                     ZingDBScheduler =  s.ZingDBScheduler;
                     
                 }
+                else if (ZingerConfiguration.DoPreemptionBounding)
+                {
+                    preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, Predecessor.preemptionBounding.currentProcess);
+                }
                 pred.Successor = this;
                 MagicBit = pred.MagicBit;
+
+
             }
             else
             {
@@ -268,16 +284,11 @@ namespace Microsoft.Zing
                     ZingDBScheduler = s.ZingDBScheduler;
 
                 }
+                else if(ZingerConfiguration.DoPreemptionBounding)
+                {
+                    preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, 0);
+                }
             }
-            // Initialize the number of delays to 0
-            Via = bt;
-            
-            NumProcesses = s.NumProcesses;
-            ProcessInfo = s.GetProcessInfo();
-            events = s.GetEvents();
-            exception = s.Exception;
-            IsAcceptingState = s.IsAcceptingState;
-
         }
 
         public static TraversalInfo Load(Assembly asm)
