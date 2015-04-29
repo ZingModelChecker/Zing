@@ -1,0 +1,210 @@
+##################
+Check Failed
+##################
+ *******************************************************************************
+ Error trace 0: length: 6 states
+#### State 0 : 
+ State:[fingerprint =50f74923:3755dc34]
+
+  Globals:
+  ZingPointer ___X_Init_______tx_table = 0
+
+
+  Processes: (1)
+
+    Process 0: Name='___Main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_Init+___Main
+      Stack:
+        Function : Microsoft.Zing.Application+___X_Init+___Main
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 1 (ran process 0) :
+State:[fingerprint =720faabb:6a496ee7]
+
+  Globals:
+  ZingPointer ___X_Init_______tx_table = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+___X_TransactionTable
+    Contents:
+
+
+  Processes: (1)
+
+    Process 0: Name='___Main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_Init+___Main
+      Stack:
+        Function : Microsoft.Zing.Application+___X_Init+___Main
+          NextBlock: B3
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 2 (ran process 0) :
+State:[fingerprint =0177c397:716c42ae]
+
+  Globals:
+  ZingPointer ___X_Init_______tx_table = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+___X_TransactionTable
+    Contents:
+
+
+  Processes: (1)
+
+    Process 0: Name='___Main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_Init+___Main
+      Stack:
+        Function : Microsoft.Zing.Application+___X_Init+foo
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+___X_Init+___Main
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 3 (ran process 0) :
+State:[fingerprint =010c50f9:765c0eb3]
+
+  Globals:
+  ZingPointer ___X_Init_______tx_table = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+___X_TransactionTable
+    Contents:
+
+
+  Processes: (2)
+
+    Process 0: Name='___Main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_Init+___Main
+      Stack:
+        Function : Microsoft.Zing.Application+___X_Init+foo
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+        Function : Microsoft.Zing.Application+___X_Init+___Main
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='___X_TransactionTable.___RunTimer', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_TransactionTable+___RunTimer
+      Stack:
+        Function : Microsoft.Zing.Application+___X_TransactionTable+___RunTimer
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 4 (ran process 0) :
+State:[fingerprint =6167edf9:3ebe6ebc]
+
+  Globals:
+  ZingPointer ___X_Init_______tx_table = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+___X_TransactionTable
+    Contents:
+
+
+  Processes: (2)
+
+    Process 0: Name='___Main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_Init+___Main
+      Stack:
+        Function : Microsoft.Zing.Application+___X_Init+___Main
+          NextBlock: B1
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='___X_TransactionTable.___RunTimer', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_TransactionTable+___RunTimer
+      Stack:
+        Function : Microsoft.Zing.Application+___X_TransactionTable+___RunTimer
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 5 (ran process 0) :
+State:[fingerprint =1aabcadd:7582a651]
+
+  Globals:
+  ZingPointer ___X_Init_______tx_table = 1
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+___X_TransactionTable
+    Contents:
+
+
+  Processes: (2)
+
+    Process 0: Name='___Main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_Init+___Main
+      Stack:
+        Function : Microsoft.Zing.Application+___X_Init+___Main
+          NextBlock: B0
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 1: Name='___X_TransactionTable.___RunTimer', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+___X_TransactionTable+___RunTimer
+      Stack:
+        Function : Microsoft.Zing.Application+___X_TransactionTable+___RunTimer
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+
+Error in state:
+Zing Assertion failed:
+    Expression: false
+    Comment: 
+
+
+Stack trace:
+    ___X_Init.___Main (Ex3.zing, Line 14)
+
+
+3 distinct states explored

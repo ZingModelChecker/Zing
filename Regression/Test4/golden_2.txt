@@ -1,0 +1,4 @@
+##################
+Check Passed
+##################
+1 distinct states explored

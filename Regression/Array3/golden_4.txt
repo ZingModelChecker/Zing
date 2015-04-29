@@ -1,0 +1,115 @@
+Program Runtime Error
+ *******************************************************************************
+ Error trace 0: length: 4 states
+#### State 0 : 
+ State:[fingerprint =2dd2862d:6a19f1a8]
+
+  Globals:
+
+
+  Processes: (1)
+
+    Process 0: Name='main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Foo+main
+      Stack:
+        Function : Microsoft.Zing.Application+Foo+main
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 x = 0
+            ZingPointer b = 0
+
+#### State 1 (ran process 0) :
+State:[fingerprint =003b8033:18f5aef7]
+
+  Globals:
+
+
+  Processes: (1)
+
+    Process 0: Name='main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Foo+main
+      Stack:
+        Function : Microsoft.Zing.Application+Foo+main
+          NextBlock: B2
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 x = 3
+            ZingPointer b = 0
+
+#### State 2 (ran process 0) :
+State:[fingerprint =39c33035:454f6afc]
+
+  Globals:
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntDArray
+    Contents:
+      Array: ElementType=System.Int32, 3 elements
+        0: 0
+        1: 0
+        2: 0
+
+
+  Processes: (1)
+
+    Process 0: Name='main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Foo+main
+      Stack:
+        Function : Microsoft.Zing.Application+Foo+main
+          NextBlock: B1
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 x = 3
+            ZingPointer b = 1
+
+#### State 3 (ran process 0) :
+State:[fingerprint =39c33035:454f6afc]
+
+  Globals:
+
+  Heap: (1 items)
+    Addr= 1
+    Type= Microsoft.Zing.Application+IntDArray
+    Contents:
+      Array: ElementType=System.Int32, 3 elements
+        0: 0
+        1: 0
+        2: 0
+
+
+  Processes: (1)
+
+    Process 0: Name='main', Id=0
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+Foo+main
+      Stack:
+        Function : Microsoft.Zing.Application+Foo+main
+          NextBlock: B1
+          Inputs:
+          Outputs:
+          Locals:
+            System.Int32 x = 3
+            ZingPointer b = 1
+
+
+Error in state:
+Invalid index in a Zing array reference.
+
+
+Stack trace:
+    Foo.main (Array3.zing, Line 7)
+
+
+1 distinct states explored
