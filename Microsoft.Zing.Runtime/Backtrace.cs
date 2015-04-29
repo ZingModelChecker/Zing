@@ -1,17 +1,15 @@
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace Microsoft.Zing
 {
-    public abstract class Via 
+    public abstract class Via
     {
-		//silent is set to true for vias generated during
-		//silent calls and returns in the summarization algorithm
-		public bool silent;
+        //silent is set to true for vias generated during
+        //silent calls and returns in the summarization algorithm
+        public bool silent;
 
-		public abstract object Clone();
+        public abstract object Clone();
 
         public static void PrintTrace(Via[] bts)
         {
@@ -23,30 +21,28 @@ namespace Microsoft.Zing
                 Console.Write(bts[i].ToString());
             Console.WriteLine("");
         }
-
     }
-    
+
     public sealed class ViaChoose : Via
     {
         public readonly int ChoiceNumber;
 
-		public override object Clone()
-		{
-			return new ViaChoose(ChoiceNumber, silent);
-		}
-
-        public ViaChoose(int n) 
+        public override object Clone()
         {
-            ChoiceNumber = n;
-			silent = false;
+            return new ViaChoose(ChoiceNumber, silent);
         }
 
-		public ViaChoose(int n, bool s) 
-		{
-			ChoiceNumber = n;
-			silent = s;
-		}
+        public ViaChoose(int n)
+        {
+            ChoiceNumber = n;
+            silent = false;
+        }
 
+        public ViaChoose(int n, bool s)
+        {
+            ChoiceNumber = n;
+            silent = s;
+        }
 
         public override string ToString()
         {
@@ -70,35 +66,34 @@ namespace Microsoft.Zing
 
     public sealed class ViaExecute : Via
     {
-		int processExecuted;
-		public int ProcessExecuted
-		{
-			get { return processExecuted; }	
-		}
+        private int processExecuted;
 
-		public override object Clone()
-		{
-			return new ViaExecute(processExecuted,silent);
-			
-		}
+        public int ProcessExecuted
+        {
+            get { return processExecuted; }
+        }
+
+        public override object Clone()
+        {
+            return new ViaExecute(processExecuted, silent);
+        }
 
         public ViaExecute(int n)
         {
             processExecuted = n;
-			silent = false;
+            silent = false;
         }
 
-		public ViaExecute(int n, bool s)
-		{
-			processExecuted = n;
-			silent = s;
-		}
+        public ViaExecute(int n, bool s)
+        {
+            processExecuted = n;
+            silent = s;
+        }
 
-
-		public void ChangeProcessExecuted(int n)
-		{
-			processExecuted = n;
-		}
+        public void ChangeProcessExecuted(int n)
+        {
+            processExecuted = n;
+        }
 
         public override string ToString()
         {
@@ -119,5 +114,4 @@ namespace Microsoft.Zing
             return ProcessExecuted;
         }
     }
-
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Compiler;
 
 namespace Microsoft.Zing
@@ -6,7 +5,7 @@ namespace Microsoft.Zing
     internal class TypeSystem : System.Compiler.TypeSystem
     {
         internal TypeSystem(ErrorHandler errorHandler)
-            :base(errorHandler)
+            : base(errorHandler)
         {
         }
 
@@ -43,12 +42,11 @@ namespace Microsoft.Zing
             if (t1 == SystemTypes.UInt8 && t2 == SystemTypes.Int32)
                 return true;
 
-            return base.ImplicitCoercionFromTo (source, t1, t2);
+            return base.ImplicitCoercionFromTo(source, t1, t2);
         }
 
         public override Expression ImplicitCoercion(Expression source, TypeNode targetType, TypeViewer typeViewer)
         { // LJW: added third parameter "typeViewer" so we override the correct thing
-            
             if (source == null || source.Type == null || targetType == null)
                 return null;
 
@@ -56,7 +54,7 @@ namespace Microsoft.Zing
             {
                 return source;
             }
-             
+
             if (source.Type == SystemTypes.Object)
             {
                 if (targetType is Chan || targetType is Set || targetType is ZArray || targetType is Class)
@@ -89,7 +87,7 @@ namespace Microsoft.Zing
 
             if (source.Type == SystemTypes.UInt8 && targetType == SystemTypes.Int32)
             {
-                BinaryExpression binExpr =  new BinaryExpression(source, new MemberBinding(null, SystemTypes.Int32),
+                BinaryExpression binExpr = new BinaryExpression(source, new MemberBinding(null, SystemTypes.Int32),
                     NodeType.Castclass, source.SourceContext);
 
                 binExpr.Type = SystemTypes.Int32;
@@ -97,9 +95,8 @@ namespace Microsoft.Zing
                 return binExpr;
             }
 
-            return base.ImplicitCoercion (source, targetType, typeViewer);
+            return base.ImplicitCoercion(source, targetType, typeViewer);
         }
-
 
 #if false
         public override Expression ExplicitLiteralCoercion(Literal lit, TypeNode sourceType, TypeNode targetType)
@@ -108,7 +105,7 @@ namespace Microsoft.Zing
                 return this.ExplicitCoercion(lit, targetType);
             else
                 return this.ImplicitLiteralCoercion(lit, sourceType, targetType, true);
-        }    
+        }
         public override Literal ImplicitLiteralCoercion(Literal lit, TypeNode sourceType, TypeNode targetType)
         {
             return this.ImplicitLiteralCoercion(lit, sourceType, targetType, false);
@@ -151,7 +148,7 @@ namespace Microsoft.Zing
                 {
                     case TypeCode.Single: this.HandleError(lit, Error.LiteralDoubleCast, "float", "F"); return lit;
                     case TypeCode.Decimal: this.HandleError(lit, Error.LiteralDoubleCast, "decimal", "M"); return lit;
-                    default: 
+                    default:
                         this.HandleError(lit, Error.NoImplicitConversion, this.GetTypeName(sourceType), this.GetTypeName(targetType));
                         lit.SourceContext.Document = null;
                         return null;
@@ -160,23 +157,25 @@ namespace Microsoft.Zing
                 switch (targetType.TypeCode)
                 {
                     case TypeCode.Double: break;
-                    default: 
+                    default:
                         this.HandleError(lit, Error.NoImplicitConversion, this.GetTypeName(sourceType), this.GetTypeName(targetType));
                         lit.SourceContext.Document = null;
                         return null;
                 }
                     break;
+
                 case TypeCode.Int64:
                 case TypeCode.UInt64:
                 switch (targetType.TypeCode)
                 {
-                    case TypeCode.Int64: 
+                    case TypeCode.Int64:
                     case TypeCode.UInt64:
                     case TypeCode.Decimal:
                     case TypeCode.Single:
                     case TypeCode.Double:
                         break;
-                    default: 
+
+                    default:
                         if (explicitCoercion) break;
                         this.HandleError(lit, Error.NoImplicitConversion, this.GetTypeName(sourceType), this.GetTypeName(targetType));
                         lit.SourceContext.Document = null;
@@ -236,6 +235,7 @@ namespace Microsoft.Zing
             {
                 case TypeCode.Double:
                     return false;
+
                 case TypeCode.Single:
                 switch (targetType.TypeCode)
                 {
@@ -246,13 +246,14 @@ namespace Microsoft.Zing
                 case TypeCode.UInt64:
                 switch (targetType.TypeCode)
                 {
-                    case TypeCode.Int64: 
+                    case TypeCode.Int64:
                     case TypeCode.UInt64:
                     case TypeCode.Decimal:
                     case TypeCode.Single:
                     case TypeCode.Double:
                         break;
-                    default: 
+
+                    default:
                         return false;
                 }
                     break;

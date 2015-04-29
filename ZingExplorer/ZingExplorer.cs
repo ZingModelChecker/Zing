@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Collections;
-using System.Collections.Concurrent;
-using System.Diagnostics.Contracts;
 using System.IO;
+using System.Threading;
 
 namespace Microsoft.Zing
 {
@@ -17,6 +12,7 @@ namespace Microsoft.Zing
     public abstract class ZingExplorer
     {
         #region Variable Declarations
+
         /// <summary>
         /// Cancellation token so that Zinger can be terminated from command line.
         /// </summary>
@@ -46,6 +42,7 @@ namespace Microsoft.Zing
         /// StateImpl for the start state
         /// </summary>
         private StateImpl startStateStateImpl;
+
         public StateImpl StartStateStateImpl
         {
             get { return startStateStateImpl; }
@@ -59,9 +56,11 @@ namespace Microsoft.Zing
                 return new State(startStateStateImpl);
             }
         }
-        #endregion
+
+        #endregion Variable Declarations
 
         #region abstract functions
+
         protected abstract ZingerResult IterativeSearchStateSpace();
 
         protected abstract void SearchStateSpace(object obj);
@@ -69,8 +68,8 @@ namespace Microsoft.Zing
         protected abstract bool MustExplore(TraversalInfo ti);
 
         protected abstract void VisitState(TraversalInfo ti);
-        #endregion
 
+        #endregion abstract functions
 
         public ZingerResult Explore()
         {
@@ -78,7 +77,7 @@ namespace Microsoft.Zing
             //trace statements should be executed only when error trace is generated.
             ZingerConfiguration.ExecuteTraceStatements = false;
 
-            if(StartStateTraversalInfo.IsInvalidEndState())
+            if (StartStateTraversalInfo.IsInvalidEndState())
             {
                 bool oldCT = ZingerConfiguration.CompactTraces;
                 ZingerConfiguration.CompactTraces = false;
@@ -97,25 +96,31 @@ namespace Microsoft.Zing
                     ZingerUtilities.PrintSuccessMessage("Check Passed");
                     ZingerUtilities.PrintSuccessMessage("##################");
                     return ZingerResult.Success;
+
                 case ZingerResult.ZingRuntimeError:
                     ZingerUtilities.PrintErrorMessage("Zinger Internal Runtime Exception");
                     break;
+
                 case ZingerResult.ProgramRuntimeError:
                     ZingerUtilities.PrintErrorMessage("Program Runtime Error");
                     break;
+
                 case ZingerResult.Assertion:
                     ZingerUtilities.PrintErrorMessage("##################");
                     ZingerUtilities.PrintErrorMessage("Check Failed");
                     ZingerUtilities.PrintErrorMessage("##################");
                     break;
+
                 case ZingerResult.Deadlock:
                     ZingerUtilities.PrintErrorMessage("Deadlock Detected !");
                     break;
+
                 case ZingerResult.AcceptanceCyleFound:
                     ZingerUtilities.PrintErrorMessage("##################");
                     ZingerUtilities.PrintErrorMessage("Liveness Check Failed");
                     ZingerUtilities.PrintErrorMessage("##################");
                     break;
+
                 case ZingerResult.DFSStackOverFlowError:
                     ZingerUtilities.PrintErrorMessage("##################");
                     ZingerUtilities.PrintErrorMessage("Check Failed");
@@ -125,7 +130,6 @@ namespace Microsoft.Zing
             }
 
             ZingerConfiguration.ExecuteTraceStatements = true;
-
 
             if (ZingerConfiguration.DetailedZingTrace)
             {
@@ -138,9 +142,9 @@ namespace Microsoft.Zing
 
             return result;
         }
-        
 
         #region Constructor
+
         public ZingExplorer()
         {
             startStateStateImpl = StateImpl.Load(ZingerConfiguration.ZingModelFile);
@@ -152,21 +156,22 @@ namespace Microsoft.Zing
             //Fingerprint the start state.
             Fingerprint fp = startStateStateImpl.Fingerprint;
             CancelTokenZingExplorer = new CancellationTokenSource();
-            
+
             SafetyErrors = new ArrayList();
             AcceptingCycles = new ArrayList();
             lastErrorFound = ZingerResult.Success;
             StartStateTraversalInfo = GetTraversalInfoForTrace(null);
-            
         }
-        #endregion
+
+        #endregion Constructor
 
         #region Helper Functions for Generating TraversalInfo
+
         protected TraversalInfo GetTraversalInfoForTrace(Trace trace)
         {
             TraversalInfo ti = new ExecutionState((StateImpl)StartStateStateImpl.Clone(), null, null);
             TraversalInfo newTi = null;
-            
+
             if (trace != null)
             {
                 if (trace.Count > 0)
@@ -182,9 +187,11 @@ namespace Microsoft.Zing
 
             return ti;
         }
-        #endregion
+
+        #endregion Helper Functions for Generating TraversalInfo
 
         #region PrintErrorTraces
+
         public void PrintErrorTracesToFile()
         {
             StreamWriter tracer = new StreamWriter(File.Open(ZingerConfiguration.traceLogFile, FileMode.Create));
@@ -252,7 +259,6 @@ namespace Microsoft.Zing
                             tracer.WriteLine("P Assertion failed:");
                             tracer.WriteLine("Expression: assert({0})", (states[j].Error as ZingAssertionFailureException).Expression);
                             tracer.WriteLine("Comment: {0}", (states[j].Error as ZingAssertionFailureException).Comment);
-
                         }
                         else
                         {
@@ -260,7 +266,6 @@ namespace Microsoft.Zing
                             Console.WriteLine("Error:");
                             Console.WriteLine("{0}", states[j].Error);
                         }
-
                     }
                 }
             }
@@ -331,10 +336,8 @@ namespace Microsoft.Zing
                     }
                 }
             }
-
         }
-        #endregion
 
-
+        #endregion PrintErrorTraces
     }
 }

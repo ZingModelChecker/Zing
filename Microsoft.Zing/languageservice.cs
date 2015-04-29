@@ -8,28 +8,16 @@ using CciLanguageService = Microsoft.Cci.LanguageService;
 using CciScanner = Microsoft.Cci.Scanner;
 using CciSwitch = Microsoft.Cci.Switch;
 #else
-using System.Compiler;
-using CciAuthoringHelper = System.Compiler.AuthoringHelper;
-using CciAuthoringScope = System.Compiler.AuthoringScope;
-using CciDeclarations = System.Compiler.Declarations;
-using CciLanguageService = System.Compiler.LanguageService;
-using CciScanner = System.Compiler.Scanner;
-using CciSwitch = System.Compiler.Switch;
+
 #endif
-using System;
 //using System.Compiler;
-using System.Collections;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Runtime.InteropServices;
 
 /* LJW
 namespace Microsoft.Zing
 {
     public sealed class LanguageService : CciLanguageService
     {
-        private Scanner scanner; 
+        private Scanner scanner;
         private TrivialHashtable scopeFor;
 
         public LanguageService()
@@ -58,7 +46,7 @@ namespace Microsoft.Zing
                 StreamReader sr = new StreamReader(fileName);
                 fContents = sr.ReadToEnd(); sr.Close();
             }
-            Compilation compilation = new Compilation();  
+            Compilation compilation = new Compilation();
             //compilation.IsDummy = true;
             compilation.CompilerParameters = this.GetDummyCompilerParameters();
             compilation.TargetModule = new Module();
@@ -269,11 +257,11 @@ namespace Microsoft.Zing
         // This method works exactly like base.GetMembers except that we don't recurse
         // on the base class of "type". This eliminates some noise in VS code-sense.
         //
-        public override void GetMembers(TypeNode type, MemberList members, bool staticMembersWanted, bool showPrivate, bool showFamily, bool showInternal) 
+        public override void GetMembers(TypeNode type, MemberList members, bool staticMembersWanted, bool showPrivate, bool showFamily, bool showInternal)
         {
             if (type == null || members == null) return;
             TypeUnion tu = type as TypeUnion;
-            if (tu != null) 
+            if (tu != null)
             {
                 TypeNodeList tlist = tu.Types;
                 for (int i = 0, n = (tlist == null ? 0 : tlist.Length); i < n; i++)
@@ -285,13 +273,13 @@ namespace Microsoft.Zing
                 return;
             }
             TypeAlias ta = type as TypeAlias;
-            if (ta != null) 
+            if (ta != null)
             {
                 this.GetMembers(ta.AliasedType, members, staticMembersWanted, showPrivate, showFamily, showInternal);
                 return;
             }
             MemberList typeMembers = type.Members;
-            for (int i = 0, k = typeMembers == null ? 0 : typeMembers.Count; i < k; i++) 
+            for (int i = 0, k = typeMembers == null ? 0 : typeMembers.Count; i < k; i++)
             {
                 Member mem = typeMembers[i];
                 if (mem == null) continue;
@@ -307,7 +295,7 @@ namespace Microsoft.Zing
                 if (mem.IsPrivate && !showPrivate) continue;
                 if ((mem.IsFamily || mem.IsFamilyAndAssembly) && !showFamily) continue;
                 if ((mem.IsAssembly || mem.IsFamilyOrAssembly) && !showInternal) continue;
-                if (mem.IsSpecialName && !(mem is InstanceInitializer)) continue;        
+                if (mem.IsSpecialName && !(mem is InstanceInitializer)) continue;
                 if (mem.IsAnonymous)
                 {
                     TypeNode t = ((Field)mem).Type;
@@ -322,10 +310,10 @@ namespace Microsoft.Zing
     }
 
 #if UNUSED
-    internal sealed class Declarations : System.Compiler.Declarations 
+    internal sealed class Declarations : System.Compiler.Declarations
     {
         public Declarations(MemberList memberList, System.Compiler.AuthoringHelper helper) :
-            base(memberList, helper) 
+            base(memberList, helper)
         {
         }
         public override bool IsCommitChar(string textSoFar, char ch)
@@ -354,4 +342,3 @@ namespace Microsoft.Zing
 */
 
 #endif
-

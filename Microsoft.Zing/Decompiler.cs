@@ -1,22 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Compiler;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Xml;
 
-namespace Microsoft.Zing 
+namespace Microsoft.Zing
 {
     internal class Decompiler : StandardVisitor
     {
-        public Decompiler() : this(2)
+        public Decompiler()
+            : this(2)
         {
         }
 
-        public Decompiler(int indentationSize) 
+        public Decompiler(int indentationSize)
         {
             this.indentationSize = indentationSize;
 
@@ -24,11 +24,11 @@ namespace Microsoft.Zing
 
             indentStrings[0] = string.Empty;
             indentStrings[1] = string.Empty;
-            for (int i=0; i < indentationSize ;i++)
+            for (int i = 0; i < indentationSize; i++)
                 indentStrings[1] += " ";
 
-            for (int i=2; i < maxLevel ;i++)
-                indentStrings[i] = indentStrings[i-1] + indentStrings[1];
+            for (int i = 2; i < maxLevel; i++)
+                indentStrings[i] = indentStrings[i - 1] + indentStrings[1];
         }
 
         private static string[] keywords = new string[] {
@@ -138,7 +138,7 @@ namespace Microsoft.Zing
         private string currentLine;
         private List<string> lines;
 
-        #endregion
+        #endregion Code-generation helpers
 
         private int SourceLength { get { return currentLine.Length; } }
 
@@ -204,7 +204,7 @@ namespace Microsoft.Zing
             {
                 this.VisitLocalDeclaration(localDeclList[i]);
 
-                if (i < (n-1))
+                if (i < (n - 1))
                     Write(", ");
             }
             return localDeclList;
@@ -226,6 +226,7 @@ namespace Microsoft.Zing
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override AliasDefinition VisitAliasDefinition(AliasDefinition aliasDefinition)
         {
             WriteStart("using {0}=", aliasDefinition.Alias.Name);
@@ -233,18 +234,22 @@ namespace Microsoft.Zing
             WriteFinish(";");
             return aliasDefinition;
         }
+
         public override AssemblyNode VisitAssembly(AssemblyNode assembly)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override AssemblyReference VisitAssemblyReference(AssemblyReference assemblyReference)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitAssignmentExpression(AssignmentExpression assignment)
         {
             return base.VisitAssignmentExpression(assignment);
         }
+
         public override Statement VisitAssignmentStatement(AssignmentStatement assignment)
         {
             this.VisitExpression(assignment.Target);
@@ -252,16 +257,18 @@ namespace Microsoft.Zing
             this.VisitExpression(assignment.Source);
             return assignment;
         }
+
         public override Expression VisitAttributeConstructor(AttributeNode attribute)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override AttributeNode VisitAttributeNode(AttributeNode attribute)
         {
             // Ignore the ParamArray & DefaultMember attributes
             if (attribute.Constructor is MemberBinding)
             {
-                MemberBinding mb = (MemberBinding) attribute.Constructor;
+                MemberBinding mb = (MemberBinding)attribute.Constructor;
 
                 string attrName = mb.BoundMember.DeclaringType.Name.Name;
                 if (attrName == "ParamArrayAttribute" || attrName == "DefaultMemberAttribute")
@@ -271,10 +278,10 @@ namespace Microsoft.Zing
             // Ignore the ParamArray & DefaultMember attributes
             if (attribute.Constructor is Literal)
             {
-                Literal lit = (Literal) attribute.Constructor;
+                Literal lit = (Literal)attribute.Constructor;
                 if (lit.Value is Class)
                 {
-                    Class c = (Class) lit.Value;
+                    Class c = (Class)lit.Value;
                     if (c.Name.Name == "ParamArrayAttribute" || c.Name.Name == "DefaultMemberAttribute")
                         return attribute;
                 }
@@ -287,20 +294,23 @@ namespace Microsoft.Zing
             WriteFinish(")]");
             return attribute;
         }
+
         public override AttributeList VisitAttributeList(AttributeList attributes)
         {
             return base.VisitAttributeList(attributes);
         }
+
         public override Expression VisitBase(Base Base)
         {
             Write("base");
             return Base;
         }
+
         public override Expression VisitBinaryExpression(BinaryExpression binaryExpression)
         {
             Write("(");
             if ((binaryExpression.NodeType == NodeType.Castclass) ||
-				(binaryExpression.NodeType == NodeType.ExplicitCoercion))
+                (binaryExpression.NodeType == NodeType.ExplicitCoercion))
             {
                 Write("(");
                 this.VisitExpression(binaryExpression.Operand2);
@@ -311,16 +321,17 @@ namespace Microsoft.Zing
             {
                 this.VisitExpression(binaryExpression.Operand1);
 #if NOLINEBREAK
-				Write(" " + GetBinaryOperator(binaryExpression.NodeType) + " ");
+                Write(" " + GetBinaryOperator(binaryExpression.NodeType) + " ");
 #else
 				WriteFinish(" {0} ", GetBinaryOperator(binaryExpression.NodeType));
 				WriteStart(string.Empty);
 #endif
-				this.VisitExpression(binaryExpression.Operand2);
+                this.VisitExpression(binaryExpression.Operand2);
             }
             Write(")");
             return binaryExpression;
         }
+
         public override Block VisitBlock(Block block)
         {
             WriteLine("{");
@@ -330,14 +341,17 @@ namespace Microsoft.Zing
             WriteLine("}");
             return block;
         }
+
         public override Expression VisitBlockExpression(BlockExpression blockExpression)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitBranch(Branch branch)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitCatch(Catch Catch)
         {
             WriteStart("catch (");
@@ -351,6 +365,7 @@ namespace Microsoft.Zing
             this.VisitBlock(Catch.Block);
             return Catch;
         }
+
         public override Class VisitClass(Class Class)
         {
             this.VisitAttributeList(Class.Attributes);
@@ -393,7 +408,7 @@ namespace Microsoft.Zing
             return Class;
         }
 
-		public override MemberList VisitMemberList(MemberList members)
+        public override MemberList VisitMemberList(MemberList members)
         {
             if (members == null) return null;
             for (int i = 0, n = members.Count; i < n; i++)
@@ -410,6 +425,7 @@ namespace Microsoft.Zing
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitConstruct(Construct cons)
         {
             Write("new ");
@@ -428,6 +444,7 @@ namespace Microsoft.Zing
             Write(")");
             return cons;
         }
+
         public override Expression VisitConstructArray(ConstructArray consArr)
         {
             if (consArr.Rank > 1)
@@ -447,31 +464,38 @@ namespace Microsoft.Zing
             }
             return consArr;
         }
+
         public override Expression VisitConstructDelegate(ConstructDelegate consDelegate)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitConstructFlexArray(ConstructFlexArray consArr)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitConstructIterator(ConstructIterator consIterator)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeNode VisitConstrainedType(ConstrainedType cType)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitContinue(Continue Continue)
         {
             WriteLine("continue;");
             return Continue;
         }
+
         public override DelegateNode VisitDelegateNode(DelegateNode delegateNode)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitDoWhile(DoWhile doWhile)
         {
             WriteLine("do");
@@ -481,14 +505,17 @@ namespace Microsoft.Zing
             WriteFinish(");");
             return doWhile;
         }
+
         public override Statement VisitEndFilter(EndFilter endFilter)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitEndFinally(EndFinally endFinally)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override EnumNode VisitEnumNode(EnumNode enumNode)
         {
             WriteStart("{0}enum ", GetTypeQualifiers(enumNode));
@@ -500,7 +527,7 @@ namespace Microsoft.Zing
             In();
             for (int i = 0, n = enumNode.Members.Count; i < n; i++)
             {
-                Field field = (Field) enumNode.Members[i];
+                Field field = (Field)enumNode.Members[i];
 
                 if (!field.IsSpecialName)
                 {
@@ -518,19 +545,23 @@ namespace Microsoft.Zing
             WriteLine("};");
             return enumNode;
         }
+
         public override Event VisitEvent(Event evnt)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitExit(Exit exit)
         {
             WriteLine("break;");
             return exit;
         }
+
         public override Expression VisitExpression(Expression expression)
         {
             return base.VisitExpression(expression);
         }
+
         public override ExpressionList VisitExpressionList(ExpressionList expressions)
         {
             if (expressions == null) return null;
@@ -538,22 +569,24 @@ namespace Microsoft.Zing
             {
                 this.VisitExpression(expressions[i]);
 
-				if (i < (n-1)) 
-				{
+                if (i < (n - 1))
+                {
 #if NOLINEBREAK
                     Write(", ");
 #else
 					WriteFinish(",");
 					WriteStart(String.Empty);
 #endif
-				}
+                }
             }
             return expressions;
         }
+
         public override Expression VisitExpressionSnippet(ExpressionSnippet snippet)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitExpressionStatement(ExpressionStatement statement)
         {
             if (!this.processingForIncrementers)
@@ -569,10 +602,12 @@ namespace Microsoft.Zing
 
             return statement;
         }
+
         public override Statement VisitFaultHandler(FaultHandler faultHandler)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Field VisitField(Field field)
         {
             if (field == null) return null;
@@ -588,16 +623,19 @@ namespace Microsoft.Zing
             WriteFinish(";");
             return field;
         }
+
         public override Block VisitFieldInitializerBlock(FieldInitializerBlock block)
         {
             // TODO: is this ever interesting??
 
             return base.VisitFieldInitializerBlock(block);
         }
+
         public override Statement VisitFilter(Filter filter)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitFinally(Finally Finally)
         {
             if (Finally == null) return null;
@@ -605,6 +643,7 @@ namespace Microsoft.Zing
             this.VisitBlock(Finally.Block);
             return Finally;
         }
+
         public override Statement VisitFor(For For)
         {
             WriteLine("for (");
@@ -625,6 +664,7 @@ namespace Microsoft.Zing
             this.VisitBlock(For.Body);
             return For;
         }
+
         public override Statement VisitForEach(ForEach forEach)
         {
             WriteStart("foreach (");
@@ -637,6 +677,7 @@ namespace Microsoft.Zing
             this.VisitBlock(forEach.Body);
             return forEach;
         }
+
         public override Statement VisitGoto(Goto Goto)
         {
             WriteLine("goto {0};", Goto.TargetLabel.Name);
@@ -651,6 +692,7 @@ namespace Microsoft.Zing
             Write(identifier.Name);
             return identifier;
         }
+
         public override Statement VisitIf(If If)
         {
             WriteStart("if (");
@@ -665,10 +707,12 @@ namespace Microsoft.Zing
 
             return If;
         }
+
         public override Expression VisitImplicitThis(ImplicitThis implicitThis)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitIndexer(Indexer indexer)
         {
             this.VisitExpression(indexer.Object);
@@ -677,6 +721,7 @@ namespace Microsoft.Zing
             Write("]");
             return indexer;
         }
+
         public override Interface VisitInterface(Interface Interface)
         {
             this.VisitAttributeList(Interface.Attributes);
@@ -692,7 +737,7 @@ namespace Microsoft.Zing
                 WriteStart(": ");
                 this.VisitInterfaceReferenceList(Interface.Interfaces);
                 WriteFinish(string.Empty);
-                
+
                 Out();
             }
 
@@ -721,11 +766,12 @@ namespace Microsoft.Zing
             {
                 this.VisitTypeReference(interfaceReferences[i]);
 
-                if (i < (n-1))
+                if (i < (n - 1))
                     Write(", ");
             }
             return interfaceReferences;
         }
+
         public override InstanceInitializer VisitInstanceInitializer(InstanceInitializer cons)
         {
             WriteStart("{0}", GetMethodQualifiers(cons));
@@ -741,19 +787,19 @@ namespace Microsoft.Zing
             // Handle the constructor initializer
             if (cons.Body.Statements.Count >= 2)
             {
-                for (int n=0; n < 2 ;n++)
+                for (int n = 0; n < 2; n++)
                 {
                     if (cons.Body.Statements[n] is ExpressionStatement)
                     {
-                        ExpressionStatement es = (ExpressionStatement) cons.Body.Statements[n];
+                        ExpressionStatement es = (ExpressionStatement)cons.Body.Statements[n];
 
                         if (es.Expression is MethodCall)
                         {
-                            MethodCall mc = (MethodCall) es.Expression;
+                            MethodCall mc = (MethodCall)es.Expression;
 
                             if (mc.Callee is QualifiedIdentifier)
                             {
-                                QualifiedIdentifier qi = (QualifiedIdentifier) mc.Callee;
+                                QualifiedIdentifier qi = (QualifiedIdentifier)mc.Callee;
 
                                 if (qi.Identifier.Name == ".ctor")
                                 {
@@ -785,11 +831,13 @@ namespace Microsoft.Zing
             //this.VisitExpressionList(method.Ensures);
             return cons;
         }
+
         public override Statement VisitLabeledStatement(LabeledStatement lStatement)
         {
             WriteLine("{0}:", lStatement.Label.Name);
             return base.VisitLabeledStatement(lStatement);
         }
+
         public override Expression VisitLiteral(Literal literal)
         {
             // TODO: probably need special cases here for the various integer & real types.
@@ -799,11 +847,11 @@ namespace Microsoft.Zing
             else if (literal.Value is string)
                 Write("@\"{0}\"", literal.Value.ToString().Replace("\"", "\"\""));
             else if (literal.Value is bool)
-                Write( ((bool) literal.Value) ? "true" : "false");
+                Write(((bool)literal.Value) ? "true" : "false");
             else if (literal.Value is char)
                 Write("'\\x{0:X4}'", ((ushort)(char)literal.Value));
             else if (literal.Value is TypeNode)
-                this.VisitTypeReference((TypeNode) literal.Value);
+                this.VisitTypeReference((TypeNode)literal.Value);
             else if (literal.Type == SystemTypes.UInt64)
                 Write("{0}ul", literal.Value);
             else
@@ -811,14 +859,17 @@ namespace Microsoft.Zing
 
             return literal;
         }
+
         public override Expression VisitLocal(Local local)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitLRExpression(LRExpression expr)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitMethodCall(MethodCall call)
         {
             if (call == null) return null;
@@ -841,6 +892,7 @@ namespace Microsoft.Zing
             Write(")");
             return call;
         }
+
         public override Expression VisitMemberBinding(MemberBinding memberBinding)
         {
             // TODO: Just guessing here for now - need to understand this better.
@@ -858,6 +910,7 @@ namespace Microsoft.Zing
                 throw new NotImplementedException("Unexpected scenario in VisitMemberBinding");
             return memberBinding;
         }
+
         public override Method VisitMethod(Method method)
         {
             if (method == null) return null;
@@ -875,7 +928,7 @@ namespace Microsoft.Zing
             this.VisitParameterList(method.Parameters);
             if (method.IsAbstract)
                 WriteFinish(");");
-            else 
+            else
                 WriteFinish(")");
             // TODO
             //method.Requires = this.VisitExpressionList(method.Requires);
@@ -884,22 +937,27 @@ namespace Microsoft.Zing
                 this.VisitBlock(method.Body);
             return method;
         }
+
         public override Module VisitModule(Module module)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override ModuleReference VisitModuleReference(ModuleReference moduleReference)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitNameBinding(NameBinding nameBinding)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitNamedArgument(NamedArgument namedArgument)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Namespace VisitNamespace(Namespace nspace)
         {
             if (nspace.Name.Name.Length > 0)
@@ -919,7 +977,7 @@ namespace Microsoft.Zing
 
             return nspace;
         }
-    
+
         public override Expression VisitParameter(Parameter parameter)
         {
             if (parameter == null) return null;
@@ -927,7 +985,7 @@ namespace Microsoft.Zing
             {
                 if (parameter.Attributes[0].Constructor is MemberBinding)
                 {
-                    MemberBinding mb = (MemberBinding) parameter.Attributes[0].Constructor;
+                    MemberBinding mb = (MemberBinding)parameter.Attributes[0].Constructor;
 
                     if (mb.BoundMember.DeclaringType.Name.Name == "ParamArrayAttribute")
                     {
@@ -946,6 +1004,7 @@ namespace Microsoft.Zing
             this.VisitIdentifier(parameter.Name);
             return parameter;
         }
+
         public override ParameterList VisitParameterList(ParameterList parameterList)
         {
             if (parameterList == null) return null;
@@ -953,11 +1012,12 @@ namespace Microsoft.Zing
             {
                 this.VisitParameter(parameterList[i]);
 
-                if (i < (n-1))
+                if (i < (n - 1))
                     Write(", ");
             }
             return parameterList;
         }
+
         public override Expression VisitPrefixExpression(PrefixExpression pExpr)
         {
             switch (pExpr.Operator)
@@ -965,15 +1025,18 @@ namespace Microsoft.Zing
                 case NodeType.Add:
                     Write("++");
                     break;
+
                 case NodeType.Sub:
                     Write("--");
                     break;
+
                 default:
                     throw new InvalidOperationException("Unknown prefix operator");
             }
             this.VisitExpression(pExpr.Expression);
             return pExpr;
         }
+
         public override Expression VisitPostfixExpression(PostfixExpression pExpr)
         {
             this.VisitExpression(pExpr.Expression);
@@ -982,14 +1045,17 @@ namespace Microsoft.Zing
                 case NodeType.Add:
                     Write("++");
                     break;
+
                 case NodeType.Sub:
                     Write("--");
                     break;
+
                 default:
                     throw new InvalidOperationException("Unknown postfix operator");
             }
             return pExpr;
         }
+
         public override Property VisitProperty(Property property)
         {
             if (property == null) return null;
@@ -1032,6 +1098,7 @@ namespace Microsoft.Zing
 
             return property;
         }
+
         public override Expression VisitQualifiedIdentifier(QualifiedIdentifier qualifiedIdentifier)
         {
             this.VisitExpression(qualifiedIdentifier.Qualifier);
@@ -1039,10 +1106,12 @@ namespace Microsoft.Zing
             this.VisitIdentifier(qualifiedIdentifier.Identifier);
             return qualifiedIdentifier;
         }
+
         public override Statement VisitRepeat(Repeat repeat)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitReturn(Return Return)
         {
             if (Return == null) return null;
@@ -1057,10 +1126,12 @@ namespace Microsoft.Zing
             WriteFinish(";");
             return Return;
         }
+
         public override Expression VisitSetterValue(SetterValue value)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override StatementList VisitStatementList(StatementList statements)
         {
             if (statements == null)
@@ -1072,7 +1143,7 @@ namespace Microsoft.Zing
             for (int i = 0, n = statements.Count; i < n; i++)
             {
                 this.Visit(statements[i]);
-                if (this.processingForIncrementers && i < (n-1))
+                if (this.processingForIncrementers && i < (n - 1))
                     Write(",");
             }
             if (this.processingForIncrementers)
@@ -1080,10 +1151,12 @@ namespace Microsoft.Zing
 
             return statements;
         }
+
         public override StatementSnippet VisitStatementSnippet(StatementSnippet snippet)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override StaticInitializer VisitStaticInitializer(StaticInitializer cons)
         {
             WriteStart("static ");
@@ -1096,6 +1169,7 @@ namespace Microsoft.Zing
             this.VisitBlock(cons.Body);
             return cons;
         }
+
         public override Struct VisitStruct(Struct Struct)
         {
             this.VisitAttributeList(Struct.Attributes);
@@ -1117,6 +1191,7 @@ namespace Microsoft.Zing
 
             return Struct;
         }
+
         public override Statement VisitSwitch(System.Compiler.Switch Switch)
         {
             WriteStart("switch (");
@@ -1128,6 +1203,7 @@ namespace Microsoft.Zing
             WriteLine("}");
             return Switch;
         }
+
         public override SwitchCase VisitSwitchCase(SwitchCase switchCase)
         {
             if (switchCase.Label != null)
@@ -1141,26 +1217,32 @@ namespace Microsoft.Zing
             this.VisitBlock(switchCase.Body);
             return switchCase;
         }
+
         public override Statement VisitSwitchInstruction(SwitchInstruction switchInstruction)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Statement VisitTypeswitch(Typeswitch Typeswitch)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeswitchCase VisitTypeswitchCase(TypeswitchCase typeswitchCase)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeswitchCaseList VisitTypeswitchCaseList(TypeswitchCaseList typeswitchCases)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitTargetExpression(Expression expression)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitTernaryExpression(TernaryExpression expression)
         {
             Write("(");
@@ -1172,11 +1254,13 @@ namespace Microsoft.Zing
             Write(")");
             return expression;
         }
+
         public override Expression VisitThis(This This)
         {
             Write("this");
             return This;
         }
+
         public override Statement VisitThrow(Throw Throw)
         {
             WriteStart("throw");
@@ -1188,6 +1272,7 @@ namespace Microsoft.Zing
             WriteFinish(";");
             return Throw;
         }
+
         public override Statement VisitTry(Try Try)
         {
             WriteLine("try");
@@ -1212,30 +1297,37 @@ namespace Microsoft.Zing
 
             return Try;
         }
+
         public override TypeAlias VisitTypeAlias(TypeAlias tAlias)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeMemberSnippet VisitTypeMemberSnippet(TypeMemberSnippet snippet)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeModifier VisitTypeModifier(TypeModifier typeModifier)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeNode VisitTypeNode(TypeNode typeNode)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeNode VisitTypeParameter(TypeNode typeParameter)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override TypeNodeList VisitTypeParameterList(TypeNodeList typeParameters)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         private static string TranslateTypeName(string typeName)
         {
             switch (typeName)
@@ -1260,6 +1352,7 @@ namespace Microsoft.Zing
                     return null;
             }
         }
+
         public override TypeNode VisitTypeReference(TypeNode type)
         {
             string nativeType = null;
@@ -1299,7 +1392,7 @@ namespace Microsoft.Zing
                 // ISSUE: Is this ever a good idea?
                 int sepPos = type.FullName.IndexOf('+');
                 if (sepPos > 0)
-                    Write(type.FullName.Substring(sepPos+1));
+                    Write(type.FullName.Substring(sepPos + 1));
                 else
                     Write(type.FullName);
             }
@@ -1310,10 +1403,12 @@ namespace Microsoft.Zing
 
             return type;
         }
+
         public override TypeNodeList VisitTypeReferenceList(TypeNodeList typeReferences)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override Expression VisitUnaryExpression(UnaryExpression unaryExpression)
         {
             bool isFunctionStyle;
@@ -1334,15 +1429,18 @@ namespace Microsoft.Zing
             }
             return unaryExpression;
         }
+
         public override Statement VisitVariableDeclaration(VariableDeclaration variableDeclaration)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override UsedNamespace VisitUsedNamespace(UsedNamespace usedNamespace)
         {
             WriteLine("using {0};", usedNamespace.Namespace.Name);
             return base.VisitUsedNamespace(usedNamespace);
         }
+
         public override Statement VisitWhile(While While)
         {
             WriteStart("while (");
@@ -1351,10 +1449,12 @@ namespace Microsoft.Zing
             this.VisitBlock(While.Body);
             return While;
         }
+
         public override Statement VisitYield(Yield Yield)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         private static string GetTypeQualifiers(TypeNode typeNode)
         {
             string qualifiers = string.Empty;
@@ -1378,6 +1478,7 @@ namespace Microsoft.Zing
 
             return qualifiers;
         }
+
         private static string GetPropertyQualifiers(Property property)
         {
             string qualifiers = string.Empty;
@@ -1409,12 +1510,12 @@ namespace Microsoft.Zing
             else if (property.IsVirtual)
                 qualifiers += "virtual ";
 
-
             if (property.HidesBaseClassMember)
                 qualifiers += "new ";
 
             return qualifiers;
         }
+
         private static string GetMethodQualifiers(Method method)
         {
             string qualifiers = string.Empty;
@@ -1449,6 +1550,7 @@ namespace Microsoft.Zing
 
             return qualifiers;
         }
+
         private static string GetAttributeTarget(AttributeTargets targetFlags)
         {
             switch (targetFlags)
@@ -1465,6 +1567,7 @@ namespace Microsoft.Zing
                 case AttributeTargets.All: return string.Empty;
             }
         }
+
         private static string GetParameterDirection(ParameterFlags flags)
         {
             switch (flags)
@@ -1472,11 +1575,12 @@ namespace Microsoft.Zing
                 case ParameterFlags.None: return string.Empty;
                 case ParameterFlags.In: return string.Empty;
                 case ParameterFlags.Out: return "out ";
-                case ParameterFlags.In|ParameterFlags.Out: return "ref ";
+                case ParameterFlags.In | ParameterFlags.Out: return "ref ";
                 default:
                     throw new ArgumentException("Unexpected ParameterFlags value");
             }
         }
+
         private static string GetAssignmentOperator(NodeType op)
         {
             switch (op)
@@ -1496,6 +1600,7 @@ namespace Microsoft.Zing
                     throw new ArgumentException("Invalid assignment operator type");
             }
         }
+
         private static string GetFieldQualifiers(Field field)
         {
             string qualifiers = string.Empty;
@@ -1519,61 +1624,62 @@ namespace Microsoft.Zing
 
             return qualifiers;
         }
+
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         private static string GetBinaryOperator(NodeType nodeType)
         {
-            switch(nodeType)
+            switch (nodeType)
             {
-                case NodeType.Add :
-                case NodeType.Add_Ovf_Un : 
-                case NodeType.Add_Ovf : return "+";
-                case NodeType.And : return "&";
-                case NodeType.As : return "as";
+                case NodeType.Add:
+                case NodeType.Add_Ovf_Un:
+                case NodeType.Add_Ovf: return "+";
+                case NodeType.And: return "&";
+                case NodeType.As: return "as";
 
-                case NodeType.Div_Un : 
-                case NodeType.Div : return "/";
-                case NodeType.Eq : return "==";
-                case NodeType.Ge : return ">=";
-                case NodeType.Gt : return ">";
-                case NodeType.Is : return "is";
-                case NodeType.Le : return "<=";
-                case NodeType.LogicalAnd : return "&&";
-                case NodeType.LogicalOr : return "||";
-                case NodeType.Lt : return "<";
+                case NodeType.Div_Un:
+                case NodeType.Div: return "/";
+                case NodeType.Eq: return "==";
+                case NodeType.Ge: return ">=";
+                case NodeType.Gt: return ">";
+                case NodeType.Is: return "is";
+                case NodeType.Le: return "<=";
+                case NodeType.LogicalAnd: return "&&";
+                case NodeType.LogicalOr: return "||";
+                case NodeType.Lt: return "<";
 
-                case NodeType.Mul_Ovf : 
-                case NodeType.Mul_Ovf_Un : 
-                case NodeType.Mul : return "*";
-                case NodeType.Ne : return "!=";
-                case NodeType.Or : return "|";
-                case NodeType.Shl : return "<<";
+                case NodeType.Mul_Ovf:
+                case NodeType.Mul_Ovf_Un:
+                case NodeType.Mul: return "*";
+                case NodeType.Ne: return "!=";
+                case NodeType.Or: return "|";
+                case NodeType.Shl: return "<<";
 
-                case NodeType.Shr_Un : 
-                case NodeType.Shr : return ">>";
-                case NodeType.Xor : return "^";
+                case NodeType.Shr_Un:
+                case NodeType.Shr: return ">>";
+                case NodeType.Xor: return "^";
 
-                case NodeType.Rem_Un : 
-                case NodeType.Rem : return "%";
-                case NodeType.Sub :
-                case NodeType.Sub_Ovf_Un : 
-                case NodeType.Sub_Ovf : return "-";
+                case NodeType.Rem_Un:
+                case NodeType.Rem: return "%";
+                case NodeType.Sub:
+                case NodeType.Sub_Ovf_Un:
+                case NodeType.Sub_Ovf: return "-";
 
                 // TODO: Finish this
-                case NodeType.AddEventHandler :
-                case NodeType.Box :
-                case NodeType.Castclass : 
-                case NodeType.Ceq : 
-                case NodeType.Cgt : 
-                case NodeType.Cgt_Un : 
-                case NodeType.Clt : 
-                case NodeType.Clt_Un : 
-                case NodeType.Isinst : 
-                case NodeType.Ldvirtftn :
-                case NodeType.Mkrefany :
-                case NodeType.Refanyval :
-                case NodeType.RemoveEventHandler :
+                case NodeType.AddEventHandler:
+                case NodeType.Box:
+                case NodeType.Castclass:
+                case NodeType.Ceq:
+                case NodeType.Cgt:
+                case NodeType.Cgt_Un:
+                case NodeType.Clt:
+                case NodeType.Clt_Un:
+                case NodeType.Isinst:
+                case NodeType.Ldvirtftn:
+                case NodeType.Mkrefany:
+                case NodeType.Refanyval:
+                case NodeType.RemoveEventHandler:
                 //case NodeType.Unaligned : // LJW: removed
-                case NodeType.Unbox :
+                case NodeType.Unbox:
                 default:
                     Debug.Assert(false, "binary operator not yet implemented");
                     throw new NotImplementedException("Binary operator not yet supported");
@@ -1593,77 +1699,78 @@ namespace Microsoft.Zing
             switch (nodeType)
             {
                 case NodeType.AddressOf: return "&";
-                case NodeType.Decrement : return "--";
-                case NodeType.Increment : return "++";
-                case NodeType.LogicalNot : return "!";
-                case NodeType.Neg : return "-";
-                case NodeType.Not : return "~";
-                case NodeType.UnaryPlus : return "+";
-                case NodeType.Sizeof : isFunctionStyle = true; return "sizeof";
-                case NodeType.Typeof : isFunctionStyle = true; return "typeof";
+                case NodeType.Decrement: return "--";
+                case NodeType.Increment: return "++";
+                case NodeType.LogicalNot: return "!";
+                case NodeType.Neg: return "-";
+                case NodeType.Not: return "~";
+                case NodeType.UnaryPlus: return "+";
+                case NodeType.Sizeof: isFunctionStyle = true; return "sizeof";
+                case NodeType.Typeof: isFunctionStyle = true; return "typeof";
                 case NodeType.OutAddress: return "out ";
                 case NodeType.RefAddress: return "ref ";
                 case NodeType.Parentheses: isFunctionStyle = true; return string.Empty;
 
-                case NodeType.Conv_Ovf_I1 :
-                case NodeType.Conv_Ovf_I1_Un :
+                case NodeType.Conv_Ovf_I1:
+                case NodeType.Conv_Ovf_I1_Un:
                 case NodeType.Conv_I1:
                     return MakeCast(TranslateTypeName(SystemTypes.Int8.Name.Name));
 
-                case NodeType.Conv_Ovf_I2 :
-                case NodeType.Conv_Ovf_I2_Un :
+                case NodeType.Conv_Ovf_I2:
+                case NodeType.Conv_Ovf_I2_Un:
                 case NodeType.Conv_I2:
                     return MakeCast(TranslateTypeName(SystemTypes.Int16.Name.Name));
 
-                case NodeType.Conv_Ovf_I4 :
-                case NodeType.Conv_Ovf_I4_Un :
+                case NodeType.Conv_Ovf_I4:
+                case NodeType.Conv_Ovf_I4_Un:
                 case NodeType.Conv_I4:
                     return MakeCast(TranslateTypeName(SystemTypes.Int32.Name.Name));
 
-                case NodeType.Conv_Ovf_I8 :
-                case NodeType.Conv_Ovf_I8_Un :
+                case NodeType.Conv_Ovf_I8:
+                case NodeType.Conv_Ovf_I8_Un:
                 case NodeType.Conv_I8:
                     return MakeCast(TranslateTypeName(SystemTypes.Int64.Name.Name));
 
-                case NodeType.Conv_Ovf_U1 :
-                case NodeType.Conv_Ovf_U1_Un :
+                case NodeType.Conv_Ovf_U1:
+                case NodeType.Conv_Ovf_U1_Un:
                 case NodeType.Conv_U1:
                     return MakeCast(TranslateTypeName(SystemTypes.UInt8.Name.Name));
 
-                case NodeType.Conv_Ovf_U2 :
-                case NodeType.Conv_Ovf_U2_Un :
+                case NodeType.Conv_Ovf_U2:
+                case NodeType.Conv_Ovf_U2_Un:
                 case NodeType.Conv_U2:
                     return MakeCast(TranslateTypeName(SystemTypes.UInt16.Name.Name));
 
-                case NodeType.Conv_Ovf_U4 :
-                case NodeType.Conv_Ovf_U4_Un :
+                case NodeType.Conv_Ovf_U4:
+                case NodeType.Conv_Ovf_U4_Un:
                 case NodeType.Conv_U4:
                     return MakeCast(TranslateTypeName(SystemTypes.UInt32.Name.Name));
 
-                case NodeType.Conv_Ovf_U8 :
-                case NodeType.Conv_Ovf_U8_Un :
+                case NodeType.Conv_Ovf_U8:
+                case NodeType.Conv_Ovf_U8_Un:
                 case NodeType.Conv_U8:
                     return MakeCast(TranslateTypeName(SystemTypes.UInt64.Name.Name));
 
                 case NodeType.Conv_R4:
                     return MakeCast(TranslateTypeName(SystemTypes.Single.Name.Name));
+
                 case NodeType.Conv_R8:
                     return MakeCast(TranslateTypeName(SystemTypes.Double.Name.Name));
 
                 // TODO: Finish this
-                case NodeType.Ckfinite :
-                case NodeType.Conv_I :
-                case NodeType.Conv_Ovf_I :
-                case NodeType.Conv_Ovf_I_Un :
-                case NodeType.Conv_Ovf_U :
-                case NodeType.Conv_Ovf_U_Un :
-                case NodeType.Conv_R_Un :
-                case NodeType.Conv_U :
-                case NodeType.Ldftn :
-                case NodeType.Ldlen :
-                case NodeType.Ldtoken :
-                case NodeType.Localloc :
-                case NodeType.Refanytype :
+                case NodeType.Ckfinite:
+                case NodeType.Conv_I:
+                case NodeType.Conv_Ovf_I:
+                case NodeType.Conv_Ovf_I_Un:
+                case NodeType.Conv_Ovf_U:
+                case NodeType.Conv_Ovf_U_Un:
+                case NodeType.Conv_R_Un:
+                case NodeType.Conv_U:
+                case NodeType.Ldftn:
+                case NodeType.Ldlen:
+                case NodeType.Ldtoken:
+                case NodeType.Localloc:
+                case NodeType.Refanytype:
                 //case NodeType.Volatile : //LJW: remove
                 default:
                     Debug.Assert(false, "Unary operator not yet implemented");

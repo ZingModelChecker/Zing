@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Microsoft.Zing
 {
@@ -15,10 +12,12 @@ namespace Microsoft.Zing
         private static ushort methodCounter = 0;
 
         private ushort methodNumber;
+
         [CLSCompliant(false)]
         public ushort MethodNumber { get { return methodNumber; } }
 
         private ushort nextBlock;
+
         public ushort NextBlock { get { return nextBlock; } }
 
         public override bool Equals(object obj)

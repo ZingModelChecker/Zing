@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Microsoft.Zing
 {
@@ -16,6 +13,7 @@ namespace Microsoft.Zing
         /// Current Accepting State
         /// </summary>
         private Fingerprint CurrAcceptingState;
+
         public ZingExplorerNDFSLiveness()
         {
             GlobalStateTable = new ZingerStateTable();
@@ -28,11 +26,10 @@ namespace Microsoft.Zing
             {
                 SearchStateSpace(0);
             }
-            catch(ZingException ex)
+            catch (ZingException ex)
             {
                 return lastErrorFound;
             }
-            
 
             return ZingerResult.Success;
         }
@@ -50,7 +47,7 @@ namespace Microsoft.Zing
             Stack<TraversalInfo> LocalSearchStack = new Stack<TraversalInfo>();
             LocalSearchStack.Push(startState);
 
-            while(LocalSearchStack.Count > 0)
+            while (LocalSearchStack.Count > 0)
             {
                 //start exploring the top of stack
                 TraversalInfo currentState = LocalSearchStack.Peek();
@@ -70,10 +67,10 @@ namespace Microsoft.Zing
                 //Explore Successors
                 TraversalInfo nextState = currentState.GetNextSuccessor();
                 //All successors explored already
-                if(nextState == null)
+                if (nextState == null)
                 {
                     //since we are going to pop the stack, lets start the red search
-                    if(!currentState.MagicBit && currentState.IsAcceptingState)
+                    if (!currentState.MagicBit && currentState.IsAcceptingState)
                     {
                         LocalSearchStack.Pop();
                         var redCurrentState = SetMagicBit(currentState);
@@ -86,21 +83,19 @@ namespace Microsoft.Zing
                     continue;
                 }
 
-                if(nextState.MagicBit && nextState.Fingerprint.Equals(CurrAcceptingState) && nextState.IsAcceptingState)
+                if (nextState.MagicBit && nextState.Fingerprint.Equals(CurrAcceptingState) && nextState.IsAcceptingState)
                 {
                     AcceptingCycles.Add(nextState.GenerateNonCompactTrace());
                     lastErrorFound = ZingerResult.AcceptanceCyleFound;
-                    if(ZingerConfiguration.StopOnError)
+                    if (ZingerConfiguration.StopOnError)
                         throw new ZingerAcceptingCycleFound();
-
                 }
-
 
                 //Check if its a terminal state
                 TerminalState terminalState = nextState as TerminalState;
-                if(terminalState != null)
+                if (terminalState != null)
                 {
-                    if(terminalState.IsErroneousTI)
+                    if (terminalState.IsErroneousTI)
                     {
                         //BUG FOUND
                         //update the safety traces
@@ -119,14 +114,13 @@ namespace Microsoft.Zing
 
                     //else continue
                     continue;
-
                 }
 
-                if(MustExplore(nextState))
+                if (MustExplore(nextState))
                 {
                     // Ensure that states that are at cutoff are not added to the state table
                     // Since they will be added to the Frontier for the next iteration.
-                    
+
                     VisitState(nextState);
                     LocalSearchStack.Push(nextState);
                     continue;
@@ -135,10 +129,6 @@ namespace Microsoft.Zing
                 {
                     continue;
                 }
-
-                
-
-
             }
         }
 
@@ -155,14 +145,14 @@ namespace Microsoft.Zing
         {
             ZingerStats.IncrementTransitionsCount();
 
-            if(!ti.IsFingerPrinted)
+            if (!ti.IsFingerPrinted)
                 return true;
 
             Fingerprint fp = ti.Fingerprint;
-            if(GlobalStateTable.Contains(fp))
+            if (GlobalStateTable.Contains(fp))
             {
                 var stateD = GlobalStateTable.GetStateData(fp);
-                if(stateD.MagicBit == ti.MagicBit)
+                if (stateD.MagicBit == ti.MagicBit)
                 {
                     return false;
                 }
@@ -179,15 +169,13 @@ namespace Microsoft.Zing
 
         protected override void VisitState(TraversalInfo ti)
         {
-
             if (!ti.IsFingerPrinted)
                 return;
 
             Fingerprint fp = ti.Fingerprint;
-            
+
             StateData newD = new StateData(ti.MagicBit);
             GlobalStateTable.AddOrUpdate(fp, newD);
-            
         }
     }
 }

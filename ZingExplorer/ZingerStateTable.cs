@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections.Concurrent;
 using System.Diagnostics.Contracts;
 
@@ -10,12 +7,11 @@ namespace Microsoft.Zing
     [Serializable]
     public class StateData
     {
-        
-
         /// <summary>
         /// Magic bit used during NDFS liveness algorithm to distinguish between red and green states
         /// </summary>
         private bool magicBit = false;
+
         public bool MagicBit
         {
             get { return magicBit; }
@@ -29,7 +25,6 @@ namespace Microsoft.Zing
 
         public StateData()
         {
-
         }
 
         public override bool Equals(object obj)
@@ -46,6 +41,7 @@ namespace Microsoft.Zing
                     return false;
             }
         }
+
         public bool Equals(StateData st)
         {
             return st.magicBit == magicBit;
@@ -60,7 +56,7 @@ namespace Microsoft.Zing
         /// <summary>
         /// State table map from fingerprint to the state-data.
         /// </summary>
-        ConcurrentDictionary<Fingerprint, StateData> hashTable = new ConcurrentDictionary<Fingerprint, StateData>();
+        private ConcurrentDictionary<Fingerprint, StateData> hashTable = new ConcurrentDictionary<Fingerprint, StateData>();
 
         public void AddOrUpdate(Fingerprint fp, StateData sd)
         {
@@ -72,7 +68,7 @@ namespace Microsoft.Zing
             }
             else
             {
-                if(hashTable.TryAdd(fp, sd))
+                if (hashTable.TryAdd(fp, sd))
                 {
                     ZingerStats.IncrementStatesCount();
                 }

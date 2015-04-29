@@ -1,19 +1,13 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Reflection;
 using System.Xml;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Microsoft.Zing
 {
-
     #region Types related to getting information from a Zing state
 
     /// <summary>
@@ -24,7 +18,7 @@ namespace Microsoft.Zing
     /// transitions are possible (Error, NormalTermination, FailedAssumption)
     /// and two are non-terminal state types (Execution and Choice).
     /// </remarks>
-    public enum StateType 
+    public enum StateType
     {
         /// <summary>
         /// A non-terminal node in which forward progress is possible by executing one of
@@ -92,18 +86,21 @@ namespace Microsoft.Zing
         /// Returns the index of the source file referenced.
         /// </summary>
         public int DocIndex { get { return docIndex; } }
+
         private int docIndex;
 
         /// <summary>
         /// Returns the starting column number of the source fragment.
         /// </summary>
         public int StartColumn { get { return startColumn; } }
+
         private int startColumn;
 
         /// <summary>
         /// Returns the ending column number of the source fragment.
         /// </summary>
         public int EndColumn { get { return endColumn; } }
+
         private int endColumn;
 
         public void CopyTo(ZingSourceContext other)
@@ -152,14 +149,16 @@ namespace Microsoft.Zing
         /// Returns the current status of the process
         /// </summary>
         public ProcessStatus Status { get { return status; } }
+
         private ProcessStatus status;
-        
+
         /// <summary>
         /// Returns the name of the process (i.e. its entry point)
         /// </summary>
         public string Name { get { return name; } }
+
         private string name;
-        
+
         /// <summary>
         /// Returns the name of the method on the top of the stack.
         /// </summary>
@@ -170,11 +169,12 @@ namespace Microsoft.Zing
                 return topOfStack.MethodName;
             }
         }
-        
+
         /// <summary>
         /// Returns the source context of the active method.
         /// </summary>
         public ZingSourceContext Context { get { return context; } }
+
         private ZingSourceContext context;
 
         /// <summary>
@@ -182,6 +182,7 @@ namespace Microsoft.Zing
         /// the active method, or null if no attribute was present.
         /// </summary>
         public ZingAttribute ContextAttribute { get { return contextAttribute; } }
+
         private ZingAttribute contextAttribute;
 
         /// <summary>
@@ -205,6 +206,7 @@ namespace Microsoft.Zing
                 return this.backTransitionEncountered;
             }
         }
+
         private bool backTransitionEncountered;
 
         // We keep the top of stack around so we can lazily compute the ProgramCounter and
@@ -223,7 +225,7 @@ namespace Microsoft.Zing
             contextAttribute = p.ContextAttribute;
         }
 
-        public override bool  Equals(object obj)
+        public override bool Equals(object obj)
         {
             ProcessInfo other = (ProcessInfo)obj;
 
@@ -241,20 +243,18 @@ namespace Microsoft.Zing
             throw new NotImplementedException("The method or operation is not implemented.");
         }
 
-        
         public static bool operator ==(ProcessInfo p1, ProcessInfo p2)
         {
             return p1.Equals(p2);
         }
 
-        
         public static bool operator !=(ProcessInfo p1, ProcessInfo p2)
         {
             return p1.Equals(p2);
         }
     }
 
-    #endregion
+    #endregion Types related to getting information from a Zing state
 
     #region Execution traces & related types
 
@@ -267,23 +267,23 @@ namespace Microsoft.Zing
         /// <summary>
         /// No errors were found within the specified limits of the search (if any).
         /// </summary>
-        Success             = 0,
+        Success = 0,
 
         /// <summary>
         /// The state-space search was cancelled.
         /// </summary>
-        Canceled           = 1,
+        Canceled = 1,
 
         /// <summary>
         /// A state was found in which one or more processes were stuck, but not at
         /// valid "end" states.
         /// </summary>
-        Deadlock            = 2,
+        Deadlock = 2,
 
         /// <summary>
         /// An assertion failure was encountered in the Zing model.
         /// </summary>
-        Assertion           = 3,
+        Assertion = 3,
 
         /// <summary>
         /// This code is returned for a number of different runtime errors in the user's
@@ -291,16 +291,16 @@ namespace Microsoft.Zing
         /// Zing exception, and index out of range, invalid blocking select, invalid
         /// choose).
         /// </summary>
-        ProgramRuntimeError   = 4,
+        ProgramRuntimeError = 4,
 
         /// <summary>
         /// This error is returned when an unexpected runtime error is encountered. This
         /// typically indicates a bug in the Zing compiler or runtime.
         /// </summary>
-        ZingRuntimeError    = 5,
+        ZingRuntimeError = 5,
 
         /// <summary>
-        /// Liveness Acceptance Cycle 
+        /// Liveness Acceptance Cycle
         /// </summary>
         AcceptanceCyleFound = 6,
 
@@ -324,24 +324,22 @@ namespace Microsoft.Zing
     /// particular non-deterministic choice.
     /// </remarks>
     [Serializable]
-    public struct TraceStep 
+    public struct TraceStep
     {
         [CLSCompliant(false)]
-        
         public TraceStep(uint data)
         {
             stepData = (ushort)data;
         }
 
 #if UNUSED
-        
+
         internal TraceStep(bool isExecutionStep, uint selection)
         {
             stepData = (selection << 1) | (isExecutionStep ? 0u : 1u);
         }
 #endif
 
-        
         public TraceStep(bool isExecutionStep, int selection)
         {
             stepData = (ushort)selection;
@@ -350,31 +348,27 @@ namespace Microsoft.Zing
         }
 
         private ushort stepData;
+
         [CLSCompliant(false)]
-        
         public UInt32 StepData { get { return stepData; } }
 
-        
         public override bool Equals(object obj)
         {
-            TraceStep other = (TraceStep) obj;
+            TraceStep other = (TraceStep)obj;
             return (other.stepData == this.stepData);
         }
 
-        
         public override int GetHashCode()
         {
             return stepData.GetHashCode();
         }
 
-        
-        public static bool operator == (TraceStep step1, TraceStep step2)
+        public static bool operator ==(TraceStep step1, TraceStep step2)
         {
             return step1.Equals(step2);
         }
 
-        
-        public static bool operator != (TraceStep step1, TraceStep step2)
+        public static bool operator !=(TraceStep step1, TraceStep step2)
         {
             return !step1.Equals(step2);
         }
@@ -408,7 +402,7 @@ namespace Microsoft.Zing
         {
             get
             {
-                return (int) (stepData >> 1);
+                return (int)(stepData >> 1);
             }
         }
     }
@@ -447,17 +441,14 @@ namespace Microsoft.Zing
             this.steps.AddRange(steps);
         }
 
-        
-
         //
         // This constructor is only needed for the distributed checker
         //
         [CLSCompliant(false)]
-        
         public Trace(uint[] stepList)
         {
             this.steps = new List<TraceStep>(stepList.Length);
-            for(int i = 0; i < stepList.Length; ++i)
+            for (int i = 0; i < stepList.Length; ++i)
             {
                 steps.Add(new TraceStep(stepList[i]));
             }
@@ -534,13 +525,13 @@ namespace Microsoft.Zing
         {
             //during trace generation don't canonicalize symbolic ids
             State[] stateList = new State[this.Count + 1];
-            
+
             stateList[0] = initialState;
 
             State currentState = initialState;
             bool isDeadLock = currentState.SI.IsInvalidEndState();
-                
-            for(int i=0; i < this.Count ;i++)
+
+            for (int i = 0; i < this.Count; i++)
             {
                 /*
                 if (i == 0)
@@ -558,12 +549,11 @@ namespace Microsoft.Zing
                 */
 
                 currentState = currentState.Run(this[i]);
-                stateList[i+1] = currentState;
+                stateList[i + 1] = currentState;
             }
 
             return stateList;
         }
-
 
         public State GetLastState(State initialState)
         {
@@ -573,9 +563,9 @@ namespace Microsoft.Zing
             {
                 TraceStep step = this[i];
                 if (step.IsChoice)
-                    stateImpl.RunChoice((int) step.Selection);
+                    stateImpl.RunChoice((int)step.Selection);
                 else
-                    stateImpl.RunProcess((int) step.Selection);
+                    stateImpl.RunProcess((int)step.Selection);
             }
             return initialState;
         }
@@ -602,9 +592,8 @@ namespace Microsoft.Zing
             return retval;
         }
     }
-   
 
-    #endregion
+    #endregion Execution traces & related types
 
     /// <summary>
     /// This class represents one state in the state-space of a Zing model.
@@ -616,7 +605,6 @@ namespace Microsoft.Zing
     /// </remarks>
     public class State
     {
-
         public bool IsAcceptanceState
         {
             get
@@ -643,15 +631,16 @@ namespace Microsoft.Zing
             this.lastState = lastState;
         }
 
-        #endregion
+        #endregion Constructors
 
         #region Fields
 
         // A reference to our associated state detail.
         private StateImpl si;
+
         public StateImpl SI
         {
-            get { return si; } 
+            get { return si; }
         }
 
         // A reference to our predecessor state or null for the initial state.
@@ -660,7 +649,7 @@ namespace Microsoft.Zing
         // The step by which the current State was reached.
         private TraceStep lastStep;
 
-        #endregion
+        #endregion Fields
 
         #region State creation (for end users)
 
@@ -684,7 +673,7 @@ namespace Microsoft.Zing
             return new State(StateImpl.Load(zingAssemblyPath));
         }
 
-        #endregion
+        #endregion State creation (for end users)
 
         #region Helpful overrides
 
@@ -696,7 +685,7 @@ namespace Microsoft.Zing
         /// <returns>Returns true if the states are (very likely) equal, false otherwise.</returns>
         public override bool Equals(object obj)
         {
-            return this.si.Equals(((State) obj).si);
+            return this.si.Equals(((State)obj).si);
         }
 
         /// <summary>
@@ -732,7 +721,7 @@ namespace Microsoft.Zing
             return si.ToString();
         }
 
-        #endregion
+        #endregion Helpful overrides
 
         #region Basic queries
 
@@ -783,6 +772,7 @@ namespace Microsoft.Zing
                     case StateType.Execution:
                     case StateType.Choice:
                         return false;
+
                     default:
                         return true;
                 }
@@ -901,7 +891,8 @@ namespace Microsoft.Zing
         {
             return si.GetTraceLog();
         }
-        #endregion
+
+        #endregion Basic queries
 
         #region Basic execution model
 
@@ -915,9 +906,9 @@ namespace Microsoft.Zing
         public State Run(TraceStep step)
         {
             if (step.IsChoice)
-                return this.RunChoice((int) step.Selection);
+                return this.RunChoice((int)step.Selection);
             else
-                return this.RunProcess((int) step.Selection);
+                return this.RunProcess((int)step.Selection);
         }
 
         /// <summary>
@@ -931,7 +922,7 @@ namespace Microsoft.Zing
             if (this.Type != StateType.Execution)
                 throw new InvalidOperationException("RunProcess must be called on an execution state.");
 
-            StateImpl siNew = (StateImpl) si.Clone();
+            StateImpl siNew = (StateImpl)si.Clone();
             siNew.RunProcess(processNumber);
             State sNew = new State(siNew, this);
             sNew.lastStep = new TraceStep(true, processNumber);
@@ -949,7 +940,7 @@ namespace Microsoft.Zing
             if (this.Type != StateType.Choice)
                 throw new InvalidOperationException("RunChoice must be called on a choice state.");
 
-            StateImpl siNew = (StateImpl) si.Clone();
+            StateImpl siNew = (StateImpl)si.Clone();
             siNew.RunChoice(choice);
             State sNew = new State(siNew, this);
             sNew.lastStep = new TraceStep(false, choice);
@@ -994,7 +985,7 @@ namespace Microsoft.Zing
             }
         }
 
-        #endregion
+        #endregion Basic execution model
 
         #region Advanced queries
 
@@ -1065,6 +1056,6 @@ namespace Microsoft.Zing
             return doc;
         }
 
-        #endregion
+        #endregion Advanced queries
     }
 }

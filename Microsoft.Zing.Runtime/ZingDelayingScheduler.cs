@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Zing
 {
@@ -13,6 +10,7 @@ namespace Microsoft.Zing
         /// Check if the delaying scheduler is Sealed
         /// </summary>
         private bool isSealed;
+
         public bool IsSealed
         {
             get { return isSealed; }
@@ -23,12 +21,14 @@ namespace Microsoft.Zing
         /// Map from the P Statemachine id to Zing Process Id.
         /// </summary>
         protected Dictionary<int, int> PprocessToZingprocess;
+
         /// <summary>
         /// Stores the Zing Id of the last Zing process created
         /// </summary>
         private int lastZingProcessCreatedId;
 
         public int numOfTimesCurrStateDelayed;
+
         /// <summary>
         /// Defualt Constructor
         /// </summary>
@@ -46,17 +46,17 @@ namespace Microsoft.Zing
         /// <param name="copyThis"></param>
         public ZingerSchedulerState(ZingerSchedulerState copyThis)
         {
-            this.PprocessToZingprocess = new Dictionary<int,int>();
+            this.PprocessToZingprocess = new Dictionary<int, int>();
             //map
-            foreach(var item in copyThis.PprocessToZingprocess)
+            foreach (var item in copyThis.PprocessToZingprocess)
             {
                 this.PprocessToZingprocess.Add(item.Key, item.Value);
-                
             }
             lastZingProcessCreatedId = copyThis.lastZingProcessCreatedId;
             isSealed = copyThis.isSealed;
             numOfTimesCurrStateDelayed = 0;
         }
+
         /// <summary>
         /// This function is called by Zinger Explorer whenever a Zing Processes is created.
         /// </summary>
@@ -76,7 +76,6 @@ namespace Microsoft.Zing
             return PprocessToZingprocess[P_ProcessId];
         }
 
-        
         /// <summary>
         /// This function Maps P process to Zing Process
         /// </summary>
@@ -85,6 +84,7 @@ namespace Microsoft.Zing
         {
             PprocessToZingprocess.Add(P_ProcessId, lastZingProcessCreatedId);
         }
+
         /// <summary>
         /// This function is called when a Zing process has finished execution.
         /// </summary>
@@ -103,9 +103,9 @@ namespace Microsoft.Zing
         /// Clone current scheduler state for new zing state.
         /// </summary>
         /// <returns></returns>
-        public abstract ZingerSchedulerState Clone (bool isCloneForFrontier);
-
+        public abstract ZingerSchedulerState Clone(bool isCloneForFrontier);
     }
+
     public abstract class ZingerDelayingScheduler
     {
         /// <summary>
@@ -117,6 +117,7 @@ namespace Microsoft.Zing
         {
             return ZSchedulerState.IsSealed;
         }
+
         /// <summary>
         /// This function is called by Zinger whenever a new process is created.
         /// </summary>
@@ -150,34 +151,34 @@ namespace Microsoft.Zing
         /// This function is called in response to invoke-scheduler function in the zing model.
         /// </summary>
         /// <param name="Params"></param>
-        public void Invoke (ZingerSchedulerState ZSchedulerState, params object[] Params)
+        public void Invoke(ZingerSchedulerState ZSchedulerState, params object[] Params)
         {
             var param1_operation = (string)Params[0];
-            if(param1_operation == "map")
+            if (param1_operation == "map")
             {
                 var Param2_PprocessId = (int)Params[1];
                 ZSchedulerState.Map(Param2_PprocessId);
             }
-            else if(param1_operation == "seal")
+            else if (param1_operation == "seal")
             {
                 ZSchedulerState.IsSealed = true;
             }
-            else if(param1_operation == "unseal")
+            else if (param1_operation == "unseal")
             {
                 ZSchedulerState.IsSealed = false;
             }
-            else if(param1_operation == "enabled")
+            else if (param1_operation == "enabled")
             {
                 var param2_target = (int)Params[1];
                 var param3_source = (int)Params[2];
                 OnEnabled(ZSchedulerState, param2_target, param3_source);
             }
-            else if(param1_operation == "blocked")
+            else if (param1_operation == "blocked")
             {
                 var param2_source = (int)Params[1];
                 OnBlocked(ZSchedulerState, param2_source);
             }
-            else if(param1_operation == "zingerop")
+            else if (param1_operation == "zingerop")
             {
                 ZingerOperation(ZSchedulerState, Params);
             }
@@ -201,16 +202,17 @@ namespace Microsoft.Zing
         /// <param name="ZSchedulerState"></param>
         /// <param name="sourceSM"></param>
         public abstract void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM);
+
         /// <summary>
         /// This function is called by Zinger to delay the DBScheduler.
         /// </summary>
-        public abstract void Delay (ZingerSchedulerState ZSchedulerState);
+        public abstract void Delay(ZingerSchedulerState ZSchedulerState);
 
         /// <summary>
         /// This function is called by Zinger to obtain next process to be scheduled.
         /// </summary>
         /// <returns>process Id of next process to be scheduled</returns>
-        public abstract int Next (ZingerSchedulerState ZSchedulerState);
+        public abstract int Next(ZingerSchedulerState ZSchedulerState);
 
         /// <summary>
         /// this function is called from zing scheduler to know how many times delay should be called
@@ -218,6 +220,6 @@ namespace Microsoft.Zing
         /// </summary>
         /// <param name="ZSchedulerState"></param>
         /// <returns>Max number of delays to explore all successors of the current state </returns>
-        public abstract bool MaxDelayReached (ZingerSchedulerState ZSchedulerState);
+        public abstract bool MaxDelayReached(ZingerSchedulerState ZSchedulerState);
     }
 }

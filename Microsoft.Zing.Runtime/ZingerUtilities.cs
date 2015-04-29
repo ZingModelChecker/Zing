@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Microsoft.Zing
@@ -9,6 +6,7 @@ namespace Microsoft.Zing
     public class ZingerUtilities
     {
         public static Random rand = new Random(DateTime.Now.Millisecond);
+
         public static void PrintSuccessMessage(string message)
         {
             var prevColor = Console.ForegroundColor;
@@ -46,6 +44,7 @@ namespace Microsoft.Zing
         public static Int64 MaxDepth = 0;
 
         public static DateTime startTime = DateTime.Now;
+
         public static void PrintFinalStats()
         {
             var finishTime = DateTime.Now;
@@ -54,10 +53,10 @@ namespace Microsoft.Zing
             if (ZingerConfiguration.PrintStats)
             {
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
-                
-                if(ZingerConfiguration.DoRandomWalk)
+
+                if (ZingerConfiguration.DoRandomSampling)
                     ZingerUtilities.PrintMessage(String.Format("Number of Schedules Explored : {0}", NumOfSchedulesExplored));
-                
+
                 ZingerUtilities.PrintMessage(String.Format("Elapsed time : {0:00}:{1:00}:{2:00}", (int)elapsedTime.TotalHours, (int)elapsedTime.TotalMinutes, (int)elapsedTime.TotalSeconds));
                 ZingerUtilities.PrintMessage("Memory Stats:");
                 ZingerUtilities.PrintMessage(String.Format("Peak Virtual Memory Size: {0} MB",
@@ -67,12 +66,11 @@ namespace Microsoft.Zing
                 ZingerUtilities.PrintMessage(String.Format("Peak Working Set Size   : {0} MB",
                     (double)System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64 / (1 << 20)));
             }
-
         }
 
         public static void PrintPeriodicStats()
         {
-            if(ZingerConfiguration.PrintStats)
+            if (ZingerConfiguration.PrintStats)
             {
                 var finishTime = DateTime.Now;
                 var elapsedTime = finishTime.Subtract(startTime);
@@ -86,14 +84,14 @@ namespace Microsoft.Zing
                 }
                 else
                 {
-                   ZingerUtilities.PrintMessage(String.Format("Depth Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));
+                    ZingerUtilities.PrintMessage(String.Format("Depth Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));
                 }
                 ZingerUtilities.PrintMessage(String.Format("No. of Frontiers {0}", NumOfFrontiers));
                 ZingerUtilities.PrintMessage(String.Format("No. of Distinct States {0}", NumOfStatesVisited));
                 ZingerUtilities.PrintMessage(String.Format("Total Transitions: {0}", NumOfTransitionExplored));
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
-                
-                if (ZingerConfiguration.DoRandomWalk)
+
+                if (ZingerConfiguration.DoRandomSampling)
                     ZingerUtilities.PrintMessage(String.Format("Number of Schedules Explored : {0}", NumOfSchedulesExplored));
 
                 ZingerUtilities.PrintMessage(String.Format("Total Exploration time so far = {0}", elapsedTime.ToString()));
@@ -110,6 +108,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("--Periodic Stats --"));
             PrintPeriodicStats();
         }
+
         public static void IncrementStatesCount()
         {
             Interlocked.Increment(ref NumOfStatesVisited);
@@ -126,6 +125,7 @@ namespace Microsoft.Zing
         }
 
         private static System.Threading.Timer PeriodicTimer;
+
         public static void StartPeriodicStats()
         {
             TimerCallback tcb = PeriodicTimerFunction;
@@ -136,6 +136,7 @@ namespace Microsoft.Zing
         {
             Interlocked.Increment(ref NumOfSchedulesExplored);
         }
+
         public static void StopPeriodicStats()
         {
             PeriodicTimer.Dispose();

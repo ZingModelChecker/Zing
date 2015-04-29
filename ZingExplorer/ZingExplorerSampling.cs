@@ -1,18 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
-
 
 namespace Microsoft.Zing
 {
     /// <summary>
-    /// This class performs naive random walk 
+    /// This class performs naive random walk
     /// </summary>
 
     public class ZingExplorerNaiveRandomWalk : ZingExplorer
@@ -22,9 +17,9 @@ namespace Microsoft.Zing
         /// </summary>
         private Task[] searchWorkers;
 
-        public ZingExplorerNaiveRandomWalk() : base()
+        public ZingExplorerNaiveRandomWalk()
+            : base()
         {
-            
         }
 
         protected override ZingerResult IterativeSearchStateSpace()
@@ -39,7 +34,7 @@ namespace Microsoft.Zing
                 {
                     searchWorkers = new Task[ZingerConfiguration.DegreeOfParallelism];
                     //create parallel search threads
-                    for(int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
+                    for (int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
                     {
                         searchWorkers[i] = Task.Factory.StartNew(SearchStateSpace, i);
                         System.Threading.Thread.Sleep(10);
@@ -47,13 +42,12 @@ namespace Microsoft.Zing
 
                     //Wait for all search workers to finish
                     Task.WaitAll(searchWorkers);
-
                 }
-                catch(AggregateException ex)
+                catch (AggregateException ex)
                 {
-                    foreach(var inner in ex.InnerExceptions)
+                    foreach (var inner in ex.InnerExceptions)
                     {
-                        if((inner is ZingException))
+                        if ((inner is ZingException))
                         {
                             return lastErrorFound;
                         }
@@ -68,8 +62,7 @@ namespace Microsoft.Zing
 
                 ZingerStats.NumOfFrontiers = -1;
                 ZingerStats.PrintPeriodicStats();
-
-            } 
+            }
             while (!ZingerConfiguration.zBoundedSearch.checkIfFinalCutOffReached());
 
             return ZingerResult.Success;
@@ -79,21 +72,20 @@ namespace Microsoft.Zing
         {
             int myThreadId = (int)obj;
             int numberOfSchedulesExplored = 0;
-            
+
             //frontier
             FrontierNode startfN = new FrontierNode(StartStateTraversalInfo);
             TraversalInfo startState = startfN.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
-            while(numberOfSchedulesExplored < ZingerConfiguration.MaxSchedulesPerIteration)
+            while (numberOfSchedulesExplored < ZingerConfiguration.MaxSchedulesPerIteration)
             {
-                
                 //increment the schedule count
                 numberOfSchedulesExplored++;
                 ZingerStats.IncrementNumberOfSchedules();
                 //random walk always starts from the start state ( no frontier ).
                 TraversalInfo currentState = startState;
 
-                while(currentState.CurrentDepth < ZingerConfiguration.zBoundedSearch.IterativeCutoff)
+                while (currentState.CurrentDepth < ZingerConfiguration.zBoundedSearch.IterativeCutoff)
                 {
                     //kil the exploration if bug found
                     //Check if cancelation token triggered
@@ -108,13 +100,13 @@ namespace Microsoft.Zing
                     TraversalInfo nextSuccessor = currentState.GetNextSuccessorUniformRandomly();
                     ZingerStats.IncrementTransitionsCount();
                     ZingerStats.IncrementStatesCount();
-                    if(nextSuccessor == null)
+                    if (nextSuccessor == null)
                     {
                         break;
                     }
 
                     TerminalState terminalState = nextSuccessor as TerminalState;
-                    if(terminalState != null)
+                    if (terminalState != null)
                     {
                         if (terminalState.IsErroneousTI)
                         {
@@ -137,7 +129,6 @@ namespace Microsoft.Zing
 
                     currentState = nextSuccessor;
                 }
-
             }
         }
 
@@ -155,18 +146,20 @@ namespace Microsoft.Zing
     /// <summary>
     /// The explorer will perform uniform random walk over the delay bounded executions.
     /// </summary>
-    public class ZingExplorerDelayBoundedRandomWalk : ZingExplorer
+    public class ZingExplorerDelayBoundedSampling : ZingExplorer
     {
         /// <summary>
         /// maximum length of the trace
         /// </summary>
         protected int maxScheduleLength;
 
-        public ZingExplorerDelayBoundedRandomWalk() :base ()
+        public ZingExplorerDelayBoundedSampling()
+            : base()
         {
+            //maximum length of a schedule
             maxScheduleLength = 10000;
         }
-        
+
         /// <summary>
         /// Explores a deterministic schedule from the peek of the stack to the terminal state.
         /// </summary>
@@ -174,30 +167,29 @@ namespace Microsoft.Zing
         {
             var currentState = searchStack.Peek();
 
-            while(currentState.CurrentDepth < maxScheduleLength)
+            while (currentState.CurrentDepth < maxScheduleLength)
             {
-
                 ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
                 TraversalInfo nextState = currentState.GetNextSuccessorUnderDelayZeroForRW();
                 ZingerStats.IncrementTransitionsCount();
                 ZingerStats.IncrementStatesCount();
-                if(nextState == null)
+                if (nextState == null)
                 {
                     return;
                 }
 
                 TerminalState terminal = nextState as TerminalState;
-                if(terminal != null)
+                if (terminal != null)
                 {
-                    if(terminal.IsErroneousTI)
+                    if (terminal.IsErroneousTI)
                     {
-                        lock(SafetyErrors)
+                        lock (SafetyErrors)
                         {
                             SafetyErrors.Add(nextState.GenerateNonCompactTrace());
                             this.lastErrorFound = nextState.ErrorCode;
                         }
 
-                        if(ZingerConfiguration.StopOnError)
+                        if (ZingerConfiguration.StopOnError)
                         {
                             //Stop all tasks
                             CancelTokenZingExplorer.Cancel(true);
@@ -208,20 +200,20 @@ namespace Microsoft.Zing
                 }
 
                 searchStack.Push(nextState);
-                currentState = searchStack.Peek();   
+                currentState = searchStack.Peek();
             }
         }
 
-        protected int RandomBackTrackAndDelay(Stack<TraversalInfo> searchStack,  int startPoint)
+        protected int RandomBackTrackAndDelay(Stack<TraversalInfo> searchStack, int startPoint)
         {
-            //back track the stack randomly to some point 
+            //back track the stack randomly to some point
             var backtrackAt = ZingerUtilities.rand.Next(startPoint, searchStack.Count() + 1);
-            while(searchStack.Count() > backtrackAt)
+            while (searchStack.Count() > backtrackAt)
             {
                 searchStack.Pop();
             }
             //try to get to an execution state
-            while(searchStack.Count > 1 && !(searchStack.Peek() is ExecutionState))
+            while (searchStack.Count > 1 && !(searchStack.Peek() is ExecutionState))
             {
                 searchStack.Pop();
             }
@@ -260,7 +252,6 @@ namespace Microsoft.Zing
 
             return searchStack.Count();
         }
-        
 
         /// <summary>
         /// Parallel worker threads for performing search.
@@ -287,7 +278,6 @@ namespace Microsoft.Zing
 
                     //Wait for all search workers to finish
                     Task.WaitAll(searchWorkers);
-
                 }
                 catch (AggregateException ex)
                 {
@@ -308,7 +298,6 @@ namespace Microsoft.Zing
 
                 ZingerStats.NumOfFrontiers = -1;
                 ZingerStats.PrintPeriodicStats();
-
             }
             while (!ZingerConfiguration.zBoundedSearch.checkIfFinalCutOffReached());
 
@@ -318,7 +307,11 @@ namespace Microsoft.Zing
         protected override void SearchStateSpace(object obj)
         {
             int myThreadId = (int)obj;
-            int numberOfSchedulesExplored = 0;
+
+            //maximum number of schedules per iteration = c1 + c2^d.
+            // c1 = ZingerConfiguration.MaxSchedulesPerIteration.
+            // c2 = 3 as we found that to work the best.
+            int numberOfSchedulesExplored = ZingerConfiguration.MaxSchedulesPerIteration + (int)Math.Pow(3, ZingerConfiguration.zBoundedSearch.IterativeCutoff);
             int delayBudget = 0;
             Stack<TraversalInfo> searchStack = new Stack<TraversalInfo>();
             //frontier
@@ -336,7 +329,7 @@ namespace Microsoft.Zing
                 }
 
                 delayBudget = ZingerConfiguration.zBoundedSearch.IterativeCutoff;
-                
+
                 //increment the schedule count
                 numberOfSchedulesExplored++;
                 ZingerStats.IncrementNumberOfSchedules();
@@ -344,11 +337,11 @@ namespace Microsoft.Zing
                 searchStack = new Stack<TraversalInfo>();
                 searchStack.Push(startState);
                 int lastStartPoint = 1;
-                while(delayBudget > 0)
+                while (delayBudget > 0)
                 {
                     RunToCompletionWithDelayZero(searchStack);
                     lastStartPoint = RandomBackTrackAndDelay(searchStack, lastStartPoint);
-                    if(lastStartPoint == -1)
+                    if (lastStartPoint == -1)
                     {
                         break;
                     }
@@ -356,6 +349,7 @@ namespace Microsoft.Zing
                 }
             }
         }
+
         protected override bool MustExplore(TraversalInfo ti)
         {
             throw new NotImplementedException();
@@ -366,6 +360,4 @@ namespace Microsoft.Zing
             throw new NotImplementedException();
         }
     }
-
-    
 }

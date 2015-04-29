@@ -1,6 +1,4 @@
 using System;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.Zing
 {
@@ -13,6 +11,7 @@ namespace Microsoft.Zing
     {
         public Int32 ExecutionCost;
         public Int32 ChoiceCost;
+
         public ZingerBounds(Int32 searchB, Int32 choiceB)
         {
             ExecutionCost = searchB;
@@ -27,7 +26,7 @@ namespace Microsoft.Zing
 
         public void IncrementDepthCost()
         {
-            if(!ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
+            if (!ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
             {
                 ExecutionCost++;
             }
@@ -35,7 +34,7 @@ namespace Microsoft.Zing
 
         public void IncrementDelayCost()
         {
-            if(ZingerConfiguration.DoDelayBounding)
+            if (ZingerConfiguration.DoDelayBounding)
             {
                 ExecutionCost++;
             }
@@ -43,7 +42,7 @@ namespace Microsoft.Zing
 
         public void IncrementPreemptionCost()
         {
-            if(ZingerConfiguration.DoPreemptionBounding)
+            if (ZingerConfiguration.DoPreemptionBounding)
             {
                 ExecutionCost++;
             }
@@ -56,13 +55,16 @@ namespace Microsoft.Zing
     public class ZingerBoundedSearch
     {
         #region Bounds
+
         public int FinalExecutionCutOff;
         public int FinalChoiceCutOff;
         public int IterativeIncrement;
         public int IterativeCutoff;
-        #endregion
+
+        #endregion Bounds
 
         #region Contructor
+
         public ZingerBoundedSearch(int exeFinalCutoff, int exeIterativeInc, int finalChoiceCutoff)
         {
             FinalExecutionCutOff = exeFinalCutoff;
@@ -78,12 +80,14 @@ namespace Microsoft.Zing
             IterativeIncrement = 1;
             IterativeCutoff = 0;
         }
-        #endregion
-        
+
+        #endregion Contructor
+
         #region Functions
+
         public bool checkIfFinalCutOffReached()
         {
-            if(IterativeCutoff >= FinalExecutionCutOff)
+            if (IterativeCutoff >= FinalExecutionCutOff)
             {
                 return true;
             }
@@ -95,17 +99,14 @@ namespace Microsoft.Zing
 
         public bool checkIfIterativeCutOffReached(ZingerBounds currBounds)
         {
-            
-                if ((currBounds.ExecutionCost >= IterativeCutoff) || (ZingerConfiguration.BoundChoices && currBounds.ChoiceCost >= FinalChoiceCutOff))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-
-                }
-        
+            if ((currBounds.ExecutionCost >= IterativeCutoff) || (ZingerConfiguration.BoundChoices && currBounds.ChoiceCost >= FinalChoiceCutOff))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void IncrementIterativeBound()
@@ -113,7 +114,8 @@ namespace Microsoft.Zing
             IterativeCutoff += IterativeIncrement;
             IterativeCutoff = Math.Min(FinalExecutionCutOff, IterativeCutoff);
         }
-        #endregion
+
+        #endregion Functions
     }
 
     /// <summary>
@@ -123,10 +125,11 @@ namespace Microsoft.Zing
     {
         // Zing Delaying Scheduler
         public ZingerDelayingScheduler zDelaySched;
+
         // Zing External Scheduler State
         public ZingerSchedulerState zSchedState;
     }
-    
+
     /// <summary>
     /// Maceliveness configuration
     /// </summary>
@@ -134,8 +137,10 @@ namespace Microsoft.Zing
     {
         //Exhaustive Search Depth
         public int exSearchDepth;
+
         //iterative live-state period
         public int liveStatePeriod;
+
         //random walk final cutoff
         public int randomFinalCutOff;
 
@@ -154,16 +159,18 @@ namespace Microsoft.Zing
         }
     }
 
-    
     /// <summary>
     /// Zinger Configuration
     /// </summary>
     public class ZingerConfiguration
     {
-        private ZingerConfiguration() { }
+        private ZingerConfiguration()
+        {
+        }
 
         //Zing Bounded Search Configuration
         public static ZingerBoundedSearch zBoundedSearch = new ZingerBoundedSearch();
+
         //zing model file
         public static string ZingModelFile = "";
 
@@ -175,6 +182,7 @@ namespace Microsoft.Zing
 
         // Commandline Option to dump trace based counter example in a file
         private static bool enableTrace = false;
+
         public static bool EnableTrace
         {
             get { return ZingerConfiguration.enableTrace; }
@@ -183,6 +191,7 @@ namespace Microsoft.Zing
 
         // commandline option to dump out detailed Zing stack trace
         private static bool detailedZingTrace = false;
+
         public static bool DetailedZingTrace
         {
             get { return ZingerConfiguration.detailedZingTrace; }
@@ -191,6 +200,7 @@ namespace Microsoft.Zing
 
         // Avoid Fingerprinting single transition states in Zing (default value is true).
         private static bool notFingerprintSingleTransitionStates = true;
+
         public static bool FingerprintSingleTransitionStates
         {
             get { return notFingerprintSingleTransitionStates; }
@@ -199,6 +209,7 @@ namespace Microsoft.Zing
 
         // Probability of fingerprinting single transition states
         private static double nonChooseProbability = 0;
+
         public static double NonChooseProbability
         {
             get { return nonChooseProbability; }
@@ -207,6 +218,7 @@ namespace Microsoft.Zing
 
         //degree of parallelism (default = single threaded)
         private static int degreeOfParallelism = 1;
+
         public static int DegreeOfParallelism
         {
             get { return degreeOfParallelism; }
@@ -215,6 +227,7 @@ namespace Microsoft.Zing
 
         //print detailed states after each iteration.
         private static bool printStats = false;
+
         public static bool PrintStats
         {
             get { return ZingerConfiguration.printStats; }
@@ -223,6 +236,7 @@ namespace Microsoft.Zing
 
         //Configuration for work-stealing (default is 10 items from other threads queue)
         private static int workStealAmount = 10;
+
         public static int WorkStealAmount
         {
             get { return workStealAmount; }
@@ -231,14 +245,25 @@ namespace Microsoft.Zing
 
         //Compact Execution traces (not store the step taken if the state has single successor).
         private static bool compactTraces = false;
+
         public static bool CompactTraces
         {
             get { return compactTraces; }
             set { compactTraces = value; }
         }
 
+        //do PCT based prioritization
+        private static bool doPCT = false;
+
+        public static bool DoPCT
+        {
+            get { return ZingerConfiguration.doPCT; }
+            set { ZingerConfiguration.doPCT = value; }
+        }
+
         //do preemption bounding
         private static bool doPreemptionBounding = false;
+
         public static bool DoPreemptionBounding
         {
             get { return ZingerConfiguration.doPreemptionBounding; }
@@ -247,33 +272,34 @@ namespace Microsoft.Zing
 
         //do delay bounding
         private static bool doDelayBounding = false;
+
         public static bool DoDelayBounding
         {
             get { return ZingerConfiguration.doDelayBounding; }
             set { ZingerConfiguration.doDelayBounding = value; }
         }
 
+        //do Random sampling
+        private static bool doRandomSampling = false;
 
-        //do Random DFS
-        private static bool doRandomWalk = false;
-        public static bool DoRandomWalk
+        public static bool DoRandomSampling
         {
-            get { return ZingerConfiguration.doRandomWalk; }
-            set { ZingerConfiguration.doRandomWalk = value; }
+            get { return ZingerConfiguration.doRandomSampling; }
+            set { ZingerConfiguration.doRandomSampling = value; }
         }
 
         //maximum number of schedules per iteration
-        private static int maxSchedulesPerIteration = 10000;
+        private static int maxSchedulesPerIteration = 1000;
+
         public static int MaxSchedulesPerIteration
         {
             get { return ZingerConfiguration.maxSchedulesPerIteration; }
             set { ZingerConfiguration.maxSchedulesPerIteration = value; }
         }
 
-
-
         //do stateless search
         private static bool doStateLess = false;
+
         public static bool DoStateLess
         {
             get { return ZingerConfiguration.doStateLess; }
@@ -282,6 +308,7 @@ namespace Microsoft.Zing
 
         //Zing External Scheduler for delay bounding
         private static ZingerExternalScheduler zExternalScheduler = new ZingerExternalScheduler();
+
         public static ZingerExternalScheduler ZExternalScheduler
         {
             get { return ZingerConfiguration.zExternalScheduler; }
@@ -290,6 +317,7 @@ namespace Microsoft.Zing
 
         //Do NDFS based liveness checking
         private static bool doNDFSLiveness = false;
+
         public static bool DoNDFSLiveness
         {
             get { return ZingerConfiguration.doNDFSLiveness; }
@@ -298,6 +326,7 @@ namespace Microsoft.Zing
 
         //Bound the max stack length, this is used in cases where zing has infinite stack trace.
         private static int boundDFSStackLength = int.MaxValue;
+
         public static int BoundDFSStackLength
         {
             get { return ZingerConfiguration.boundDFSStackLength; }
@@ -306,6 +335,7 @@ namespace Microsoft.Zing
 
         // bound the choice points
         private static bool boundChoices = false;
+
         public static bool BoundChoices
         {
             get { return ZingerConfiguration.boundChoices; }
@@ -314,6 +344,7 @@ namespace Microsoft.Zing
 
         //perform maceliveness
         private static bool doMaceliveness = false;
+
         public static bool DoMaceliveness
         {
             get { return ZingerConfiguration.doMaceliveness; }
@@ -324,15 +355,16 @@ namespace Microsoft.Zing
 
         //perform Iterative MAP algorithm for liveness
         private static bool doMAPLiveness = false;
+
         public static bool DoMAPLiveness
         {
             get { return ZingerConfiguration.doMAPLiveness; }
             set { ZingerConfiguration.doMAPLiveness = value; }
         }
 
-
         //push all the frontiers to disk
         private static bool frontierToDisk = false;
+
         public static bool FrontierToDisk
         {
             get { return ZingerConfiguration.frontierToDisk; }
@@ -341,6 +373,7 @@ namespace Microsoft.Zing
 
         //do state caching after memory usage has exceeded
         private static double maxMemoryConsumption = double.MaxValue;
+
         public static double MaxMemoryConsumption
         {
             get { return ZingerConfiguration.maxMemoryConsumption; }
@@ -349,6 +382,7 @@ namespace Microsoft.Zing
 
         //find all errors in the program.
         private static bool stopOnError = true;
+
         public static bool StopOnError
         {
             get { return ZingerConfiguration.stopOnError; }
@@ -357,6 +391,7 @@ namespace Microsoft.Zing
 
         //execute TraceStatements when in Error Trace generation mode.
         private static bool executeTraceStatements = false;
+
         public static bool ExecuteTraceStatements
         {
             get { return ZingerConfiguration.executeTraceStatements; }
@@ -366,23 +401,23 @@ namespace Microsoft.Zing
         public static void InferConfiguration()
         {
             //Initialize the conflicting settings
-            //The set of conflicting configurations are 
+            //The set of conflicting configurations are
             //Randomwalk + Statefull
             //NDFliveness + iterative + sequential
-            if(DoRandomWalk)
+            if (DoRandomSampling)
             {
                 DoStateLess = true;
             }
-            
-            if(DoNDFSLiveness)
+
+            if (DoNDFSLiveness)
             {
                 zBoundedSearch.IterativeIncrement = zBoundedSearch.FinalExecutionCutOff;
                 DegreeOfParallelism = 1;
                 DoStateLess = false;
-                DoRandomWalk = false;
+                DoRandomSampling = false;
             }
 
-            if(DoDelayBounding)
+            if (DoDelayBounding)
             {
                 DoPreemptionBounding = false;
             }
@@ -399,7 +434,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Compact Trace : {0}", CompactTraces));
             ZingerUtilities.PrintMessage(String.Format("Do Preemption Bounding :{0}", doPreemptionBounding));
             ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0} with Scheduler : {1}", doDelayBounding, delayingSchedDll));
-            ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}", doRandomWalk, maxSchedulesPerIteration));
+            ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}", doRandomSampling, maxSchedulesPerIteration));
             ZingerUtilities.PrintMessage(String.Format("Do Stateless : {0}", doStateLess));
             ZingerUtilities.PrintMessage(String.Format("Do NDFLiveness : {0}", doNDFSLiveness));
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));
@@ -412,6 +447,5 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Stop on First Error: {0}", stopOnError));
             ZingerUtilities.PrintMessage("");
         }
-
     }
 }

@@ -1,31 +1,19 @@
 using System;
-using System.IO;
-using System.Collections;
-using System.Threading;
-using System.Timers;
-using System.Reflection;
-using System.Runtime;
-using Microsoft.Zing;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.Zing
 {
-    /// <summary> 
+    /// <summary>
     /// Main entry point for Zinger.
     /// </summary>
-    class Zinger
+    internal class Zinger
     {
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-           
             //Parse Command Line and Initialize the ZingerConfiguration
-            if(!ZingerCommandLine.ParseCommandLine(args))
+            if (!ZingerCommandLine.ParseCommandLine(args))
             {
                 Environment.Exit((int)ZingerResult.InvalidParameters);
             }
@@ -36,23 +24,22 @@ namespace Microsoft.Zing
 
             try
             {
-
                 ZingerResult result;
 
                 ZingExplorer zingExplorer;
                 if (ZingerConfiguration.DoNDFSLiveness)
                     zingExplorer = new ZingExplorerNDFSLiveness();
-                else if (ZingerConfiguration.DoRandomWalk && !ZingerConfiguration.DoDelayBounding)
+                else if (ZingerConfiguration.DoRandomSampling && !ZingerConfiguration.DoDelayBounding)
                     zingExplorer = new ZingExplorerNaiveRandomWalk();
-                else if (ZingerConfiguration.DoRandomWalk && ZingerConfiguration.DoDelayBounding)
-                    zingExplorer = new ZingExplorerDelayBoundedRandomWalk();
-                else if(ZingerConfiguration.DoStateLess)
-                    zingExplorer = new ZingExplorerStateLessDFS();
+                else if (ZingerConfiguration.DoRandomSampling && ZingerConfiguration.DoDelayBounding)
+                    zingExplorer = new ZingExplorerDelayBoundedSampling();
+                else if (ZingerConfiguration.DoStateLess)
+                    zingExplorer = new ZingExplorerStateLessSearch();
                 else
-                    zingExplorer = new ZingExplorerAsModelChecker();
-                
+                    zingExplorer = new ZingExplorerExhaustiveSearch();
+
                 //start periodic stats
-                if(ZingerConfiguration.PrintStats)
+                if (ZingerConfiguration.PrintStats)
                 {
                     ZingerStats.StartPeriodicStats();
                 }
@@ -63,10 +50,8 @@ namespace Microsoft.Zing
                 //Print Final Stats
                 ZingerStats.PrintFinalStats();
 
-                
-             
                 //Close operations
-                if(ZingerConfiguration.PrintStats)
+                if (ZingerConfiguration.PrintStats)
                 {
                     ZingerStats.StopPeriodicStats();
                 }
@@ -79,9 +64,6 @@ namespace Microsoft.Zing
                 Console.WriteLine(e);
                 Environment.Exit((int)ZingerResult.ZingRuntimeError);
             }
-        }   
-
+        }
     }
-
-
 }

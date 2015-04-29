@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using System.Reflection;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text;
 
 namespace Microsoft.Zing
 {
     /// <exclude/>
 
-    
     public interface IFingerprintableState
     {
         Fingerprint Fingerprint { get; }
+
         ProgramCounterTuple ProgramCounters();
     }
 
-    
     public abstract class TraversalInfo : IFingerprintableState
     {
         public ProgramCounterTuple ProgramCounters()
@@ -34,6 +30,7 @@ namespace Microsoft.Zing
             }
             return new ProgramCounterTuple(pcs);
         }
+
         protected const ProcessStatus RUNNABLE = ProcessStatus.Runnable;
         internal Receipt receipt;
 
@@ -46,22 +43,24 @@ namespace Microsoft.Zing
         /// Current State Impl
         /// </summary>
         protected StateImpl stateImpl;
-        
+
         /// <summary>
         /// Used to store the transition used to enter the current state
         /// </summary>
         public readonly Via Via;
-        
+
         /// <summary>
         /// Predecessor and Successor information for replaying the stack trace from initial state
         /// </summary>
         public TraversalInfo Predecessor;
+
         internal TraversalInfo Successor;
 
         /// <summary>
         /// Information for preemption bounding.
         /// </summary>
         public ZingPreemptionBounding preemptionBounding;
+
         /// <summary>
         /// Search bounds at the current state
         /// </summary>
@@ -73,10 +72,11 @@ namespace Microsoft.Zing
         public long CurrentDepth = 0;
 
         /// <summary>
-        /// Magic bit used during NDFS exploration 
+        /// Magic bit used during NDFS exploration
         ///
         /// </summary>
         private bool magicBit = false;
+
         public bool MagicBit
         {
             get { return magicBit; }
@@ -93,31 +93,32 @@ namespace Microsoft.Zing
         /// When true, the schedule is delayed.
         /// </summary>
         protected bool doDelay;
-        
+
         /// <summary>
         /// The delaying scheduler Info for the current state.
         /// </summary>
         public ZingerDelayingScheduler ZingDBScheduler;
+
         public ZingerSchedulerState ZingDBSchedState;
 
         protected ZingEvent[] events;
         protected Exception exception;
-       
+
         /// <summary>
         /// Is the current state fingerprinted, state may not be fingerprinted if it has single successor
         /// </summary>
         public bool IsFingerPrinted = false;
-        
+
         /// <summary>
         /// If the state has multiple successors
         /// </summary>
         protected bool hasMultipleSuccessors;
+
         public bool HasMultipleSuccessors
         {
             get { return hasMultipleSuccessors; }
         }
 
-        
         public enum StateType : byte
         {
             ChooseState, ExecutionState, TerminalState
@@ -133,7 +134,6 @@ namespace Microsoft.Zing
 
             for (TraversalInfo ti = this; ti.Predecessor != null; ti = ti.Predecessor)
             {
-
                 ViaChoose vc = ti.Via as ViaChoose;
                 ViaExecute ve = ti.Via as ViaExecute;
 
@@ -152,7 +152,7 @@ namespace Microsoft.Zing
         /// Set the magic bit for NDFS
         /// </summary>
         /// <returns></returns>
-        public TraversalInfo SetMagicbit ()
+        public TraversalInfo SetMagicbit()
         {
             var currStateImp = this.reclaimState();
             //set the magic bit
@@ -193,6 +193,7 @@ namespace Microsoft.Zing
         {
             get { return exception; }
         }
+
         public bool IsErroneousTI
         {
             get { return Exception != null && !(Exception is ZingAssumeFailureException); }
@@ -204,7 +205,7 @@ namespace Microsoft.Zing
         }
 
         /// <summary>
-        /// Total number of processes (blocked or enabled) 
+        /// Total number of processes (blocked or enabled)
         /// </summary>
         public readonly int NumProcesses;
 
@@ -212,6 +213,7 @@ namespace Microsoft.Zing
         /// Fingerprint of the current state
         /// </summary>
         public Fingerprint fingerprint;
+
         public Fingerprint Fingerprint
         {
             get
@@ -235,13 +237,11 @@ namespace Microsoft.Zing
             }
         }
 
-
         public readonly ProcessInfo[] ProcessInfo;
 
         protected TraversalInfo(StateImpl s, StateType st,
             TraversalInfo pred, Via bt)
         {
-
             stateType = st;
             Via = bt;
             NumProcesses = s.NumProcesses;
@@ -261,8 +261,7 @@ namespace Microsoft.Zing
                 if (ZingerConfiguration.DoDelayBounding)
                 {
                     ZingDBSchedState = s.ZingDBSchedState;
-                    ZingDBScheduler =  s.ZingDBScheduler;
-                    
+                    ZingDBScheduler = s.ZingDBScheduler;
                 }
                 else if (ZingerConfiguration.DoPreemptionBounding)
                 {
@@ -270,8 +269,6 @@ namespace Microsoft.Zing
                 }
                 pred.Successor = this;
                 MagicBit = pred.MagicBit;
-
-
             }
             else
             {
@@ -282,9 +279,8 @@ namespace Microsoft.Zing
                 {
                     ZingDBSchedState = s.ZingDBSchedState.Clone(false);
                     ZingDBScheduler = s.ZingDBScheduler;
-
                 }
-                else if(ZingerConfiguration.DoPreemptionBounding)
+                else if (ZingerConfiguration.DoPreemptionBounding)
                 {
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, 0);
                 }
@@ -331,7 +327,7 @@ namespace Microsoft.Zing
         }
 
         /// <summary>
-        /// Used to obtain a traversalinfo when the entire state is saved 
+        /// Used to obtain a traversalinfo when the entire state is saved
         /// at a depth cut off
         /// </summary>
         /// <param name="s"> The StateImpl object of the checkpointed state</param>
@@ -372,13 +368,19 @@ namespace Microsoft.Zing
         }
 
         protected abstract void Replay(TraversalInfo succ, Via bt);
+
         internal abstract void deOrphanize(StateImpl s);
+
         public abstract TraversalInfo GetNextSuccessor();
 
         #region RandomWalk
+
         public abstract TraversalInfo GetNextSuccessorUniformRandomly();
+
         public abstract TraversalInfo GetNextSuccessorUnderDelayZeroForRW();
-        #endregion
+
+        #endregion RandomWalk
+
         public abstract void Reset();
 
         public void DiscardStateImpl()
@@ -418,11 +420,11 @@ namespace Microsoft.Zing
         }
 
         public abstract ushort NumSuccessors();
+
         public abstract TraversalInfo GetSuccessorN(int n);
 
         public abstract TraversalInfo GetSuccessorNForReplay(int n, bool MustFingerprint);
 
-       
         //#if UNUSED_CODE
         public StateImpl GetStateImpl()
         {
@@ -431,6 +433,7 @@ namespace Microsoft.Zing
             receipt = s.CheckIn();
             return res;
         }
+
         //#endif
 
         private string DumpEvents()
@@ -445,7 +448,6 @@ namespace Microsoft.Zing
                 sb.Append("\r\n");
             }
             return sb.ToString();
-
         }
 
         public bool IsInvalidEndState()
@@ -493,5 +495,4 @@ namespace Microsoft.Zing
             return reclaimState().GetHashCode();
         }
     }
-
 }

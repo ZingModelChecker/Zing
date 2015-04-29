@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Specialized;
 using System.Compiler;
 using System.Diagnostics;
 using System.Globalization;
@@ -8,7 +7,6 @@ using System.Text;
 
 namespace Microsoft.Zing
 {
-
     internal sealed class Scanner : System.Compiler.Scanner
     {
         internal bool disableNameMangling = false;
@@ -36,6 +34,7 @@ namespace Microsoft.Zing
 
         //These fields help the scanner keep track of the preprocesor state
         private bool allowPPDefinitions = true;
+
         private int includeCount; //increment when included part of #if-#elif-#else-#endif is ecountered
         private int endIfCount;   //increment on #if, decrement on #endif
         private int elseCount;    //increment on #else, assign endIfCount on #endif
@@ -43,7 +42,8 @@ namespace Microsoft.Zing
 
         internal Scanner()
         {
-        }  
+        }
+
         internal Scanner(Document document, ErrorNodeList errors, CompilerOptions options)
         {
             this.document = document;
@@ -74,6 +74,7 @@ namespace Microsoft.Zing
             this.endPos = this.startPos = offset;
             this.maxPos = source.Length;
         }
+
         private string Substring(int start, int length)
         {
             if (this.sourceString != null)
@@ -81,6 +82,7 @@ namespace Microsoft.Zing
             else
                 return this.sourceText.Substring(start, length);
         }
+
         public override bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
             tokenInfo.trigger = TokenTrigger.None;
@@ -98,7 +100,7 @@ namespace Microsoft.Zing
             }
             else
                 tok = this.GetNextToken(false);
-            switch(tok)
+            switch (tok)
             {
                 case Token.Colon:
                 case Token.DotDot:
@@ -127,10 +129,12 @@ namespace Microsoft.Zing
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Operator;
                     break;
+
                 case Token.Semicolon:
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Delimiter;
                     break;
+
                 case Token.Activate:
                 case Token.Array:
                 case Token.Bool:
@@ -168,6 +172,7 @@ namespace Microsoft.Zing
                     tokenInfo.color = TokenColor.Keyword;
                     tokenInfo.type = TokenType.Keyword;
                     break;
+
                 case Token.Accept:
                 case Token.Assert:
                 case Token.Assume:
@@ -196,33 +201,39 @@ namespace Microsoft.Zing
                     tokenInfo.color = TokenColor.Keyword;
                     tokenInfo.type = TokenType.Keyword;
                     break;
+
                 case Token.Comma:
                     tokenInfo.trigger = TokenTrigger.ParamNext;
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Delimiter;
                     break;
+
                 case Token.HexLiteral:
                 case Token.IntegerLiteral:
                 case Token.RealLiteral:
                     tokenInfo.color = TokenColor.Number;
                     tokenInfo.type = TokenType.Literal;
                     break;
+
                 case Token.Identifier:
                     tokenInfo.color = TokenColor.Identifier;
                     tokenInfo.type = TokenType.Identifier;
                     break;
+
                 case Token.LeftBracket:
                 case Token.LeftParenthesis:
                 case Token.LeftBrace:
-                    tokenInfo.trigger = TokenTrigger.ParamStart|TokenTrigger.MatchBraces;
+                    tokenInfo.trigger = TokenTrigger.ParamStart | TokenTrigger.MatchBraces;
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Delimiter;
                     break;
+
                 case Token.Dot:
                     tokenInfo.trigger = TokenTrigger.MemberSelect;
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Delimiter;
                     break;
+
                 case Token.MultiLineComment:
                     tokenInfo.color = TokenColor.Comment;
                     tokenInfo.type = TokenType.Comment;
@@ -232,44 +243,51 @@ namespace Microsoft.Zing
                         state = 1;
                     }
                     break;
+
                 case Token.RightBracket:
                 case Token.RightParenthesis:
                 case Token.RightBrace:
-                    tokenInfo.trigger = TokenTrigger.ParamEnd|TokenTrigger.MatchBraces;
+                    tokenInfo.trigger = TokenTrigger.ParamEnd | TokenTrigger.MatchBraces;
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Delimiter;
                     break;
+
                 case Token.SingleLineComment:
                     tokenInfo.color = TokenColor.Comment;
                     tokenInfo.type = TokenType.LineComment;
                     break;
+
                 case Token.StringLiteral:
                     tokenInfo.color = TokenColor.String;
                     tokenInfo.type = TokenType.String;
                     break;
+
                 case Token.EndOfFile:
                     return false;
+
                 default:
                     tokenInfo.color = TokenColor.Text;
                     tokenInfo.type = TokenType.Delimiter;
                     break;
             }
             tokenInfo.startIndex = this.startPos;
-            tokenInfo.endIndex = this.endPos-1;
+            tokenInfo.endIndex = this.endPos - 1;
             return true;
         }
+
         internal Token GetNextToken()
         {
             return this.GetNextToken(true);
         }
+
         private Token GetNextToken(bool suppressComments)
         {
             Token token = Token.None;
             this.TokenIsFirstOnLine = false;
-            nextToken:
-                this.identifier.Length = 0;
+        nextToken:
+            this.identifier.Length = 0;
             char c = this.SkipBlanks();
-            this.startPos = this.endPos-1;
+            this.startPos = this.endPos - 1;
             switch (c)
             {
                 case (char)0:
@@ -282,15 +300,19 @@ namespace Microsoft.Zing
                     else if (this.endIfCount > 0)
                         this.HandleError(Error.EndifDirectiveExpected);
                     break;
+
                 case '+':
                     token = Token.Plus;
                     break;
+
                 case ':':
                     token = Token.Colon;
                     break;
+
                 case ',':
                     token = Token.Comma;
                     break;
+
                 case '=':
                     token = Token.Assign;
                     c = this.GetChar(this.endPos);
@@ -299,15 +321,19 @@ namespace Microsoft.Zing
                         token = Token.Equal; this.endPos++;
                     }
                     break;
+
                 case '[':
                     token = Token.LeftBracket;
                     break;
+
                 case '(':
                     token = Token.LeftParenthesis;
                     break;
+
                 case '{':
                     token = Token.LeftBrace;
                     break;
+
                 case '.':
                     token = Token.Dot;
                     c = this.GetChar(this.endPos);
@@ -316,18 +342,23 @@ namespace Microsoft.Zing
                         token = Token.DotDot; this.endPos++;
                     }
                     break;
+
                 case '*':
                     token = Token.Multiply;
                     break;
+
                 case '%':
                     token = Token.Remainder;
                     break;
+
                 case '^':
                     token = Token.BitwiseXor;
                     break;
+
                 case '~':
                     token = Token.BitwiseNot;
                     break;
+
                 case '!':
                     token = Token.LogicalNot;
                     c = this.GetChar(this.endPos);
@@ -336,6 +367,7 @@ namespace Microsoft.Zing
                         token = Token.NotEqual; this.endPos++;
                     }
                     break;
+
                 case '&':
                     token = Token.BitwiseAnd;
                     c = this.GetChar(this.endPos);
@@ -344,6 +376,7 @@ namespace Microsoft.Zing
                         token = Token.LogicalAnd; this.endPos++;
                     }
                     break;
+
                 case '|':
                     token = Token.BitwiseOr;
                     c = this.GetChar(this.endPos);
@@ -352,22 +385,28 @@ namespace Microsoft.Zing
                         token = Token.LogicalOr; this.endPos++;
                     }
                     break;
+
                 case ']':
                     token = Token.RightBracket;
                     break;
+
                 case ')':
                     token = Token.RightParenthesis;
                     break;
+
                 case '}':
                     token = Token.RightBrace;
                     break;
+
                 case ';':
                     token = Token.Semicolon;
                     break;
+
                 case '"':
                     token = Token.StringLiteral;
                     this.ScanString('"');
                     break;
+
                 case '-':
                     token = Token.Subtract;
                     c = this.GetChar(this.endPos);
@@ -376,6 +415,7 @@ namespace Microsoft.Zing
                         token = Token.Arrow; this.endPos++;
                     }
                     break;
+
                 case '>':
                     token = Token.GreaterThan;
                     c = this.GetChar(this.endPos);
@@ -388,6 +428,7 @@ namespace Microsoft.Zing
                         token = Token.RightShift; this.endPos++;
                     }
                     break;
+
                 case '<':
                     token = Token.LessThan;
                     c = this.GetChar(this.endPos);
@@ -400,6 +441,7 @@ namespace Microsoft.Zing
                         token = Token.LeftShift; this.endPos++;
                     }
                     break;
+
                 case '/':
                     token = Token.Divide;
                     c = this.GetChar(this.endPos);
@@ -427,7 +469,7 @@ namespace Microsoft.Zing
                             {
                                 int savedEndPos = this.endPos;
                                 this.SkipMultiLineComment(false);
-                                if (this.endPos >= this.maxPos && this.GetChar(this.maxPos-1) != '/')
+                                if (this.endPos >= this.maxPos && this.GetChar(this.maxPos - 1) != '/')
                                 {
                                     this.endPos = savedEndPos;
                                     this.HandleError(Error.NoCommentEnd);
@@ -445,6 +487,7 @@ namespace Microsoft.Zing
                             }
                     }
                     break;
+
                 case '\\':
                     this.endPos--;
                     if (this.IsIdentifierStartChar(c))
@@ -458,6 +501,7 @@ namespace Microsoft.Zing
                     token = Token.IllegalCharacter;
                     this.endPos++;
                     break;
+
                 case '@':
                     c = this.GetChar(this.endPos++);
                     if (c == '"')
@@ -476,6 +520,7 @@ namespace Microsoft.Zing
                     else
                         token = Token.IllegalCharacter;
                     break;
+
                 case '#':
                     int endIfCount = this.endIfCount;
                     int includeCount = this.includeCount;
@@ -491,12 +536,12 @@ namespace Microsoft.Zing
                     while (this.endIfCount > endIfCount)
                     {
                         char ch = this.SkipBlanks();
-                        this.startPos = this.endPos-1;
+                        this.startPos = this.endPos - 1;
                         if (ch == '#')
                         {
                             this.includeCount = includeCount;
-                            exclude = this.ScanPreProcessorDirective(false, true, this.endIfCount <= endIfCount+1);
-                            if (!exclude && this.endIfCount == endIfCount+1) break;
+                            exclude = this.ScanPreProcessorDirective(false, true, this.endIfCount <= endIfCount + 1);
+                            if (!exclude && this.endIfCount == endIfCount + 1) break;
                         }
                         else if (ch == 0 && this.endPos >= this.maxPos)
                         {
@@ -508,7 +553,7 @@ namespace Microsoft.Zing
                             this.SkipSingleLineComment();
                     }
                     goto nextToken;
-                    // line terminators
+                // line terminators
                 case '\r':
                     this.TokenIsFirstOnLine = true;
                     this.eolPos = this.endPos;
@@ -542,6 +587,7 @@ namespace Microsoft.Zing
             this.allowPPDefinitions = false;
             return token;
         }
+
         private char GetChar(int index)
         {
             if (index < this.maxPos)
@@ -558,6 +604,7 @@ namespace Microsoft.Zing
             else
                 return (char)0;
         }
+
         internal Identifier GetIdentifier()
         {
             string manglingPrefix = this.disableNameMangling ? string.Empty : "___";
@@ -570,40 +617,45 @@ namespace Microsoft.Zing
             {
                 int start = this.startPos;
                 if (this.GetChar(start) == '@') start++;
-                int len = this.endPos-start;
+                int len = this.endPos - start;
                 if (this.sourceText != null && len <= 500)
                 {
                     Identifier id = new Identifier(manglingPrefix + this.sourceText.Substring(start, len));
                     id.SourceContext = this.CurrentSourceContext;
                     return id;
                 }
-                name = this.Substring(start, this.endPos-start);
+                name = this.Substring(start, this.endPos - start);
             }
             if (name.Length > 500) //The EE sometimes gets into trouble if presented with a name > 1023 bytes, make this less likely
                 name = name.Substring(0, 500) + name.GetHashCode().ToString(CultureInfo.InvariantCulture);
-            Identifier identifier =  new Identifier(manglingPrefix + name);
+            Identifier identifier = new Identifier(manglingPrefix + name);
             identifier.SourceContext = this.CurrentSourceContext;
             return identifier;
         }
+
         internal string GetIdentifierString()
         {
             if (this.identifier.Length > 0) return this.identifier.ToString();
             int start = this.startPos;
             if (this.GetChar(start) == '@') start++;
-            return this.Substring(start, this.endPos-this.startPos);
+            return this.Substring(start, this.endPos - this.startPos);
         }
+
         internal string GetString()
         {
             return this.unescapedString;
         }
+
         internal Literal GetStringLiteral()
         {
             return new Literal(this.unescapedString, SystemTypes.String, this.CurrentSourceContext);
         }
+
         internal string GetTokenSource()
         {
-            return this.Substring(this.startPos, this.endPos-this.startPos);
+            return this.Substring(this.startPos, this.endPos - this.startPos);
         }
+
         private void ScanCharacter()
         {
             this.ScanString('\'');
@@ -627,6 +679,7 @@ namespace Microsoft.Zing
             if (n == 1) return;
             this.HandleError(Error.TooManyCharsInConst);
         }
+
         private void ScanEscapedChar(StringBuilder sb)
         {
             char ch = this.GetChar(this.endPos);
@@ -635,7 +688,7 @@ namespace Microsoft.Zing
                 sb.Append(this.ScanEscapedChar());
                 return;
             }
-            //Scan 32-bit Unicode character. 
+            //Scan 32-bit Unicode character.
             uint escVal = 0;
             this.endPos++;
             for (int i = 0; i < 8; i++)
@@ -668,14 +721,15 @@ namespace Microsoft.Zing
                 this.HandleError(Error.IllegalEscape);
             }
         }
+
         private char ScanEscapedChar()
         {
             int escVal = 0;
             bool requireFourDigits = false;
             int savedStartPos = this.startPos;
-            int errorStartPos = this.endPos-1;
+            int errorStartPos = this.endPos - 1;
             char ch = this.GetChar(this.endPos++);
-            switch(ch)
+            switch (ch)
             {
                 default:
                     this.startPos = errorStartPos;
@@ -683,7 +737,7 @@ namespace Microsoft.Zing
                     this.startPos = savedStartPos;
                     if (ch == 'X') goto case 'x';
                     return (char)0;
-                    // Single char escape sequences \b etc
+                // Single char escape sequences \b etc
                 case 'a': return (char)7;
                 case 'b': return (char)8;
                 case 't': return (char)9;
@@ -694,14 +748,14 @@ namespace Microsoft.Zing
                 case '"': return '"';
                 case '\'': return '\'';
                 case '\\': return '\\';
-                case '0': 
+                case '0':
                     if (this.endPos >= this.maxPos) goto default;
                     return (char)0;
-                    // unicode escape sequence \uHHHH
+                // unicode escape sequence \uHHHH
                 case 'u':
                     requireFourDigits = true;
                     goto case 'x';
-                    // hexadecimal escape sequence \xH or \xHH or \xHHH or \xHHHH
+                // hexadecimal escape sequence \xH or \xHH or \xHHH or \xHHHH
                 case 'x':
                     for (int i = 0; i < 4; i++)
                     {
@@ -718,15 +772,16 @@ namespace Microsoft.Zing
                                 this.startPos = savedStartPos;
                             }
                             this.endPos--;
-                            return (char)(escVal>>4);
+                            return (char)(escVal >> 4);
                         }
                     }
                     return (char)escVal;
             }
         }
+
         private void ScanIdentifier()
         {
-            for(;;)
+            for (; ; )
             {
                 char c = this.GetChar(this.endPos);
                 if (!this.IsIdentifierPartChar(c))
@@ -741,9 +796,10 @@ namespace Microsoft.Zing
                     this.HandleError(Error.UnexpectedToken);
             }
         }
+
         private Token ScanKeyword(char ch)
         {
-            for(;;)
+            for (; ; )
             {
                 char c = this.GetChar(this.endPos);
                 if ('a' <= c && c <= 'z')
@@ -762,13 +818,14 @@ namespace Microsoft.Zing
                     break;
                 }
             }
-            Keyword keyword =  Scanner.Keywords[ch - 'a'];
+            Keyword keyword = Scanner.Keywords[ch - 'a'];
             if (keyword == null) return Token.Identifier;
             if (this.sourceString != null)
                 return keyword.GetKeyword(this.sourceString, this.startPos, this.endPos);
             else
                 return keyword.GetKeyword(this.sourceText, this.startPos, this.endPos);
         }
+
         private Token ScanNumber(char leadChar)
         {
             Token token = leadChar == '.' ? Token.RealLiteral : Token.IntegerLiteral;
@@ -781,13 +838,13 @@ namespace Microsoft.Zing
                     if (!Scanner.IsHexDigit(this.GetChar(this.endPos + 1)))
                         return token; //return the 0 as a separate token
                     token = Token.HexLiteral;
-                    while (Scanner.IsHexDigit(this.GetChar(++this.endPos)));
+                    while (Scanner.IsHexDigit(this.GetChar(++this.endPos))) ;
                     return token;
                 }
             }
             bool alreadyFoundPoint = leadChar == '.';
             bool alreadyFoundExponent = false;
-            for (;;)
+            for (; ; )
             {
                 c = this.GetChar(this.endPos);
                 if (!Scanner.IsDigit(c))
@@ -829,8 +886,9 @@ namespace Microsoft.Zing
             }
             if (c == 'e' || c == 'E')
                 this.endPos--;
-            return token; 
+            return token;
         }
+
         internal TypeCode ScanNumberSuffix()
         {
             this.startPos = this.endPos;
@@ -859,10 +917,11 @@ namespace Microsoft.Zing
             this.endPos--;
             return TypeCode.Empty;
         }
+
         internal bool ScanNamespaceSeparator()
         {
-            if (this.endPos >= this.maxPos-2) return false;
-            if (this.GetChar(this.endPos) == ':' && this.IsIdentifierStartChar(this.GetChar(this.endPos+1)))
+            if (this.endPos >= this.maxPos - 2) return false;
+            if (this.GetChar(this.endPos) == ':' && this.IsIdentifierStartChar(this.GetChar(this.endPos + 1)))
             {
                 this.startPos = this.endPos;
                 this.endPos++;
@@ -875,7 +934,7 @@ namespace Microsoft.Zing
         {
             bool exclude = insideExcludedBlock;
             int savedStartPos = this.startPos;
-            int i = this.startPos-1;
+            int i = this.startPos - 1;
             while (i > 0 && Scanner.IsBlankSpace(this.GetChar(i)))
             {
                 i--;
@@ -886,11 +945,11 @@ namespace Microsoft.Zing
                 goto skipToEndOfLine;
             }
             this.SkipBlanks(); //Check EOL/EOF?
-            this.startPos = this.endPos-1;
+            this.startPos = this.endPos - 1;
             this.ScanIdentifier();
             switch (this.GetIdentifierString())
             {
-                case "define": 
+                case "define":
                     if (insideExcludedBlock) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
                     if (!this.allowPPDefinitions)
@@ -925,6 +984,7 @@ namespace Microsoft.Zing
                             this.PreprocessorDefinedSymbols[s] = s;
                     }
                     break;
+
                 case "undef":
                     if (insideExcludedBlock) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -963,6 +1023,7 @@ namespace Microsoft.Zing
                             this.PreprocessorDefinedSymbols[s] = null;
                     }
                     break;
+
                 case "if":
                     if (insideExcludedBlock)
                     {
@@ -976,6 +1037,7 @@ namespace Microsoft.Zing
                     this.endIfCount++;
                     if (this.IsEndLineOrEOF(c, 0)) return exclude;
                     break;
+
                 case "elif":
                     if (insideExcludedBlock && !atTopLevel) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -994,6 +1056,7 @@ namespace Microsoft.Zing
                     if (!exclude) this.includeCount++;
                     if (this.IsEndLineOrEOF(c, 0)) return exclude;
                     break;
+
                 case "else":
                     if (insideExcludedBlock && !atTopLevel) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -1011,6 +1074,7 @@ namespace Microsoft.Zing
                     exclude = false;
                     this.includeCount++;
                     break;
+
                 case "endif":
                     if (stopAtEndOfLine) break;
                     if (this.endIfCount <= 0)
@@ -1021,6 +1085,7 @@ namespace Microsoft.Zing
                     }
                     this.elseCount = this.includeCount = --this.endIfCount;
                     break;
+
                 case "line":
                     if (insideExcludedBlock) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -1029,7 +1094,7 @@ namespace Microsoft.Zing
                     if ('0' <= c && c <= '9')
                     {
                         this.startPos = --this.endPos;
-                        while ('0' <= (c = this.GetChar(++this.endPos)) && c <= '9');
+                        while ('0' <= (c = this.GetChar(++this.endPos)) && c <= '9') ;
                         try
                         {
                             lnum = int.Parse(this.GetTokenSource(), CultureInfo.InvariantCulture);
@@ -1042,7 +1107,7 @@ namespace Microsoft.Zing
                             else if (this.IsEndLineOrEOF(c, 0))
                                 goto setLineInfo;
                         }
-                        catch(OverflowException)
+                        catch (OverflowException)
                         {
                             this.startPos++;
                             this.HandleError(Error.IntOverflow);
@@ -1051,9 +1116,9 @@ namespace Microsoft.Zing
                     }
                     else
                     {
-                        this.startPos = this.endPos-1;
+                        this.startPos = this.endPos - 1;
                         this.ScanIdentifier();
-                        if (this.startPos != this.endPos-1)
+                        if (this.startPos != this.endPos - 1)
                         {
                             string str = this.GetIdentifierString();
                             if (str == "default")
@@ -1072,7 +1137,7 @@ namespace Microsoft.Zing
                         goto skipToEndOfLine;
                     }
                     c = this.SkipBlanks();
-                    this.startPos = this.endPos-1;
+                    this.startPos = this.endPos - 1;
                     if (c == '/')
                     {
                         if (this.GetChar(this.endPos) == '/')
@@ -1082,14 +1147,14 @@ namespace Microsoft.Zing
                         }
                         else
                         {
-                            this.startPos = this.endPos-1;
+                            this.startPos = this.endPos - 1;
                             this.HandleError(Error.EndOfPPLineExpected);
                             goto skipToEndOfLine;
                         }
                     }
                     if (c == '"')
                     {
-                        while ((c = this.GetChar(this.endPos++)) != '"' && !this.IsEndLineOrEOF(c, 0));
+                        while ((c = this.GetChar(this.endPos++)) != '"' && !this.IsEndLineOrEOF(c, 0)) ;
                         if (c != '"')
                         {
                             this.HandleError(Error.MissingPPFile);
@@ -1106,12 +1171,13 @@ namespace Microsoft.Zing
                         this.HandleError(Error.MissingPPFile);
                         goto skipToEndOfLine;
                     }
-                    setLineInfo:
-                        this.document = new Document(this.document.Name, 1, this.document.Text, this.document.DocumentType, this.document.Language, this.document.LanguageVendor);
+                setLineInfo:
+                    this.document = new Document(this.document.Name, 1, this.document.Text, this.document.DocumentType, this.document.Language, this.document.LanguageVendor);
                     int offset = lnum - this.document.GetLine(this.startPos);
                     this.document.LineNumber = offset;
                     if (this.IsEndLineOrEOF(c, 0)) return exclude;
                     break;
+
                 case "error":
                     if (insideExcludedBlock) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -1120,6 +1186,7 @@ namespace Microsoft.Zing
                     this.ScanString((char)0);
                     this.HandleError(Error.ErrorDirective, this.unescapedString);
                     break;
+
                 case "warning":
                     if (insideExcludedBlock) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -1128,6 +1195,7 @@ namespace Microsoft.Zing
                     this.ScanString((char)0);
                     this.HandleError(Error.WarningDirective, this.unescapedString);
                     break;
+
                 case "region":
                     if (insideExcludedBlock) goto skipToEndOfLine;
                     if (stopAtEndOfLine) break;
@@ -1159,16 +1227,17 @@ namespace Microsoft.Zing
             char ch = this.SkipBlanks();
             if (this.IsEndLineOrEOF(ch, 0)) return exclude;
             if (ch == '/' && (ch = this.GetChar(this.endPos++)) == '/') goto skipToEndOfLine;
-            this.startPos = this.endPos-1;
+            this.startPos = this.endPos - 1;
             this.HandleError(Error.EndOfPPLineExpected);
-            skipToEndOfLine:
-                this.SkipSingleLineComment();
+        skipToEndOfLine:
+            this.SkipSingleLineComment();
             return exclude;
         }
+
         private bool ScanPPExpression(ref char c)
         {
             c = this.SkipBlanks();
-            this.startPos = this.endPos-1;
+            this.startPos = this.endPos - 1;
             if (this.IsEndLineOrEOF(c, 0))
             {
                 if (c == 0x0A && this.startPos > 0) this.startPos--;
@@ -1184,6 +1253,7 @@ namespace Microsoft.Zing
             }
             return result;
         }
+
         private bool ScanPPOrExpression(ref char c)
         {
             bool result = this.ScanPPAndExpression(ref c);
@@ -1194,11 +1264,11 @@ namespace Microsoft.Zing
                 {
                     c = this.SkipBlanks();
                     bool opnd2 = this.ScanPPAndExpression(ref c);
-                    result = result || opnd2;          
+                    result = result || opnd2;
                 }
                 else
                 {
-                    this.startPos = this.endPos-2;
+                    this.startPos = this.endPos - 2;
                     this.HandleError(Error.InvalidPreprocExpr);
                     this.SkipSingleLineComment();
                     c = (char)0x0A;
@@ -1207,6 +1277,7 @@ namespace Microsoft.Zing
             }
             return result;
         }
+
         private bool ScanPPAndExpression(ref char c)
         {
             bool result = this.ScanPPEqualityExpression(ref c);
@@ -1217,11 +1288,11 @@ namespace Microsoft.Zing
                 {
                     c = this.SkipBlanks();
                     bool opnd2 = this.ScanPPEqualityExpression(ref c);
-                    result = result && opnd2;          
+                    result = result && opnd2;
                 }
                 else
                 {
-                    this.startPos = this.endPos-2;
+                    this.startPos = this.endPos - 2;
                     this.HandleError(Error.InvalidPreprocExpr);
                     this.SkipSingleLineComment();
                     c = (char)0x0A;
@@ -1230,6 +1301,7 @@ namespace Microsoft.Zing
             }
             return result;
         }
+
         private bool ScanPPEqualityExpression(ref char c)
         {
             bool result = this.ScanPPUnaryExpression(ref c);
@@ -1240,7 +1312,7 @@ namespace Microsoft.Zing
                 {
                     c = this.SkipBlanks();
                     bool opnd2 = this.ScanPPUnaryExpression(ref c);
-                    result = result == opnd2;          
+                    result = result == opnd2;
                 }
                 else if (c == '!' && c2 == '=')
                 {
@@ -1250,7 +1322,7 @@ namespace Microsoft.Zing
                 }
                 else
                 {
-                    this.startPos = this.endPos-2;
+                    this.startPos = this.endPos - 2;
                     this.HandleError(Error.InvalidPreprocExpr);
                     this.SkipSingleLineComment();
                     c = (char)0x0A;
@@ -1259,6 +1331,7 @@ namespace Microsoft.Zing
             }
             return result;
         }
+
         private bool ScanPPUnaryExpression(ref char c)
         {
             if (c == '!')
@@ -1268,6 +1341,7 @@ namespace Microsoft.Zing
             }
             return this.ScanPPPrimaryExpression(ref c);
         }
+
         private bool ScanPPPrimaryExpression(ref char c)
         {
             bool result = true;
@@ -1279,12 +1353,12 @@ namespace Microsoft.Zing
                 c = this.SkipBlanks();
                 return result;
             }
-            this.startPos = this.endPos-1;
+            this.startPos = this.endPos - 1;
             this.ScanIdentifier();
             if (this.endPos > this.startPos)
             {
                 string id = this.GetIdentifierString();
-                string sym = (string) this.PreprocessorDefinedSymbols[id];
+                string sym = (string)this.PreprocessorDefinedSymbols[id];
                 if (id == null || id.Length == 0 || !this.IsIdentifierStartChar(id[0]))
                     this.HandleError(Error.ExpectedIdentifier);
                 result = sym != null;
@@ -1316,10 +1390,10 @@ namespace Microsoft.Zing
                         if (this.sourceString != null)
                             unescapedSB.Append(this.sourceString, start, len);
                         else
-                            unescapedSB.Append(this.sourceText.Substring(start, len));          
-                    int savedEndPos = this.endPos-1;
+                            unescapedSB.Append(this.sourceText.Substring(start, len));
+                    int savedEndPos = this.endPos - 1;
                     this.ScanEscapedChar(unescapedSB); //might be a 32-bit unicode character
-                    if (closingQuote == (char)0 && unescapedSB.Length > 0 && unescapedSB[unescapedSB.Length-1] == (char)0)
+                    if (closingQuote == (char)0 && unescapedSB.Length > 0 && unescapedSB[unescapedSB.Length - 1] == (char)0)
                     {
                         unescapedSB.Length -= 1;
                         this.endPos = savedEndPos;
@@ -1337,7 +1411,7 @@ namespace Microsoft.Zing
                         break;
                     }
                 }
-            }while (ch != closingQuote);
+            } while (ch != closingQuote);
             // update this.unescapedString using the StringBuilder
             if (unescapedSB != null)
             {
@@ -1356,7 +1430,7 @@ namespace Microsoft.Zing
             {
                 if (closingQuote == (char)0)
                     this.unescapedString = this.Substring(this.startPos, this.endPos - this.startPos);
-                else if (closingQuote == '\'' && (this.startPos == this.endPos-1 || this.GetChar(this.endPos-1) != '\''))
+                else if (closingQuote == '\'' && (this.startPos == this.endPos - 1 || this.GetChar(this.endPos - 1) != '\''))
                     this.unescapedString = this.Substring(this.startPos + 1, 1); //suppres further errors
                 else if (this.endPos <= this.startPos + 2)
                     this.unescapedString = "";
@@ -1364,6 +1438,7 @@ namespace Microsoft.Zing
                     this.unescapedString = this.Substring(this.startPos + 1, this.endPos - this.startPos - 2);
             }
         }
+
         private void FindGoodRecoveryPoint(char closingQuote)
         {
             if (closingQuote == (char)0)
@@ -1373,11 +1448,11 @@ namespace Microsoft.Zing
                 {
                     this.endPos = this.maxPos; return;
                 }
-                char ch = this.GetChar(this.endPos-1);
+                char ch = this.GetChar(this.endPos - 1);
                 while (Scanner.IsEndOfLine(ch))
                 {
                     this.endPos--;
-                    ch = this.GetChar(this.endPos-1);
+                    ch = this.GetChar(this.endPos - 1);
                 }
                 return;
             }
@@ -1394,9 +1469,9 @@ namespace Microsoft.Zing
                     {
                         //Give an error, but go on as if new line is allowed
                         this.endPos--;
-                        if (this.GetChar(this.endPos-1) == (char)0x0d) this.endPos--;
+                        if (this.GetChar(this.endPos - 1) == (char)0x0d) this.endPos--;
                         this.HandleError(Error.NewlineInConst);
-                        this.endPos = i+1;
+                        this.endPos = i + 1;
                         return;
                     }
                     switch (ch)
@@ -1434,8 +1509,8 @@ namespace Microsoft.Zing
             for (i = this.startPos; i < endPos; i++)
             {
                 char ch = this.GetChar(i);
-                if (ch == ';') {lastSemicolon = i; lastNonBlank = i;}
-                if (ch == '/' && i < endPos-1)
+                if (ch == ';') { lastSemicolon = i; lastNonBlank = i; }
+                if (ch == '/' && i < endPos - 1)
                 {
                     char ch2 = this.GetChar(++i);
                     if (ch2 == '/' || ch2 == '*')
@@ -1460,13 +1535,14 @@ namespace Microsoft.Zing
             this.startPos = savedStartPos;
             this.endPos--;
         }
+
         private void ScanVerbatimString(bool stopAtEndOfLine)
         {
             char ch;
             int start = this.endPos;
             this.unescapedString = null;
             StringBuilder unescapedSB = null;
-            for(;;)
+            for (; ; )
             {
                 ch = this.GetChar(this.endPos++);
                 if (ch == '"')
@@ -1525,13 +1601,15 @@ namespace Microsoft.Zing
                     this.unescapedString = this.Substring(this.startPos + 2, this.endPos - this.startPos - 3);
             }
         }
+
         private void SkipSingleLineComment()
         {
-            while(!this.IsEndLineOrEOF(this.GetChar(this.endPos++), 0));
+            while (!this.IsEndLineOrEOF(this.GetChar(this.endPos++), 0)) ;
         }
+
         private void SkipMultiLineComment(bool stopAtEndOfLine)
         {
-            for(;;)
+            for (; ; )
             {
                 char c = this.GetChar(this.endPos);
                 while (c == '*')
@@ -1564,10 +1642,11 @@ namespace Microsoft.Zing
                 ++this.endPos;
             }
         }
+
         private char SkipBlanks()
         {
             char c = this.GetChar(this.endPos);
-            while(Scanner.IsBlankSpace(c) ||
+            while (Scanner.IsBlankSpace(c) ||
                 (c == (char)0 && this.endPos < this.maxPos))
             { // silently skip over nulls
                 c = this.GetChar(++this.endPos);
@@ -1575,6 +1654,7 @@ namespace Microsoft.Zing
             if (c != '\0') this.endPos++;
             return c;
         }
+
         private static bool IsBlankSpace(char c)
         {
             switch (c)
@@ -1585,6 +1665,7 @@ namespace Microsoft.Zing
                 case (char)0x1A:
                 case (char)0x20:
                     return true;
+
                 default:
                     if (c >= 128)
                         return Char.GetUnicodeCategory(c) == UnicodeCategory.SpaceSeparator;
@@ -1592,6 +1673,7 @@ namespace Microsoft.Zing
                         return false;
             }
         }
+
         private static bool IsEndOfLine(char c)
         {
             switch (c)
@@ -1601,10 +1683,12 @@ namespace Microsoft.Zing
                 case (char)0x2028:
                 case (char)0x2029:
                     return true;
+
                 default:
                     return false;
             }
         }
+
         private bool IsLineTerminator(char c, int increment)
         {
             switch (c)
@@ -1614,20 +1698,26 @@ namespace Microsoft.Zing
                     if (this.GetChar(this.endPos + increment) == 0x0A)
                         this.endPos++;
                     return true;
+
                 case (char)0x0A:
                     return true;
+
                 case (char)0x2028:
                     return true;
+
                 case (char)0x2029:
                     return true;
+
                 default:
                     return false;
             }
         }
+
         private bool IsEndLineOrEOF(char c, int increment)
         {
             return this.IsLineTerminator(c, increment) || c == (char)0 && this.endPos >= this.maxPos;
         }
+
         internal bool IsIdentifierPartChar(char c)
         {
             if (this.IsIdentifierStartCharHelper(c, true))
@@ -1643,10 +1733,12 @@ namespace Microsoft.Zing
             }
             return false;
         }
+
         internal bool IsIdentifierStartChar(char c)
         {
             return this.IsIdentifierStartCharHelper(c, false);
         }
+
         private bool IsIdentifierStartCharHelper(char c, bool expandedUnicode)
         {
             bool isEscapeChar = false;
@@ -1662,11 +1754,13 @@ namespace Microsoft.Zing
                         c = '-';
                         goto isIdentifierChar;
                     case 'u':
-                        escapeLength = 4; 
+                        escapeLength = 4;
                         break;
+
                     case 'U':
-                        escapeLength = 8; 
+                        escapeLength = 8;
                         break;
+
                     default:
                         return false;
                 }
@@ -1706,6 +1800,7 @@ namespace Microsoft.Zing
                 case UnicodeCategory.ConnectorPunctuation:
                     if (expandedUnicode) goto isIdentifierChar;
                     return false;
+
                 case UnicodeCategory.Format:
                     if (expandedUnicode)
                     {
@@ -1717,39 +1812,45 @@ namespace Microsoft.Zing
                         goto isIdentifierChar;
                     }
                     return false;
+
                 default:
                     return false;
             }
-            isIdentifierChar:
-                if (isEscapeChar)
-                {
-                    int startPos = this.idLastPosOnBuilder;
-                    if (startPos == 0) startPos = this.startPos;
-                    if (this.endPos > startPos)
-                        this.identifier.Append(this.Substring(startPos, this.endPos - startPos));
-                    if (ccat != UnicodeCategory.Format)
-                        this.identifier.Append(c);
-                    this.endPos += escapeLength + 1;
-                    this.idLastPosOnBuilder = this.endPos + 1;
-                }
+        isIdentifierChar:
+            if (isEscapeChar)
+            {
+                int startPos = this.idLastPosOnBuilder;
+                if (startPos == 0) startPos = this.startPos;
+                if (this.endPos > startPos)
+                    this.identifier.Append(this.Substring(startPos, this.endPos - startPos));
+                if (ccat != UnicodeCategory.Format)
+                    this.identifier.Append(c);
+                this.endPos += escapeLength + 1;
+                this.idLastPosOnBuilder = this.endPos + 1;
+            }
             return true;
         }
+
         internal static bool IsDigit(char c)
         {
             return '0' <= c && c <= '9';
         }
+
         internal static bool IsHexDigit(char c)
         {
             return Scanner.IsDigit(c) || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f';
         }
+
         internal static bool IsAsciiLetter(char c)
         {
             return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z';
         }
+
         internal static bool IsUnicodeLetter(char c)
         {
             return c >= 128 && Char.IsLetter(c);
         }
+
         private void HandleError(Error error, params string[] messageParameters)
         {
             if (this.errors == null) return;
@@ -1759,6 +1860,7 @@ namespace Microsoft.Zing
             enode.SourceContext = new SourceContext(this.document, this.startPos, this.endPos);
             this.errors.Add(enode);
         }
+
         private static int GetHexValue(char hex)
         {
             int hexValue;
@@ -1773,15 +1875,17 @@ namespace Microsoft.Zing
 
         internal SourceContext CurrentSourceContext
         {
-            get{return new SourceContext(this.document, this.startPos, this.endPos);}
+            get { return new SourceContext(this.document, this.startPos, this.endPos); }
         }
     }
+
     public enum Token : int
     {
         None,
 
         // Keywords
         Activate,
+
         Array,
         Accept,
         Assert,
@@ -1847,6 +1951,7 @@ namespace Microsoft.Zing
 
         // Literals
         HexLiteral,
+
         Identifier,
         IntegerLiteral,
         StringLiteral,
@@ -1854,6 +1959,7 @@ namespace Microsoft.Zing
 
         // Punctuation
         Comma,
+
         Semicolon,
         LeftParenthesis,
         RightParenthesis,
@@ -1889,11 +1995,13 @@ namespace Microsoft.Zing
 
         // Misc
         IllegalCharacter,
+
         MultiLineComment,
         SingleLineComment,
         EndOfLine,
         EndOfFile,
     }
+
     internal sealed class Keyword
     {
         private Keyword next;
@@ -1921,34 +2029,34 @@ namespace Microsoft.Zing
         {
             int length = endPos - startPos;
             Keyword keyword = this;
-            nextToken:
-                while (null != keyword)
+        nextToken:
+            while (null != keyword)
+            {
+                if (length == keyword.length)
                 {
-                    if (length == keyword.length)
+                    // we know the first char has to match
+                    string name = keyword.name;
+                    for (int i = 1, j = startPos + 1; i < length; i++, j++)
                     {
-                        // we know the first char has to match
-                        string name = keyword.name;
-                        for (int i = 1, j = startPos+1; i < length; i++, j++)
+                        char ch1 = name[i];
+                        char ch2 = source[j];
+                        if (ch1 == ch2)
+                            continue;
+                        else if (ch2 < ch1)
+                            return Token.Identifier;
+                        else
                         {
-                            char ch1 = name[i];
-                            char ch2 = source[j];
-                            if (ch1 == ch2)
-                                continue;
-                            else if (ch2 < ch1)
-                                return Token.Identifier;
-                            else
-                            {
-                                keyword = keyword.next;
-                                goto nextToken;
-                            }
+                            keyword = keyword.next;
+                            goto nextToken;
                         }
-                        return keyword.token;
                     }
-                    else if (length < keyword.length)
-                        return Token.Identifier;
-
-                    keyword = keyword.next;
+                    return keyword.token;
                 }
+                else if (length < keyword.length)
+                    return Token.Identifier;
+
+                keyword = keyword.next;
+            }
             return Token.Identifier;
         }
 
@@ -1956,34 +2064,34 @@ namespace Microsoft.Zing
         {
             int length = endPos - startPos;
             Keyword keyword = this;
-            nextToken:
-                while (null != keyword)
+        nextToken:
+            while (null != keyword)
+            {
+                if (length == keyword.length)
                 {
-                    if (length == keyword.length)
+                    // we know the first char has to match
+                    string name = keyword.name;
+                    for (int i = 1, j = startPos + 1; i < length; i++, j++)
                     {
-                        // we know the first char has to match
-                        string name = keyword.name;
-                        for (int i = 1, j = startPos+1; i < length; i++, j++)
+                        char ch1 = name[i];
+                        char ch2 = source[j];
+                        if (ch1 == ch2)
+                            continue;
+                        else if (ch2 < ch1)
+                            return Token.Identifier;
+                        else
                         {
-                            char ch1 = name[i];
-                            char ch2 = source[j];
-                            if (ch1 == ch2)
-                                continue;
-                            else if (ch2 < ch1)
-                                return Token.Identifier;
-                            else
-                            {
-                                keyword = keyword.next;
-                                goto nextToken;
-                            }
+                            keyword = keyword.next;
+                            goto nextToken;
                         }
-                        return keyword.token;
                     }
-                    else if (length < keyword.length)
-                        return Token.Identifier;
-
-                    keyword = keyword.next;
+                    return keyword.token;
                 }
+                else if (length < keyword.length)
+                    return Token.Identifier;
+
+                keyword = keyword.next;
+            }
             return Token.Identifier;
         }
 
@@ -2043,7 +2151,7 @@ namespace Microsoft.Zing
             keywords['l' - 'a'] = keyword;
             // n
             keyword = new Keyword(Token.Null, "null");
-            keyword = new Keyword(Token.New, "new", keyword); 
+            keyword = new Keyword(Token.New, "new", keyword);
             keywords['n' - 'a'] = keyword;
             // o
             keyword = new Keyword(Token.Object, "object");
@@ -2056,7 +2164,7 @@ namespace Microsoft.Zing
             keyword = new Keyword(Token.Range, "range", keyword);
             keyword = new Keyword(Token.Raise, "raise", keyword);
             keywords['r' - 'a'] = keyword;
-            
+
             // s
             keyword = new Keyword(Token.Struct, "struct", keyword);
             keyword = new Keyword(Token.String, "string", keyword);

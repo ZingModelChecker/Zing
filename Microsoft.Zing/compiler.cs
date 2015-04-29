@@ -1,17 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Specialized;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Compiler;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.SymbolStore;
 using System.IO;
-using System.Threading;
-using R=System.Reflection;
-using CS=Microsoft.Comega;
+using CS = Microsoft.Comega;
+using R = System.Reflection;
 
 namespace Microsoft.Zing
 {
@@ -23,9 +20,8 @@ namespace Microsoft.Zing
     /// to source code if the ICodeCompiler interface is used, as is the case for ASP .NET.
     /// </summary>
     [System.ComponentModel.DesignerCategory("code")]
-    public class ZingCodeProvider: CodeDomProvider
+    public class ZingCodeProvider : CodeDomProvider
     {
-
         public ZingCodeProvider()
         {
         }
@@ -36,27 +32,31 @@ namespace Microsoft.Zing
         {
             return new Compiler();
         }
+
         [SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase")]
         [Obsolete("TODO")]
         public override ICodeCompiler CreateCompiler()
         {
             return new Compiler();
         }
+
         [SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase")]
         public override string FileExtension
         {
-            get {return "zing";}
+            get { return "zing"; }
         }
+
         [SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase")]
         [Obsolete("TODO")]
         public override ICodeParser CreateParser()
         {
             throw new NotImplementedException();
         }
+
         [SuppressMessage("Microsoft.Security", "CA2123:OverrideLinkDemandsShouldBeIdenticalToBase")]
         public override LanguageOptions LanguageOptions
         {
-            get {return LanguageOptions.None;}
+            get { return LanguageOptions.None; }
         }
     }
 
@@ -74,7 +74,7 @@ namespace Microsoft.Zing
         {
         }
 
-        private static Type[] RequiredTypes = 
+        private static Type[] RequiredTypes =
         {
             //typeof(Microsoft.Zing.StateImpl),
             typeof(System.Diagnostics.Debug),
@@ -84,10 +84,11 @@ namespace Microsoft.Zing
         private Module targetModule;
 
         #region Framework Overrides
+
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public override void SetOutputFileName(CompilerParameters options, string fileName)
         {
-            if (options == null){Debug.Assert(false); return;}
+            if (options == null) { Debug.Assert(false); return; }
             CompilerOptions coptions = options as CompilerOptions;
             if (coptions != null && (coptions.OutputPath == null || coptions.OutputPath.Length == 0) && options.TempFiles != null && (options.TempFiles.TempDir != Directory.GetCurrentDirectory() || !options.TempFiles.KeepFiles))
             {
@@ -104,14 +105,14 @@ namespace Microsoft.Zing
             }
             if (options.OutputAssembly == null || options.OutputAssembly.Length == 0)
                 options.OutputAssembly = Path.GetFileNameWithoutExtension(fileName);
-            if (coptions != null && (coptions.OutputPath == null || coptions.OutputPath.Length == 0) )
+            if (coptions != null && (coptions.OutputPath == null || coptions.OutputPath.Length == 0))
                 coptions.OutputPath = Path.GetDirectoryName(fileName);
         }
 
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public override CompilerResults CompileAssemblyFromDomBatch(CompilerParameters options, CodeCompileUnit[] compilationUnits, ErrorNodeList errorNodes)
         {
-            if (options == null){Debug.Assert(false); return null;}
+            if (options == null) { Debug.Assert(false); return null; }
             this.Options = options;
             int n = compilationUnits == null ? 0 : compilationUnits.Length;
             if (options.OutputAssembly == null || options.OutputAssembly.Length == 0)
@@ -148,7 +149,7 @@ namespace Microsoft.Zing
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public override CompilerResults CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames, ErrorNodeList errorNodes, bool canUseMemoryMap)
         {
-            if (options == null){Debug.Assert(false); return null;}
+            if (options == null) { Debug.Assert(false); return null; }
             int n = fileNames.Length;
             if (options.OutputAssembly == null || options.OutputAssembly.Length == 0)
             {
@@ -172,8 +173,8 @@ namespace Microsoft.Zing
                 sp.Visit(cu);
                 compilation.CompilationUnits.Add(cu);
                 cu.Compilation = compilation;
-            }            
-            
+            }
+
             this.CompileParseTree(compilation, errorNodes);
 
             this.ProcessErrors(options, results, errorNodes);
@@ -188,13 +189,13 @@ namespace Microsoft.Zing
         public override void CompileParseTree(Compilation compilation, ErrorNodeList errorNodes)
         {
             TrivialHashtable ambiguousTypes = new TrivialHashtable();
-			TrivialHashtable scopeFor = new TrivialHashtable();
+            TrivialHashtable scopeFor = new TrivialHashtable();
             TrivialHashtable referencedLabels = new TrivialHashtable();
             Hashtable exceptionNames = new Hashtable();
             ErrorHandler errorHandler = new ErrorHandler(errorNodes);
             string target = "";
-            ZingCompilerOptions zoptions = compilation.CompilerParameters as ZingCompilerOptions; 
-            if (zoptions != null && zoptions.DumpSource) 
+            ZingCompilerOptions zoptions = compilation.CompilerParameters as ZingCompilerOptions;
+            if (zoptions != null && zoptions.DumpSource)
             {
                 target = compilation.CompilerParameters.OutputAssembly;
                 if (string.IsNullOrEmpty(target))
@@ -209,14 +210,14 @@ namespace Microsoft.Zing
             if (this.Options == null)
                 this.Options = compilation.CompilerParameters;
 
-			//Attach scopes to namespaces and types so that forward references to base types can be looked up in the appropriate namespace scope
-			Scoper scoper = new Scoper(scopeFor);
-			scoper.VisitCompilation(compilation);
+            //Attach scopes to namespaces and types so that forward references to base types can be looked up in the appropriate namespace scope
+            Scoper scoper = new Scoper(scopeFor);
+            scoper.VisitCompilation(compilation);
 
             //Walk IR looking up names
-            TypeSystem typeSystem = new TypeSystem(errorHandler); 
+            TypeSystem typeSystem = new TypeSystem(errorHandler);
             Looker looker = new Looker(compilation.GlobalScope, errorHandler, scopeFor, typeSystem, // LJW: added typeSystem
-				ambiguousTypes, referencedLabels, exceptionNames);
+                ambiguousTypes, referencedLabels, exceptionNames);
             looker.VisitCompilation(compilation);
 
             //Walk IR inferring types and resolving overloads
@@ -258,7 +259,7 @@ namespace Microsoft.Zing
                 sw.Close();
             }
 
-            for (int i = 0; i < RequiredTypes.Length ;i++)
+            for (int i = 0; i < RequiredTypes.Length; i++)
             {
                 R.Assembly asm = R.Assembly.GetAssembly(RequiredTypes[i]);
                 if (!compilation.CompilerParameters.ReferencedAssemblies.Contains(asm.Location))
@@ -306,31 +307,36 @@ namespace Microsoft.Zing
         {
             return new Document(fileName, lineNumber, text, SymDocumentType.Text, typeof(DebuggerLanguage).GUID, SymLanguageVendor.Microsoft);
         }
+
         public static Document CreateZingDocument(string fileName, int lineNumber, DocumentText text)
         {
             return new Document(fileName, lineNumber, text, SymDocumentType.Text, typeof(DebuggerLanguage).GUID, SymLanguageVendor.Microsoft);
         }
+
         public override Document CreateDocument(string fileName, int lineNumber, string text)
         {
             return new Document(fileName, lineNumber, text, SymDocumentType.Text, typeof(DebuggerLanguage).GUID, SymLanguageVendor.Microsoft);
         }
+
         public override IParser CreateParser(string fileName, int lineNumber, DocumentText text, Module symbolTable, ErrorNodeList errorNodes, CompilerParameters options)
         {
             Document document = this.CreateDocument(fileName, lineNumber, text);
             return new Parser(document, errorNodes, symbolTable, options as ZingCompilerOptions);
         }
+
         public override CompilerOptions CreateCompilerOptions()
         {
             return new ZingCompilerOptions();
         }
+
         /// <summary>
         /// Parses all of the CompilationUnitSnippets in the given compilation, ignoring method bodies. Then resolves all type expressions.
-        /// The resulting types can be retrieved from the module in compilation.TargetModule. The base types, interfaces and 
+        /// The resulting types can be retrieved from the module in compilation.TargetModule. The base types, interfaces and
         /// member signatures will all be resolved and on an equal footing with imported, already compiled modules and assemblies.
         /// </summary>
         public override void ConstructSymbolTable(Compilation compilation, ErrorNodeList errors)
         {
-            if (compilation == null){Debug.Assert(false); return;}
+            if (compilation == null) { Debug.Assert(false); return; }
             Module symbolTable = compilation.TargetModule = this.CreateModule(compilation.CompilerParameters, errors, compilation);
             TrivialHashtable scopeFor = new TrivialHashtable();
             Scoper scoper = new Scoper(scopeFor);
@@ -343,20 +349,20 @@ namespace Microsoft.Zing
             compilation.GlobalScope = this.GetGlobalScope(symbolTable);
 
             CompilationUnitList sources = compilation.CompilationUnits;
-            if (sources == null) {Debug.Assert(false); return;}
+            if (sources == null) { Debug.Assert(false); return; }
             int n = sources.Count;
             for (int i = 0; i < n; i++)
             {
                 CompilationUnitSnippet compilationUnitSnippet = sources[i] as CompilationUnitSnippet;
-                if (compilationUnitSnippet == null){Debug.Assert(false); continue;}
+                if (compilationUnitSnippet == null) { Debug.Assert(false); continue; }
                 compilationUnitSnippet.ChangedMethod = null;
                 Document doc = compilationUnitSnippet.SourceContext.Document;
-                if (doc == null || doc.Text == null){Debug.Assert(false); continue;}
+                if (doc == null || doc.Text == null) { Debug.Assert(false); continue; }
                 IParserFactory factory = compilationUnitSnippet.ParserFactory;
-                if (factory == null){Debug.Assert(false); return;}
+                if (factory == null) { Debug.Assert(false); return; }
                 IParser p = factory.CreateParser(doc.Name, doc.LineNumber, doc.Text, symbolTable, errors, compilation.CompilerParameters);
                 if (p is ResgenCompilerStub) continue;
-                if (p == null){Debug.Assert(false); continue;}
+                if (p == null) { Debug.Assert(false); continue; }
                 Parser zingParser = p as Parser;
                 if (zingParser == null)
                     p.ParseCompilationUnit(compilationUnitSnippet);
@@ -382,59 +388,69 @@ namespace Microsoft.Zing
             }
         }
 
-        #endregion
+        #endregion Framework Overrides
 
         #region CodeDomCodeGenerator
 
-        bool ICodeGenerator.Supports(GeneratorSupport supports) 
+        bool ICodeGenerator.Supports(GeneratorSupport supports)
         {
             return false;
         }
+
         //These methods are used to translate CodeDom trees into target language source code
         //These are not implemented for Zing since there is no easy mapping from CodeDom to Zing
         void ICodeGenerator.GenerateCodeFromType(CodeTypeDeclaration e, TextWriter w, CodeGeneratorOptions o)
         {
             throw new NotImplementedException();
         }
+
         void ICodeGenerator.GenerateCodeFromExpression(CodeExpression e, TextWriter w, CodeGeneratorOptions o)
         {
             throw new NotImplementedException();
         }
+
         void ICodeGenerator.GenerateCodeFromCompileUnit(CodeCompileUnit e, TextWriter w, CodeGeneratorOptions o)
         {
             throw new NotImplementedException();
         }
+
         void ICodeGenerator.GenerateCodeFromNamespace(CodeNamespace e, TextWriter w, CodeGeneratorOptions o)
         {
             throw new NotImplementedException();
         }
+
         void ICodeGenerator.GenerateCodeFromStatement(CodeStatement e, TextWriter w, CodeGeneratorOptions o)
         {
             throw new NotImplementedException();
         }
+
         bool ICodeGenerator.IsValidIdentifier(string value)
         {
             throw new NotImplementedException();
         }
+
         void ICodeGenerator.ValidateIdentifier(string value)
         {
             throw new NotImplementedException();
         }
+
         string ICodeGenerator.CreateEscapedIdentifier(string value)
         {
             throw new NotImplementedException();
         }
+
         string ICodeGenerator.CreateValidIdentifier(string value)
         {
             throw new NotImplementedException();
         }
+
         string ICodeGenerator.GetTypeOutput(CodeTypeReference type)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
-        
+        #endregion CodeDomCodeGenerator
+
         public static void GenerateCodeFromIR(Node node, TextWriter w, CodeGeneratorOptions o)
         {
             ZingDecompiler decompiler = new ZingDecompiler(o);
@@ -444,7 +460,7 @@ namespace Microsoft.Zing
 
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public static void GenerateCodeFileFromIR(Node node, string path,
-            string indent, bool blankLines, string bracingStyle )
+            string indent, bool blankLines, string bracingStyle)
         {
             CodeGeneratorOptions o = new CodeGeneratorOptions();
             o.IndentString = indent;
@@ -464,8 +480,8 @@ namespace Microsoft.Zing
             Hashtable exceptionNames = new Hashtable();
             ErrorHandler errorHandler = new ErrorHandler(errorNodes);
             string target = "";
-            ZingCompilerOptions zoptions = compilation.CompilerParameters as ZingCompilerOptions; 
-            if (zoptions != null && zoptions.DumpSource) 
+            ZingCompilerOptions zoptions = compilation.CompilerParameters as ZingCompilerOptions;
+            if (zoptions != null && zoptions.DumpSource)
             {
                 target = compilation.CompilerParameters.OutputAssembly;
                 if (string.IsNullOrEmpty(target))
@@ -485,9 +501,9 @@ namespace Microsoft.Zing
             scoper.VisitCompilation(compilation);
 
             //Walk IR looking up names
-            TypeSystem typeSystem = new TypeSystem(errorHandler);   
+            TypeSystem typeSystem = new TypeSystem(errorHandler);
             Looker looker = new Looker(compilation.GlobalScope, errorHandler, scopeFor, typeSystem, // LJW: added typeSystem
-				ambiguousTypes, referencedLabels, exceptionNames);
+                ambiguousTypes, referencedLabels, exceptionNames);
             looker.VisitCompilation(compilation);
 
             //Walk IR inferring types and resolving overloads
@@ -506,6 +522,7 @@ namespace Microsoft.Zing
             //CompilerOptions coptions = options as CompilerOptions;
             return result;
         }
+
         public override bool ParseCompilerOption(CompilerParameters options, string arg, ErrorNodeList errors)
         {
             bool result = base.ParseCompilerOption(options, arg, errors);
@@ -520,7 +537,7 @@ namespace Microsoft.Zing
                 char ch = arg[0];
                 if (ch != '/' && ch != '-') return false;
                 ch = arg[1];
-                switch(ch)
+                switch (ch)
                 {
                     case 'p':
                         if (this.ParseName(arg, "preemptive", "preemptive"))
@@ -529,6 +546,7 @@ namespace Microsoft.Zing
                             return true;
                         }
                         break;
+
                     case 'n':
                         string warningnumber;
                         warningnumber = this.ParseNamedArgument(arg, "nowarning", "nowarning");
@@ -538,6 +556,7 @@ namespace Microsoft.Zing
                             return true;
                         }
                         break;
+
                     case 'd':
                         if (this.ParseName(arg, "dumpsource", "dumpsource"))
                         {
@@ -552,6 +571,7 @@ namespace Microsoft.Zing
                             return true;
                         }
                         break;
+
                     case 'u':
                         if (this.ParseName(arg, "unchecked", "unchecked"))
                         {
@@ -560,9 +580,10 @@ namespace Microsoft.Zing
                             return true;
                         }
                         break;
+
                     case 'z':
                         /* Added by Jiri Adamek;
-                         * "zom" (optional) name argument defines the name of a .NET library containing 
+                         * "zom" (optional) name argument defines the name of a .NET library containing
                          * classes that are "linked" to the Zing runtime
                          */
                         string zomAssemblyName = this.ParseNamedArgument(arg, "zom", "zom");
@@ -571,9 +592,9 @@ namespace Microsoft.Zing
                             if (zoptions == null) break;
                             if (zoptions.ZomAssemblyName == null)
                                 zoptions.ZomAssemblyName = zomAssemblyName;
-                            else 
-                                System.Console.WriteLine("warning: Only single ZOM assembly is currently supported: '" + zomAssemblyName + "' is ignored");                          
-                                // TODO: handle the warning using the standard CCI error handling infrastructure
+                            else
+                                System.Console.WriteLine("warning: Only single ZOM assembly is currently supported: '" + zomAssemblyName + "' is ignored");
+                            // TODO: handle the warning using the standard CCI error handling infrastructure
                             return true;
                         }
                         break;
@@ -586,15 +607,13 @@ namespace Microsoft.Zing
         #endregion CompilerParameters
     }
 
-    
-
-    
     public class ZingCompilerOptions : CompilerOptions
     {
-     /*
-     * Added for handling pre-emptive and non-preemptive compile time options
-     */
+        /*
+        * Added for handling pre-emptive and non-preemptive compile time options
+        */
         private static bool isPreemtive = false;
+
         public static bool IsPreemtive
         {
             get { return ZingCompilerOptions.isPreemtive; }
@@ -608,10 +627,9 @@ namespace Microsoft.Zing
             get { return warningnumber; }
             set { warningnumber = value; }
         }
-        
-
 
         private bool dumpSource;
+
         public bool DumpSource
         {
             get { return this.dumpSource; }
@@ -619,6 +637,7 @@ namespace Microsoft.Zing
         }
 
         private bool dumpLabels;
+
         public bool DumpLabels
         {
             get { return this.dumpLabels; }
@@ -626,6 +645,7 @@ namespace Microsoft.Zing
         }
 
         private bool checkArithmetic = true;
+
         public bool CheckArithmetic
         {
             get { return checkArithmetic; }
@@ -633,36 +653,37 @@ namespace Microsoft.Zing
         }
 
         /* Added by Jiri Adamek;
-         * zomAssemblyName is the name of .NET assembly that is 
+         * zomAssemblyName is the name of .NET assembly that is
          * "linked" to the Zing runtime; from the point of view of a Zing code,
          * it defines a set of classes that can be instantiated and used as common Zing classes
          */
         private string zomAssemblyName = null;
+
         public string ZomAssemblyName
         {
             get { return zomAssemblyName; }
             set { zomAssemblyName = value; }
         }
 
-		public ZingCompilerOptions()
+        public ZingCompilerOptions()
             : base()
-		{
-            AddZingRuntime();
-            this.Warningnumber = new System.Collections.Generic.List<int>();
-		}
-
-		public ZingCompilerOptions(CompilerOptions options)
-			: base(options)
         {
             AddZingRuntime();
-
-			ZingCompilerOptions zoptions = options as ZingCompilerOptions;
-			if (zoptions == null) return;
-			this.DumpSource = zoptions.DumpSource;
             this.Warningnumber = new System.Collections.Generic.List<int>();
         }
 
-        public override string GetOptionHelp() 
+        public ZingCompilerOptions(CompilerOptions options)
+            : base(options)
+        {
+            AddZingRuntime();
+
+            ZingCompilerOptions zoptions = options as ZingCompilerOptions;
+            if (zoptions == null) return;
+            this.DumpSource = zoptions.DumpSource;
+            this.Warningnumber = new System.Collections.Generic.List<int>();
+        }
+
+        public override string GetOptionHelp()
         {
             System.Resources.ResourceManager rm = new System.Resources.ResourceManager("Microsoft.Zing.ErrorMessages", typeof(ZingErrorNode).Module.Assembly);
             return rm.GetString("Usage");
@@ -676,5 +697,5 @@ namespace Microsoft.Zing
             if (!this.ReferencedAssemblies.Contains(asm.Location))
                 this.ReferencedAssemblies.Add(asm.Location);
         }
-	}
+    }
 }

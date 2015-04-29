@@ -1,8 +1,8 @@
 /***********************************************************************************
  * Fingerprint.cs -- Implementation of Stern & Dill's probabilistic hash compaction *
  **********************************************************************************/
+
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -11,7 +11,7 @@ namespace Microsoft.Zing
     /// <summary>
     /// This class supports the Zing state fingerprinting scheme.
     /// </summary>
-    /// 
+    ///
     [Serializable]
     public class Fingerprint : ICloneable, IComparable<Fingerprint>
     {
@@ -43,14 +43,14 @@ namespace Microsoft.Zing
             s1 = signature1;
         }
 
-        internal int[] S 
+        internal int[] S
         {
-            get 
+            get
             {
                 int[] ret = new int[2];
                 ret[0] = s0;
                 ret[1] = s1;
-                return ret; 
+                return ret;
             }
         }
 
@@ -63,9 +63,9 @@ namespace Microsoft.Zing
         {
             Fingerprint s = obj as Fingerprint;
             bool ret = false;
-            if(s != null)
+            if (s != null)
             {
-                ret =  s.s0 == s0 
+                ret = s.s0 == s0
                     && s.s1 == s1;
             }
             return ret;
@@ -120,13 +120,14 @@ namespace Microsoft.Zing
     }
 
     #region Stern & Dill probabilistic hash compression
-    //Stern and Dill's probabilistic hash compression.	
+
+    //Stern and Dill's probabilistic hash compression.
     [Serializable]
-    
     public class computeHASH
     {
         //static variables
         private static int gratelen = 1024000;
+
         private static int[] grate = new int[gratelen * 4];
 
         private static Random r = new Random(0);
@@ -176,10 +177,7 @@ namespace Microsoft.Zing
             }
             return fp;
         }
-    
-
     }
-    #endregion
 
-   
+    #endregion Stern & Dill probabilistic hash compression
 }

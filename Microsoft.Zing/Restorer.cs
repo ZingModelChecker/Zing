@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using System.Compiler;
-using System.Diagnostics;
 
 namespace Microsoft.Zing
 {
@@ -21,7 +18,7 @@ namespace Microsoft.Zing
         public override Node Visit(Node node)
         {
             if (node == null) return null;
-          
+
             TypeNode tn = node as TypeNode;
 
             if (tn != null)
@@ -32,9 +29,8 @@ namespace Microsoft.Zing
 
         public override Node VisitUnknownNodeType(Node node)
         {
-            // wrwg+sriram 20/7/04: review 
+            // wrwg+sriram 20/7/04: review
             return node;
         }
-
     }
 }

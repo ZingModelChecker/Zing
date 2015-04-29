@@ -1,22 +1,13 @@
 /* Step by Step Traversal */
 
 using System;
-using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Text;
-using System.Collections.Generic;
-using System.IO;
 using System.Diagnostics.Contracts;
-
 
 namespace Microsoft.Zing
 {
-    
     public class JiGlobal
-    { 
+    {
         public static StateImpl JiState;
     }
 
@@ -29,24 +20,24 @@ namespace Microsoft.Zing
         public readonly bool IsAborted;
 
         public TerminalState(StateImpl s, TraversalInfo pred, Via bt) :
-            base (s, StateType.TerminalState, pred, bt) 
+            base(s, StateType.TerminalState, pred, bt)
         {
             hasMultipleSuccessors = false;
-            if (s.IsErroneous) 
+            if (s.IsErroneous)
             {
                 IsErroneous = true;
                 Error = s.Exception;
             }
-            else if (s.IsFailedAssumption) 
+            else if (s.IsFailedAssumption)
             {
                 IsFailedAssumption = true;
                 Error = s.Exception;
             }
-            else if (s.IsValidTermination) 
+            else if (s.IsValidTermination)
             {
                 IsValidTermination = true;
             }
-            
+
             stateImpl = s;
 
             receipt = s.CheckIn();
@@ -120,7 +111,9 @@ namespace Microsoft.Zing
             Predecessor.Successor = this;
         }
 
-        public override void Reset() {}
+        public override void Reset()
+        {
+        }
 
         public override TraversalInfo GetNextSuccessorUnderDelayZeroForRW()
         {
@@ -131,7 +124,7 @@ namespace Microsoft.Zing
         {
             return null;
         }
-        
+
         public override TraversalInfo GetNextSuccessor()
         {
             return null;
@@ -157,18 +150,18 @@ namespace Microsoft.Zing
     {
         private ushort numChoices;
         private int currChoice;
+
         public ushort NumChoices { get { return numChoices; } }
 
         public ChooseState(StateImpl s,
             TraversalInfo predecessor, Via bt)
-            : base (s, StateType.ChooseState, predecessor, bt)
+            : base(s, StateType.ChooseState, predecessor, bt)
         {
             numChoices = s.NumChoices;
             hasMultipleSuccessors = s.NumChoices > 1;
 
             stateImpl = s;
 
-            
             receipt = s.CheckIn();
 
             if (ZingerConfiguration.FingerprintSingleTransitionStates)
@@ -207,9 +200,8 @@ namespace Microsoft.Zing
             numChoices = s.NumChoices;
             stateImpl = s;
             hasMultipleSuccessors = s.NumChoices > 1;
-           
-            receipt = s.CheckIn();
 
+            receipt = s.CheckIn();
 
             if (MustFingerprint)
             {
@@ -223,7 +215,7 @@ namespace Microsoft.Zing
             }
         }
 
-        internal override void deOrphanize (StateImpl s)
+        internal override void deOrphanize(StateImpl s)
         {
             Debug.Assert(numChoices == s.NumChoices);
             receipt = s.CheckIn();
@@ -234,9 +226,9 @@ namespace Microsoft.Zing
         {
             if (n >= numChoices)
                 throw new ArgumentException("invalid successor (choose)");
-            
+
             StateImpl s;
-           
+
             s = reclaimState();
             s.RunChoice(n);
 
@@ -244,7 +236,7 @@ namespace Microsoft.Zing
             JiGlobal.JiState = s;
 
             ViaChoose v = new ViaChoose(n);
-            TraversalInfo ti = TraversalInfo.MakeTraversalInfo(s, this, v);            
+            TraversalInfo ti = TraversalInfo.MakeTraversalInfo(s, this, v);
             return ti;
         }
 
@@ -256,7 +248,7 @@ namespace Microsoft.Zing
             }
 
             StateImpl s;
-            
+
             s = reclaimState();
             s.RunChoice(n);
 
@@ -269,6 +261,7 @@ namespace Microsoft.Zing
         }
 
         #region Random Walk
+
         public override TraversalInfo GetNextSuccessorUniformRandomly()
         {
             var nextChoice = ZingerUtilities.rand.Next(0, numChoices);
@@ -279,47 +272,46 @@ namespace Microsoft.Zing
         {
             return GetNextSuccessorUniformRandomly();
         }
-        #endregion
+
+        #endregion Random Walk
+
         public override TraversalInfo GetNextSuccessor()
         {
-
-                if (ZingerConfiguration.BoundChoices)
-                {
-                    if (currChoice >= numChoices)
-                        return null;
-
-                    if (doDelay)
-                    {
-                        //increment the choice cost for choice bounding.
-                        zBounds.ChoiceCost = zBounds.ChoiceCost + 1;
-                        //increment the delay budget when using delaying explorers
-                        if (ZingerConfiguration.DoDelayBounding)
-                            zBounds.IncrementDelayCost();
-                    }
-                    else
-                    {
-                        doDelay = true;
-                    }
-
-                    //if the final cutoff is already exceeded then return null !
-                    if (ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff < zBounds.ChoiceCost)
-                        return null;
-
-                    if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
-                        return this;
-
-                }
-
+            if (ZingerConfiguration.BoundChoices)
+            {
                 if (currChoice >= numChoices)
                     return null;
 
-                return RunChoice(currChoice++);
-                
+                if (doDelay)
+                {
+                    //increment the choice cost for choice bounding.
+                    zBounds.ChoiceCost = zBounds.ChoiceCost + 1;
+                    //increment the delay budget when using delaying explorers
+                    if (ZingerConfiguration.DoDelayBounding)
+                        zBounds.IncrementDelayCost();
+                }
+                else
+                {
+                    doDelay = true;
+                }
+
+                //if the final cutoff is already exceeded then return null !
+                if (ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff < zBounds.ChoiceCost)
+                    return null;
+
+                if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
+                    return this;
+            }
+
+            if (currChoice >= numChoices)
+                return null;
+
+            return RunChoice(currChoice++);
         }
 
         protected override void Replay(TraversalInfo succ, Via bt)
         {
-            ViaChoose vc = (ViaChoose) bt;
+            ViaChoose vc = (ViaChoose)bt;
 
             StateImpl s = this.reclaimState();
             s.RunChoice(vc.ChoiceNumber);
@@ -335,7 +327,7 @@ namespace Microsoft.Zing
         {
             if (n >= numChoices)
                 return null;
-                
+
             return RunChoice(n);
         }
 
@@ -362,7 +354,7 @@ namespace Microsoft.Zing
         public ExecutionState(StateImpl s, TraversalInfo predecessor, Via bt)
             : base(s, StateType.ExecutionState, predecessor, bt)
         {
-            Debug.Assert(ProcessInfo != null && 
+            Debug.Assert(ProcessInfo != null &&
                 ProcessInfo.Length == NumProcesses);
             hasMultipleSuccessors = NumSuccessors() > 1;
             stateImpl = s;
@@ -411,7 +403,6 @@ namespace Microsoft.Zing
             hasMultipleSuccessors = NumSuccessors() > 1;
             receipt = s.CheckIn();
 
-
             if (MustFingerprint)
             {
                 this.fingerprint = s.Fingerprint;
@@ -422,7 +413,6 @@ namespace Microsoft.Zing
                 this.fingerprint = null;
                 this.IsFingerPrinted = false;
             }
-
         }
 
         internal override void deOrphanize(StateImpl s)
@@ -435,10 +425,9 @@ namespace Microsoft.Zing
         public TraversalInfo RunProcess(int n)
         {
             StateImpl s;
-            
+
             s = reclaimState();
             s.RunProcess(n);
-           
 
             JiGlobal.JiState = null;
             JiGlobal.JiState = s;
@@ -451,7 +440,7 @@ namespace Microsoft.Zing
         public TraversalInfo RunProcess(int n, bool MustFingerprint)
         {
             StateImpl s;
-            
+
             s = reclaimState();
             s.RunProcess(n);
 
@@ -463,10 +452,10 @@ namespace Microsoft.Zing
             return ti;
         }
 
-        public override ushort NumSuccessors() 
+        public override ushort NumSuccessors()
         {
             ushort i, cnt = 0;
-                    
+
             for (i = 0; i < NumProcesses; i++)
                 if (ProcessInfo[i].Status == RUNNABLE)
                     cnt++;
@@ -476,7 +465,7 @@ namespace Microsoft.Zing
 
         public override TraversalInfo GetSuccessorN(int n)
         {
-            if(n >= NumProcesses)
+            if (n >= NumProcesses)
                 return null;
 
             return RunProcess(n);
@@ -493,12 +482,12 @@ namespace Microsoft.Zing
         }
 
         #region RandomWalk
+
         public override TraversalInfo GetNextSuccessorUniformRandomly()
         {
-            
             var nextProcess = ZingerUtilities.rand.Next(0, NumProcesses);
 
-            if(ProcessInfo[nextProcess].Status != RUNNABLE)
+            if (ProcessInfo[nextProcess].Status != RUNNABLE)
             {
                 return null;
             }
@@ -506,7 +495,6 @@ namespace Microsoft.Zing
             {
                 return RunProcess(nextProcess);
             }
-
         }
 
         public TraversalInfo GetDelayedSuccessor()
@@ -516,7 +504,6 @@ namespace Microsoft.Zing
             int nextProcess;
             while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
             {
-
                 if (ProcessInfo[nextProcess].Status != RUNNABLE)
                 {
                     ZingDBScheduler.Delay(ZingDBSchedState);
@@ -532,8 +519,8 @@ namespace Microsoft.Zing
                 return null;
 
             return RunProcess(nextProcess);
-
         }
+
         public override TraversalInfo GetNextSuccessorUnderDelayZeroForRW()
         {
             Contract.Assert(ZingerConfiguration.DoDelayBounding);
@@ -542,7 +529,6 @@ namespace Microsoft.Zing
             //get the runnable process
             while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
             {
-
                 if (ProcessInfo[nextProcess].Status != RUNNABLE)
                 {
                     ZingDBScheduler.Delay(ZingDBSchedState);
@@ -559,108 +545,105 @@ namespace Microsoft.Zing
 
             return RunProcess(nextProcess);
         }
-        #endregion
+
+        #endregion RandomWalk
+
         public override TraversalInfo GetNextSuccessor()
         {
-            
-                if (ZingerConfiguration.DoDelayBounding)
+            if (ZingerConfiguration.DoDelayBounding)
+            {
+                //
+                // if we have delayed the scheduler for the current state more than maxdelay then we should
+                // not call delay on this state again because we have explored all its successors
+                //
+                if ((doDelay && ZingDBScheduler.MaxDelayReached(ZingDBSchedState)) || (doDelay && ZingDBScheduler.IsSealed(ZingDBSchedState)))
                 {
-                    //
-                    // if we have delayed the scheduler for the current state more than maxdelay then we should 
-                    // not call delay on this state again because we have explored all its successors
-                    //
-                    if ((doDelay && ZingDBScheduler.MaxDelayReached(ZingDBSchedState)) || (doDelay && ZingDBScheduler.IsSealed(ZingDBSchedState)))
-                    {
-                        return null;
-                    }
+                    return null;
+                }
 
-                    int nextProcess = -1;
-                    if (doDelay)
+                int nextProcess = -1;
+                if (doDelay)
+                {
+                    ZingDBScheduler.Delay(ZingDBSchedState);
+                    zBounds.IncrementDelayCost();
+                }
+
+                while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
+                {
+                    if (ProcessInfo[nextProcess].Status != RUNNABLE)
                     {
                         ZingDBScheduler.Delay(ZingDBSchedState);
-                        zBounds.IncrementDelayCost();
+                        continue;
                     }
-
-
-                    while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
-                    {
-
-                        if (ProcessInfo[nextProcess].Status != RUNNABLE)
-                        {
-                            ZingDBScheduler.Delay(ZingDBSchedState);
-                            continue;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    if (nextProcess == -1)
-                    {
-                        return null;
-                    }
-
-                    if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
-                        return this;
                     else
                     {
-                        doDelay = true;
-                        return RunProcess(nextProcess);
+                        break;
                     }
                 }
-                else if (ZingerConfiguration.DoPreemptionBounding)
+
+                if (nextProcess == -1)
                 {
-                    int executeProcess;
-                    if(doDelay)
-                    {
-                        if(!preemptionBounding.preempted)
-                        {
-                            preemptionBounding.preempted = true;
-                            zBounds.IncrementPreemptionCost();
-                        }
-                        executeProcess = preemptionBounding.GetNextProcessToExecute();
-                        if (executeProcess == -1)
-                            return null;
-                    }
-                    else
-                    {
-                        doDelay = true;
-                        executeProcess = preemptionBounding.currentProcess;
-                        if (ProcessInfo[executeProcess].Status != ProcessStatus.Runnable)
-                        {
-                            while (ProcessInfo[executeProcess].Status != ProcessStatus.Runnable)
-                            {
-                                executeProcess = preemptionBounding.GetNextProcessToExecute();
-                                if(executeProcess == -1)
-                                {
-                                    return null;
-                                }
-                            }
-                        }
+                    return null;
+                }
 
+                if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
+                    return this;
+                else
+                {
+                    doDelay = true;
+                    return RunProcess(nextProcess);
+                }
+            }
+            else if (ZingerConfiguration.DoPreemptionBounding)
+            {
+                int executeProcess;
+                if (doDelay)
+                {
+                    if (!preemptionBounding.preempted)
+                    {
+                        preemptionBounding.preempted = true;
+                        zBounds.IncrementPreemptionCost();
                     }
-
-                    return RunProcess(executeProcess);
+                    executeProcess = preemptionBounding.GetNextProcessToExecute();
+                    if (executeProcess == -1)
+                        return null;
                 }
                 else
                 {
-                    while (currProcess < NumProcesses &&
-                        ProcessInfo[currProcess].Status != RUNNABLE)
-                        currProcess++;
-
-                    if (currProcess >= NumProcesses)
-                        return null;
-
-                    return RunProcess(currProcess++);
+                    doDelay = true;
+                    executeProcess = preemptionBounding.currentProcess;
+                    if (ProcessInfo[executeProcess].Status != ProcessStatus.Runnable)
+                    {
+                        while (ProcessInfo[executeProcess].Status != ProcessStatus.Runnable)
+                        {
+                            executeProcess = preemptionBounding.GetNextProcessToExecute();
+                            if (executeProcess == -1)
+                            {
+                                return null;
+                            }
+                        }
+                    }
                 }
-            
+
+                return RunProcess(executeProcess);
+            }
+            else
+            {
+                while (currProcess < NumProcesses &&
+                    ProcessInfo[currProcess].Status != RUNNABLE)
+                    currProcess++;
+
+                if (currProcess >= NumProcesses)
+                    return null;
+
+                return RunProcess(currProcess++);
+            }
         }
 
         protected override void Replay(TraversalInfo succ, Via bt)
         {
-            ViaExecute ve = (ViaExecute) bt;
-            
+            ViaExecute ve = (ViaExecute)bt;
+
             StateImpl s = this.reclaimState();
             s.RunProcess(ve.ProcessExecuted);
             succ.deOrphanize(s);
@@ -671,6 +654,4 @@ namespace Microsoft.Zing
             currProcess = 0;
         }
     }
-
-    
 }

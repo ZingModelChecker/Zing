@@ -1,15 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Security.Cryptography;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
 
 namespace Microsoft.Zing
@@ -18,21 +12,22 @@ namespace Microsoft.Zing
     /// Base class for all Zing classes
     /// </summary>
     [CLSCompliant(false)]
-    
     public abstract class ZingClass : HeapElement
-	{
-		protected ZingClass(StateImpl app) : base(app)
-		{
-		}
-	
+    {
+        protected ZingClass(StateImpl app)
+            : base(app)
+        {
+        }
+
         // <summary>Constructor</summary>
         protected ZingClass()
         {
         }
 
-		protected ZingClass(ZingClass clone) : base(clone)
-		{
-		}
+        protected ZingClass(ZingClass clone)
+            : base(clone)
+        {
+        }
 
         // If the user class has non-static members, these methods will all be
         // overridden. So we never expect these methods to be called.
@@ -46,10 +41,11 @@ namespace Microsoft.Zing
         {
             throw new InvalidOperationException("internal error: invalid call to ZingClass.WriteString()");
         }
-		public override void TraverseFields(FieldTraverser ft)
-		{
-			throw new InvalidOperationException("internal error: invalid call to ZingClass.TraverseFields()");
-		}
+
+        public override void TraverseFields(FieldTraverser ft)
+        {
+            throw new InvalidOperationException("internal error: invalid call to ZingClass.TraverseFields()");
+        }
 
         public override string ToString()
         {
@@ -60,28 +56,27 @@ namespace Microsoft.Zing
 
             // throw new ApplicationException("not implemented");
 
-            
             string s = string.Empty;
 
             foreach (FieldInfo fi in this.GetType().GetFields())
             {
-				if (fi.Name.Length > 5 && fi.Name.Substring(0, 5) == "priv_") 
-				{
-					object val = this.GetType().InvokeMember(
-						fi.Name,
-						BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-						null, this, new object [] {}, CultureInfo.CurrentCulture);
+                if (fi.Name.Length > 5 && fi.Name.Substring(0, 5) == "priv_")
+                {
+                    object val = this.GetType().InvokeMember(
+                        fi.Name,
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
+                        null, this, new object[] { }, CultureInfo.CurrentCulture);
 
-					if (fi.FieldType == typeof(Pointer))
-						s += string.Format(CultureInfo.CurrentUICulture, "      ZingPointer {0} = {1}\r\n",
-							fi.Name.Substring(8), (uint) ((Pointer) val));
-					else
-						s += string.Format(CultureInfo.CurrentUICulture, "      {0} {1} = {2}\r\n",
-							Utils.Externalize(fi.FieldType), fi.Name.Substring(8), val);
-				}
+                    if (fi.FieldType == typeof(Pointer))
+                        s += string.Format(CultureInfo.CurrentUICulture, "      ZingPointer {0} = {1}\r\n",
+                            fi.Name.Substring(8), (uint)((Pointer)val));
+                    else
+                        s += string.Format(CultureInfo.CurrentUICulture, "      {0} {1} = {2}\r\n",
+                            Utils.Externalize(fi.FieldType), fi.Name.Substring(8), val);
+                }
             }
 
-            return s;    
+            return s;
         }
 
         public override void ToXml(XmlElement containerElement)
@@ -109,7 +104,7 @@ namespace Microsoft.Zing
                 object val = thisType.InvokeMember(
                     fi.Name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                    null, this, new object [] {}, CultureInfo.CurrentCulture);
+                    null, this, new object[] { }, CultureInfo.CurrentCulture);
 
                 string name = fi.Name.Substring(prefix.Length);
 
@@ -154,10 +149,8 @@ namespace Microsoft.Zing
     /// Base class for all classes directly defined in ZOM
     /// </summary>
     [CLSCompliant(false)]
-    
     public abstract class ZOMClass : HeapElement
     {
-
         protected ZOMClass(StateImpl app)
             : base(app)
         {
@@ -176,6 +169,7 @@ namespace Microsoft.Zing
         //NOTE: we are allocating TypeIdCounts of 15000 and more for
         // ZOM classes.
         private static short libTypeIdCount = 15000;
+
         protected static short getNextLibTypeIdCount()
         {
             return (libTypeIdCount++);
@@ -193,18 +187,22 @@ namespace Microsoft.Zing
         {
             throw new InvalidOperationException("internal error: invalid call to ZOMClass.WriteString()");
         }
+
         public override void TraverseFields(FieldTraverser ft)
         {
             throw new InvalidOperationException("internal error: invalid call to ZOMClass.TraverseFields()");
         }
+
         public override object GetValue(int fieldIndex)
         {
             throw new InvalidOperationException("internal error: invalid call to ZOMClass.GetValue()");
         }
+
         public override void SetValue(int fieldIndex, object value)
         {
             throw new InvalidOperationException("internal error: invalid call to ZOMClass.GetValue()");
         }
+
         public override string ToString()
         {
             // Iterate over each field in the class - get the field value (via
@@ -214,22 +212,21 @@ namespace Microsoft.Zing
 
             // throw new ApplicationException("not implemented");
 
-
             string s = string.Empty;
 
             foreach (FieldInfo fi in this.GetType().GetFields())
             {
-                   object val = this.GetType().InvokeMember(
-                        fi.Name,
-                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                        null, this, new object[] { }, CultureInfo.CurrentCulture);
+                object val = this.GetType().InvokeMember(
+                     fi.Name,
+                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
+                     null, this, new object[] { }, CultureInfo.CurrentCulture);
 
-                    if (fi.FieldType == typeof(Pointer))
-                        s += string.Format(CultureInfo.CurrentUICulture, "      ZingPointer {0} = {1}\r\n",
-                            fi.Name.Substring(8), (uint)((Pointer)val));
-                    else
-                        s += string.Format(CultureInfo.CurrentUICulture, "      {0} {1} = {2}\r\n",
-                            Utils.Externalize(fi.FieldType), fi.Name.Substring(8), val);
+                if (fi.FieldType == typeof(Pointer))
+                    s += string.Format(CultureInfo.CurrentUICulture, "      ZingPointer {0} = {1}\r\n",
+                        fi.Name.Substring(8), (uint)((Pointer)val));
+                else
+                    s += string.Format(CultureInfo.CurrentUICulture, "      {0} {1} = {2}\r\n",
+                        Utils.Externalize(fi.FieldType), fi.Name.Substring(8), val);
             }
             return s;
         }
@@ -298,27 +295,42 @@ namespace Microsoft.Zing
     // class for sets, channels, and arrays.
     //
     [CLSCompliant(false)]
-    
     public abstract class ZingCollectionType : HeapElement
     {
-		protected ZingCollectionType() { }
-		protected ZingCollectionType(StateImpl app) : base(app) { }
-		protected ZingCollectionType(ZingCollectionType clone) : base(clone) { }
+        protected ZingCollectionType()
+        {
+        }
+
+        protected ZingCollectionType(StateImpl app)
+            : base(app)
+        {
+        }
+
+        protected ZingCollectionType(ZingCollectionType clone)
+            : base(clone)
+        {
+        }
+
         public abstract int Count { get; }
-        public virtual object[] GetChoices() { throw new NotImplementedException(); }
-		public override object GetValue(int fieldIndex) 
-		{
-			Debug.Assert(false);
-			return null;
-		}
+
+        public virtual object[] GetChoices()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object GetValue(int fieldIndex)
+        {
+            Debug.Assert(false);
+            return null;
+        }
+
         public override void SetValue(int fieldIndex, object value)
-		{
-			Debug.Assert(false);
-		}
+        {
+            Debug.Assert(false);
+        }
     }
 
     [CLSCompliant(false)]
-    
     public abstract class ZingChan : ZingCollectionType
     {
         protected ZingChan()
@@ -326,47 +338,51 @@ namespace Microsoft.Zing
             queue = new Queue();
         }
 
-		protected ZingChan(StateImpl app) : base(app)
-		{
-			queue = new Queue();
-		}
+        protected ZingChan(StateImpl app)
+            : base(app)
+        {
+            queue = new Queue();
+        }
 
-		protected ZingChan(ZingChan clone) : base(clone)
-		{
-			queue = new Queue();
-		}
+        protected ZingChan(ZingChan clone)
+            : base(clone)
+        {
+            queue = new Queue();
+        }
 
         protected Queue Queue { get { return queue; } }
+
         private Queue queue;
 
         public abstract Type MessageType { get; }
 
         // For reference types, this is fine. For channels of value types, the derived
         // class will need to override this.
-		public override void WriteString(StateImpl state, BinaryWriter bw)
-		{
-			bw.Write(this.TypeId);
-			bw.Write(this.Count);
-			foreach (Pointer ptr in this.queue)
-				bw.Write(state.GetCanonicalId((uint) ptr));
-		}
-		public override void TraverseFields(FieldTraverser ft)
-		{
-			ft.DoTraversal(this.TypeId);
-			ft.DoTraversal(this.Count);
-			foreach (Pointer ptr in this.queue)
-				ft.DoTraversal(ptr);
-		}
+        public override void WriteString(StateImpl state, BinaryWriter bw)
+        {
+            bw.Write(this.TypeId);
+            bw.Write(this.Count);
+            foreach (Pointer ptr in this.queue)
+                bw.Write(state.GetCanonicalId((uint)ptr));
+        }
+
+        public override void TraverseFields(FieldTraverser ft)
+        {
+            ft.DoTraversal(this.TypeId);
+            ft.DoTraversal(this.Count);
+            foreach (Pointer ptr in this.queue)
+                ft.DoTraversal(ptr);
+        }
 
         public override string ToString()
         {
             string s = string.Format(CultureInfo.CurrentUICulture, "      Chan: MsgType={0}, {1} elements\r\n", Utils.Unmangle(MessageType), Count);
 
-            int n=0;
+            int n = 0;
             foreach (object obj in queue)
             {
                 if (MessageType == typeof(Pointer))
-                    s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, (uint) ((Pointer)obj));
+                    s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, (uint)((Pointer)obj));
                 else
                     s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, obj);
             }
@@ -394,7 +410,7 @@ namespace Microsoft.Zing
             {
                 XmlElement msgElem = doc.CreateElement("Message");
                 if (MessageType == typeof(Pointer))
-                    msgElem.InnerText = ((uint) ((Pointer) obj)).ToString(CultureInfo.CurrentUICulture);
+                    msgElem.InnerText = ((uint)((Pointer)obj)).ToString(CultureInfo.CurrentUICulture);
                 else
                     msgElem.InnerText = obj.ToString();
 
@@ -405,7 +421,7 @@ namespace Microsoft.Zing
         public void Send(StateImpl stateImpl, object obj, ZingSourceContext context,
             ZingAttribute contextAttribute)
         {
-			SetDirty();
+            SetDirty();
             if (ZingerConfiguration.ExecuteTraceStatements)
             {
                 if (ZingerConfiguration.DegreeOfParallelism == 1)
@@ -423,9 +439,9 @@ namespace Microsoft.Zing
         public object Receive(StateImpl stateImpl, ZingSourceContext context,
             ZingAttribute contextAttribute)
         {
-			SetDirty();
-			
-			object obj;
+            SetDirty();
+
+            object obj;
             obj = queue.Dequeue();
 
             if (ZingerConfiguration.ExecuteTraceStatements)
@@ -446,8 +462,8 @@ namespace Microsoft.Zing
         public bool CanReceive
         {
             get
-            {		
-				return queue.Count > 0;
+            {
+                return queue.Count > 0;
             }
         }
 
@@ -455,7 +471,7 @@ namespace Microsoft.Zing
         {
             get
             {
-				return queue.Count;
+                return queue.Count;
             }
         }
     }
@@ -464,7 +480,6 @@ namespace Microsoft.Zing
     /// Base class for all Zing set types.
     /// </summary>
     [CLSCompliant(false)]
-    
     public abstract class ZingSet : ZingCollectionType
     {
         protected ZingSet()
@@ -472,16 +487,20 @@ namespace Microsoft.Zing
             arraylist = new ArrayList();
         }
 
-		protected ZingSet(StateImpl app) : base(app)
-		{
-			arraylist = new ArrayList();
-		}
-		protected ZingSet(ZingSet clone) : base(clone)
-		{
-			arraylist = new ArrayList();
-		}
+        protected ZingSet(StateImpl app)
+            : base(app)
+        {
+            arraylist = new ArrayList();
+        }
+
+        protected ZingSet(ZingSet clone)
+            : base(clone)
+        {
+            arraylist = new ArrayList();
+        }
 
         protected ArrayList ArrayList { get { return arraylist; } }
+
         private ArrayList arraylist;
 
         public abstract Type ElementType { get; }
@@ -493,25 +512,26 @@ namespace Microsoft.Zing
             bw.Write(this.TypeId);
             bw.Write(this.Count);
             foreach (Pointer ptr in this.arraylist)
-                bw.Write(state.GetCanonicalId((uint) ptr));
+                bw.Write(state.GetCanonicalId((uint)ptr));
         }
-		public override void TraverseFields(FieldTraverser ft)
-		{
-			ft.DoTraversal(this.TypeId);
-			ft.DoTraversal(this.Count);
-			foreach (Pointer ptr in this.arraylist)
-				ft.DoTraversal(ptr);
-		}
+
+        public override void TraverseFields(FieldTraverser ft)
+        {
+            ft.DoTraversal(this.TypeId);
+            ft.DoTraversal(this.Count);
+            foreach (Pointer ptr in this.arraylist)
+                ft.DoTraversal(ptr);
+        }
 
         public override string ToString()
         {
             string s = string.Format(CultureInfo.CurrentUICulture, "      Set: ElementType={0}, {1} elements\r\n", Utils.Unmangle(ElementType), Count);
 
-            int n=0;
+            int n = 0;
             foreach (object obj in arraylist)
             {
                 if (ElementType == typeof(Pointer))
-                    s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, (uint) ((Pointer)obj));
+                    s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, (uint)((Pointer)obj));
                 else
                     s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, obj);
             }
@@ -539,7 +559,7 @@ namespace Microsoft.Zing
             {
                 XmlElement memberElem = doc.CreateElement("Member");
                 if (this.ElementType == typeof(Pointer))
-                    memberElem.InnerText = ((uint) ((Pointer) obj)).ToString(CultureInfo.CurrentUICulture);
+                    memberElem.InnerText = ((uint)((Pointer)obj)).ToString(CultureInfo.CurrentUICulture);
                 else
                     memberElem.InnerText = obj.ToString();
 
@@ -588,7 +608,7 @@ namespace Microsoft.Zing
         public void RemoveSet(ZingSet set)
         {
             bool setDirtyDone = false;
-			foreach (object obj in set.arraylist)
+            foreach (object obj in set.arraylist)
             {
                 if (arraylist.Contains(obj))
                 {
@@ -604,25 +624,25 @@ namespace Microsoft.Zing
         }
 
         public object GetItem(int index)
-        {			
-			return arraylist[index];
+        {
+            return arraylist[index];
         }
 
         public bool IsMember(object obj)
-        {	
-			return arraylist.Contains(obj);
+        {
+            return arraylist.Contains(obj);
         }
 
         public override object[] GetChoices()
-        {	
-			return arraylist.ToArray();
+        {
+            return arraylist.ToArray();
         }
 
         public override int Count
         {
             get
-            {		
-				return arraylist.Count;
+            {
+                return arraylist.Count;
             }
         }
     }
@@ -631,14 +651,24 @@ namespace Microsoft.Zing
     /// Base class for all Zing array types.
     /// </summary>
     [CLSCompliant(false)]
-    
     public abstract class ZingArray : ZingCollectionType
     {
-        protected ZingArray() {}
-		protected ZingArray(StateImpl app) : base(app) {}
-		protected ZingArray(ZingArray clone) : base(clone) {}
+        protected ZingArray()
+        {
+        }
+
+        protected ZingArray(StateImpl app)
+            : base(app)
+        {
+        }
+
+        protected ZingArray(ZingArray clone)
+            : base(clone)
+        {
+        }
 
         protected abstract Array Array { get; }
+
         public abstract Type ElementType { get; }
 
         // For reference types, this is fine. For arrays of value types, the derived
@@ -648,25 +678,26 @@ namespace Microsoft.Zing
             bw.Write(this.TypeId);
             bw.Write(this.Count);
             foreach (Pointer ptr in this.Array)
-                bw.Write(state.GetCanonicalId((uint) ptr));
+                bw.Write(state.GetCanonicalId((uint)ptr));
         }
-		public override void TraverseFields(FieldTraverser ft)
-		{
-			ft.DoTraversal(this.TypeId);
-			ft.DoTraversal(this.Count);
-			foreach (Pointer ptr in this.Array)
-				ft.DoTraversal(ptr);
-		}
 
-		public override string ToString()
+        public override void TraverseFields(FieldTraverser ft)
+        {
+            ft.DoTraversal(this.TypeId);
+            ft.DoTraversal(this.Count);
+            foreach (Pointer ptr in this.Array)
+                ft.DoTraversal(ptr);
+        }
+
+        public override string ToString()
         {
             string s = string.Format(CultureInfo.CurrentUICulture, "      Array: ElementType={0}, {1} elements\r\n", Utils.Unmangle(ElementType), Array.Length);
 
-            int n=0;
+            int n = 0;
             foreach (object obj in Array)
             {
                 if (ElementType == typeof(Pointer))
-                    s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, (uint) ((Pointer)obj));
+                    s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, (uint)((Pointer)obj));
                 else
                     s += string.Format(CultureInfo.CurrentUICulture, "        {0}: {1}\r\n", n++, obj);
             }
@@ -694,7 +725,7 @@ namespace Microsoft.Zing
             {
                 XmlElement memberElem = doc.CreateElement("Element");
                 if (this.ElementType == typeof(Pointer))
-                    memberElem.InnerText = ((uint) ((Pointer) obj)).ToString(CultureInfo.CurrentUICulture);
+                    memberElem.InnerText = ((uint)((Pointer)obj)).ToString(CultureInfo.CurrentUICulture);
                 else
                     memberElem.InnerText = obj.ToString();
 
@@ -723,7 +754,6 @@ namespace Microsoft.Zing
     /// as being "activated". A process is created for each method so marked.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    
     sealed public class ActivateAttribute : Attribute
     {
         public ActivateAttribute()
@@ -732,82 +762,98 @@ namespace Microsoft.Zing
     }
 
     [CLSCompliant(false)]
-    
     public abstract class UndoableStorage
     {
         private bool dirty;
         private UndoableStorage savedCopy;
 
-		#region The constructor
-		protected UndoableStorage() 
-		{
-		}
-		#endregion
+        #region The constructor
 
-		#region Operations on the dirty bit
-        public bool IsDirty { 
-            get { return dirty; } 
+        protected UndoableStorage()
+        {
         }
 
-        public void SetDirty() 
+        #endregion The constructor
+
+        #region Operations on the dirty bit
+
+        public bool IsDirty
         {
-            if (!dirty) {
-                savedCopy = (UndoableStorage) this.MakeInstance();
-				savedCopy.CopyContents(this);
+            get { return dirty; }
+        }
+
+        public void SetDirty()
+        {
+            if (!dirty)
+            {
+                savedCopy = (UndoableStorage)this.MakeInstance();
+                savedCopy.CopyContents(this);
                 dirty = true;
             }
         }
-		#endregion
 
-		#region Methods for copying/cloning
+        #endregion Operations on the dirty bit
+
+        #region Methods for copying/cloning
+
         public abstract UndoableStorage MakeInstance();
-        public abstract void CopyContents(UndoableStorage source);
-        //public abstract UndoableStorage Clone();
-		#endregion
 
-		#region Methods for reading and writing fields to avoid reflection
-		public abstract object GetValue(int fieldIndex);
-		public abstract void SetValue(int fieldIndex, object value);
-		#endregion
+        public abstract void CopyContents(UndoableStorage source);
+
+        //public abstract UndoableStorage Clone();
+
+        #endregion Methods for copying/cloning
+
+        #region Methods for reading and writing fields to avoid reflection
+
+        public abstract object GetValue(int fieldIndex);
+
+        public abstract void SetValue(int fieldIndex, object value);
+
+        #endregion Methods for reading and writing fields to avoid reflection
 
         #region Data-structure for undo logs
-        private class UndoLogEntry 
+
+        private class UndoLogEntry
         {
             internal readonly UndoableStorage SavedStorage;
-            internal UndoLogEntry(UndoableStorage saved) 
-            { 
-                SavedStorage = saved; 
+
+            internal UndoLogEntry(UndoableStorage saved)
+            {
+                SavedStorage = saved;
             }
         }
-        #endregion
+
+        #endregion Data-structure for undo logs
 
         #region State Delta operations
+
         // state delta -- globals is undoable, so this function
         // clears the dirty bits, returns undo log
         public object DoCheckIn()
         {
-			UndoLogEntry res = null;
+            UndoLogEntry res = null;
 
-			if (dirty && savedCopy != null) 
-			{
-				res = new UndoLogEntry(savedCopy);
-			}          
+            if (dirty && savedCopy != null)
+            {
+                res = new UndoLogEntry(savedCopy);
+            }
 
-			dirty = false;
-			savedCopy = null;
+            dirty = false;
+            savedCopy = null;
             return res;
         }
 
         // does nothing if clean; otherwise we revert to the savedCopy
         public void DoRevert()
         {
-			if (dirty && savedCopy != null) 
-			{
-				CopyContents(savedCopy);
-			}
+            if (dirty && savedCopy != null)
+            {
+                CopyContents(savedCopy);
+            }
 
-			dirty = false;
-			savedCopy = null;
+            dirty = false;
+            savedCopy = null;
         }
 
         // revert to an earlier state
@@ -816,52 +862,57 @@ namespace Microsoft.Zing
             // Debug.Assert(!dirty);
             // Debug.Assert(savedCopy == null);
 
-			UndoLogEntry latest = null;
+            UndoLogEntry latest = null;
 
             // a small optimization here
-            for (int i = 0, n = uleList.Length; i < n; i++) 
-			{
+            for (int i = 0, n = uleList.Length; i < n; i++)
+            {
                 if (uleList[i] == null)
                     continue;
-                
-                latest = (UndoLogEntry) uleList[i];
+
+                latest = (UndoLogEntry)uleList[i];
             }
 
-			if (latest != null)
-			{
-				CopyContents(latest.SavedStorage);
-			}
-			else if (dirty && savedCopy != null) 
-			{
-				CopyContents(savedCopy);
-			}
+            if (latest != null)
+            {
+                CopyContents(latest.SavedStorage);
+            }
+            else if (dirty && savedCopy != null)
+            {
+                CopyContents(savedCopy);
+            }
 
-			dirty = false;
-			savedCopy = null;
+            dirty = false;
+            savedCopy = null;
         }
-        #endregion
+
+        #endregion State Delta operations
     }
 
     [CLSCompliant(false)]
-    
     public abstract class ZingGlobals : UndoableStorage
     {
         private StateImpl app;
+
         protected StateImpl Application { get { return app; } }
 
-        protected ZingGlobals(StateImpl application) : base()
+        protected ZingGlobals(StateImpl application)
+            : base()
         {
             this.app = application;
         }
 
-		// used in the factory method MakeInstance()
-        protected ZingGlobals() : base() {}
+        // used in the factory method MakeInstance()
+        protected ZingGlobals()
+            : base()
+        {
+        }
 
         public ZingGlobals Clone(StateImpl application)
         {
-            ZingGlobals clone = (ZingGlobals) MakeInstance();
+            ZingGlobals clone = (ZingGlobals)MakeInstance();
             clone.app = application;
-            
+
             clone.CopyContents(this);
             return clone;
         }
@@ -874,36 +925,43 @@ namespace Microsoft.Zing
         {
             get { return unallocatedWrites; }
         }
+
         private ZingPointerSet unallocatedWrites;
 
         public void AddPointerToUnallocatedWrites(Pointer ptr)
-        {   
+        {
             if (unallocatedWrites == null)
                 unallocatedWrites = new ZingPointerSet(app);
             unallocatedWrites.Add(ptr);
         }
-     }
+    }
 
     public class ZingPointerSet : ZingSet
     {
         protected override short TypeId { get { return ZingPointerSet.typeId; } }
+
         private const short typeId = 1;
+
         public ZingPointerSet()
             : base()
         {
         }
+
         public ZingPointerSet(StateImpl app)
             : base(app)
         {
         }
+
         public ZingPointerSet(ZingPointerSet obj)
             : base(obj)
         {
         }
+
         public override Type ElementType
         {
             get { return typeof(Pointer); }
         }
+
         public override object Clone()
         {
             ZingPointerSet newObj = new ZingPointerSet(this);

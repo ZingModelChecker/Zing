@@ -1,24 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
-using Microsoft.Zing;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.Zing
 {
     /// <summary>
     /// Used for serialization of frontier nodes
     /// </summary>
-    sealed class AllowAllAssemblyVersionsDeserializationBinder : System.Runtime.Serialization.SerializationBinder
+    internal sealed class AllowAllAssemblyVersionsDeserializationBinder : System.Runtime.Serialization.SerializationBinder
     {
-        public override Type BindToType (string assemblyName, string typeName)
+        public override Type BindToType(string assemblyName, string typeName)
         {
             Type typeToDeserialize = null;
             try
@@ -39,8 +36,6 @@ namespace Microsoft.Zing
                 throw exception;
             }
             return typeToDeserialize;
-
-
         }
     }
 
@@ -50,14 +45,16 @@ namespace Microsoft.Zing
     public class FrontierSet
     {
         #region In Memory Frontier
+
         /// <summary>
         /// Concurrent Dictionary to store the entire frontier set after each iteration (in memory)
         /// </summary>
         private ConcurrentQueue<FrontierNode> InMemoryCurrentGlobalFrontier;
 
         private ConcurrentDictionary<Fingerprint, FrontierNode> InMemoryNextGlobalFrontier;
-        #endregion
-        
+
+        #endregion In Memory Frontier
+
         /// <summary>
         /// current iteration frontiers
         /// </summary>
@@ -67,27 +64,26 @@ namespace Microsoft.Zing
         /// next iteration frontiers
         /// </summary>
         private BlockingCollection<KeyValuePair<Fingerprint, FrontierNode>> nextFrontierSet;
+
         /// <summary>
         /// buffer size of the blocking collection
         /// </summary>
         private int bufferSize = 10000;
 
         private int numOfRWThreads = (ZingerConfiguration.DegreeOfParallelism / 3 + 1);
+
         /// <summary>
         /// Reader worker threads
         /// </summary>
-        Task[] readerWorkers;
+        private Task[] readerWorkers;
 
         /// <summary>
         /// Writer Worker threads
         /// </summary>
-        Task[] writerWorkers;
+        private Task[] writerWorkers;
 
-
-        
-        
         /// <summary>
-        /// Initialize the Frontier to disk work force 
+        /// Initialize the Frontier to disk work force
         /// </summary>
         private void InitializeFrontierForce()
         {
@@ -97,7 +93,7 @@ namespace Microsoft.Zing
                 for (int i = 0; i < numOfRWThreads; i++)
                 {
                     File.Delete("i_" + i.ToString());
-                    if(File.Exists("o_" + i.ToString()))
+                    if (File.Exists("o_" + i.ToString()))
                     {
                         File.Move("o_" + i.ToString(), "i_" + i.ToString());
                     }
@@ -109,7 +105,6 @@ namespace Microsoft.Zing
                     System.Threading.Thread.Sleep(10);
                 }
             }
-            
         }
 
         /// <summary>
@@ -131,9 +126,8 @@ namespace Microsoft.Zing
                 }
                 currFrontierSet.CompleteAdding();
             }
-
         }
-        
+
         /// <summary>
         /// Wait for the writers to Finish
         /// </summary>
@@ -160,13 +154,12 @@ namespace Microsoft.Zing
         /// </summary>
         public void StartOfIterationReset()
         {
-           
-            if(!ZingerConfiguration.FrontierToDisk)
+            if (!ZingerConfiguration.FrontierToDisk)
             {
                 InMemoryCurrentGlobalFrontier = new ConcurrentQueue<FrontierNode>();
-                
+
                 //Move all the next iteration frontiers to current set.
-                if(InMemoryNextGlobalFrontier.Count > 0)
+                if (InMemoryNextGlobalFrontier.Count > 0)
                 {
                     if (ZingerConfiguration.DegreeOfParallelism == 1)
                     {
@@ -177,29 +170,27 @@ namespace Microsoft.Zing
                         var temp = InMemoryNextGlobalFrontier.AsParallel().WithDegreeOfParallelism(ZingerConfiguration.DegreeOfParallelism).Select(fNode => { InMemoryCurrentGlobalFrontier.Enqueue(fNode.Value); return false; }).Min();
                     }
                 }
-                
 
                 InMemoryNextGlobalFrontier.Clear();
                 System.GC.Collect();
             }
-            
-            
+
             //check if the memory consumed currently is 70% of the max memory
-            var CurrentMem = System.Diagnostics.Process.GetCurrentProcess().NonpagedSystemMemorySize64 / Math.Pow(10,9);
-            if(CurrentMem > 0.75 * ZingerConfiguration.MaxMemoryConsumption && !ZingerConfiguration.FrontierToDisk)
+            var CurrentMem = System.Diagnostics.Process.GetCurrentProcess().NonpagedSystemMemorySize64 / Math.Pow(10, 9);
+            if (CurrentMem > 0.75 * ZingerConfiguration.MaxMemoryConsumption && !ZingerConfiguration.FrontierToDisk)
             {
                 ZingerConfiguration.FrontierToDisk = true;
                 //TODO: Push all the frontiers in memory onto disk.
             }
 
             // Initialize frontier to Disk
-            if(ZingerConfiguration.FrontierToDisk)
+            if (ZingerConfiguration.FrontierToDisk)
             {
                 nextFrontierSetHT.Clear();
                 counter = 0;
                 //reset the blocking collection
                 currFrontierSet = new BlockingCollection<FrontierNode>(bufferSize);
-                nextFrontierSet = new BlockingCollection<KeyValuePair<Fingerprint, FrontierNode>>(2* bufferSize);
+                nextFrontierSet = new BlockingCollection<KeyValuePair<Fingerprint, FrontierNode>>(2 * bufferSize);
             }
 
             InitializeFrontierForce();
@@ -209,10 +200,12 @@ namespace Microsoft.Zing
         /// Number of frontiers pushed on to disk in the current iteration
         /// </summary>
         private long counter;
+
         /// <summary>
         /// Hash table to store next iteration frontier set to avoid adding the same frontier multiple times
         /// </summary>
         private HashSet<Fingerprint> nextFrontierSetHT;
+
         /// <summary>
         /// Write function that pushes a frontier to disk
         /// </summary>
@@ -249,12 +242,11 @@ namespace Microsoft.Zing
                     sreader.Close();
                 }
             }
-            
         }
-        
+
         public bool IsCompleted()
         {
-            if(ZingerConfiguration.FrontierToDisk)
+            if (ZingerConfiguration.FrontierToDisk)
             {
                 return currFrontierSet.IsCompleted;
             }
@@ -278,7 +270,7 @@ namespace Microsoft.Zing
             else
             {
                 FrontierNode frontier;
-                if(InMemoryCurrentGlobalFrontier.TryDequeue(out frontier))
+                if (InMemoryCurrentGlobalFrontier.TryDequeue(out frontier))
                 {
                     return frontier;
                 }
@@ -288,18 +280,17 @@ namespace Microsoft.Zing
                 }
             }
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
         public FrontierSet(TraversalInfo startState)
         {
-            
             if (!ZingerConfiguration.FrontierToDisk)
             {
                 InMemoryCurrentGlobalFrontier = new ConcurrentQueue<FrontierNode>();
                 InMemoryNextGlobalFrontier = new ConcurrentDictionary<Fingerprint, FrontierNode>();
                 InMemoryNextGlobalFrontier.TryAdd(startState.Fingerprint, new FrontierNode(startState));
-
             }
             else
             {
@@ -336,9 +327,9 @@ namespace Microsoft.Zing
             Fingerprint fp = ti.Fingerprint;
             ti.IsFingerPrinted = true;
 
-            if(ZingerConfiguration.FrontierToDisk)
-            { 
-                if(!nextFrontierSetHT.Contains(fp))
+            if (ZingerConfiguration.FrontierToDisk)
+            {
+                if (!nextFrontierSetHT.Contains(fp))
                 {
                     FrontierNode fNode = new FrontierNode(ti);
                     counter++;
@@ -356,12 +347,11 @@ namespace Microsoft.Zing
                     InMemoryNextGlobalFrontier.TryAdd(fp, fNode);
                 }
             }
-            
         }
 
         public void Remove(Fingerprint fp)
         {
-            if(ZingerConfiguration.FrontierToDisk)
+            if (ZingerConfiguration.FrontierToDisk)
             {
                 return;
             }
@@ -371,6 +361,7 @@ namespace Microsoft.Zing
                 InMemoryNextGlobalFrontier.TryRemove(fp, out temp);
             }
         }
+
         public long Count()
         {
             if (!ZingerConfiguration.FrontierToDisk)
@@ -381,7 +372,7 @@ namespace Microsoft.Zing
 
         public bool Contains(Fingerprint fp)
         {
-            if(ZingerConfiguration.FrontierToDisk)
+            if (ZingerConfiguration.FrontierToDisk)
             {
                 return nextFrontierSetHT.Contains(fp);
             }
@@ -394,23 +385,23 @@ namespace Microsoft.Zing
         //For Debug
         public void PrintAll()
         {
-            if(ZingerConfiguration.FrontierToDisk)
+            if (ZingerConfiguration.FrontierToDisk)
             {
-                foreach(var item in nextFrontierSetHT.OrderBy(x => x))
+                foreach (var item in nextFrontierSetHT.OrderBy(x => x))
                 {
                     Console.WriteLine(item);
                 }
             }
             else
             {
-                foreach(var item in InMemoryNextGlobalFrontier.OrderBy(x => x.Key))
+                foreach (var item in InMemoryNextGlobalFrontier.OrderBy(x => x.Key))
                 {
                     Console.WriteLine(item.Key);
                 }
             }
         }
-
     }
+
     /// <summary>
     /// Represents a node in the frontier
     /// </summary>
@@ -421,7 +412,7 @@ namespace Microsoft.Zing
         /// Store trace from the initial state to the frontier state
         /// </summary>
         private Trace TheTrace;
-        
+
         /// <summary>
         /// Current Bounds for the Frontier Node
         /// </summary>
@@ -431,7 +422,7 @@ namespace Microsoft.Zing
         /// Used in the case of preemption bounding
         /// </summary>
         private ZingPreemptionBounding preemptionBounding;
-        
+
         /// <summary>
         /// For storing the scheduler state in the frontier for delay bounding
         /// </summary>
@@ -450,7 +441,7 @@ namespace Microsoft.Zing
                 schedulerState = ti.ZingDBSchedState.Clone(true);
                 numOfTimesCurrStateDelayed = ti.ZingDBSchedState.numOfTimesCurrStateDelayed;
             }
-            else if(ZingerConfiguration.DoPreemptionBounding)
+            else if (ZingerConfiguration.DoPreemptionBounding)
             {
                 preemptionBounding = ti.preemptionBounding.Clone();
             }
@@ -460,8 +451,8 @@ namespace Microsoft.Zing
 
         public FrontierNode()
         {
-
         }
+
         public TraversalInfo GetTraversalInfo(StateImpl InitialState, int threadId)
         {
             TraversalInfo retTraversalInfo = GetTraversalInfoForTrace(TheTrace, threadId, (StateImpl)InitialState.Clone(threadId));
@@ -487,13 +478,14 @@ namespace Microsoft.Zing
         /// </summary>
         /// <param name="trace">The trace that the model checker follows to set the initial TraversalInfo state. Can be null.</param>
         /// <returns>The transition depth of the resultant state.</returns>
-        TraversalInfo GetTraversalInfoForTrace(Trace trace, int threadId, StateImpl iState)
+        private TraversalInfo GetTraversalInfoForTrace(Trace trace, int threadId, StateImpl iState)
         {
             TraversalInfo ti = new ExecutionState((StateImpl)iState.Clone(threadId), null, null);
             int Step = 0;
             if (trace != null)
             {
                 #region Trace Count greater than zero
+
                 if (trace.Count > 0)
                 {
                     while (Step < trace.Count)
@@ -527,10 +519,10 @@ namespace Microsoft.Zing
                         {
                             ti = ti.GetSuccessorNForReplay((int)trace[Step++].Selection, false);
                         }
-
                     }
                 }
-                #endregion
+
+                #endregion Trace Count greater than zero
 
                 #region Traversing the tail
 
@@ -553,15 +545,15 @@ namespace Microsoft.Zing
                     ti = ti.GetSuccessorNForReplay(n, false);
                 }
 
-                #endregion
-
+                #endregion Traversing the tail
             }
             return ti;
         }
 
-        #endregion
+        #endregion Public helpers
 
         #region Serialize the FrontierNode
+
         public void Serialize(Stream outputStream)
         {
             var bWriter = new BinaryWriter(outputStream);
@@ -576,7 +568,7 @@ namespace Microsoft.Zing
                 BinaryFormatter bFormat = new BinaryFormatter();
                 bFormat.Serialize(outputStream, this.schedulerState);
             }
-            
+
             //dump trace length
             bWriter.Write((Int32)TheTrace.Count());
             foreach (TraceStep traceStep in TheTrace)
@@ -606,9 +598,8 @@ namespace Microsoft.Zing
                 steps[i] = bReader.ReadUInt32();
             }
             this.TheTrace = new Trace(steps);
-
         }
-        #endregion
-    }
 
+        #endregion Serialize the FrontierNode
+    }
 }

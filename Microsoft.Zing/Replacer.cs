@@ -1,6 +1,5 @@
 using System;
 using System.Compiler;
-using System.Diagnostics;
 
 namespace Microsoft.Zing
 {
@@ -22,7 +21,7 @@ namespace Microsoft.Zing
         private Identifier oldName;
         private Node newNode;
 
-		// used to be private
+        // used to be private
         internal Replacer(Identifier oldName, Node newNode)
         {
             this.oldName = oldName;
@@ -94,7 +93,7 @@ namespace Microsoft.Zing
             if (identifier == null) return null;
 
             if (replaceType == ReplaceType.Identifier && identifier.Name == oldName.Name)
-                return (Expression) newNode;
+                return (Expression)newNode;
 
             return identifier;
         }
@@ -102,9 +101,9 @@ namespace Microsoft.Zing
         public override Statement VisitLabeledStatement(LabeledStatement lStatement)
         {
             if (lStatement == null) return null;
-            
+
             if (replaceType == ReplaceType.LabeledStatement && lStatement.Label.Name == oldName.Name)
-                return (Statement) newNode;
+                return (Statement)newNode;
 
             lStatement.Statement = (Statement)this.Visit(lStatement.Statement);
             return lStatement;
@@ -115,7 +114,7 @@ namespace Microsoft.Zing
         public override Expression VisitQualifiedIdentifier(QualifiedIdentifier qualifiedIdentifier)
         {
             if (qualifiedIdentifier == null) return null;
-            qualifiedIdentifier.Identifier = (Identifier) this.VisitIdentifier(qualifiedIdentifier.Identifier);
+            qualifiedIdentifier.Identifier = (Identifier)this.VisitIdentifier(qualifiedIdentifier.Identifier);
             qualifiedIdentifier.Qualifier = this.VisitExpression(qualifiedIdentifier.Qualifier);
             return qualifiedIdentifier;
         }
@@ -135,11 +134,11 @@ namespace Microsoft.Zing
             return localDeclarations;
         }
 
-        public override  LocalDeclaration VisitLocalDeclaration(LocalDeclaration localDeclaration)
+        public override LocalDeclaration VisitLocalDeclaration(LocalDeclaration localDeclaration)
         {
             if (localDeclaration == null) return null;
             localDeclaration.InitialValue = this.VisitExpression(localDeclaration.InitialValue);
-            localDeclaration.Name = (Identifier) this.VisitIdentifier(localDeclaration.Name);
+            localDeclaration.Name = (Identifier)this.VisitIdentifier(localDeclaration.Name);
             return localDeclaration;
         }
 
@@ -154,33 +153,37 @@ namespace Microsoft.Zing
                     TypeNode elemType = this.VisitTypeReference(arrType.ElementType);
                     if (elemType == arrType.ElementType) return arrType;
                     return elemType.GetArrayType(arrType.Rank, arrType.Sizes, arrType.LowerBounds);
+
                 case NodeType.Pointer:
                     System.Compiler.Pointer pType = (System.Compiler.Pointer)type;
                     elemType = this.VisitTypeReference(pType.ElementType);
                     if (elemType == pType.ElementType) return pType;
                     return elemType.GetPointerType();
+
                 case NodeType.Reference:
                     Reference rType = (Reference)type;
                     elemType = this.VisitTypeReference(rType.ElementType);
                     if (elemType == rType.ElementType) return rType;
                     return elemType.GetReferenceType();
-                    //TODO: other parameterized types, such as constrained types
+                //TODO: other parameterized types, such as constrained types
                 case NodeType.ClassExpression:
                     ClassExpression cExpr = (ClassExpression)type;
                     cExpr.Expression = this.VisitExpression(cExpr.Expression);
                     cExpr.TemplateArguments = this.VisitTypeReferenceList(cExpr.TemplateArguments);
                     return cExpr;
+
                 case NodeType.InterfaceExpression:
                     InterfaceExpression iExpr = (InterfaceExpression)type;
                     iExpr.Expression = this.VisitExpression(iExpr.Expression);
                     iExpr.TemplateArguments = this.VisitTypeReferenceList(iExpr.TemplateArguments);
                     return iExpr;
+
                 case NodeType.TypeExpression:
                     TypeExpression tExpr = (TypeExpression)type;
                     tExpr.Expression = this.VisitExpression(tExpr.Expression);
                     tExpr.TemplateArguments = this.VisitTypeReferenceList(tExpr.TemplateArguments);
                     return tExpr;
-                    //TODO: handle array expresssions, etc.
+                //TODO: handle array expresssions, etc.
             }
             return type;
         }
@@ -189,7 +192,7 @@ namespace Microsoft.Zing
         {
             if (typeNode == null) return null;
             TypeNode result = base.VisitTypeNode(typeNode);
-            result.Name = (Identifier) this.VisitIdentifier(typeNode.Name);
+            result.Name = (Identifier)this.VisitIdentifier(typeNode.Name);
 
             TypeExpression te = result as TypeExpression;
             if (te != null)
@@ -206,14 +209,15 @@ namespace Microsoft.Zing
         public override Expression VisitMemberBinding(MemberBinding memberBinding)
         {
             if (memberBinding == null) return null;
-            MemberBinding result = (MemberBinding) base.VisitMemberBinding(memberBinding);
+            MemberBinding result = (MemberBinding)base.VisitMemberBinding(memberBinding);
             //
             // Check the bound member to avoid examining the predefined types.
             //
             if (result.BoundMember.NodeType != NodeType.Struct)
-                result.BoundMember = (Member) this.Visit(result.BoundMember);
+                result.BoundMember = (Member)this.Visit(result.BoundMember);
             return result;
         }
+
         public override AttributeList VisitAttributeList(AttributeList attributes)
         {
             // This avoids an infinite recursion related to attribute constructors.
@@ -221,11 +225,12 @@ namespace Microsoft.Zing
             // although there's no doubt a more correct way of avoiding the recursion.
             return attributes;
         }
+
         public override Expression VisitConstruct(Construct cons)
         {
             if (cons == null) return null;
-            Construct result = (Construct) base.VisitConstruct(cons);
-            result.Constructor.Type = (TypeNode) this.Visit(result.Constructor.Type);
+            Construct result = (Construct)base.VisitConstruct(cons);
+            result.Constructor.Type = (TypeNode)this.Visit(result.Constructor.Type);
             return result;
         }
     }

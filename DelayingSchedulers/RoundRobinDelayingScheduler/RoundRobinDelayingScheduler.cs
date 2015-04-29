@@ -1,18 +1,16 @@
 ﻿/***********************************************************
  * Scheduler Information:
- * The round-robin(RR) delaying explorer cycles through the processes in process creation order.  
- * It moves to the next task in the list only on a delay or when the current task is completed. 
+ * The round-robin(RR) delaying explorer cycles through the processes in process creation order.
+ * It moves to the next task in the list only on a delay or when the current task is completed.
  * Round-robin explorer has been used in the past (\cite{delaypaper,Thomson2014}) to test multithreaded programs.
  * In our experience, in most of the cases (Table~\ref{tab:resultsTable1}) other delaying explorers perform better than \RR.
  * \RR can be used for finding bugs that manifest through a small number of preemptions or interleaving between processes.
 **********************************************************/
 
+using Microsoft.Zing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Zing;
 
 namespace ExternalDelayingExplorer
 {
@@ -21,15 +19,16 @@ namespace ExternalDelayingExplorer
     {
         //list of enabled processes.
         public List<int> enabledProcesses;
-        
 
-        public RoundRobinDBSchedulerState() : base()
+        public RoundRobinDBSchedulerState()
+            : base()
         {
             enabledProcesses = new List<int>();
         }
 
         //copy constructor
-        public RoundRobinDBSchedulerState(RoundRobinDBSchedulerState copyThis) : base(copyThis)
+        public RoundRobinDBSchedulerState(RoundRobinDBSchedulerState copyThis)
+            : base(copyThis)
         {
             enabledProcesses = new List<int>();
             foreach (var item in copyThis.enabledProcesses)
@@ -55,14 +54,12 @@ namespace ExternalDelayingExplorer
             RoundRobinDBSchedulerState cloned = new RoundRobinDBSchedulerState(this);
             return cloned;
         }
+    }
 
-    }   
     public class RoundRobinDBSched : ZingerDelayingScheduler
     {
-
         public RoundRobinDBSched()
         {
-    
         }
 
         /// <summary>
@@ -108,10 +105,9 @@ namespace ExternalDelayingExplorer
             zSchedState.numOfTimesCurrStateDelayed++;
         }
 
-
         /// <summary>
         /// This function is used internally by the ZING explorer.
-        /// It checks if we have applied the maximum number of delays in the current state. 
+        /// It checks if we have applied the maximum number of delays in the current state.
         /// Applying any more delay operations will not lead to new transitions/states being explored.
         /// Maximum delay operations for a state is always (totalEnabledProcesses - 1).
         /// </summary>
@@ -128,14 +124,13 @@ namespace ExternalDelayingExplorer
         /// </summary>
         /// <param name="zSchedState"></param>
         /// <returns>The next process to be executed</returns>
-        public override int Next (ZingerSchedulerState zSchedState)
+        public override int Next(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RoundRobinDBSchedulerState;
             if (SchedState.enabledProcesses.Count == 0)
                 return -1;
             else
                 return SchedState.enabledProcesses.ElementAt(0);
-
         }
 
         /// <summary>
@@ -149,7 +144,7 @@ namespace ExternalDelayingExplorer
         {
             var SchedState = (ZSchedulerState as RoundRobinDBSchedulerState);
             var procId = SchedState.GetZingProcessId(targetSM);
-            if(!SchedState.enabledProcesses.Contains(procId))
+            if (!SchedState.enabledProcesses.Contains(procId))
                 SchedState.enabledProcesses.Add(procId);
         }
 

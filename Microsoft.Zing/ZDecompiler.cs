@@ -6,13 +6,12 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Text;
 
-namespace Microsoft.Zing 
+namespace Microsoft.Zing
 {
     public class ZingDecompiler : StandardVisitor
     {
-        public ZingDecompiler(CodeGeneratorOptions options) 
+        public ZingDecompiler(CodeGeneratorOptions options)
         {
             this.options = options;
 
@@ -23,8 +22,8 @@ namespace Microsoft.Zing
             indentStrings[0] = string.Empty;
             indentStrings[1] = options.IndentString;
 
-            for (int i=2; i < maxLevel ;i++)
-                indentStrings[i] = indentStrings[i-1] + indentStrings[1];
+            for (int i = 2; i < maxLevel; i++)
+                indentStrings[i] = indentStrings[i - 1] + indentStrings[1];
         }
 
         #region Code-generation helpers
@@ -103,7 +102,7 @@ namespace Microsoft.Zing
         private string currentLine = string.Empty;
         private List<string> lines;
 
-        #endregion
+        #endregion Code-generation helpers
 
         private int SourceLength { get { return currentLine.Length; } }
 
@@ -199,57 +198,80 @@ namespace Microsoft.Zing
             switch (((ZingNodeType)node.NodeType))
             {
                 case ZingNodeType.Array:
-                    return this.VisitArray((ZArray) node);
+                    return this.VisitArray((ZArray)node);
+
                 case ZingNodeType.Accept:
                     return this.VisitAccept((AcceptStatement)node);
+
                 case ZingNodeType.Assert:
-                    return this.VisitAssert((AssertStatement) node);
+                    return this.VisitAssert((AssertStatement)node);
+
                 case ZingNodeType.Assume:
-                    return this.VisitAssume((AssumeStatement) node);
+                    return this.VisitAssume((AssumeStatement)node);
+
                 case ZingNodeType.Async:
-                    return this.VisitAsync((AsyncMethodCall) node);
+                    return this.VisitAsync((AsyncMethodCall)node);
+
                 case ZingNodeType.Atomic:
-                    return this.VisitAtomic((AtomicBlock) node);
+                    return this.VisitAtomic((AtomicBlock)node);
+
                 case ZingNodeType.AttributedStatement:
-                    return this.VisitAttributedStatement((AttributedStatement) node);
+                    return this.VisitAttributedStatement((AttributedStatement)node);
+
                 case ZingNodeType.Chan:
-                    return this.VisitChan((Chan) node);
+                    return this.VisitChan((Chan)node);
+
                 case ZingNodeType.Choose:
-                    return this.VisitChoose((UnaryExpression) node);
+                    return this.VisitChoose((UnaryExpression)node);
+
                 case ZingNodeType.EventPattern:
-                    return this.VisitEventPattern((EventPattern) node);
+                    return this.VisitEventPattern((EventPattern)node);
+
                 case ZingNodeType.Event:
-                    return this.VisitEventStatement((EventStatement) node);
+                    return this.VisitEventStatement((EventStatement)node);
+
                 case ZingNodeType.In:
-                    return this.VisitIn((BinaryExpression) node);
+                    return this.VisitIn((BinaryExpression)node);
+
                 case ZingNodeType.JoinStatement:
-                    return this.VisitJoinStatement((JoinStatement) node);
+                    return this.VisitJoinStatement((JoinStatement)node);
+
                 case ZingNodeType.InvokePlugin:
                     return this.VisitInvokePlugin((InvokePluginStatement)node);
+
                 case ZingNodeType.Range:
-                    return this.VisitRange((Range) node);
+                    return this.VisitRange((Range)node);
+
                 case ZingNodeType.ReceivePattern:
-                    return this.VisitReceivePattern((ReceivePattern) node);
+                    return this.VisitReceivePattern((ReceivePattern)node);
+
                 case ZingNodeType.Select:
-                    return this.VisitSelect((Select) node);
+                    return this.VisitSelect((Select)node);
+
                 case ZingNodeType.Send:
-                    return this.VisitSend((SendStatement) node);
+                    return this.VisitSend((SendStatement)node);
+
                 case ZingNodeType.Set:
-                    return this.VisitSet((Set) node);
+                    return this.VisitSet((Set)node);
+
                 case ZingNodeType.Trace:
-                    return this.VisitTrace((TraceStatement) node);
+                    return this.VisitTrace((TraceStatement)node);
+
                 case ZingNodeType.TimeoutPattern:
-                    return this.VisitTimeoutPattern((TimeoutPattern) node);
+                    return this.VisitTimeoutPattern((TimeoutPattern)node);
+
                 case ZingNodeType.Try:
-                    return this.VisitZTry((ZTry) node);
+                    return this.VisitZTry((ZTry)node);
+
                 case ZingNodeType.WaitPattern:
-                    return this.VisitWaitPattern((WaitPattern) node);
+                    return this.VisitWaitPattern((WaitPattern)node);
+
                 case ZingNodeType.With:
-                    return this.VisitWith((With) node);
+                    return this.VisitWith((With)node);
 
                 default:
                     if (node.NodeType == NodeType.TypeExpression)
-                        return this.VisitTypeExpression((TypeExpression) node);
+                        return this.VisitTypeExpression((TypeExpression)node);
 
                     return base.Visit(node);
             }
@@ -316,9 +338,8 @@ namespace Microsoft.Zing
             return assert;
         }
 
-        private AcceptStatement VisitAccept (AcceptStatement accept)
+        private AcceptStatement VisitAccept(AcceptStatement accept)
         {
-  
             WriteStart("accept");
             this.VisitParenthesizedExpression(accept.booleanExpr);
             WriteFinish(";");
@@ -366,7 +387,7 @@ namespace Microsoft.Zing
             return InvokePlugin;
         }
 
-        private InvokeSchedulerStatement VisitInvokeSched (InvokeSchedulerStatement InvokeSched)
+        private InvokeSchedulerStatement VisitInvokeSched(InvokeSchedulerStatement InvokeSched)
         {
             WriteStart("invokescheduler(");
             this.VisitExpressionList(InvokeSched.Operands);
@@ -378,7 +399,7 @@ namespace Microsoft.Zing
         private AsyncMethodCall VisitAsync(AsyncMethodCall async)
         {
             WriteLine("async");
-            this.VisitExpressionStatement((ExpressionStatement) async);
+            this.VisitExpressionStatement((ExpressionStatement)async);
 
             return async;
         }
@@ -386,7 +407,7 @@ namespace Microsoft.Zing
         private AtomicBlock VisitAtomic(AtomicBlock atomic)
         {
             WriteStart("atomic");
-            return (AtomicBlock) this.VisitBlock((Block) atomic);
+            return (AtomicBlock)this.VisitBlock((Block)atomic);
         }
 
         private AttributedStatement VisitAttributedStatement(AttributedStatement attributedStmt)
@@ -478,7 +499,7 @@ namespace Microsoft.Zing
 
             In();
 
-            for (int i=0, n=select.joinStatementList.Length; i < n ;i++)
+            for (int i = 0, n = select.joinStatementList.Length; i < n; i++)
                 this.VisitJoinStatement(select.joinStatementList[i]);
 
             Out();
@@ -491,11 +512,11 @@ namespace Microsoft.Zing
         {
             this.VisitAttributeList(joinstmt.Attributes);
             WriteStart(string.Empty);
-            for (int i=0, n=joinstmt.joinPatternList.Length; i < n ;i++)
+            for (int i = 0, n = joinstmt.joinPatternList.Length; i < n; i++)
             {
                 this.Visit(joinstmt.joinPatternList[i]);
 
-                if ((i+1) < n)
+                if ((i + 1) < n)
                     Write(" && ");
             }
 
@@ -558,7 +579,7 @@ namespace Microsoft.Zing
             WriteLine("with");
             WriteLine("{");
             In();
-            for (int i=0, n=Try.Catchers.Length; i < n ;i++)
+            for (int i = 0, n = Try.Catchers.Length; i < n; i++)
                 this.VisitWith(Try.Catchers[i]);
             Out();
             WriteLine("}");
@@ -584,7 +605,7 @@ namespace Microsoft.Zing
             return Throw;
         }
 
-        #endregion
+        #endregion Zing nodes
 
         #region CCI nodes
 
@@ -592,6 +613,7 @@ namespace Microsoft.Zing
         {
             return base.VisitAssignmentExpression(assignment);
         }
+
         public override Statement VisitAssignmentStatement(AssignmentStatement assignment)
         {
             this.VisitExpression(assignment.Target);
@@ -599,16 +621,18 @@ namespace Microsoft.Zing
             this.VisitExpression(assignment.Source);
             return assignment;
         }
+
         public override Expression VisitAttributeConstructor(AttributeNode attribute)
         {
             throw new NotImplementedException("Node type not yet supported");
         }
+
         public override AttributeNode VisitAttributeNode(AttributeNode attribute)
         {
             // Ignore the ParamArray attribute
             if (attribute.Constructor is MemberBinding)
             {
-                MemberBinding mb = (MemberBinding) attribute.Constructor;
+                MemberBinding mb = (MemberBinding)attribute.Constructor;
 
                 if (mb.BoundMember.DeclaringType.Name.Name == "ParamArrayAttribute")
                     return attribute;
@@ -621,15 +645,17 @@ namespace Microsoft.Zing
             WriteFinish(")]");
             return attribute;
         }
+
         public override AttributeList VisitAttributeList(AttributeList attributes)
         {
             return base.VisitAttributeList(attributes);
         }
+
         public override Expression VisitBinaryExpression(BinaryExpression binaryExpression)
         {
             Write("(");
-            if ((binaryExpression.NodeType == NodeType.Castclass) || 
-				(binaryExpression.NodeType == NodeType.ExplicitCoercion))
+            if ((binaryExpression.NodeType == NodeType.Castclass) ||
+                (binaryExpression.NodeType == NodeType.ExplicitCoercion))
             {
                 Write("(");
                 this.VisitExpression(binaryExpression.Operand2);
@@ -639,12 +665,13 @@ namespace Microsoft.Zing
             else
             {
                 this.VisitExpression(binaryExpression.Operand1);
-				Write(" {0} ", GetBinaryOperator(binaryExpression.NodeType));
+                Write(" {0} ", GetBinaryOperator(binaryExpression.NodeType));
                 this.VisitExpression(binaryExpression.Operand2);
             }
             Write(")");
             return binaryExpression;
         }
+
         public override Block VisitBlock(Block block)
         {
             // We special-case this because it's how a null statement is
@@ -669,6 +696,7 @@ namespace Microsoft.Zing
             WriteLine("}");
             return result;
         }
+
         public override Class VisitClass(Class Class)
         {
             WriteStart("class {0}", Class.Name.Name);
@@ -699,7 +727,7 @@ namespace Microsoft.Zing
                 if (mem == null) continue;
                 this.Visit(mem);
 
-                if (this.options.BlankLinesBetweenMembers && (i+1) < n)
+                if (this.options.BlankLinesBetweenMembers && (i + 1) < n)
                     WriteLine(string.Empty);
             }
             return members;
@@ -722,6 +750,7 @@ namespace Microsoft.Zing
 
             return cons;
         }
+
         public override EnumNode VisitEnumNode(EnumNode enumNode)
         {
             WriteStart("enum {0}", enumNode.Name.Name);
@@ -737,7 +766,7 @@ namespace Microsoft.Zing
             In();
             for (int i = 0, n = enumNode.Members.Count; i < n; i++)
             {
-                Field field = (Field) enumNode.Members[i];
+                Field field = (Field)enumNode.Members[i];
 
                 if (!field.IsSpecialName)
                 {
@@ -749,11 +778,13 @@ namespace Microsoft.Zing
             WriteLine("};");
             return enumNode;
         }
+
         public override Expression VisitExpression(Expression expression)
         {
             Expression result = base.VisitExpression(expression);
             return result;
         }
+
         public override ExpressionList VisitExpressionList(ExpressionList list)
         {
             if (list == null) return null;
@@ -761,11 +792,12 @@ namespace Microsoft.Zing
             {
                 this.VisitExpression(list[i]);
 
-                if (i < (n-1))
+                if (i < (n - 1))
                     Write(", ");
             }
             return list;
         }
+
         public override Statement VisitExpressionStatement(ExpressionStatement statement)
         {
             WriteStart(string.Empty);
@@ -779,6 +811,7 @@ namespace Microsoft.Zing
 
             return statement;
         }
+
         public override Field VisitField(Field field)
         {
             if (field == null) return null;
@@ -793,6 +826,7 @@ namespace Microsoft.Zing
             WriteFinish(";");
             return field;
         }
+
         public override Statement VisitForEach(ForEach forEach)
         {
             WriteStart("foreach (");
@@ -805,16 +839,19 @@ namespace Microsoft.Zing
             this.VisitBlock(forEach.Body);
             return forEach;
         }
+
         public override Statement VisitGoto(Goto Goto)
         {
             WriteLine("goto {0};", Goto.TargetLabel.Name);
             return Goto;
         }
+
         public override Expression VisitIdentifier(Identifier identifier)
         {
             Write(identifier.Name);
             return identifier;
         }
+
         public override Statement VisitIf(If If)
         {
             WriteStart("if ");
@@ -829,6 +866,7 @@ namespace Microsoft.Zing
 
             return If;
         }
+
         public override Expression VisitIndexer(Indexer indexer)
         {
             this.VisitExpression(indexer.Object);
@@ -837,6 +875,7 @@ namespace Microsoft.Zing
             Write("]");
             return indexer;
         }
+
         public override Statement VisitLabeledStatement(LabeledStatement lStatement)
         {
             if (lStatement.Statement is Block && !this.braceOnNewLine)
@@ -846,6 +885,7 @@ namespace Microsoft.Zing
 
             return base.VisitLabeledStatement(lStatement);
         }
+
         public override Expression VisitLiteral(Literal literal)
         {
             // TODO: probably need special cases here for the various integer & real types.
@@ -855,11 +895,11 @@ namespace Microsoft.Zing
             else if (literal.Value is string)
                 Write("@\"{0}\"", literal.Value.ToString().Replace("\"", "\"\""));
             else if (literal.Value is bool)
-                Write( ((bool) literal.Value) ? "true" : "false");
+                Write(((bool)literal.Value) ? "true" : "false");
             else if (literal.Value is char)
                 Write("'\\x{0:X4}'", ((ushort)(char)literal.Value));
             else if (literal.Value is TypeNode)
-                this.VisitTypeReference((TypeNode) literal.Value);
+                this.VisitTypeReference((TypeNode)literal.Value);
             else if (literal.Type == SystemTypes.UInt64)
                 Write("{0}ul", literal.Value);
             else
@@ -867,6 +907,7 @@ namespace Microsoft.Zing
 
             return literal;
         }
+
         public override Expression VisitMethodCall(MethodCall call)
         {
             if (call == null) return null;
@@ -884,6 +925,7 @@ namespace Microsoft.Zing
             Write(")");
             return call;
         }
+
         public override Expression VisitMemberBinding(MemberBinding memberBinding)
         {
             // TODO: Just guessing here for now - need to understand this better.
@@ -901,6 +943,7 @@ namespace Microsoft.Zing
                 throw new NotImplementedException("Unexpected scenario in VisitMemberBinding");
             return memberBinding;
         }
+
         public override Method VisitMethod(Method method)
         {
             if (method == null) return null;
@@ -913,11 +956,13 @@ namespace Microsoft.Zing
             this.VisitBlock(method.Body);
             return method;
         }
+
         public override Namespace VisitNamespace(Namespace nspace)
         {
             this.VisitTypeNodeList(nspace.Types);
             return nspace;
         }
+
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public override TypeNodeList VisitTypeNodeList(TypeNodeList types)
         {
@@ -926,11 +971,12 @@ namespace Microsoft.Zing
             {
                 types[i] = (TypeNode)this.Visit(types[i]);
 
-                if (this.options.BlankLinesBetweenMembers && (i+1 < types.Count))
+                if (this.options.BlankLinesBetweenMembers && (i + 1 < types.Count))
                     WriteLine(string.Empty);
             }
             return types;
         }
+
         public override Expression VisitParameter(Parameter parameter)
         {
             if (parameter == null) return null;
@@ -942,6 +988,7 @@ namespace Microsoft.Zing
             Write("{0}", parameter.Name.Name);
             return parameter;
         }
+
         public override ParameterList VisitParameterList(ParameterList parameterList)
         {
             if (parameterList == null) return null;
@@ -949,11 +996,12 @@ namespace Microsoft.Zing
             {
                 this.VisitParameter(parameterList[i]);
 
-                if (i < (n-1))
+                if (i < (n - 1))
                     Write(", ");
             }
             return parameterList;
         }
+
         public override Expression VisitQualifiedIdentifier(QualifiedIdentifier qualifiedIdentifier)
         {
             this.VisitExpression(qualifiedIdentifier.Qualifier);
@@ -961,6 +1009,7 @@ namespace Microsoft.Zing
             this.VisitIdentifier(qualifiedIdentifier.Identifier);
             return qualifiedIdentifier;
         }
+
         public override Statement VisitReturn(Return Return)
         {
             if (Return == null) return null;
@@ -975,6 +1024,7 @@ namespace Microsoft.Zing
             WriteFinish(";");
             return Return;
         }
+
         public override StatementList VisitStatementList(StatementList statements)
         {
             if (statements == null)
@@ -988,6 +1038,7 @@ namespace Microsoft.Zing
 
             return statements;
         }
+
         public override Struct VisitStruct(Struct Struct)
         {
             WriteStart("struct {0}", Struct.Name.Name);
@@ -1007,11 +1058,13 @@ namespace Microsoft.Zing
 
             return Struct;
         }
+
         public override Expression VisitThis(This This)
         {
             Write("this");
             return This;
         }
+
         private static string TranslateTypeName(string typeName)
         {
             switch (typeName)
@@ -1036,6 +1089,7 @@ namespace Microsoft.Zing
                     return null;
             }
         }
+
         public override TypeNode VisitTypeReference(TypeNode type)
         {
             string nativeType = null;
@@ -1075,7 +1129,7 @@ namespace Microsoft.Zing
                 // ISSUE: Is this ever a good idea?
                 int sepPos = type.FullName.IndexOf('+');
                 if (sepPos > 0)
-                    Write(type.FullName.Substring(sepPos+1));
+                    Write(type.FullName.Substring(sepPos + 1));
                 else
                     Write(type.FullName);
             }
@@ -1086,6 +1140,7 @@ namespace Microsoft.Zing
 
             return type;
         }
+
         public override Expression VisitUnaryExpression(UnaryExpression unaryExpression)
         {
             bool isFunctionStyle;
@@ -1106,6 +1161,7 @@ namespace Microsoft.Zing
             }
             return unaryExpression;
         }
+
         public override Statement VisitVariableDeclaration(VariableDeclaration variableDeclaration)
         {
             WriteStart("");
@@ -1120,6 +1176,7 @@ namespace Microsoft.Zing
 
             return variableDeclaration;
         }
+
         public override Statement VisitWhile(While While)
         {
             WriteStart("while ");
@@ -1127,6 +1184,7 @@ namespace Microsoft.Zing
             this.VisitBlock(While.Body);
             return While;
         }
+
         private static string GetMethodQualifiers(Method method)
         {
             string qualifiers = string.Empty;
@@ -1144,6 +1202,7 @@ namespace Microsoft.Zing
 
             return qualifiers;
         }
+
         private static string GetParameterDirection(ParameterFlags flags)
         {
             switch (flags)
@@ -1151,16 +1210,18 @@ namespace Microsoft.Zing
                 case ParameterFlags.None: return string.Empty;
                 case ParameterFlags.In: return string.Empty;
                 case ParameterFlags.Out: return "out ";
-                case ParameterFlags.In|ParameterFlags.Out: return "ref ";
+                case ParameterFlags.In | ParameterFlags.Out: return "ref ";
                 default:
                     throw new ArgumentException("Unexpected ParameterFlags value");
             }
         }
+
         private static string GetAssignmentOperator(NodeType op)
         {
             Debug.Assert(op == NodeType.Nop, "Invalid assignment operator type");
             return "=";
         }
+
         private static string GetFieldQualifiers(Field field)
         {
             string qualifiers = string.Empty;
@@ -1170,49 +1231,51 @@ namespace Microsoft.Zing
 
             return qualifiers;
         }
+
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         private static string GetBinaryOperator(NodeType nodeType)
         {
-            switch(nodeType)
+            switch (nodeType)
             {
-                case NodeType.Add :
-                case NodeType.Add_Ovf_Un : 
-                case NodeType.Add_Ovf : return "+";
-                case NodeType.And : return "&";
-                case NodeType.Div : return "/";
-                case NodeType.Eq : return "==";
-                case NodeType.Ge : return ">=";
-                case NodeType.Gt : return ">";
-                case NodeType.Le : return "<=";
-                case NodeType.LogicalAnd : return "&&";
-                case NodeType.LogicalOr : return "||";
-                case NodeType.Lt : return "<";
-                case NodeType.Mul : return "*";
-                case NodeType.Ne : return "!=";
-                case NodeType.Or : return "|";
-                case NodeType.Shl : return "<<";
-                case NodeType.Shr : return ">>";
-                case NodeType.Xor : return "^";
-                case NodeType.Rem : return "%";
-                case NodeType.Sub :
-                case NodeType.Sub_Ovf_Un : 
-                case NodeType.Sub_Ovf : return "-";
+                case NodeType.Add:
+                case NodeType.Add_Ovf_Un:
+                case NodeType.Add_Ovf: return "+";
+                case NodeType.And: return "&";
+                case NodeType.Div: return "/";
+                case NodeType.Eq: return "==";
+                case NodeType.Ge: return ">=";
+                case NodeType.Gt: return ">";
+                case NodeType.Le: return "<=";
+                case NodeType.LogicalAnd: return "&&";
+                case NodeType.LogicalOr: return "||";
+                case NodeType.Lt: return "<";
+                case NodeType.Mul: return "*";
+                case NodeType.Ne: return "!=";
+                case NodeType.Or: return "|";
+                case NodeType.Shl: return "<<";
+                case NodeType.Shr: return ">>";
+                case NodeType.Xor: return "^";
+                case NodeType.Rem: return "%";
+                case NodeType.Sub:
+                case NodeType.Sub_Ovf_Un:
+                case NodeType.Sub_Ovf: return "-";
 
                 default:
                     throw new NotImplementedException("Binary operator not supported");
             }
         }
+
         private static string GetUnaryOperator(NodeType nodeType, out bool isFunctionStyle)
         {
             isFunctionStyle = false;
 
             switch (nodeType)
             {
-                case NodeType.LogicalNot : return "!";
+                case NodeType.LogicalNot: return "!";
                 case NodeType.Not: return "~";
-                case NodeType.Neg : return "-";
-                case NodeType.UnaryPlus : return "+";
-                case NodeType.Sizeof : isFunctionStyle = true; return "sizeof";
+                case NodeType.Neg: return "-";
+                case NodeType.UnaryPlus: return "+";
+                case NodeType.Sizeof: isFunctionStyle = true; return "sizeof";
                 case NodeType.OutAddress: return "out ";
                 case NodeType.RefAddress: return "ref ";
                 case NodeType.Parentheses: isFunctionStyle = true; return string.Empty;
@@ -1223,5 +1286,5 @@ namespace Microsoft.Zing
         }
     }
 
-    #endregion
+        #endregion CCI nodes
 }

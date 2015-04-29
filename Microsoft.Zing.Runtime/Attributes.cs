@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Xml;
@@ -16,7 +12,7 @@ namespace Microsoft.Zing
     public abstract class ZingAttributeBaseAttribute : Attribute
     {
         /// <exclude/>
-        
+
         public abstract void ToXml(XmlElement parent);
     }
 
@@ -39,14 +35,16 @@ namespace Microsoft.Zing
     namespace Attributes
     {
 #if DEBUG
+
         /// <summary>
         /// This namespace contains attributes supported by the Zing compiler and runtime.
         /// These attributes are currently used to annotate Zing statements, but may be
         /// extended for other uses in the future.
         /// </summary>
-        public class NamespaceDoc 
+        public class NamespaceDoc
         {
         }
+
 #endif
 
         /// <summary>
@@ -61,6 +59,7 @@ namespace Microsoft.Zing
             /// The pathname of the foreign source code file.
             /// </summary>
             public string File { get { return file; } }
+
             private string file;
 
             /// <summary>
@@ -68,6 +67,7 @@ namespace Microsoft.Zing
             /// foreign source code.
             /// </summary>
             public int StartLine { get { return startLine; } }
+
             private int startLine;
 
             /// <summary>
@@ -75,6 +75,7 @@ namespace Microsoft.Zing
             /// foreign source code.
             /// </summary>
             public int EndLine { get { return endLine; } }
+
             private int endLine;
 
             /// <summary>
@@ -91,14 +92,14 @@ namespace Microsoft.Zing
             }
 
             /// <exclude/>
-            
+
             public override string ToString()
             {
                 return string.Format(CultureInfo.CurrentUICulture, "SourceContextAttribute: {0}, {1}, {2}", file, startLine, endLine);
             }
 
             /// <exclude/>
-            
+
             public override void ToXml(XmlElement parent)
             {
                 XmlDocument doc = parent.OwnerDocument;
@@ -119,6 +120,5 @@ namespace Microsoft.Zing
                 elem.AppendChild(elemEnd);
             }
         }
-
     }
 }

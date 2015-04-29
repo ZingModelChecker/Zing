@@ -1,13 +1,9 @@
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Xml;
 
 namespace Microsoft.Zing
 {
-
     /// <summary>
     /// This is the abstract class from which all Zing events are derived.
     /// <seealso cref="State.GetEvents"/>
@@ -20,17 +16,20 @@ namespace Microsoft.Zing
     {
         /// <exclude/>
         private ushort stepNumber;
+
         /// <exclude/>
         private string procName;
+
         /// <exclude/>
         private ZingSourceContext context;
+
         /// <exclude/>
         private ZingAttribute contextAttribute;
 
         /// <summary>
         /// The step number during which the event was produced.
         /// </summary>
-        public int StepNumber { get { return (int) stepNumber; } }
+        public int StepNumber { get { return (int)stepNumber; } }
 
         /// <summary>
         /// The name of the Zing process that caused the event.
@@ -49,7 +48,7 @@ namespace Microsoft.Zing
         public ZingAttribute ContextAttribute { get { return contextAttribute; } }
 
         /// <exclude/>
-        
+
         protected ZingEvent(ZingSourceContext context, ZingAttribute contextAttribute)
         {
             this.context = context;
@@ -68,7 +67,6 @@ namespace Microsoft.Zing
             }
         }
 
-        
         protected ZingEvent(ZingSourceContext context, ZingAttribute contextAttribute, int SerialNum)
         {
             this.context = context;
@@ -88,11 +86,11 @@ namespace Microsoft.Zing
         }
 
         /// <exclude/>
-        
+
         public abstract void ToXml(XmlElement parent);
 
         /// <exclude/>
-        
+
         protected void AddBaseData(XmlElement element)
         {
             XmlDocument doc = element.OwnerDocument;
@@ -106,7 +104,6 @@ namespace Microsoft.Zing
             element.SetAttributeNode(attrProc);
         }
     }
-
 
     /// <summary>
     /// This event is generated when a "trace" statement is executed.
@@ -125,7 +122,6 @@ namespace Microsoft.Zing
         private string message;
         private object[] arguments;
 
-        
         internal TraceEvent(ZingSourceContext context, ZingAttribute contextAttribute,
             string message, params object[] arguments)
             : base(context, contextAttribute)
@@ -134,7 +130,6 @@ namespace Microsoft.Zing
             this.arguments = arguments;
         }
 
-        
         internal TraceEvent(ZingSourceContext context, ZingAttribute contextAttribute,
             string message, int SerialNumber, params object[] arguments)
             : base(context, contextAttribute, SerialNumber)
@@ -154,7 +149,10 @@ namespace Microsoft.Zing
         /// in the trace statement (may contain zero elements).
         /// </summary>
         /// <returns>Array of trace arguments</returns>
-        public object[] GetArguments() { return arguments; }
+        public object[] GetArguments()
+        {
+            return arguments;
+        }
 
         /// <exclude/>
         /// <summary>
@@ -162,13 +160,12 @@ namespace Microsoft.Zing
         /// for any additional parameters.
         /// </summary>
         /// <returns>A formatted string based on the parameters of the trace statement.</returns>
-        
+
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, message, arguments);
         }
 
-        
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -240,14 +237,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the event showing the names of the new process and its parent.
         /// </summary>
-        
+
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "CreateProcess - process='{0}', child='{1}'", this.ProcName, this.newProcName);
         }
 
         /// <exclude/>
-        
+
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -287,14 +284,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the event showing the name of the terminating process.
         /// </summary>
-        
+
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "TerminateProcess - process='{0}'", this.ProcName);
         }
 
         /// <exclude/>
-        
+
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -340,8 +337,6 @@ namespace Microsoft.Zing
             this.chanType = chan.GetType();
         }
 
-
-
         /// <summary>
         /// Returns the integer value corresponding to the channel's address in the Zing heap.
         /// </summary>
@@ -349,7 +344,7 @@ namespace Microsoft.Zing
         /// This isn't useful in itself, but it does provide a way of distinguishing
         /// between different channels of the same type.
         /// </remarks>
-        public int ChanPtr { get { return (int) (uint) chanPtr; } }
+        public int ChanPtr { get { return (int)(uint)chanPtr; } }
 
         /// <summary>
         /// Returns the data being transmitted through the channel as an object.
@@ -368,14 +363,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the Send event showing the channel type, number, and message data.
         /// </summary>
-        
+
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "Send(chan='{0}({1})', data='{2}')", chanType, chanPtr, data);
         }
 
         /// <exclude/>
-        
+
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;
@@ -418,7 +413,7 @@ namespace Microsoft.Zing
         /// <exclude/>
         internal ReceiveEvent(ZingSourceContext context, ZingAttribute contextAttribute,
             ZingChan chan, object data)
-            : base (context, contextAttribute)
+            : base(context, contextAttribute)
         {
             this.data = data;
             this.chanPtr = Process.CurrentProcess.StateImpl.ReverseLookupObject(chan);
@@ -434,7 +429,6 @@ namespace Microsoft.Zing
             this.chanType = chan.GetType();
         }
 
-
         /// <summary>
         /// Returns the integer value corresponding to the channel's address in the Zing heap.
         /// </summary>
@@ -442,7 +436,7 @@ namespace Microsoft.Zing
         /// This isn't useful in itself, but it does provide a way of distinguishing
         /// between different channels of the same type.
         /// </remarks>
-        public int ChanPtr { get { return (int) (uint) chanPtr; } }
+        public int ChanPtr { get { return (int)(uint)chanPtr; } }
 
         /// <summary>
         /// Returns the data being transmitted through the channel as an object.
@@ -461,14 +455,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// Formats the Receive event showing the channel type, number, and message data.
         /// </summary>
-        
+
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentUICulture, "Receive(chan='{0}({1}', data='{2}')", chanType, chanPtr, data);
         }
 
         /// <exclude/>
-        
+
         public override void ToXml(XmlElement parent)
         {
             XmlDocument doc = parent.OwnerDocument;

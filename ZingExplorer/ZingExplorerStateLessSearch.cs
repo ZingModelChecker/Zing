@@ -1,41 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Collections;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.Zing
 {
-    public class ZingExplorerAsModelChecker : ZingExplorer
+    public class ZingExplorerStateLessSearch : ZingExplorer
     {
         /// <summary>
-        /// Global hash table for storing the system state space during exploration.
+        /// Stores the global frontier after each iteration.
         /// </summary>
-        private ZingerStateTable GlobalStateTable;
+        private FrontierSet GlobalFrontierSet;
+
+        private int maxSearchDepth;
 
         /// <summary>
-        /// Store frontiers after each iteration.
-        /// </summary>
-        private FrontierSet GLobalFrontierSet;
-
-        /// <summary>
-        /// Parallel Worker threads for Performing search
+        /// Parallel worker threads for performing the search
         /// </summary>
         private Task[] searchWorkers;
 
-        public ZingExplorerAsModelChecker() : base()
+        public ZingExplorerStateLessSearch()
+            : base()
         {
-            GlobalStateTable = new ZingerStateTable();
-            GLobalFrontierSet = new FrontierSet(StartStateTraversalInfo);
+            GlobalFrontierSet = new FrontierSet(StartStateTraversalInfo);
+            maxSearchDepth = ZingerConfiguration.MaxSchedulesPerIteration;
         }
 
         protected override ZingerResult IterativeSearchStateSpace()
         {
-            
             //outer loop to search the state space Iteratively
             do
             {
@@ -43,34 +37,32 @@ namespace Microsoft.Zing
                 ZingerConfiguration.zBoundedSearch.IncrementIterativeBound();
 
                 //call the frontier reset function
-                GLobalFrontierSet.StartOfIterationReset();
+                GlobalFrontierSet.StartOfIterationReset();
 
                 try
                 {
                     searchWorkers = new Task[ZingerConfiguration.DegreeOfParallelism];
                     //create parallel search threads
-                    for(int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
+                    for (int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
                     {
                         searchWorkers[i] = Task.Factory.StartNew(SearchStateSpace, i);
                         System.Threading.Thread.Sleep(10);
                     }
 
-                    
                     // Wait for all readers to Finish
-                    GLobalFrontierSet.WaitForAllReaders(CancelTokenZingExplorer.Token);
+                    GlobalFrontierSet.WaitForAllReaders(CancelTokenZingExplorer.Token);
                     // Wait for all search workers to Finish
                     Task.WaitAll(searchWorkers);
                     // Wait for all writer to Finish
-                    GLobalFrontierSet.WaitForAllWriters(CancelTokenZingExplorer.Token);
+                    GlobalFrontierSet.WaitForAllWriters(CancelTokenZingExplorer.Token);
                     //For Debug
                     //GLobalFrontierSet.PrintAll();
-    
                 }
-                catch(AggregateException ex)
+                catch (AggregateException ex)
                 {
-                    foreach(var inner in ex.InnerExceptions)
+                    foreach (var inner in ex.InnerExceptions)
                     {
-                        if((inner is ZingException))
+                        if ((inner is ZingException))
                         {
                             return lastErrorFound;
                         }
@@ -83,67 +75,96 @@ namespace Microsoft.Zing
                     }
                 }
 
-                ZingerStats.NumOfFrontiers = GLobalFrontierSet.Count();
+                ZingerStats.NumOfFrontiers = GlobalFrontierSet.Count();
                 ZingerStats.PrintPeriodicStats();
-                
             }
-            while (GLobalFrontierSet.Count() > 0 && !ZingerConfiguration.zBoundedSearch.checkIfFinalCutOffReached());
+            while (GlobalFrontierSet.Count() > 0 && !ZingerConfiguration.zBoundedSearch.checkIfFinalCutOffReached());
 
             return ZingerResult.Success;
+        }
+
+        private bool SearchStackContains(Stack<TraversalInfo> stack, TraversalInfo ti)
+        {
+            if (!ti.IsFingerPrinted)
+            {
+                return false;
+            }
+
+            Fingerprint fp = ti.Fingerprint;
+
+            var contains = stack.Where(t => (t.IsFingerPrinted && t.Fingerprint == fp)).Count() > 0;
+            return contains;
+        }
+
+        protected override bool MustExplore(TraversalInfo ti)
+        {
+            //Increment the number of transitions executed
+            ZingerStats.IncrementTransitionsCount();
+
+            if (!ti.IsFingerPrinted)
+            {
+                return true;
+            }
+
+            Fingerprint fp = ti.Fingerprint;
+            if (GlobalFrontierSet.Contains(fp) || ti.CurrentDepth > maxSearchDepth)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        protected override void VisitState(TraversalInfo ti)
+        {
+            throw new NotImplementedException();
         }
 
         protected override void SearchStateSpace(object obj)
         {
             int myThreadId = (int)obj;
-
-            while(!GLobalFrontierSet.IsCompleted())
+            while (!GlobalFrontierSet.IsCompleted())
             {
-                FrontierNode fNode = GLobalFrontierSet.GetNextFrontier();
-                if(fNode == null)
+                FrontierNode fNode = GlobalFrontierSet.GetNextFrontier();
+                if (fNode == null)
                 {
                     //Taking item from the global frontier failed
-                    Contract.Assert(GLobalFrontierSet.IsCompleted());
+                    Contract.Assert(GlobalFrontierSet.IsCompleted());
                     continue;
                 }
                 TraversalInfo startState = fNode.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
-               //Check if we need to explore the current frontier state
-                if(!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
+                //Check if we need to explore the current frontier state
+                if (!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding)
                 {
                     continue;
                 }
 
-                // Check if this frontier state is past the cut-off for this iteration.
-                // If so, don't explore, but simply pass the frontier as-is into the 
-                // results. This will ensure that it stays in the right position in the 
-                // postorder ordering of nodes which we maintain
-                if(ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(fNode.Bounds))
+                if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(fNode.Bounds))
                 {
-                    GLobalFrontierSet.Add(startState);
+                    GlobalFrontierSet.Add(startState);
                     continue;
                 }
-
-                //Visit the current state (add it to state table in the case of state ful search)
-                VisitState(startState);
 
                 //create search stack
                 Stack<TraversalInfo> LocalSearchStack = new Stack<TraversalInfo>();
                 LocalSearchStack.Push(startState);
 
-                //do bounded dfs using the local search stack
-                while(LocalSearchStack.Count > 0)
+                //dp local bounded dfs using the local search stack
+                while (LocalSearchStack.Count() > 0)
                 {
-                    //Check if cancelation token triggered
-                    if(CancelTokenZingExplorer.IsCancellationRequested)
+                    //check if cancellation token is triggered
+                    if (CancelTokenZingExplorer.IsCancellationRequested)
                     {
-                        //some task found bug and hence cancelling this task
                         return;
                     }
 
                     //start exploring the top of stack
                     TraversalInfo currentState = LocalSearchStack.Peek();
 
-					//update the maximum depth
+                    //update the maximum depth
                     ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
                     //Check if the DFS Stack Overflow has occured.
                     if (currentState.CurrentDepth > ZingerConfiguration.BoundDFSStackLength)
@@ -157,11 +178,10 @@ namespace Microsoft.Zing
                         throw new ZingerDFSStackOverFlow();
                     }
 
-
                     //Add current state to frontier if the bound is greater than the cutoff and we have fingerprinted the state (its not a single successor state)
-                    if(ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(currentState.zBounds) && currentState.IsFingerPrinted)
+                    if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(currentState.zBounds) && currentState.IsFingerPrinted)
                     {
-                        GLobalFrontierSet.Add(currentState);
+                        GlobalFrontierSet.Add(currentState);
                         //since current state is add to the frontier; pop it
                         LocalSearchStack.Pop();
 
@@ -170,24 +190,22 @@ namespace Microsoft.Zing
 
                     // OK. Current state is not at the frontier cutoff so lets explore further
                     TraversalInfo nextState = currentState.GetNextSuccessor();
-                    
-                    
 
                     //All successors explored already
-                    if(nextState == null)
+                    if (nextState == null)
                     {
                         //since all successors explored pop the stack
                         LocalSearchStack.Pop();
                         continue;
                     }
-                    
+
                     //Check if its a terminal state
                     TerminalState terminalState = nextState as TerminalState;
-                    if(terminalState != null)
+                    if (terminalState != null)
                     {
-                        if(terminalState.IsErroneousTI)
+                        if (terminalState.IsErroneousTI)
                         {
-                            lock(SafetyErrors)
+                            lock (SafetyErrors)
                             {
                                 //BUG FOUND
                                 //update the safety traces
@@ -195,7 +213,6 @@ namespace Microsoft.Zing
                                 // return value
                                 this.lastErrorFound = nextState.ErrorCode;
                             }
-                            
 
                             //find all errors ??
                             if (ZingerConfiguration.StopOnError)
@@ -206,22 +223,12 @@ namespace Microsoft.Zing
                             }
                         }
 
-                        
-
                         //else continue
                         continue;
-
                     }
 
-                    if(MustExplore(nextState))
+                    if (MustExplore(nextState) && !SearchStackContains(LocalSearchStack, nextState))
                     {
-                        // Ensure that states that are at cutoff are not added to the state table
-                        // Since they will be added to the Frontier for the next iteration.
-                        if(!ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(nextState.zBounds))
-                        {
-                            VisitState(nextState);
-                        }
-
                         LocalSearchStack.Push(nextState);
                         continue;
                     }
@@ -229,62 +236,7 @@ namespace Microsoft.Zing
                     {
                         continue;
                     }
-
-                    
                 }
-
-            
-            }
-            
-        }
-
-        protected override bool MustExplore(TraversalInfo ti)
-        {
-            //Increment the number of transitions executed
-            ZingerStats.IncrementTransitionsCount();
-
-            if(!ti.IsFingerPrinted)
-            {
-                return true;
-            }
-            //else
-
-            Fingerprint fp = ti.Fingerprint;
-
-            //check if this is in the frontier
-            
-            //no need to explore frontier state if already explored
-            if(GLobalFrontierSet.Contains(fp))
-            {
-                return false;
-            }
-            else
-            {
-                if(!GlobalStateTable.Contains(fp))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        protected override void VisitState(TraversalInfo ti)
-        {
-            
-            if (!ti.IsFingerPrinted)
-                return;
-
-            Fingerprint fp = ti.Fingerprint;
-            if(GLobalFrontierSet.Contains(fp) && !ZingerConfiguration.DoDelayBounding)
-            {
-                GLobalFrontierSet.Remove(fp);
-            }
-            if(!GlobalStateTable.Contains(fp))
-            {
-                GlobalStateTable.AddOrUpdate(fp, null);
             }
         }
     }

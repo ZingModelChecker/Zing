@@ -2,16 +2,14 @@
  * Scheduler Information:
  * RandomDelayingScheduler uses a random strategy to prioritize the search space.
  * The next call randomly schedules a process from the list of enabled processes.
- * The delay call removes the last scheduled process from the list. Applying delay operation max times 
+ * The delay call removes the last scheduled process from the list. Applying delay operation max times
  * guarantees that all the processes will be scheduled in a given state. Hence the scheduler is sound.
  * ***********************************************/
 
+using Microsoft.Zing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Zing;
 
 namespace ExternalDelayingExplorer
 {
@@ -20,17 +18,21 @@ namespace ExternalDelayingExplorer
     {
         //random number generator
         public System.Random randGen;
-        //list of all enabled processes 
+
+        //list of all enabled processes
         public List<int> EnabledProcesses;
+
         //last process scheduled (by call to Next).
         public int scheculedProcess;
+
         //list of not yet delayed processes
         public List<int> setOfProcesses;
 
         /// <summary>
         /// default constructor
         /// </summary>
-        public RandomDBSchedulerState () : base()
+        public RandomDBSchedulerState()
+            : base()
         {
             setOfProcesses = new List<int>();
             randGen = new Random(DateTime.Now.Millisecond);
@@ -39,25 +41,27 @@ namespace ExternalDelayingExplorer
         }
 
         //copy constructor
-        public RandomDBSchedulerState(RandomDBSchedulerState copyThis) : base(copyThis)
+        public RandomDBSchedulerState(RandomDBSchedulerState copyThis)
+            : base(copyThis)
         {
-            randGen = copyThis.randGen; 
+            randGen = copyThis.randGen;
             scheculedProcess = copyThis.scheculedProcess;
             setOfProcesses = new List<int>();
             EnabledProcesses = new List<int>();
-            foreach(var item in copyThis.EnabledProcesses)
+            foreach (var item in copyThis.EnabledProcesses)
             {
                 setOfProcesses.Add(item);
                 EnabledProcesses.Add(item);
             }
         }
+
         public override string ToString()
         {
             string ret = "";
             ret = "s = " + scheculedProcess + " ";
             foreach (var item in setOfProcesses)
             {
-                ret = ret + item.ToString() + ","; 
+                ret = ret + item.ToString() + ",";
             }
             return ret;
         }
@@ -65,7 +69,6 @@ namespace ExternalDelayingExplorer
         //clone
         public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
-            
             RandomDBSchedulerState cloned = new RandomDBSchedulerState(this);
             if (isCloneForFrontier)
             {
@@ -74,12 +77,11 @@ namespace ExternalDelayingExplorer
                 {
                     cloned.setOfProcesses.Add(item);
                 }
-                
             }
             return cloned;
         }
     }
-    
+
     public class RandomDelayingScheduler : ZingerDelayingScheduler
     {
         /// <summary>
@@ -92,7 +94,6 @@ namespace ExternalDelayingExplorer
             ZSchedulerState.Start(processId);
             schedState.EnabledProcesses.Add(processId);
             schedState.setOfProcesses.Add(processId);
-
         }
 
         /// <summary>
@@ -111,7 +112,7 @@ namespace ExternalDelayingExplorer
         /// </summary>
         /// <param name="zSchedState"></param>
         /// <returns></returns>
-        public override int Next (ZingerSchedulerState zSchedState)
+        public override int Next(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RandomDBSchedulerState;
             if (SchedState.setOfProcesses.Count() == 0)
@@ -121,18 +122,17 @@ namespace ExternalDelayingExplorer
             var procId = SchedState.setOfProcesses.ElementAt(index);
             SchedState.scheculedProcess = procId;
             return procId;
-
         }
 
         /// <summary>
-        /// The Delay operation drops the last scheduled process such that it is never scheduled again 
+        /// The Delay operation drops the last scheduled process such that it is never scheduled again
         /// for that state.
         /// </summary>
         /// <param name="zSchedState"></param>
-        public override void Delay (ZingerSchedulerState zSchedState)
+        public override void Delay(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RandomDBSchedulerState;
-            // Drop the element 
+            // Drop the element
             SchedState.setOfProcesses.Remove(SchedState.scheculedProcess);
             zSchedState.numOfTimesCurrStateDelayed++;
             return;
@@ -166,11 +166,11 @@ namespace ExternalDelayingExplorer
         {
             var SchedState = ZSchedulerState as RandomDBSchedulerState;
             var procId = SchedState.GetZingProcessId(sourceSM);
-           // Console.WriteLine(SchedState.ToString());
+            // Console.WriteLine(SchedState.ToString());
             SchedState.setOfProcesses.Remove(procId);
             SchedState.EnabledProcesses.Remove(procId);
-            
         }
+
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RandomDBSchedulerState;

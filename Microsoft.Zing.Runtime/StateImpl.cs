@@ -10,20 +10,15 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
 using System.Security.Permissions;
 using System.Text;
 using System.Xml;
-using System.Linq;
 
 namespace Microsoft.Zing
 {
@@ -49,27 +44,26 @@ namespace Microsoft.Zing
     /// </remarks>
     [SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
     [CLSCompliant(false)]
-    
     public abstract class StateImpl : ICloneable
     {
         #region Constructors and factory methods
+
         // This constructor is used for cloning.
         protected StateImpl()
         {
-
         }
 
         public abstract StateImpl MakeSkeleton();
 
-        protected StateImpl (bool initialState)
+        protected StateImpl(bool initialState)
         {
             Debug.Assert(initialState);
 
             this.processes = new ArrayList(6);  // probably a good default size
             this.savedNumProcesses = -1;
             this.nextProcessId = 0;
-            
-            if(ZingerConfiguration.DoDelayBounding)
+
+            if (ZingerConfiguration.DoDelayBounding)
             {
                 ZingDBSchedState = ZingerConfiguration.ZExternalScheduler.zSchedState;
                 ZingDBScheduler = ZingerConfiguration.ZExternalScheduler.zDelaySched;
@@ -100,9 +94,11 @@ namespace Microsoft.Zing
 
             this.stepNumber = 1;
         }
-        #endregion
+
+        #endregion Constructors and factory methods
 
         #region AcceptingCycles
+
         /// <summary>
         /// This bit is set when the accepting transition is executed
         /// </summary>
@@ -114,15 +110,16 @@ namespace Microsoft.Zing
             set { isAcceptingState = value; }
         }
 
-        #endregion
+        #endregion AcceptingCycles
 
         #region Status of the state
+
         //IExplorable
-        public StateType Type 
-        { 
-            get 
-            { 
-                if (Exception != null) 
+        public StateType Type
+        {
+            get
+            {
+                if (Exception != null)
                 {
                     if (Exception is ZingAssumeFailureException)
                         return StateType.FailedAssumption;
@@ -132,7 +129,7 @@ namespace Microsoft.Zing
 
                 // TODO: keep track of pending choices at
                 // SetPendingChoice
-                if (NumChoices > 0) 
+                if (NumChoices > 0)
                     return StateType.Choice;
 
                 for (int i = 0; i < processes.Count; i++)
@@ -140,22 +137,25 @@ namespace Microsoft.Zing
                         return StateType.Execution;
 
                 return StateType.NormalTermination;
-            } 
+            }
         }
+
         //IExplorable
-        public bool IsChoicePending 
+        public bool IsChoicePending
         {
             get { return NumChoices > 0; }
         }
+
         //IExplorable
-        public bool IsNormalState 
+        public bool IsNormalState
         {
             get { return Type == StateType.Execution; }
         }
+
         //IExplorable
-        public bool IsTerminalState 
-        { 
-            get 
+        public bool IsTerminalState
+        {
+            get
             {
                 //
                 // Asking for our StateType is expensive, so try to answer this
@@ -165,23 +165,27 @@ namespace Microsoft.Zing
                     return true;
 
                 return (Type == StateType.NormalTermination);
-            } 
+            }
         }
+
         //IExplorable
-        public bool IsErroneous 
+        public bool IsErroneous
         {
             get { return Exception != null && !(Exception is ZingAssumeFailureException); }
         }
+
         //IExplorable
-        public bool IsValidTermination 
+        public bool IsValidTermination
         {
             get { return (Type == StateType.NormalTermination); }
         }
+
         //IExplorable
-        public bool IsFailedAssumption 
+        public bool IsFailedAssumption
         {
             get { return Exception != null && Exception is ZingAssumeFailureException; }
         }
+
         //IExplorable
         public ZingerResult ErrorCode
         {
@@ -204,55 +208,59 @@ namespace Microsoft.Zing
                     return ZingerResult.ProgramRuntimeError;
             }
         }
-        #endregion
+
+        #endregion Status of the state
 
         #region State delta related private variables and methods
-        
+
         private ArrayList dirtyHeapPointers;
         internal ArrayList garbageHeapEntries;
-        
+
         internal void AddToDirtyHeapPointers(Pointer p)
         {
-            if (dirtyHeapPointers == null) 
+            if (dirtyHeapPointers == null)
                 dirtyHeapPointers = new ArrayList();
             dirtyHeapPointers.Add(p);
         }
 
         internal void AddToGarbageHeapEntries(HeapEntry he)
         {
-            if(garbageHeapEntries == null)
+            if (garbageHeapEntries == null)
                 garbageHeapEntries = new ArrayList();
             garbageHeapEntries.Add(he);
         }
 
         // State Undo Log Entry
-        private class StateULE 
+        private class StateULE
         {
             // cloned components
             internal object[] choiceList;
+
             internal int choiceProcessNumber;
             internal uint nextProcessId;
             internal ushort stepNumber;
             internal uint lastHeapId;
             internal Exception exception;
             //internal Fingerprint fingerprint;
-            
+
             // undoable components
-            
+
             // - global variables
             internal object globalULE;
 
             // - dirty heap objects
             internal ArrayList dirtyHeapPointers;
+
             internal ArrayList garbageHeapEntries;
 
             // - processes and stacks
             internal int numProcesses;
+
             internal object[] processULEs;
         }
 
-
         private Int64 nonce;
+
         internal Int64 Nonce { get { return nonce; } }
 
         private Stack historyStack;
@@ -275,15 +283,15 @@ namespace Microsoft.Zing
 #endif
 
             StateULE ule = new StateULE();
-            
+
             // cloned components
-            ule.choiceList = choiceList; 
-            ule.choiceProcessNumber = choiceProcessNumber; 
+            ule.choiceList = choiceList;
+            ule.choiceProcessNumber = choiceProcessNumber;
             ule.nextProcessId = nextProcessId;
             ule.stepNumber = stepNumber;
             ule.lastHeapId = lastHeapId;
             ule.exception = exception;
-            
+
             //ule.fingerprint = this.fingerprint;
             // hybrid components
             int n = processes.Count;
@@ -291,7 +299,7 @@ namespace Microsoft.Zing
             ule.processULEs = new object[n];
             for (int i = 0; i < n; i++)
             {
-                if(processes[i] != null)
+                if (processes[i] != null)
                     ule.processULEs[i] = ((Process)processes[i]).DoCheckIn();
                 else
                     ule.processULEs[i] = null;
@@ -307,14 +315,14 @@ namespace Microsoft.Zing
             ule.garbageHeapEntries = null;
             if (heap != null)
             {
-                if(dirtyHeapPointers != null)
+                if (dirtyHeapPointers != null)
                 {
                     ule.dirtyHeapPointers = new ArrayList(dirtyHeapPointers.Count);
                     // iterate only over the heap elements in dirtyHeapPointers
                     foreach (Pointer o in dirtyHeapPointers)
                     {
-                        HeapEntry h = (HeapEntry) heap[o];
-                        if(h == null)
+                        HeapEntry h = (HeapEntry)heap[o];
+                        if (h == null)
                         {
                             // this dirty heap pointer has become garbage
                             continue;
@@ -324,10 +332,10 @@ namespace Microsoft.Zing
                     }
                     dirtyHeapPointers = null;
                 }
-                
-                if(garbageHeapEntries != null)
+
+                if (garbageHeapEntries != null)
                 {
-                    foreach(HeapEntry he in garbageHeapEntries)
+                    foreach (HeapEntry he in garbageHeapEntries)
                     {
                         he.DoCheckIn();
                     }
@@ -341,13 +349,13 @@ namespace Microsoft.Zing
 
             return ule;
         }
-        
+
         internal void DoCheckout(object currULE)
         {
             int i;
 
-            StateULE ule = (StateULE) currULE;
-            
+            StateULE ule = (StateULE)currULE;
+
             // cloned components
             fingerprint = null;
             choiceList = ule.choiceList;
@@ -357,7 +365,7 @@ namespace Microsoft.Zing
             events = null;
             lastHeapId = ule.lastHeapId;
             exception = ule.exception;
-            
+
             // nothing to be done for undoable heap
 
             // hybrid components
@@ -368,7 +376,7 @@ namespace Microsoft.Zing
 
             for (i = 0; i < ule.numProcesses; i++)
             {
-                if(processes[i] != null)
+                if (processes[i] != null)
                 {
                     ((Process)processes[i]).DoCheckout(ule.processULEs[i]);
                 }
@@ -392,13 +400,13 @@ namespace Microsoft.Zing
             // first, do the heap
             if (heap != null)
             {
-                if(dirtyHeapPointers != null) 
+                if (dirtyHeapPointers != null)
                 {
                     foreach (Pointer o in dirtyHeapPointers)
                     {
-                        HeapEntry h = (HeapEntry) heap[o];
+                        HeapEntry h = (HeapEntry)heap[o];
                         if (h.DoRevert(nonce))
-                        {   // this heap element did not exist at this rollback point 
+                        {   // this heap element did not exist at this rollback point
                             // and therefore needs to be removed from heap.
                             //heap.Remove(o);
                             heap[o] = null;
@@ -406,9 +414,9 @@ namespace Microsoft.Zing
                     }
                     dirtyHeapPointers = null;
                 }
-                if(garbageHeapEntries != null)
+                if (garbageHeapEntries != null)
                 {
-                    foreach(HeapEntry he in garbageHeapEntries)
+                    foreach (HeapEntry he in garbageHeapEntries)
                     {
                         Debug.Assert(he.HeapObj != null);
                         Pointer ptr = he.HeapObj.Pointer;
@@ -424,33 +432,33 @@ namespace Microsoft.Zing
 
             // hybrid components -- processes
             if (processes.Count > savedNumProcesses)
-                processes.RemoveRange(savedNumProcesses, 
+                processes.RemoveRange(savedNumProcesses,
                     processes.Count - savedNumProcesses);
 
             for (int i = 0; i < savedNumProcesses; i++)
             {
-                if(processes[i] != null)
+                if (processes[i] != null)
                     ((Process)processes[i]).DoRevert();
             }
-            // undoable components 
-            
+            // undoable components
+
             // globals
             Globals.DoRevert();
 
             // invalidateState();
         }
 
-        private void doRollbackOnPointerArray(ArrayList ptrArray, Int64 version) 
+        private void doRollbackOnPointerArray(ArrayList ptrArray, Int64 version)
         {
             if (ptrArray != null)
             {
                 foreach (Pointer o in ptrArray)
                 {
-                    HeapEntry h = (HeapEntry) heap[o];
-                    if (h == null) 
+                    HeapEntry h = (HeapEntry)heap[o];
+                    if (h == null)
                         continue;
                     if (h.DoRollback(version))
-                    {   // this heap element did not exist at this rollback point 
+                    {   // this heap element did not exist at this rollback point
                         // and therefore needs to be removed from heap.
                         //heap.Remove(o);
                         heap[o] = null;
@@ -461,12 +469,12 @@ namespace Microsoft.Zing
 
         private void doRollbackOnGarbage(ArrayList heArray, Int64 version)
         {
-            if(heArray == null) return;
-            
-            foreach(HeapEntry he in heArray)
+            if (heArray == null) return;
+
+            foreach (HeapEntry he in heArray)
             {
                 bool ret = he.DoRollback(version);
-                if(!ret)
+                if (!ret)
                 {
                     Debug.Assert(he.HeapObj != null);
                     heap[he.HeapObj.Pointer] = he;
@@ -484,13 +492,13 @@ namespace Microsoft.Zing
         internal void DoRollback(object[] ules, Int64 version)
         {
             // first, do the heap
-            if (heap != null) 
+            if (heap != null)
             {
                 doRollbackOnPointerArray(dirtyHeapPointers, version);
                 doRollbackOnGarbage(garbageHeapEntries, version);
                 for (int i = 0; i < ules.Length; i++)
                 {
-                    StateULE ule = (StateULE) ules[i];
+                    StateULE ule = (StateULE)ules[i];
                     doRollbackOnPointerArray(ule.dirtyHeapPointers, version);
                     doRollbackOnGarbage(ule.garbageHeapEntries, version);
                 }
@@ -513,7 +521,7 @@ namespace Microsoft.Zing
             // - processes
 
             //   1) trim num-processes down to the target level
-            int targetNumProcs = ((StateULE) ules[n-1]).numProcesses;
+            int targetNumProcs = ((StateULE)ules[n - 1]).numProcesses;
 
             Debug.Assert(processes.Count >= targetNumProcs);
             if (processes.Count > targetNumProcs)
@@ -523,43 +531,50 @@ namespace Microsoft.Zing
             //   2) roll back these processes
             object[] processULEs = new object[n];
 
-            for (int i = 0; i < targetNumProcs; i++) 
+            for (int i = 0; i < targetNumProcs; i++)
             {
                 // rollback process "i" here
                 for (int j = 0; j < n; j++)
-                    processULEs[j] = ((StateULE) ules[j]).processULEs[i];
-                
-                if(processes[i] != null)
-                    ((Process) processes[i]).DoRollback(processULEs);
+                    processULEs[j] = ((StateULE)ules[j]).processULEs[i];
+
+                if (processes[i] != null)
+                    ((Process)processes[i]).DoRollback(processULEs);
             }
-            
+
             //   3) rollback savedNumProcs
             savedNumProcesses = targetNumProcs;
-            
+
             // undoable components
 
             object[] globalULEs = new object[n];
 
             for (int i = 0; i < n; i++)
-                globalULEs[i] = ((StateULE) ules[i]).globalULE;
+                globalULEs[i] = ((StateULE)ules[i]).globalULE;
 
             // globals
             Globals.DoRollback(globalULEs);
         }
-        #endregion
+
+        #endregion State delta related private variables and methods
 
         /// <summary>
         /// Fields for storing the delaying scheduler information
         /// </summary>
         public ZingerDelayingScheduler ZingDBScheduler = null;
+
         public ZingerSchedulerState ZingDBSchedState = null;
 
         //IExplorable
-        public virtual string[] GetSources() { return null; }
-        //IExplorable
-        public virtual string[] GetSourceFiles() { return null; }
+        public virtual string[] GetSources()
+        {
+            return null;
+        }
 
-       
+        //IExplorable
+        public virtual string[] GetSourceFiles()
+        {
+            return null;
+        }
 
         //IExplorable
         public Process GetProcess(int processNumber)
@@ -568,6 +583,7 @@ namespace Microsoft.Zing
         }
 
         private bool isCall;
+
         //IExplorable
         public bool IsCall
         {
@@ -576,6 +592,7 @@ namespace Microsoft.Zing
         }
 
         private bool isReturn;
+
         //IExplorable
         public bool IsReturn
         {
@@ -584,6 +601,7 @@ namespace Microsoft.Zing
         }
 
         private bool isEndAtomicBlock;
+
         //IExplorable
         public bool IsEndAtomicBlock
         {
@@ -595,7 +613,6 @@ namespace Microsoft.Zing
         {
             bool foundInvalidEndState = false;
 
-
             for (int i = 0; (i < processes.Count); i++)
             {
                 Process p = (Process)processes[i];
@@ -605,9 +622,11 @@ namespace Microsoft.Zing
                     case ProcessStatus.Runnable:
                         // if anyone is runnable, return false
                         return (false);
+
                     case ProcessStatus.Blocked:
                         foundInvalidEndState = true;
                         break;
+
                     default:
                         break;
                 }
@@ -625,11 +644,13 @@ namespace Microsoft.Zing
         }
 
         #region Process management
+
         // <summary>Collection class holding our process list</summary>
         // <remarks>
         // Indexed by process id.
         // </remarks>
         private ArrayList processes;
+
         private int savedNumProcesses;
 
         // <summary>
@@ -652,7 +673,7 @@ namespace Microsoft.Zing
         {
             uint id = nextProcessId++;
             processes.Add(new Process(state, entryPoint, name, id, this.MySerialNum));
-            if(ZingerConfiguration.DoDelayBounding)
+            if (ZingerConfiguration.DoDelayBounding)
             {
                 //call Start Process function of the External Scheduler
                 ZingDBScheduler.Start(ZingDBSchedState, (int)id);
@@ -661,19 +682,19 @@ namespace Microsoft.Zing
 
         //IExplorable
         [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly")]
-        public int NumProcesses 
+        public int NumProcesses
         {
-            get 
-            { 
+            get
+            {
                 // Debug.Assert(!IsTerminalState);
-                return processes.Count; 
+                return processes.Count;
             }
         }
 
         //IExplorable
         public ProcessStatus GetProcessStatus(int processId)
         {
-            Process p = (Process) processes[processId];
+            Process p = (Process)processes[processId];
 
             return p.CurrentStatus;
         }
@@ -681,7 +702,7 @@ namespace Microsoft.Zing
         //IExplorable
         public ProcessInfo GetProcessInfo(int processId)
         {
-            Process p = (Process) processes[processId];
+            Process p = (Process)processes[processId];
             ProcessInfo pi = new ProcessInfo(p);
             return pi;
         }
@@ -692,7 +713,7 @@ namespace Microsoft.Zing
             ProcessInfo[] pi = new ProcessInfo[NumProcesses];
 
             for (int i = 0, n = NumProcesses; i < n; i++)
-                pi[i] = new ProcessInfo((Process) processes[i]);
+                pi[i] = new ProcessInfo((Process)processes[i]);
             return pi;
         }
 
@@ -701,9 +722,9 @@ namespace Microsoft.Zing
         {
             int nProcesses = processes.Count;
             ProcessStatus[] ret = new ProcessStatus[nProcesses];
-            
+
             for (int i = 0; i < nProcesses; i++)
-                ret[i] = ((Process) processes[i]).CurrentStatus;
+                ret[i] = ((Process)processes[i]).CurrentStatus;
 
             return ret;
         }
@@ -728,12 +749,13 @@ namespace Microsoft.Zing
             return ((Process)this.processes[processId]).LookupValueByName(name);
         }
 
-        #endregion
+        #endregion Process management
 
-       
         #region Global Variables
+
         protected abstract ZingGlobals Globals { get; set; }
-        #endregion
+
+        #endregion Global Variables
 
         //IExplorable
         public void TraverseGlobalReferences(FieldTraverser ft)
@@ -743,22 +765,23 @@ namespace Microsoft.Zing
 
         #region Heap Management
 
-        int nextFreePointer = 1;
-        bool heapGarbage = true;
+        private int nextFreePointer = 1;
+        private bool heapGarbage = true;
 
-        int FindFreePointer()
-        {       
-            while(heap[nextFreePointer] != null)
+        private int FindFreePointer()
+        {
+            while (heap[nextFreePointer] != null)
             {
                 nextFreePointer++;
-                if(nextFreePointer >= heap.Length)
+                if (nextFreePointer >= heap.Length)
                 {
-                    if(heapGarbage)
+                    if (heapGarbage)
                     {
                         heapGarbage = false;
                         nextFreePointer = 1;
                     }
-                    else{
+                    else
+                    {
                         // grow the heap
                         HeapEntry[] newHeap = new HeapEntry[heap.Length * 2];
                         Array.Copy(heap, 0, newHeap, 0, heap.Length);
@@ -793,7 +816,7 @@ namespace Microsoft.Zing
             //heap.Add(ptr, entry);
             he.Pointer = (Pointer)((uint)ptr);  // the other fields should already be initialized
             AddToDirtyHeapPointers(he.Pointer);
-            
+
             return he.Pointer;
         }
 
@@ -813,9 +836,9 @@ namespace Microsoft.Zing
 
             // Allocate a heap entry
             HeapEntry entry = new HeapEntry(he);
-            int ptr = FindFreePointer(); 
+            int ptr = FindFreePointer();
             heap[ptr] = entry;
-            he.Pointer = (Pointer) ((uint)ptr);  // the other fields should already be initialized
+            he.Pointer = (Pointer)((uint)ptr);  // the other fields should already be initialized
             return he.Pointer;
         }
 
@@ -827,7 +850,7 @@ namespace Microsoft.Zing
         // <returns></returns>
         public HeapElement LookupObject(Pointer ptr)
         {
-           // TODO: need to return more context in this exception
+            // TODO: need to return more context in this exception
             if (ptr == 0u)
                 throw new ZingNullReferenceException();
 
@@ -835,30 +858,30 @@ namespace Microsoft.Zing
             if (heap == null)
                 throw new InvalidOperationException("Pointer dereference before first heap allocation");
 
-            HeapEntry he = (HeapEntry) heap[ptr];
+            HeapEntry he = (HeapEntry)heap[ptr];
             return he.HeapObj;
         }
 
         public HeapElement LookupHeapElementFromIndex(uint index)
         {
             Pointer ptr = new Pointer(index);
-            HeapEntry he = (HeapEntry) heap[ptr];
+            HeapEntry he = (HeapEntry)heap[ptr];
             return he.HeapObj;
         }
 
         internal Pointer ReverseLookupObject(HeapElement heapElement)
         {
-/*          foreach (DictionaryEntry de in heap)
+            /*          foreach (DictionaryEntry de in heap)
+                        {
+                            HeapEntry he = (HeapEntry) de.Value;
+                            if (he.HeapObj == heapElement)
+                                return (Pointer) de.Key;
+                        }
+            */
+            for (int ptr = 0; ptr < heap.Length; ptr++)
             {
-                HeapEntry he = (HeapEntry) de.Value;
-                if (he.HeapObj == heapElement)
-                    return (Pointer) de.Key;
-            }
-*/
-            for(int ptr = 0; ptr < heap.Length; ptr++)
-            {
-                if(heap[ptr] != null && heap[ptr].HeapObj == heapElement)
-                    return (Pointer) ((uint)ptr);
+                if (heap[ptr] != null && heap[ptr].HeapObj == heapElement)
+                    return (Pointer)((uint)ptr);
             }
             throw new ArgumentException("ReverseLookupObject can't find heap element");
         }
@@ -900,18 +923,20 @@ namespace Microsoft.Zing
         // </summary>
 
         private HeapEntry[] heap;
+
         //IExplorable
         internal HeapEntry[] Heap { get { return heap; } }
 
         private uint lastHeapId;
 
-        #endregion
+        #endregion Heap Management
 
         #region Public methods
+
         // First, the methods related to state delta
 
         //IExplorable
-        public  Receipt CheckIn()
+        public Receipt CheckIn()
         {
             HistoryEntry he;
 
@@ -920,22 +945,22 @@ namespace Microsoft.Zing
 
             Int64 receiptId = nonce;
             nonce++;
-            
-            if (historyStack.Count > 0) 
+
+            if (historyStack.Count > 0)
             {
-                he = (HistoryEntry) historyStack.Peek();
+                he = (HistoryEntry)historyStack.Peek();
             }
 
 #if DEBUG_STATEIMPL
             Console.WriteLine("debug: Checking in ({0})...", receiptId);
 #endif
-            
+
             he = new HistoryEntry();
             he.stateULE = DoCheckIn();
             he.receiptId = receiptId;
-            
+
             historyStack.Push(he);
-            
+
             return new Receipt(receiptId);
         }
 
@@ -947,13 +972,13 @@ namespace Microsoft.Zing
 #if DEBUG_STATEIMPL
             Console.WriteLine("debug: Rolling back ({0})...", rcpt.Id);
 #endif
-            while (historyStack.Count > 0) 
+            while (historyStack.Count > 0)
             {
-                HistoryEntry he = (HistoryEntry) historyStack.Peek();
+                HistoryEntry he = (HistoryEntry)historyStack.Peek();
 
                 Debug.Assert(he.receiptId >= rcpt.Id);
 
-                if (he.receiptId == rcpt.Id) 
+                if (he.receiptId == rcpt.Id)
                 {
                     DoRollback(ules.ToArray(), rcpt.Id);
                     DoCheckout(he.stateULE);
@@ -970,7 +995,7 @@ namespace Microsoft.Zing
         {
             Debug.Assert(historyStack.Count > 0);
 
-            HistoryEntry he = (HistoryEntry) historyStack.Peek();
+            HistoryEntry he = (HistoryEntry)historyStack.Peek();
             DoRevert();
             DoCheckout(he.stateULE);
         }
@@ -978,7 +1003,7 @@ namespace Microsoft.Zing
         //IExplorable
         public bool ShouldRunBlocksContinue(Process process)
         {
-            return(!process.IsPreemptible && !process.choicePending && this.exception == null);
+            return (!process.IsPreemptible && !process.choicePending && this.exception == null);
         }
 
         //IExplorable
@@ -987,7 +1012,7 @@ namespace Microsoft.Zing
             int numBlocksExecuted = 0;
             process.BackTransitionEncountered = false;
             // set the middle of transition flag here
-            do 
+            do
             {
                 ushort thisBlock = process.TopOfStack.NextBlock;
                 process.MiddleOfTransition = true;
@@ -1012,9 +1037,7 @@ namespace Microsoft.Zing
                 // Stop infinite executions within an atomic block
                 if (numBlocksExecuted++ > 100000)
                     this.exception = new ZingInfiniteLoopException();
-
             } while (ShouldRunBlocksContinue(process));
-            
         }
 
         //IExplorable
@@ -1047,7 +1070,6 @@ namespace Microsoft.Zing
             if (p.CurrentStatus == ProcessStatus.Runnable)
                 return;
 
-
             // Check to see if anything else is runnable. If not, make sure all the
             // processes are completed or in a valid end state. If anyone is blocked
             // in an invalid endstate, put an exception on the state object so we
@@ -1055,9 +1077,9 @@ namespace Microsoft.Zing
             //if we are summarizing, there could be other runnable processes
             //but we might not be seeing them because we are seeing a truncated state
             if (IsInvalidEndState())
-                this.exception = new ZingInvalidEndStateException(); 
+                this.exception = new ZingInvalidEndStateException();
 
-            if(ZingerConfiguration.DoDelayBounding && p.CurrentStatus == ProcessStatus.Completed)
+            if (ZingerConfiguration.DoDelayBounding && p.CurrentStatus == ProcessStatus.Completed)
             {
                 this.ZingDBScheduler.Finish(this.ZingDBSchedState, (int)p.Id);
             }
@@ -1083,9 +1105,8 @@ namespace Microsoft.Zing
             if (!p.choicePending)
                 this.stepNumber++;
 
-            fingerprint = null; 
+            fingerprint = null;
         }
-
 
         //IExplorable
         public Exception Exception
@@ -1096,7 +1117,6 @@ namespace Microsoft.Zing
 
         private Exception exception;
 
-
         //
         // We reuse a single memory stream and binary writer for all instances.
         // This is fine as long as we're single-threaded and is a big perf win.
@@ -1104,8 +1124,11 @@ namespace Microsoft.Zing
         // Abhishek: Not if we're using a parallel exploration model!
 
         private static MemoryStream[] memStream = new MemoryStream[ZingerConfiguration.DegreeOfParallelism];
+
         protected static MemoryStream MemoryStream { get { return memStream[0]; } }
+
         private static BinaryWriter[] binWriter = new BinaryWriter[ZingerConfiguration.DegreeOfParallelism];
+
         protected static BinaryWriter BinaryWriter { get { return binWriter[0]; } }
 
         public static MemoryStream GetMemoryStream(int SerialNumber)
@@ -1131,7 +1154,7 @@ namespace Microsoft.Zing
         {
             for(int i=0; i<len; i++)
             {
-                System.Console.Write("{0} ",buffer[i]); 
+                System.Console.Write("{0} ",buffer[i]);
             }
             if(printLine)
             {
@@ -1144,6 +1167,7 @@ namespace Microsoft.Zing
         internal static bool printFingerprintsFlag = true;
         private static int numFingerprints = 0;
 #endif
+
         //IExplorable
         public Fingerprint Fingerprint
         {
@@ -1163,7 +1187,6 @@ namespace Microsoft.Zing
                     StateImpl.GetHeapCanonicalizer(mySerialNum).OnHeapTraversalEnd(this);
 #else
 
-
                     heapCanonicalizer.OnHeapTraversalStart(this);
                     fingerprint = ComputeFingerprint();
                     heapCanonicalizer.OnHeapTraversalEnd(this);
@@ -1174,11 +1197,11 @@ namespace Microsoft.Zing
                     heapCanonicalizer.OnHeapTraversalEnd(this);
                     if(!fingerprint.Equals(noninc))
                     {
-                        Debug.Assert(false, "Incremental fingerprint != Nonincremental fingerprint");                   
+                        Debug.Assert(false, "Incremental fingerprint != Nonincremental fingerprint");
                     }
 #endif
 #endif
- 
+
 #if PRINT_FINGERPRINTS
                     if(printFingerprintsFlag)
                     {
@@ -1191,11 +1214,11 @@ namespace Microsoft.Zing
             }
         }
 
-/*      public void ClearFingerPrint()
-        {
-            fingerprint = null;
-        }
- */       
+        /*      public void ClearFingerPrint()
+                {
+                    fingerprint = null;
+                }
+         */
         private Fingerprint fingerprint;
 
         // <summary>
@@ -1240,7 +1263,8 @@ namespace Microsoft.Zing
         // code consumes it.
         // </summary>
         private int choiceTaken = -1;
-        public int ChoiceTaken 
+
+        public int ChoiceTaken
         {
             get { return choiceTaken; }
         }
@@ -1265,7 +1289,7 @@ namespace Microsoft.Zing
 #if UNUSED_CODE
         internal void FireChoiceSummary(Process p, ChoiceSummary cs)
         {
-            if (cs == null) 
+            if (cs == null)
             {
                 choiceProcessNumber = -1;
                 p.choicePending = false;
@@ -1283,7 +1307,7 @@ namespace Microsoft.Zing
             int n;
             ulong mask;
 
-            for (n = 0, mask = 1; n < 64 ;n++, mask <<= 1)
+            for (n = 0, mask = 1; n < 64; n++, mask <<= 1)
             {
                 if ((joinStatementFlags & mask) != 0)
                     nChoices++;
@@ -1305,13 +1329,13 @@ namespace Microsoft.Zing
 
             object[] choices = new object[nChoices];
 
-            for (nChoices = n = 0, mask = 1; n < 64 ;n++, mask <<= 1)
+            for (nChoices = n = 0, mask = 1; n < 64; n++, mask <<= 1)
             {
                 if ((joinStatementFlags & mask) != 0)
                     choices[nChoices++] = mask;
             }
 
-            this.SetPendingChoices(process,  choices);
+            this.SetPendingChoices(process, choices);
 
             return true;
         }
@@ -1337,14 +1361,15 @@ namespace Microsoft.Zing
 
             return choiceValue;
         }
-        #endregion
+
+        #endregion Public methods
 
         #region Helpful overrides
 
         //IExplorable
         public override bool Equals(object obj)
         {
-            StateImpl other = (StateImpl) obj;
+            StateImpl other = (StateImpl)obj;
 
             // Correct with high probability...
             return this.Fingerprint == other.Fingerprint;
@@ -1364,17 +1389,17 @@ namespace Microsoft.Zing
             return obj1.Equals(obj2);
         }
 
-        #endregion
+        #endregion Helpful overrides
 
         #region Lifted from State.cs
 
         //IExplorable
-        public Exception Error 
+        public Exception Error
         {
             get { return this.Exception; }
         }
 
-        public static StateImpl Load (string zingAssemblyPath)
+        public static StateImpl Load(string zingAssemblyPath)
         {
             Assembly asm;
 
@@ -1383,15 +1408,15 @@ namespace Microsoft.Zing
             return StateImpl.Load(asm);
         }
 
-        [ZoneIdentityPermissionAttribute(SecurityAction.Demand, Zone=SecurityZone.MyComputer)]
+        [ZoneIdentityPermissionAttribute(SecurityAction.Demand, Zone = SecurityZone.MyComputer)]
         //IExplorable
-        public static StateImpl Load (Assembly zingAssembly, ZingerDelayingScheduler ZShed, ZingerSchedulerState ZShedState)
+        public static StateImpl Load(Assembly zingAssembly, ZingerDelayingScheduler ZShed, ZingerSchedulerState ZShedState)
         {
             StateImpl s =
-                (StateImpl) zingAssembly.CreateInstance("Microsoft.Zing.Application", false, 
-                BindingFlags.CreateInstance, null, 
-                new object[] { true, ZShed, ZShedState }, 
-                null, new object[] {});
+                (StateImpl)zingAssembly.CreateInstance("Microsoft.Zing.Application", false,
+                BindingFlags.CreateInstance, null,
+                new object[] { true, ZShed, ZShedState },
+                null, new object[] { });
             if (s == null)
                 throw new ArgumentException("invalid assembly");
 
@@ -1400,12 +1425,12 @@ namespace Microsoft.Zing
 
         [ZoneIdentityPermissionAttribute(SecurityAction.Demand, Zone = SecurityZone.MyComputer)]
         //IExplorable
-        public static StateImpl Load (Assembly zingAssembly)
+        public static StateImpl Load(Assembly zingAssembly)
         {
             StateImpl s =
                 (StateImpl)zingAssembly.CreateInstance("Microsoft.Zing.Application", false,
                 BindingFlags.CreateInstance, null,
-                new object[] {true},
+                new object[] { true },
                 null, new object[] { });
             if (s == null)
                 throw new ArgumentException("invalid assembly");
@@ -1413,7 +1438,7 @@ namespace Microsoft.Zing
             return s;
         }
 
-        #endregion
+        #endregion Lifted from State.cs
 
         #region Events
 
@@ -1422,7 +1447,7 @@ namespace Microsoft.Zing
 
         public void InvokeScheduler(params object[] arguments)
         {
-            if(ZingerConfiguration.DoDelayBounding)
+            if (ZingerConfiguration.DoDelayBounding)
             {
                 ZingDBScheduler.Invoke(ZingDBSchedState, arguments);
             }
@@ -1434,7 +1459,6 @@ namespace Microsoft.Zing
             if (!ZingerConfiguration.ExecuteTraceStatements)
                 return;
 
-
             if (ZingerConfiguration.DegreeOfParallelism == 1)
             {
                 ReportEvent(new TraceEvent(context, contextAttribute, message, arguments));
@@ -1445,13 +1469,12 @@ namespace Microsoft.Zing
             }
             else
             {
-                ReportEvent(new TraceEvent(context, contextAttribute, message,  this.MySerialNum, arguments));
+                ReportEvent(new TraceEvent(context, contextAttribute, message, this.MySerialNum, arguments));
                 if (ZingerConfiguration.EnableTrace)
                 {
                     ReportTrace(new TraceEvent(context, contextAttribute, message, this.MySerialNum, arguments));
                 }
             }
-            
         }
 
         //IExplorable
@@ -1460,7 +1483,7 @@ namespace Microsoft.Zing
             if (events == null)
                 return new ZingEvent[] { };
 
-            return (ZingEvent[]) events.ToArray(typeof(ZingEvent));
+            return (ZingEvent[])events.ToArray(typeof(ZingEvent));
         }
 
         public ZingEvent[] GetTraceLog()
@@ -1473,7 +1496,7 @@ namespace Microsoft.Zing
 
         internal void ReportEvent(ZingEvent ev)
         {
-            Debug.Assert(ZingerConfiguration.ExecuteTraceStatements, 
+            Debug.Assert(ZingerConfiguration.ExecuteTraceStatements,
                 "Shouldn't call ReportEvent with events disabled");
 
             if (events == null)
@@ -1482,10 +1505,10 @@ namespace Microsoft.Zing
             events.Add(ev);
         }
 
-        #endregion
-
+        #endregion Events
 
         #region Trace
+
         internal void ReportTrace(ZingEvent ev)
         {
             Debug.Assert(ZingerConfiguration.ExecuteTraceStatements,
@@ -1496,7 +1519,8 @@ namespace Microsoft.Zing
 
             traceLog.Add(ev);
         }
-        #endregion
+
+        #endregion Trace
 
         #region Cloning
 
@@ -1567,7 +1591,7 @@ namespace Microsoft.Zing
             newState.processes = new ArrayList(this.processes.Count);
 
             // Clone each source process and add it to our list
-            for (int i=0; i < this.processes.Count ;i++)
+            for (int i = 0; i < this.processes.Count; i++)
             {
                 // Do a deep copy of each process
                 // The second argument to clone is set to false to indicate
@@ -1583,7 +1607,7 @@ namespace Microsoft.Zing
                 }
             }
 
-            newState.Globals = (ZingGlobals) Globals.Clone(newState);
+            newState.Globals = (ZingGlobals)Globals.Clone(newState);
 
             // Clone the heap, if necessary
             if (this.heap != null)
@@ -1595,34 +1619,35 @@ namespace Microsoft.Zing
                 //  HeapEntry heapEntry = (HeapEntry) de.Value;
 
                 newState.heap = new HeapEntry[this.heap.Length];
-                for(int ptr = 0; ptr<this.heap.Length; ptr++)
+                for (int ptr = 0; ptr < this.heap.Length; ptr++)
                 {
                     HeapEntry heapEntry = this.heap[ptr];
-                    if(heapEntry == null) continue;
+                    if (heapEntry == null) continue;
 
-                        HeapElement elem = (HeapElement) heapEntry.HeapObj.Clone();
-                        //BUGFIX: After we clone the heap element, set the delta management related fields appropriately
-                        elem.Application = newState;
-                        elem.IsDirty = false;
-                        elem.version = newState.Nonce;
-                        elem.next = null;
-                        //Debug.Assert(elem.ptr == (Pointer) de.Key);
-                        Debug.Assert(elem.Pointer == ptr);
+                    HeapElement elem = (HeapElement)heapEntry.HeapObj.Clone();
+                    //BUGFIX: After we clone the heap element, set the delta management related fields appropriately
+                    elem.Application = newState;
+                    elem.IsDirty = false;
+                    elem.version = newState.Nonce;
+                    elem.next = null;
+                    //Debug.Assert(elem.ptr == (Pointer) de.Key);
+                    Debug.Assert(elem.Pointer == ptr);
 
-                        HeapEntry he = new HeapEntry(elem);
-                        //newState.heap.Add(de.Key, he);
-                        newState.heap[ptr] = he;
+                    HeapEntry he = new HeapEntry(elem);
+                    //newState.heap.Add(de.Key, he);
+                    newState.heap[ptr] = he;
                 }
             }
 
             // Also make the memory streams point to the same thing
-            // we do not need the new memory streams and bin writers in the 
+            // we do not need the new memory streams and bin writers in the
             // new object
             newState.MySerialNum = this.MySerialNum;
 
             return newState;
         }
-        #endregion
+
+        #endregion Cloning
 
         #region Fingerprinting
 
@@ -1664,15 +1689,16 @@ namespace Microsoft.Zing
                 PrintFingerprintBuffer(memStream.GetBuffer(), (int)memStream.Position, true);
             }
 #endif
-        return noninc;
+            return noninc;
         }
+
         /// <summary>
         /// Compute Fingerprint Incrementally
-        /// 
-        /// Fingerprint of State = concat of Fingerprint of all processes, and the Fingerprint of the heap 
+        ///
+        /// Fingerprint of State = concat of Fingerprint of all processes, and the Fingerprint of the heap
         ///
         /// Note: Fingerprint of globals is computed by the Zing.Application subclass
-        ///       
+        ///
         /// </summary>
         /// <returns> Incrementally computed Fingerprint</returns>
 
@@ -1682,7 +1708,7 @@ namespace Microsoft.Zing
 
             foreach (Process p in processes)
             {
-                if( p != null)
+                if (p != null)
                 {
                     Fingerprint procPrint = p.ComputeFingerprint(this);
                     myFingerprint.Concatenate(procPrint);
@@ -1697,7 +1723,7 @@ namespace Microsoft.Zing
 
         public Fingerprint FingerprintNonHeapBuffer(byte[] buffer, int len)
         {
-            Fingerprint f = StateImpl.GetHeapCanonicalizer(mySerialNum).FingerprintNonHeapBuffer(buffer, len);            
+            Fingerprint f = StateImpl.GetHeapCanonicalizer(mySerialNum).FingerprintNonHeapBuffer(buffer, len);
 
 #if PRINT_FINGERPRINTS
             if(printFingerprintsFlag)
@@ -1718,7 +1744,7 @@ namespace Microsoft.Zing
             // TODO: sort the process list before writing its string
             foreach (Process p in processes)
             {
-                if( p != null) 
+                if (p != null)
                 {
                     p.WriteString(this, bw);
                 }
@@ -1728,7 +1754,7 @@ namespace Microsoft.Zing
             StateImpl.GetHeapCanonicalizer(mySerialNum).WriteString(this, bw);
         }
 
-        #endregion
+        #endregion Fingerprinting
 
         #region Reflection-based implementation of ToString
 
@@ -1737,7 +1763,6 @@ namespace Microsoft.Zing
             StringBuilder sb = new StringBuilder();
 
             sb.Append("State:");
-
 
             sb.Append("[fingerprint =");
             if (this.NumChoices == 0)
@@ -1778,8 +1803,6 @@ namespace Microsoft.Zing
             return sb.ToString();
         }
 
-
-
         // <summary>
         // Format the current state as a human-friendly string.
         // </summary>
@@ -1791,7 +1814,6 @@ namespace Microsoft.Zing
 
             sb.Append("State:");
 
-            
             sb.Append("[fingerprint =");
             if (this.NumChoices == 0)
             {
@@ -1805,7 +1827,7 @@ namespace Microsoft.Zing
             }
 
             sb.Append("\r\n");
-            
+
             if (this.events != null)
             {
                 sb.Append("  Events:\r\n");
@@ -1814,7 +1836,6 @@ namespace Microsoft.Zing
 
                 sb.Append("\r\n");
             }
-
 
             sb.Append("  Globals:\r\n");
             DumpGlobals(sb);
@@ -1830,7 +1851,6 @@ namespace Microsoft.Zing
             return sb.ToString();
         }
 
-
         private void DumpGlobals(StringBuilder sb)
         {
             string leader = "  ";
@@ -1842,7 +1862,7 @@ namespace Microsoft.Zing
                 structObj = classType.InvokeMember(
                     "globals",
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetField,
-                    null, this, new object [] {}, CultureInfo.CurrentCulture);
+                    null, this, new object[] { }, CultureInfo.CurrentCulture);
             }
             catch (System.MissingFieldException)
             {
@@ -1851,7 +1871,7 @@ namespace Microsoft.Zing
             }
             System.Type structType = structObj.GetType();
 
-            FieldInfo[] structFields = structType.GetFields(BindingFlags.Instance|BindingFlags.Public);
+            FieldInfo[] structFields = structType.GetFields(BindingFlags.Instance | BindingFlags.Public);
 
             foreach (FieldInfo fi in structFields)
             {
@@ -1861,11 +1881,11 @@ namespace Microsoft.Zing
                 object val = structType.InvokeMember(
                     fi.Name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetField,
-                    null, structObj, new object [] {}, CultureInfo.CurrentCulture);
-                
+                    null, structObj, new object[] { }, CultureInfo.CurrentCulture);
+
                 if (val.GetType() == typeof(Pointer))
                     sb.AppendFormat("{0}ZingPointer {2} = {3}\r\n",
-                        leader, Utils.Unmangle(val.GetType()), fi.Name.Substring(8) /* skip priv____ */, (uint) ((Pointer) val));
+                        leader, Utils.Unmangle(val.GetType()), fi.Name.Substring(8) /* skip priv____ */, (uint)((Pointer)val));
                 else
                     sb.AppendFormat("{0}{1} {2} = {3}\r\n",
                         leader, Utils.Unmangle(val.GetType()), fi.Name.Substring(8) /* skip priv____ */, val);
@@ -1885,25 +1905,25 @@ namespace Microsoft.Zing
                         itemCount++;
                 }
 */
-                for(int ptr = 0; ptr<heap.Length; ptr++)
+                for (int ptr = 0; ptr < heap.Length; ptr++)
                 {
                     HeapEntry he = heap[ptr];
-                    if(he != null)   // && he.Order != 0)
+                    if (he != null)   // && he.Order != 0)
                         itemCount++;
                 }
 
                 sb.AppendFormat("  Heap: ({0} items)\r\n", itemCount);
 
-                //foreach (DictionaryEntry dictEntry in heap) 
-                //{ 
+                //foreach (DictionaryEntry dictEntry in heap)
+                //{
                 //    HeapEntry he = (HeapEntry) dictEntry.Value;
                 //    Pointer   ptr = (Pointer) dictEntry.Key;
-                for(int ptr = 0; ptr<heap.Length; ptr++)
+                for (int ptr = 0; ptr < heap.Length; ptr++)
                 {
                     HeapEntry he = heap[ptr];
-                    if(he == null) continue;
+                    if (he == null) continue;
 
-                    sb.AppendFormat("    Addr= {0}\r\n", (uint) ptr);
+                    sb.AppendFormat("    Addr= {0}\r\n", (uint)ptr);
                     sb.AppendFormat("    Type= {0}\r\n", Utils.Unmangle(he.HeapObj.GetType()));
                     sb.Append("    Contents:\r\n");
                     sb.Append(he.HeapObj.ToString());
@@ -1938,7 +1958,7 @@ namespace Microsoft.Zing
 
             sb.Append("      Stack:\r\n");
 
-            for (ZingMethod m = p.TopOfStack; m != null ;m = m.Caller)
+            for (ZingMethod m = p.TopOfStack; m != null; m = m.Caller)
             {
                 sb.AppendFormat("        Function : {0}\r\n", Utils.Unmangle(m.GetType()));
 
@@ -1947,15 +1967,15 @@ namespace Microsoft.Zing
                 try
                 {
                     thisObj = m.GetType().InvokeMember("This", BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                        null, m, new object[] {}, CultureInfo.CurrentCulture);
+                        null, m, new object[] { }, CultureInfo.CurrentCulture);
                 }
                 catch (System.MissingFieldException)
                 {
                     thisObj = null;
                 }
                 if (thisObj != null)
-                    sb.AppendFormat("          This: {0}\r\n", (Pointer) thisObj);
-    
+                    sb.AppendFormat("          This: {0}\r\n", (Pointer)thisObj);
+
                 sb.AppendFormat("          NextBlock: {0}\r\n", m.ProgramCounter);
 
                 sb.Append("          Inputs:\r\n");
@@ -1988,7 +2008,7 @@ namespace Microsoft.Zing
                 structObj = classType.InvokeMember(
                     memberName,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                    null, obj, new object [] {}, CultureInfo.CurrentCulture);
+                    null, obj, new object[] { }, CultureInfo.CurrentCulture);
             }
             catch (System.MissingFieldException)
             {
@@ -2003,26 +2023,27 @@ namespace Microsoft.Zing
 
             foreach (FieldInfo fi in structType.GetFields())
             {
-
                 if (!fi.Name.StartsWith("priv_"))
                     continue;
 
                 object val = structType.InvokeMember(
                     fi.Name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                    null, structObj, new object [] {}, CultureInfo.CurrentCulture);
+                    null, structObj, new object[] { }, CultureInfo.CurrentCulture);
 
                 if (fi.FieldType == typeof(Pointer))
                     sb.AppendFormat("{0}ZingPointer {2} = {3}\r\n",
-                        leader, Utils.Unmangle(fi.FieldType), fi.Name.Substring(8), (uint) ((Pointer) val));
+                        leader, Utils.Unmangle(fi.FieldType), fi.Name.Substring(8), (uint)((Pointer)val));
                 else
                     sb.AppendFormat("{0}{1} {2} = {3}\r\n",
                         leader, Utils.Externalize(fi.FieldType), fi.Name.Substring(8), val);
             }
         }
-        #endregion
-        
+
+        #endregion Reflection-based implementation of ToString
+
         #region Reflection-based state dump to XML
+
         // <summary>
         // Format the current state as XML
         // </summary>
@@ -2058,7 +2079,7 @@ namespace Microsoft.Zing
                 attr.Value = this.Fingerprint.ToString();
                 rootElement.SetAttributeNode(attr);
             }
-            
+
             if (this.events != null)
             {
                 elem = doc.CreateElement("Events");
@@ -2078,7 +2099,7 @@ namespace Microsoft.Zing
             attr = doc.CreateAttribute("numProcesses");
             attr.Value = processes.Count.ToString(CultureInfo.CurrentUICulture);
             elem.SetAttributeNode(attr);
-            
+
             foreach (Process p in processes)
             {
                 XmlElement elemProc = doc.CreateElement("Process");
@@ -2092,15 +2113,15 @@ namespace Microsoft.Zing
                 rootElement.AppendChild(elem);
 
                 /*
-                foreach (DictionaryEntry dictEntry in heap) 
+                foreach (DictionaryEntry dictEntry in heap)
                 {
                     HeapEntry he = (HeapEntry) dictEntry.Value;
                     Pointer   ptr = (Pointer) dictEntry.Key;
                   */
-                for(int ptr = 0; ptr<heap.Length; ptr++)
+                for (int ptr = 0; ptr < heap.Length; ptr++)
                 {
                     HeapEntry he = heap[ptr];
-                    if(he == null) continue;
+                    if (he == null) continue;
 
                     XmlElement heapItem = doc.CreateElement("HeapItem");
                     elem.AppendChild(heapItem);
@@ -2125,7 +2146,7 @@ namespace Microsoft.Zing
                 structObj = classType.InvokeMember(
                     "globals",
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetField,
-                    null, this, new object [] {}, CultureInfo.CurrentCulture);
+                    null, this, new object[] { }, CultureInfo.CurrentCulture);
             }
             catch (System.MissingFieldException)
             {
@@ -2133,7 +2154,7 @@ namespace Microsoft.Zing
             }
             System.Type structType = structObj.GetType();
 
-            FieldInfo[] structFields = structType.GetFields(BindingFlags.Instance|BindingFlags.Public);
+            FieldInfo[] structFields = structType.GetFields(BindingFlags.Instance | BindingFlags.Public);
 
             foreach (FieldInfo fi in structFields)
             {
@@ -2145,13 +2166,13 @@ namespace Microsoft.Zing
                 object val = structType.InvokeMember(
                     fi.Name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetField,
-                    null, structObj, new object [] {}, CultureInfo.CurrentCulture);
+                    null, structObj, new object[] { }, CultureInfo.CurrentCulture);
 
                 string name = fi.Name.Substring(8); // skip "priv____");
                 int sepPos = name.IndexOf("____");
                 string className = name.Substring(0, sepPos);
-                string fieldName = name.Substring(sepPos+4);
-                
+                string fieldName = name.Substring(sepPos + 4);
+
                 XmlElement global = doc.CreateElement("GlobalVariable");
                 globals.AppendChild(global);
 
@@ -2238,7 +2259,7 @@ namespace Microsoft.Zing
             XmlElement elemStack = doc.CreateElement("Stack");
             elemProc.AppendChild(elemStack);
 
-            for (ZingMethod m = p.TopOfStack; m != null ;m = m.Caller)
+            for (ZingMethod m = p.TopOfStack; m != null; m = m.Caller)
             {
                 XmlElement elemFrame = doc.CreateElement("StackFrame");
                 elemStack.AppendChild(elemFrame);
@@ -2252,7 +2273,7 @@ namespace Microsoft.Zing
                 try
                 {
                     thisObj = m.GetType().InvokeMember("privThis", BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                        null, m, new object[] {}, CultureInfo.CurrentCulture);
+                        null, m, new object[] { }, CultureInfo.CurrentCulture);
                 }
                 catch (System.MissingFieldException)
                 {
@@ -2264,7 +2285,7 @@ namespace Microsoft.Zing
                     attr.Value = thisObj.ToString();
                     elemFrame.SetAttributeNode(attr);
                 }
-    
+
                 attr = doc.CreateAttribute("nextBlock");
                 attr.Value = m.ProgramCounter;
                 elemFrame.SetAttributeNode(attr);
@@ -2304,7 +2325,7 @@ namespace Microsoft.Zing
                 structObj = classType.InvokeMember(
                     memberName,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                    null, obj, new object [] {}, CultureInfo.CurrentCulture);
+                    null, obj, new object[] { }, CultureInfo.CurrentCulture);
             }
             catch (System.MissingFieldException)
             {
@@ -2328,7 +2349,7 @@ namespace Microsoft.Zing
                 object val = structType.InvokeMember(
                     fi.Name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField,
-                    null, structObj, new object [] {}, CultureInfo.CurrentCulture);
+                    null, structObj, new object[] { }, CultureInfo.CurrentCulture);
 
                 string name = fi.Name.Substring(prefix.Length);
 
@@ -2353,7 +2374,6 @@ namespace Microsoft.Zing
                 }
                 else
                 {
-
                     Type memberType = val.GetType();
                     if (memberType == typeof(Pointer))
                     {
@@ -2387,22 +2407,22 @@ namespace Microsoft.Zing
 
             return numFields;
         }
-        #endregion
+
+        #endregion Reflection-based state dump to XML
     }
 
-
     #region Field Traversal Interface
+
     /// <summary>
-    /// Field Traverser is a 'functor'-like object. The client provides a customised FieldTraverer 
+    /// Field Traverser is a 'functor'-like object. The client provides a customised FieldTraverer
     /// object (derived from FieldTraverser) that encodes the required functionality in the doTraversal
-    /// function. 
-    /// 
-    /// Implementation Note: This is the natural way to implement generic functionality in C++. However, 
+    /// function.
+    ///
+    /// Implementation Note: This is the natural way to implement generic functionality in C++. However,
     /// C# provides 'delgates', which are more natural. Unfortunately, the current implementation of delegates
     /// in the Everett/Whidbey CLR is around 6 times slower than a regular virtual function call --- madanm
     /// </summary>
     [CLSCompliant(false)]
-    
     public abstract class FieldTraverser
     {
         /// <summary>
@@ -2418,10 +2438,9 @@ namespace Microsoft.Zing
         {
             DoTraversal((Object)ptr);
         }
-
     }
 
-    #endregion
+    #endregion Field Traversal Interface
 
     #region Heap-related definitions
 
@@ -2430,14 +2449,13 @@ namespace Microsoft.Zing
     // </summary>
     //public class Pointer
     [CLSCompliant(false)]
-    
-    public struct Pointer :IComparable
+    public struct Pointer : IComparable
     {
         // <summary>
         // Construct a pointer type from an unsigned int
         // </summary>
         // <param name="ptr"></param>
-        public Pointer (uint ptr)
+        public Pointer(uint ptr)
         {
             this.ptr = ptr;
         }
@@ -2471,45 +2489,45 @@ namespace Microsoft.Zing
 
         public override int GetHashCode()
         {
-            return (int) ptr;
+            return (int)ptr;
         }
-        
-        public static bool operator == (Pointer p1, Pointer p2)
+
+        public static bool operator ==(Pointer p1, Pointer p2)
         {
             return p1.ptr == p2.ptr;
         }
 
-        public static bool operator != (Pointer p1, Pointer p2)
-        {   
+        public static bool operator !=(Pointer p1, Pointer p2)
+        {
             return p1.ptr != p2.ptr;
         }
 
-        public static bool operator < (Pointer p1, Pointer p2)
+        public static bool operator <(Pointer p1, Pointer p2)
         {
             return p1.CompareTo(p2) < 0;
         }
-                 
-        public static bool operator > (Pointer p1, Pointer p2)
+
+        public static bool operator >(Pointer p1, Pointer p2)
         {
             return p1.CompareTo(p2) > 0;
         }
-                 
+
         private uint ptr;
 
         public override string ToString()
         {
             return ptr.ToString(CultureInfo.CurrentUICulture);
-        }       
- 
+        }
+
         #region IComparable Members
 
         public int CompareTo(object obj)
         {
-            Pointer p = (Pointer) obj;
+            Pointer p = (Pointer)obj;
             return this.ptr.CompareTo(p.ptr);
         }
 
-        #endregion
+        #endregion IComparable Members
     }
 
     /// <exclude/>
@@ -2517,7 +2535,7 @@ namespace Microsoft.Zing
     /// HeapEntry is the type of every object in the heap's hash table
     /// HeapEntry is a pair: an order and a reference to a heap element
     /// </summary>
-    internal class HeapEntry 
+    internal class HeapEntry
     {
         internal HeapEntry(HeapElement he)
         {
@@ -2527,42 +2545,44 @@ namespace Microsoft.Zing
         // <summary>
         // accessor functions for the heap element associated with the heap entry
         // </summary>
-        public HeapElement HeapObj { 
-            get { 
+        public HeapElement HeapObj
+        {
+            get
+            {
                 return heList;
-            } 
+            }
         }
 
-        public void DoCheckIn() 
+        public void DoCheckIn()
         {
             HeapObj.IsDirty = false;
         }
 
 #if UNUSED_CODE
-        public void DoCheckout() 
+        public void DoCheckout()
         {
             return;
         }
 #endif
 
-        public bool DoRevert(Int64 nonce) 
+        public bool DoRevert(Int64 nonce)
         {
             Debug.Assert(HeapObj.IsDirty || heList.version == nonce);
-            
+
             heList = heList.next;
-                    
+
             Debug.Assert(heList == null || !HeapObj.IsDirty);
-            
+
             return (heList == null);
         }
 
         public bool DoRollback(Int64 n)
         {
-            while (heList != null) 
+            while (heList != null)
             {
-                if (heList.version > n) 
+                if (heList.version > n)
                     heList = heList.next;
-                else 
+                else
                     break;
             }
 
@@ -2576,6 +2596,7 @@ namespace Microsoft.Zing
         // At the end of the fingerprint, the currCanonId and currFingerprint values are
         // 'committed' to the HeapElement
         public int currCanonId;
+
         public Fingerprint currFingerprint;
 
         // list of HeapElements
@@ -2595,7 +2616,6 @@ namespace Microsoft.Zing
     /// candidate, but this will be entirely driven by the needs of the heap.
     /// </remarks>
     [CLSCompliant(false)]
-    
     public abstract class HeapElement : ICloneable
     {
         internal Int64 version;
@@ -2604,7 +2624,7 @@ namespace Microsoft.Zing
         protected HeapElement()
         {
         }
-        
+
         protected HeapElement(StateImpl application)
         {
             this.application = application;
@@ -2632,6 +2652,7 @@ namespace Microsoft.Zing
         protected abstract short TypeId { get; }
 
         private StateImpl application;
+
         public StateImpl Application
         {
             get { return application; }
@@ -2639,6 +2660,7 @@ namespace Microsoft.Zing
         }
 
         private Pointer ptr;
+
         public Pointer Pointer
         {
             get { return ptr; }
@@ -2646,17 +2668,17 @@ namespace Microsoft.Zing
         }
 
         private bool dirty;
-        
+
         public void SetDirty()
         {
             if (!dirty)
             {
-                HeapElement elem = (HeapElement) Clone();
+                HeapElement elem = (HeapElement)Clone();
                 version = application.Nonce;
                 dirty = true;
                 next = elem;
                 application.AddToDirtyHeapPointers(ptr);
-            } 
+            }
         }
 
         public bool IsDirty
@@ -2666,28 +2688,34 @@ namespace Microsoft.Zing
         }
 
         public abstract void ToXml(XmlElement containerElement);
-        
+
         public abstract void TraverseFields(FieldTraverser ft);
 
         #region Methods for reading and writing fields to avoid reflection
+
         public abstract object GetValue(int fieldIndex);
+
         public abstract void SetValue(int fieldIndex, object value);
-        #endregion
+
+        #endregion Methods for reading and writing fields to avoid reflection
 
         // Fields required for incremental fingerprinting
         internal int canonId;
+
         internal Fingerprint fingerprint;
 
-        internal Pointer[] childReferences; // a cache for child references 
+        internal Pointer[] childReferences; // a cache for child references
 #if DEBUG_INC_FINGERPRINTS
         public byte[] fingerprintedBuffer; // needed only for debugging
         public int fingerprintedOffset;   // needed only for debugging
 #endif
     }
-    #endregion
+
+    #endregion Heap-related definitions
 
     #region Receipt
-    public class Receipt 
+
+    public class Receipt
     {
         // private DeltaManager manager;
         private Int64 id;
@@ -2699,5 +2727,6 @@ namespace Microsoft.Zing
             id = rid;
         }
     }
-    #endregion
+
+    #endregion Receipt
 }

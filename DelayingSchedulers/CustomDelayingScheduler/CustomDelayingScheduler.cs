@@ -2,16 +2,14 @@
  * Scheduler Information:
  * The scheduler custom delaying scheduler with priority associated with each process.
  * The processes are executed in the priority order at each state.
- * Customization function "changePriority" is provided to dynamically change the 
+ * Customization function "changePriority" is provided to dynamically change the
  * priority of processes in the round-robin order.
  * *******************************************************************/
 
+using Microsoft.Zing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Zing;
 
 namespace ExternalDelayingExplorer
 {
@@ -23,36 +21,38 @@ namespace ExternalDelayingExplorer
 
         //Priority Map for each process (process -> priority).
         public Dictionary<int, int> PriorityMap;
-        
+
         //all the enabled processes
         public Dictionary<int, int> EnabledProcessesWithPriority;
 
         //sorted list over which the explorer does a round robin.
         public List<int> sortedProcesses;
 
-        public CustomDBSchedulerState():base()
+        public CustomDBSchedulerState()
+            : base()
         {
             randGen = new Random();
             PriorityMap = new Dictionary<int, int>();
-            EnabledProcessesWithPriority = new Dictionary<int,int>();
+            EnabledProcessesWithPriority = new Dictionary<int, int>();
             sortedProcesses = new List<int>();
         }
 
-        public CustomDBSchedulerState(CustomDBSchedulerState copyThis):base(copyThis)
+        public CustomDBSchedulerState(CustomDBSchedulerState copyThis)
+            : base(copyThis)
         {
             randGen = copyThis.randGen;
             PriorityMap = new Dictionary<int, int>();
-            foreach(var item in copyThis.PriorityMap)
+            foreach (var item in copyThis.PriorityMap)
             {
                 PriorityMap.Add(item.Key, item.Value);
             }
-            EnabledProcessesWithPriority = new  Dictionary<int,int>();
-            foreach(var item in copyThis.EnabledProcessesWithPriority)
+            EnabledProcessesWithPriority = new Dictionary<int, int>();
+            foreach (var item in copyThis.EnabledProcessesWithPriority)
             {
                 EnabledProcessesWithPriority.Add(item.Key, item.Value);
             }
             sortedProcesses = new List<int>();
-            foreach(var item in EnabledProcessesWithPriority.OrderBy(i => i.Value))
+            foreach (var item in EnabledProcessesWithPriority.OrderBy(i => i.Value))
             {
                 sortedProcesses.Add(item.Key);
             }
@@ -61,7 +61,7 @@ namespace ExternalDelayingExplorer
         public override string ToString()
         {
             string ret = "";
-            foreach(var item in EnabledProcessesWithPriority)
+            foreach (var item in EnabledProcessesWithPriority)
             {
                 ret = ret + String.Format("({0} - {1}), ", item.Key, item.Value);
             }
@@ -75,7 +75,7 @@ namespace ExternalDelayingExplorer
         public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
             CustomDBSchedulerState cloned = new CustomDBSchedulerState(this);
-            if(isCloneForFrontier)
+            if (isCloneForFrontier)
             {
                 cloned.EnabledProcessesWithPriority = new Dictionary<int, int>();
                 foreach (var item in EnabledProcessesWithPriority)
@@ -96,7 +96,6 @@ namespace ExternalDelayingExplorer
     {
         public CustomDelayingScheduler()
         {
-
         }
 
         /// <summary>
@@ -133,7 +132,7 @@ namespace ExternalDelayingExplorer
         public override void Delay(ZingerSchedulerState ZSchedulerState)
         {
             var schedState = ZSchedulerState as CustomDBSchedulerState;
-            if(schedState.sortedProcesses.Count == 0)
+            if (schedState.sortedProcesses.Count == 0)
             {
                 return;
             }
@@ -143,12 +142,11 @@ namespace ExternalDelayingExplorer
             schedState.sortedProcesses.Add(delayProcess);
             //one delay operation performed
             ZSchedulerState.numOfTimesCurrStateDelayed++;
-
         }
 
         /// <summary>
         /// This function is used internally by the ZING explorer.
-        /// It checks if we have applied the maximum number of delays in the current state. 
+        /// It checks if we have applied the maximum number of delays in the current state.
         /// Applying any more delay operations will not lead to new transitions/states being explored.
         /// Maximum delay operations for a state is always (totalEnabledProcesses - 1).
         /// </summary>
@@ -174,7 +172,6 @@ namespace ExternalDelayingExplorer
             {
                 return schedState.sortedProcesses.ElementAt(0);
             }
-            
         }
 
         /// <summary>
@@ -183,7 +180,7 @@ namespace ExternalDelayingExplorer
         /// </summary>
         /// <param name="ZSchedulerState"></param>
         /// <param name="sourceSM">Process that is blocked</param>
-        /// 
+        ///
         public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
         {
             var schedState = ZSchedulerState as CustomDBSchedulerState;
@@ -219,7 +216,7 @@ namespace ExternalDelayingExplorer
         {
             var param1_operation = (string)Params[0];
             var schedState = ZSchedulerState as CustomDBSchedulerState;
-            if(param1_operation == "changepriority")
+            if (param1_operation == "changepriority")
             {
                 var param2_priority = (int)Params[1];
                 var currentProcess = schedState.sortedProcesses.ElementAt(0);

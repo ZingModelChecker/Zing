@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Compiler;
-using System.CodeDom.Compiler;
 using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
 using System.Globalization;
 
 namespace Microsoft.Zing
@@ -115,7 +112,6 @@ namespace Microsoft.Zing
             }
         }
 
-
         //
         // This is the primary entry point into BBSplitter. This is called from the
         // Splicer to do basic block analysis before using the Normalizer to do code-gen
@@ -159,26 +155,26 @@ namespace Microsoft.Zing
                 BasicBlock branchTarget;
                 if (b.UnconditionalTarget.IsReturn)
                     continue;
-                    
+
                 Debug.Assert(b.UnconditionalTarget.UnconditionalTarget != null);
                 branchTarget = b.UnconditionalTarget.UnconditionalTarget;
 
                 // If the target isn't atomic, then we need to introduce an interleaving
                 // just after the branch. We do this by forcing it to be the end of
                 // the atomic block.  We must also make sure such a block cannot be the entry
-				// point of the atomic block.
-				if (branchTarget.RelativeAtomicLevel == 0) 
-				{
-					b.RelativeAtomicLevel = 0;
-					b.IsAtomicEntry = false;
-				}
+                // point of the atomic block.
+                if (branchTarget.RelativeAtomicLevel == 0)
+                {
+                    b.RelativeAtomicLevel = 0;
+                    b.IsAtomicEntry = false;
+                }
             }
 
             BasicBlock firstBlock = splitter.PopContinuationStack();
-			
-			firstBlock.IsEntryPoint = true;
-			if (firstBlock.RelativeAtomicLevel > 0)
-				firstBlock.IsAtomicEntry = true;
+
+            firstBlock.IsEntryPoint = true;
+            if (firstBlock.RelativeAtomicLevel > 0)
+                firstBlock.IsAtomicEntry = true;
 
             return splitter.blockList;
         }
@@ -205,34 +201,39 @@ namespace Microsoft.Zing
 
                 BasicBlock b = AddBlock(new BasicBlock(null, CurrentContinuation));
                 CurrentContinuation = b;
-            } 
-            else if (insideAtomicBlock) 
+            }
+            else if (insideAtomicBlock)
             {
                 // break statements up into coalescable regions
                 // enter/exit-atomicscope flags are handled by the visitAtomic
                 // function
                 int regionsize = 0;
-                
-                for (int i = stmts.Count - 1; i >= -1; i--) {
-                    if (i == -1 || !IsCoalescableStmt(stmts[i])) {
-                        // we coalesce everything in the previous region 
+
+                for (int i = stmts.Count - 1; i >= -1; i--)
+                {
+                    if (i == -1 || !IsCoalescableStmt(stmts[i]))
+                    {
+                        // we coalesce everything in the previous region
                         // [i+1, i+regionsize] and construct a basic block for them
 
-                        if (regionsize == 1) {
+                        if (regionsize == 1)
+                        {
                             // a small optimization here
-                            this.Visit(stmts[i+1]);
-                        } else if (regionsize > 1) {
+                            this.Visit(stmts[i + 1]);
+                        }
+                        else if (regionsize > 1)
+                        {
                             Statement[] tmp = new Statement[regionsize];
 
                             // copy all statements in the region to tmp
                             int numRealStatements = 0;
                             for (int j = 0; j < regionsize; j++)
                             {
-                                tmp[j] =  stmts[i + 1 + j];
+                                tmp[j] = stmts[i + 1 + j];
                                 if (tmp[j] != null)
                                     numRealStatements += 1;
                             }
-                            
+
                             if (numRealStatements > 0)
                             {
                                 Block b = new Block(new StatementList(tmp));
@@ -240,12 +241,15 @@ namespace Microsoft.Zing
                             }
                         }
                         if (i >= 0) this.Visit(stmts[i]);
-                        
+
                         regionsize = 0;
-                    } else
+                    }
+                    else
                         regionsize++;
                 }
-            } else {
+            }
+            else
+            {
                 // NOTE: must visit statements in reverse order
                 for (int i = stmts.Count - 1; i >= 0; i--)
                     this.Visit(stmts[i]);
@@ -261,32 +265,46 @@ namespace Microsoft.Zing
             {
                 case ZingNodeType.Accept:
                     return this.VisitAccept((AcceptStatement)node);
+
                 case ZingNodeType.Assert:
-                    return this.VisitAssert((AssertStatement) node);
+                    return this.VisitAssert((AssertStatement)node);
+
                 case ZingNodeType.Assume:
-                    return this.VisitAssume((AssumeStatement) node);
+                    return this.VisitAssume((AssumeStatement)node);
+
                 case ZingNodeType.Atomic:
-                    return this.VisitAtomic((AtomicBlock) node);
+                    return this.VisitAtomic((AtomicBlock)node);
+
                 case ZingNodeType.AttributedStatement:
-                    return this.VisitAttributedStatement((AttributedStatement) node);
+                    return this.VisitAttributedStatement((AttributedStatement)node);
+
                 case ZingNodeType.Event:
-                    return this.VisitEventStatement((EventStatement) node);
+                    return this.VisitEventStatement((EventStatement)node);
+
                 case ZingNodeType.Try:
-                    return this.VisitZTry((ZTry) node);
+                    return this.VisitZTry((ZTry)node);
+
                 case ZingNodeType.Async:
-                    return this.VisitExpressionStatement((ExpressionStatement) node);
+                    return this.VisitExpressionStatement((ExpressionStatement)node);
+
                 case ZingNodeType.Select:
-                    return this.VisitSelect((Select) node);
+                    return this.VisitSelect((Select)node);
+
                 case ZingNodeType.Send:
-                    return this.VisitSend((SendStatement) node);
+                    return this.VisitSend((SendStatement)node);
+
                 case ZingNodeType.Trace:
-                    return this.VisitTrace((TraceStatement) node);
+                    return this.VisitTrace((TraceStatement)node);
+
                 case ZingNodeType.InvokePlugin:
                     return this.VisitInvokePlugin((InvokePluginStatement)node);
+
                 case ZingNodeType.InvokeSched:
                     return this.VisitInvokeSched((InvokeSchedulerStatement)node);
+
                 case ZingNodeType.Yield:
                     return this.VisitYield((YieldStatement)node);
+
                 default:
                     return base.Visit(node);
             }
@@ -300,7 +318,7 @@ namespace Microsoft.Zing
             return assert;
         }
 
-        private AcceptStatement VisitAccept (AcceptStatement accept)
+        private AcceptStatement VisitAccept(AcceptStatement accept)
         {
             BasicBlock block = AddBlock(new BasicBlock(accept, CurrentContinuation));
             CurrentContinuation = block;
@@ -339,7 +357,7 @@ namespace Microsoft.Zing
             return InvokePlugin;
         }
 
-        private InvokeSchedulerStatement VisitInvokeSched (InvokeSchedulerStatement InvokeSched)
+        private InvokeSchedulerStatement VisitInvokeSched(InvokeSchedulerStatement InvokeSched)
         {
             BasicBlock block = AddBlock(new BasicBlock(InvokeSched, CurrentContinuation));
             CurrentContinuation = block;
@@ -353,13 +371,13 @@ namespace Microsoft.Zing
                 return false;
 
             if (aStmt.Source is MethodCall) return false;
-            if ((ZingNodeType) aStmt.Source.NodeType == ZingNodeType.Choose)
+            if ((ZingNodeType)aStmt.Source.NodeType == ZingNodeType.Choose)
                 return false;
             return true;
         }
 
         // IsCoalescableExpr -- tests if expression is coalescable
-        // Specifically, this function returns false if the expression 
+        // Specifically, this function returns false if the expression
         // contains a method call, or a choose statement
         private bool IsCoalescableExpr(Expression e)
         {
@@ -367,7 +385,8 @@ namespace Microsoft.Zing
             if (e is MethodCall) return false;
 
             aExpr = e as AssignmentExpression;
-            if (aExpr != null) {
+            if (aExpr != null)
+            {
                 AssignmentStatement aStmt;
 
                 aStmt = aExpr.AssignmentStatement as AssignmentStatement;
@@ -376,14 +395,15 @@ namespace Microsoft.Zing
             }
             return true;
         }
-        private bool IsCoalescableIfStmt(If s) 
+
+        private bool IsCoalescableIfStmt(If s)
         {
             return (IsCoalescableExpr(s.Condition) &&
                     IsCoalescableBlock(s.TrueBlock) &&
                     IsCoalescableBlock(s.FalseBlock));
         }
-        
-        private bool IsCoalescableWhileStmt(While s) 
+
+        private bool IsCoalescableWhileStmt(While s)
         {
             return (IsCoalescableExpr(s.Condition) &&
                     IsCoalescableBlock(s.Body));
@@ -392,21 +412,29 @@ namespace Microsoft.Zing
         private bool IsCoalescableStmt(Statement s)
         {
             if (s == null) return true;
-            switch (s.NodeType) {
+            switch (s.NodeType)
+            {
                 case NodeType.Block:
-                    return IsCoalescableBlock((Block) s);
+                    return IsCoalescableBlock((Block)s);
+
                 case (NodeType)ZingNodeType.Atomic:
                     return false;
+
                 case NodeType.ExpressionStatement:
-                    return IsCoalescableExpr(((ExpressionStatement) s).Expression);
+                    return IsCoalescableExpr(((ExpressionStatement)s).Expression);
+
                 case NodeType.AssignmentStatement:
-                    return IsCoalescableAssignment((AssignmentStatement) s);
+                    return IsCoalescableAssignment((AssignmentStatement)s);
+
                 case NodeType.If:
-                    return IsCoalescableIfStmt((If) s);
+                    return IsCoalescableIfStmt((If)s);
+
                 case NodeType.While:
-                    return IsCoalescableWhileStmt((While) s);
-                case (NodeType) ZingNodeType.Async:
+                    return IsCoalescableWhileStmt((While)s);
+
+                case (NodeType)ZingNodeType.Async:
                     return true;
+
                 default:
                     return false;
             }
@@ -415,7 +443,7 @@ namespace Microsoft.Zing
         // IsCoalescableBlock -- tests if the block is coalescable
         // Specifically, this function returns false if any statement in
         // the block is not coalescable
-        private bool IsCoalescableBlock(Block block) 
+        private bool IsCoalescableBlock(Block block)
         {
             StatementList stmts;
 
@@ -430,7 +458,8 @@ namespace Microsoft.Zing
 
             stmts = block.Statements;
 
-            for (int i = 0; i < stmts.Count; i++) {
+            for (int i = 0; i < stmts.Count; i++)
+            {
                 if (!IsCoalescableStmt(stmts[i]))
                     return false;
             }
@@ -448,8 +477,8 @@ namespace Microsoft.Zing
             //   - ExpressionStatements w/o MethodCalls and Choose
             //   - AssignmentStatements w/o MethodCalls and Choose
             //
-            if (block.NodeType != NodeType.Block) {
-                
+            if (block.NodeType != NodeType.Block)
+            {
                 StatementList stmts = block.Statements;
                 int len = stmts.Count, i;
 
@@ -477,15 +506,15 @@ namespace Microsoft.Zing
             CurrentContinuation = exitBlock;
 
             insideAtomicBlock = true;
-            this.VisitBlock((Block) atomic);
+            this.VisitBlock((Block)atomic);
             insideAtomicBlock = false;
-			
-			// The following test is needed in case the atomic block does not have any statements 
-			// in it. In that case, CurrentContinuation is the block following the atomic block.
-			if (CurrentContinuation.RelativeAtomicLevel > 0)
-			{
-				CurrentContinuation.IsAtomicEntry = true;
-			}
+
+            // The following test is needed in case the atomic block does not have any statements
+            // in it. In that case, CurrentContinuation is the block following the atomic block.
+            if (CurrentContinuation.RelativeAtomicLevel > 0)
+            {
+                CurrentContinuation.IsAtomicEntry = true;
+            }
 
             return atomic;
         }
@@ -500,7 +529,7 @@ namespace Microsoft.Zing
             // If this is a branch target, make sure we build a separate BB for it.
             if (splicer.referencedLabels[lStatement.UniqueKey] != null)
             {
-                BasicBlock bbTarget = (BasicBlock) branchTargets[lStatement.UniqueKey];
+                BasicBlock bbTarget = (BasicBlock)branchTargets[lStatement.UniqueKey];
 
                 if (bbTarget == null)
                 {
@@ -511,9 +540,9 @@ namespace Microsoft.Zing
                 }
 
                 // fix for the "Label:; atomic { ... }" problem
-                if (savedCC == CurrentContinuation && 
+                if (savedCC == CurrentContinuation &&
                     ((insideAtomicBlock && (savedCC.RelativeAtomicLevel == 0)) ||
-                    (!insideAtomicBlock && (savedCC.RelativeAtomicLevel > 0)))) 
+                    (!insideAtomicBlock && (savedCC.RelativeAtomicLevel > 0))))
                 {
                     // create a new basic block with the correct
                     // atomiticity level
@@ -526,7 +555,7 @@ namespace Microsoft.Zing
             }
 
             splicer.AddBlockLabel(CurrentContinuation, lStatement.Label.Name.Substring(3));
-            
+
             return lStatement;
         }
 
@@ -547,7 +576,7 @@ namespace Microsoft.Zing
                 throw new InvalidOperationException("Unexpected branch condition in BBSplitter");
 
             // Check to see if a basic block has been created for this target yet
-            BasicBlock bbTarget = (BasicBlock) branchTargets[branch.Target.UniqueKey];
+            BasicBlock bbTarget = (BasicBlock)branchTargets[branch.Target.UniqueKey];
 
             // If not, create one now and register it in branchTargets
             if (bbTarget == null)
@@ -624,7 +653,6 @@ namespace Microsoft.Zing
             return Throw;
         }
 
-
         private ZTry VisitZTry(ZTry Try)
         {
             BasicBlock testerChain = null;
@@ -635,7 +663,7 @@ namespace Microsoft.Zing
             // a default handler is provided. If not, we need to create one here
             // and fall through to it if no matching handler is found.
             //
-            if (Try.Catchers.Length > 0 && Try.Catchers[Try.Catchers.Length-1].Name != null)
+            if (Try.Catchers.Length > 0 && Try.Catchers[Try.Catchers.Length - 1].Name != null)
             {
                 // No default handler, so we need to put a default of our
                 // own in place to rethrow the exception. If we have an
@@ -664,7 +692,7 @@ namespace Microsoft.Zing
             // sure the default "with" (if any) is handled first, as it's
             // guaranteed (by the parser) to be the last one in the list.
             //
-            for (int i=Try.Catchers.Length-1; i >= 0 ;i--)
+            for (int i = Try.Catchers.Length - 1; i >= 0; i--)
             {
                 With with = Try.Catchers[i];
 
@@ -690,7 +718,7 @@ namespace Microsoft.Zing
                 if (with.Name != null)
                 {
                     Expression catchTestExpr = Templates.GetExpressionTemplate("CatchTest");
-                    Replacer.Replace(catchTestExpr, "_exception", (Expression) with.Name);
+                    Replacer.Replace(catchTestExpr, "_exception", (Expression)with.Name);
                     catchTester.ConditionalExpression = catchTestExpr;
                     catchTester.ConditionalTarget = catchBody;
                     catchTester.UnconditionalTarget = testerChain;
@@ -704,7 +732,7 @@ namespace Microsoft.Zing
                 catchTester.MiddleOfTransition = true;
                 AddBlock(catchTester);
 
-                // We just linked the new tester to the front of the tester chain. 
+                // We just linked the new tester to the front of the tester chain.
                 // This tester becomes the new head.
                 testerChain = catchTester;
             }
@@ -733,7 +761,7 @@ namespace Microsoft.Zing
             // Now create a basic block to establish the current handler as we enter the
             // body of the "try".
             Statement setHandlerStmt = Templates.GetStatementTemplate("SetHandler");
-            Replacer.Replace(setHandlerStmt, "_blockName", 
+            Replacer.Replace(setHandlerStmt, "_blockName",
                              new Identifier(CurrentHandlerBlock.Name));
             BasicBlock setHandler = new BasicBlock(setHandlerStmt, CurrentContinuation);
             setHandler.MiddleOfTransition = true;
@@ -826,7 +854,6 @@ namespace Microsoft.Zing
             CurrentContinuation = block;
 
             return yield;
-
         }
 
         public override Statement VisitForEach(ForEach forEach)
@@ -849,10 +876,10 @@ namespace Microsoft.Zing
             BasicBlock bodyBlock = PopContinuationStack();
 
             Statement derefStmt = Templates.GetStatementTemplate("foreachDeref");
-            Replacer.Replace(derefStmt, "_tmpVar", 
+            Replacer.Replace(derefStmt, "_tmpVar",
                              normalizer.VisitExpression(forEach.TargetVariable));
             Replacer.Replace(derefStmt, "_collectionExpr", sourceEnumerable);
-            Replacer.Replace(derefStmt, "_collectionType", 
+            Replacer.Replace(derefStmt, "_collectionType",
                              new Identifier(forEach.SourceEnumerable.Type.FullName));
             Replacer.Replace(derefStmt, "_iterator", incrVar);
             BasicBlock derefBlock = new BasicBlock(derefStmt, bodyBlock);
@@ -882,7 +909,6 @@ namespace Microsoft.Zing
             return forEach;
         }
 
-
         private Select VisitSelect(Select select)
         {
             if (select == null) return null;
@@ -891,7 +917,7 @@ namespace Microsoft.Zing
             // Traverse each join statement body, with the current continuation
             // pointing to the statement following the "select". Remember where
             // each join statement body begins so we can wire things up correctly.
-            for (int i=0, n=select.joinStatementList.Length; i < n ;i++)
+            for (int i = 0, n = select.joinStatementList.Length; i < n; i++)
             {
                 PushContinuationStack();
                 this.Visit(select.joinStatementList[i].statement);
@@ -916,11 +942,11 @@ namespace Microsoft.Zing
             // We walk through the list backward to make the wiring easier.
             BasicBlock nextTester = null;
 
-            for (int i=select.joinStatementList.Length-1; i >= 0 ;i--)
+            for (int i = select.joinStatementList.Length - 1; i >= 0; i--)
             {
                 JoinStatement js = select.joinStatementList[i];
 
-                if (i == select.joinStatementList.Length-1)
+                if (i == select.joinStatementList.Length - 1)
                 {
                     // If we fall through all of the select test blocks, then we must have
                     // reached this select statement from within an atomic block. Otherwise,
@@ -938,10 +964,10 @@ namespace Microsoft.Zing
                 jsTester.UnconditionalTarget = nextTester;
                 nextTester = jsTester;
                 jsTester.ConditionalExpression = Templates.GetExpressionTemplate("JoinStatementTester");
-                Replacer.Replace(jsTester.ConditionalExpression, "_jsBitMask", (Expression) new Literal((ulong) 1 << i, SystemTypes.UInt64));
+                Replacer.Replace(jsTester.ConditionalExpression, "_jsBitMask", (Expression)new Literal((ulong)1 << i, SystemTypes.UInt64));
 
                 bool jsHasReceives = false;
-                for (int j=0, n=js.joinPatternList.Length; j < n ;j++)
+                for (int j = 0, n = js.joinPatternList.Length; j < n; j++)
                 {
                     if (js.joinPatternList[j] is ReceivePattern)
                     {
@@ -999,7 +1025,7 @@ namespace Microsoft.Zing
             AddBlock(selectBlock);
             selectBlock.selectStmt = select;
             selectBlock.SkipNormalizer = true;
-	    // selectBlock.MiddleOfTransition = true;
+            // selectBlock.MiddleOfTransition = true;
             selectBlock.SourceContext = select.SourceContext;
 
             CurrentContinuation = selectBlock;
@@ -1017,7 +1043,6 @@ namespace Microsoft.Zing
             return send;
         }
 
-
         public override Statement VisitExpressionStatement(ExpressionStatement statement)
         {
             AssignmentStatement assignmentStatement = null;
@@ -1029,15 +1054,15 @@ namespace Microsoft.Zing
             {
                 assignmentStatement = assignmentExpr.AssignmentStatement as AssignmentStatement;
                 if (assignmentStatement != null && assignmentStatement.Source is MethodCall)
-                    methodCall = (MethodCall) assignmentStatement.Source;
+                    methodCall = (MethodCall)assignmentStatement.Source;
 
                 if (assignmentStatement != null && assignmentStatement.Source is UnaryExpression &&
-                    assignmentStatement.Source.NodeType == (NodeType) ZingNodeType.Choose)
-                    choose = (UnaryExpression) assignmentStatement.Source;
+                    assignmentStatement.Source.NodeType == (NodeType)ZingNodeType.Choose)
+                    choose = (UnaryExpression)assignmentStatement.Source;
             }
 
             // Check for statements that require special handling
-            
+
             // The if-condition changed by Jiri Adamek
             // Reason: the NativeZOM method calls should not be splitted into two blocks,
             //         default handling is used instead
@@ -1049,10 +1074,10 @@ namespace Microsoft.Zing
                 BasicBlock returnBlock = AddBlock(new BasicBlock(statement, CurrentContinuation));
                 returnBlock.SecondOfTwo = true;
                 BasicBlock callBlock = AddBlock(new BasicBlock(statement, returnBlock));
-				//TODO: Handle the case where the method is itself tagged atomic here.
-				//TODO: Code review this with Tony
-				if(methodCall != null)
-				{
+                //TODO: Handle the case where the method is itself tagged atomic here.
+                //TODO: Code review this with Tony
+                if (methodCall != null)
+                {
                     if (returnBlock.UnconditionalTarget.Statement != null)
                         returnBlock.SourceContext = returnBlock.UnconditionalTarget.Statement.SourceContext;
                 }
@@ -1080,31 +1105,30 @@ namespace Microsoft.Zing
         {
             if (Return == null) return null;
 
-			if (insideAtomicBlock)
-			{
-				// If we're returning from inside an atomic block, we want to
-				// have one block that leaves the atomic region (w/ atomic
-				// level at zero), and a second block that performs the return.
-				// The evaluation of the return expression must happen in the first block.
-				// We use MiddleOfTransition to make sure this doesn't create
-				// an additional state transition. The extra block is for the
-				// benefit of the summarization code in the runtime.
-				BasicBlock block = AddBlock(new BasicBlock(null));
-				block.RelativeAtomicLevel = 0;
+            if (insideAtomicBlock)
+            {
+                // If we're returning from inside an atomic block, we want to
+                // have one block that leaves the atomic region (w/ atomic
+                // level at zero), and a second block that performs the return.
+                // The evaluation of the return expression must happen in the first block.
+                // We use MiddleOfTransition to make sure this doesn't create
+                // an additional state transition. The extra block is for the
+                // benefit of the summarization code in the runtime.
+                BasicBlock block = AddBlock(new BasicBlock(null));
+                block.RelativeAtomicLevel = 0;
 
-				BasicBlock extraBlock = AddBlock(new BasicBlock(Return, block));
-				extraBlock.RelativeAtomicLevel = 0;
-				extraBlock.MiddleOfTransition = true;
-				CurrentContinuation = extraBlock;
-			}
-			else 
-			{
-				BasicBlock block = AddBlock(new BasicBlock(Return));
-				CurrentContinuation = block;
-			}
+                BasicBlock extraBlock = AddBlock(new BasicBlock(Return, block));
+                extraBlock.RelativeAtomicLevel = 0;
+                extraBlock.MiddleOfTransition = true;
+                CurrentContinuation = extraBlock;
+            }
+            else
+            {
+                BasicBlock block = AddBlock(new BasicBlock(Return));
+                CurrentContinuation = block;
+            }
 
             return Return;
         }
-		
     }
 }

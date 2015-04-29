@@ -1,15 +1,11 @@
 using System;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 
 namespace Microsoft.Zing
 {
-
     /// <summary>
     /// This is the base class for all Zing exceptions.
     /// </summary>
@@ -38,7 +34,7 @@ namespace Microsoft.Zing
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData (info, context);
+            base.GetObjectData(info, context);
         }
 
         protected virtual string ZingMessage { get { return string.Empty; } }
@@ -64,7 +60,9 @@ namespace Microsoft.Zing
         /// </summary>
 
         private string stackTrace = null;
-        public override string StackTrace {
+
+        public override string StackTrace
+        {
             get
             {
                 if (stackTrace == null)
@@ -128,7 +126,7 @@ namespace Microsoft.Zing
                         string[] sourceLines = sourceText.Split('\n');
 
                         int line, offset;
-                        for (line=0, offset=0; offset < SourceContext.StartColumn && line < sourceLines.Length ;line++)
+                        for (line = 0, offset = 0; offset < SourceContext.StartColumn && line < sourceLines.Length; line++)
                             offset += sourceLines[line].Length + 1;
 
                         sb.AppendFormat(CultureInfo.CurrentUICulture, "    {0} ({1}, Line {2})\r\n",
@@ -149,7 +147,6 @@ namespace Microsoft.Zing
             else
                 return string.Empty;
         }
-        
     }
 
     /// <summary>
@@ -163,25 +160,21 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingUnexpectedFailureException : ZingException
     {
-        
         public ZingUnexpectedFailureException()
             : base()
         {
         }
 
-        
         public ZingUnexpectedFailureException(string message)
             : this(message, null)
         {
         }
 
-        
         public ZingUnexpectedFailureException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingUnexpectedFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
@@ -205,53 +198,48 @@ namespace Microsoft.Zing
         /// Returns (or sets) the string representation of the failing expression.
         /// </summary>
         public string Expression { get { return expression; } set { expression = value; } }
+
         private string expression;
 
         /// <summary>
         /// Returns (or sets) the optional comment string, if present.
         /// </summary>
         public string Comment { get { return comment; } set { comment = value; } }
+
         private string comment;
 
-        
         public ZingAssertionFailureException()
         {
         }
 
-        
         public ZingAssertionFailureException(string expression)
         {
             this.Expression = expression;
             this.Comment = string.Empty;
         }
 
-        
         public ZingAssertionFailureException(string expression, string comment)
         {
             this.Expression = expression;
             this.Comment = comment;
         }
 
-        
         public ZingAssertionFailureException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingAssertionFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter=true)]
+        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData (info, context);
+            base.GetObjectData(info, context);
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -278,40 +266,34 @@ namespace Microsoft.Zing
         /// Returns (or sets) the expression whose evaluation returned "false".
         /// </summary>
         public string Expression { get { return expression; } set { expression = value; } }
+
         private string expression;
 
-        
         public ZingAssumeFailureException()
         {
         }
 
-        
         public ZingAssumeFailureException(string expression)
         {
             this.Expression = expression;
         }
 
-        
         public ZingAssumeFailureException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingAssumeFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter=true)]
+        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData (info, context);
+            base.GetObjectData(info, context);
         }
 
-
-        
         protected override string ZingMessage
         {
             get
@@ -328,30 +310,25 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingDivideByZeroException : ZingException
     {
-        
         public ZingDivideByZeroException()
         {
         }
 
-        
         public ZingDivideByZeroException(string message)
             : base(message)
         {
         }
 
-        
         public ZingDivideByZeroException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingDivideByZeroException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -367,30 +344,25 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingOverflowException : ZingException
     {
-        
         public ZingOverflowException()
         {
         }
 
-        
         public ZingOverflowException(string message)
             : base(message)
         {
         }
 
-        
         public ZingOverflowException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingOverflowException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -406,30 +378,25 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingIndexOutOfRangeException : ZingException
     {
-        
         public ZingIndexOutOfRangeException()
         {
         }
 
-        
         public ZingIndexOutOfRangeException(string message)
             : base(message)
         {
         }
 
-        
         public ZingIndexOutOfRangeException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingIndexOutOfRangeException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -449,31 +416,26 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInvalidEndStateException : ZingException
     {
-        
         public ZingInvalidEndStateException()
             : base()
         {
         }
 
-        
         public ZingInvalidEndStateException(string message)
             : base(message)
         {
         }
 
-        
         public ZingInvalidEndStateException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingInvalidEndStateException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -495,31 +457,26 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInvalidBlockingSelectException : ZingException
     {
-        
         public ZingInvalidBlockingSelectException()
             : base()
         {
         }
 
-        
         public ZingInvalidBlockingSelectException(string message)
             : base(message)
         {
         }
 
-        
         public ZingInvalidBlockingSelectException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingInvalidBlockingSelectException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -539,25 +496,21 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingUnhandledExceptionException : ZingException
     {
-        
         public ZingUnhandledExceptionException()
         {
             throw new NotImplementedException();
         }
 
-        
         public ZingUnhandledExceptionException(string message)
             : base(message)
         {
         }
 
-        
         public ZingUnhandledExceptionException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         public ZingUnhandledExceptionException(int exception)
             : base()
         {
@@ -568,22 +521,20 @@ namespace Microsoft.Zing
         /// Returns (or sets) the number of the unhandled Zing exception.
         /// </summary>
         public int Exception { get { return exception; } set { exception = value; } }
+
         private int exception;
 
-        
         protected ZingUnhandledExceptionException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter=true)]
-        
+        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            base.GetObjectData (info, context);
+            base.GetObjectData(info, context);
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -601,31 +552,26 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingNullReferenceException : ZingException
     {
-        
         public ZingNullReferenceException()
             : base()
         {
         }
 
-        
         public ZingNullReferenceException(string message)
             : base(message)
         {
         }
 
-        
         public ZingNullReferenceException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingNullReferenceException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -646,31 +592,26 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInvalidChooseException : ZingException
     {
-        
         public ZingInvalidChooseException()
             : base()
         {
         }
 
-        
         public ZingInvalidChooseException(string message)
             : base(message)
         {
         }
 
-        
         public ZingInvalidChooseException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingInvalidChooseException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -681,36 +622,29 @@ namespace Microsoft.Zing
         }
     }
 
-
     [Serializable]
     public class ZingerDFSStackOverFlow : ZingException
     {
-        
-        public ZingerDFSStackOverFlow ()
+        public ZingerDFSStackOverFlow()
             : base()
         {
-
         }
 
-        
-        public ZingerDFSStackOverFlow (string message)
+        public ZingerDFSStackOverFlow(string message)
             : base(message)
         {
         }
 
-        
-        public ZingerDFSStackOverFlow (string message, Exception innerException)
+        public ZingerDFSStackOverFlow(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
-        protected ZingerDFSStackOverFlow (SerializationInfo serializationInfo, StreamingContext streamingContext)
+        protected ZingerDFSStackOverFlow(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get
@@ -724,31 +658,25 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingerAcceptingCycleFound : ZingException
     {
-
         public ZingerAcceptingCycleFound()
             : base()
         {
-
         }
-
 
         public ZingerAcceptingCycleFound(string message)
             : base(message)
         {
         }
 
-
         public ZingerAcceptingCycleFound(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-
         protected ZingerAcceptingCycleFound(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
-
 
         protected override string ZingMessage
         {
@@ -770,31 +698,26 @@ namespace Microsoft.Zing
     [Serializable]
     public class ZingInfiniteLoopException : ZingException
     {
-        
         public ZingInfiniteLoopException()
             : base()
         {
         }
 
-        
         public ZingInfiniteLoopException(string message)
             : base(message)
         {
         }
 
-        
         public ZingInfiniteLoopException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        
         protected ZingInfiniteLoopException(SerializationInfo serializationInfo, StreamingContext streamingContext)
             : base(serializationInfo, streamingContext)
         {
         }
 
-        
         protected override string ZingMessage
         {
             get

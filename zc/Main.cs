@@ -1,20 +1,15 @@
 using System;
-using System.Diagnostics;
 using System.CodeDom.Compiler;
-using System.Collections;
 using System.Compiler;
-using System.Diagnostics.SymbolStore;
 using System.IO;
-using System.Text;
-using Z=Microsoft.Zing;
 
-class main
+internal class main
 {
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
     [MTAThread]
-    static int Main(string[] args)
+    private static int Main(string[] args)
     {
         int rc = 0;
         int n = (args == null) ? 0 : args.Length;
@@ -25,7 +20,7 @@ class main
             char ch = arg[0];
             if (ch != '@')
             {
-                if (Path.GetExtension(arg) == ".suite") 
+                if (Path.GetExtension(arg) == ".suite")
                     testsuite = true;
             }
         }
@@ -41,12 +36,11 @@ class main
             Console.WriteLine("\nZing compiler options:");
             Console.WriteLine(options.GetOptionHelp());
             return 0;
-        }  
+        }
 
         string fatalErrorString = null;
         n = errors.Count;
 
-        
         for (int i = 0; i < n; i++)
         {
             ErrorNode e = errors[i];
@@ -66,7 +60,7 @@ class main
 
         string errorString = null;
         string warningString = null;
-        
+
         Console.WriteLine();
 
         foreach (CompilerError e in results.Errors)
@@ -76,7 +70,7 @@ class main
             if (e.IsWarning && warningno.Contains(int.Parse(e.ErrorNumber)))
                 continue;
 
-            if(e.IsWarning)
+            if (e.IsWarning)
             {
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
@@ -96,13 +90,11 @@ class main
             }
             if (e.IsWarning)
             {
-               
                 if (e.ErrorNumber.Length == 4)
                 {
                     if (warningString == null) warningString = compiler.GetWarningString();
                     Console.Write(warningString, e.ErrorNumber);
                 }
-                
             }
             else
             {
@@ -118,14 +110,14 @@ class main
         Console.ResetColor();
 
         if (rc > 0) return 1;
-        if ((rc = results.NativeCompilerReturnValue) == 0 && options.CompileAndExecute && 
+        if ((rc = results.NativeCompilerReturnValue) == 0 && options.CompileAndExecute &&
             results.CompiledAssembly != null && results.CompiledAssembly.EntryPoint != null)
         {
             if (results.CompiledAssembly.EntryPoint.GetParameters().Length == 0)
                 results.CompiledAssembly.EntryPoint.Invoke(null, null);
             else
-                results.CompiledAssembly.EntryPoint.Invoke(null, new object[]{new string[0]});
-        }      
+                results.CompiledAssembly.EntryPoint.Invoke(null, new object[] { new string[0] });
+        }
         if (rc > 0) return 1;
         return 0;
     }

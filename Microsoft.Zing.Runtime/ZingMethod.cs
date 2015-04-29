@@ -1,9 +1,6 @@
 using System;
-using System.IO;
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace Microsoft.Zing
 {
@@ -15,7 +12,6 @@ namespace Microsoft.Zing
     /// Subclasses of ZingMethod are always nested within a subclass of ZingClass.
     /// </remarks>
     [CLSCompliant(false)]
-    
     public abstract class ZingMethod
     {
         // this property should be overridden in the generated code for instance methods
@@ -26,7 +22,8 @@ namespace Microsoft.Zing
         }
 
         public abstract string ProgramCounter { get; }
-        public string MethodName 
+
+        public string MethodName
         {
             get
             {
@@ -34,6 +31,7 @@ namespace Microsoft.Zing
                 return name.Replace("Microsoft.Zing.Application+", "").Replace('+', '.');
             }
         }
+
         // <summary>Constructor</summary>
         protected ZingMethod()
         {
@@ -42,7 +40,9 @@ namespace Microsoft.Zing
         public abstract ushort NextBlock { get; set; }
 
         public abstract UndoableStorage Locals { get; }
+
         public abstract UndoableStorage Inputs { get; }
+
         public abstract UndoableStorage Outputs { get; }
 
         public abstract int CompareTo(object obj);
@@ -53,40 +53,56 @@ namespace Microsoft.Zing
 
         public abstract void Dispatch(Process process);
 
-        public virtual ulong GetRunnableJoinStatements(Process process) { return ulong.MaxValue; }
+        public virtual ulong GetRunnableJoinStatements(Process process)
+        {
+            return ulong.MaxValue;
+        }
 
-        public virtual bool IsAtomicEntryBlock() { return false; }
+        public virtual bool IsAtomicEntryBlock()
+        {
+            return false;
+        }
 
         // This field is set when the select statement actually begins execution and is
         // examined in the join statement "tester" blocks. This just avoids having to
         // calculate the runnable flags multiple times.
         private ulong savedRunnableJoinStatements;
+
         protected ulong SavedRunnableJoinStatements
         {
             get { return savedRunnableJoinStatements; }
             set { savedRunnableJoinStatements = value; }
         }
 
-        public bool IsRunnable(Process process) { return GetRunnableJoinStatements(process) != 0; }
+        public bool IsRunnable(Process process)
+        {
+            return GetRunnableJoinStatements(process) != 0;
+        }
 
         public virtual bool ValidEndState { get { return true; } }
 
         public virtual ZingSourceContext Context { get { return null; } }
+
         public virtual ZingAttribute ContextAttribute { get { return null; } }
 
-        public ZingMethod Caller { 
-            get { return caller; } 
-            set { caller = value; } 
+        public ZingMethod Caller
+        {
+            get { return caller; }
+            set { caller = value; }
         }
+
         private ZingMethod caller;
 
-        public int CurrentException { 
-            get { return currentException; } 
-            set { currentException = value; } 
+        public int CurrentException
+        {
+            get { return currentException; }
+            set { currentException = value; }
         }
+
         private int currentException;
 
         private int savedAtomicityLevel;
+
         public int SavedAtomicityLevel
         {
             get { return savedAtomicityLevel; }
@@ -110,17 +126,17 @@ namespace Microsoft.Zing
         public abstract StateImpl StateImpl { get; set; }
 
         public abstract ZingMethod Clone(StateImpl myState, Process myProcess, bool shallowCopy);
- 
 
         public object DoCheckIn()
         {
             //Console.WriteLine("checking in stack frame {0}", stackFrameId);
             object othersULE = DoCheckInOthers();
 
-            if (othersULE != null || Locals.IsDirty || Outputs.IsDirty || Inputs.IsDirty) {
+            if (othersULE != null || Locals.IsDirty || Outputs.IsDirty || Inputs.IsDirty)
+            {
                 // something has changed
                 ZingMethodULE ule = new ZingMethodULE();
-                
+
                 ule.localsULE = Locals.DoCheckIn();
                 ule.inputsULE = Inputs.DoCheckIn();
                 ule.outputsULE = Outputs.DoCheckIn();
@@ -148,14 +164,18 @@ namespace Microsoft.Zing
             object[] oth_ules = new object[n];
             int i;
 
-            for (i = 0; i < n; i++) {
-                if (uleList[i] == null) {
+            for (i = 0; i < n; i++)
+            {
+                if (uleList[i] == null)
+                {
                     lc_ules[i] = null;
                     in_ules[i] = null;
                     out_ules[i] = null;
                     oth_ules[i] = null;
-                } else {
-                    ZingMethodULE ule = (ZingMethodULE) uleList[i];
+                }
+                else
+                {
+                    ZingMethodULE ule = (ZingMethodULE)uleList[i];
                     lc_ules[i] = ule.localsULE;
                     in_ules[i] = ule.inputsULE;
                     out_ules[i] = ule.outputsULE;
@@ -174,14 +194,16 @@ namespace Microsoft.Zing
             public object inputsULE;
             public object outputsULE;
             public object othersULE;
-                
-            internal ZingMethodULE() 
+
+            internal ZingMethodULE()
             {
             }
         }
 
         public abstract object DoCheckInOthers();
+
         public abstract void DoRevertOthers();
+
         public abstract void DoRollbackOthers(object[] uleList);
 
         // Note: The emitted code generates a derived class for each method

@@ -1,14 +1,13 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.Compiler;
-using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.IO;
-
-using CS=Microsoft.Comega;
-using CSOPTIONS=Microsoft.Comega.ComegaCompilerOptions;
+using CS = Microsoft.Comega;
+using CSOPTIONS = Microsoft.Comega.ComegaCompilerOptions;
 
 namespace Microsoft.Zing
 {
@@ -27,10 +26,12 @@ namespace Microsoft.Zing
         }
 
         private System.Text.StringBuilder labelString;
+
         public System.Text.StringBuilder LabelString
         {
             get { return labelString; }
         }
+
         private void AddToLabelString(string methodName)
         {
             labelString.Append(methodName + "\n");
@@ -45,6 +46,7 @@ namespace Microsoft.Zing
         }
 
         private Hashtable basicBlockToLabel;
+
         public void AddBlockLabel(BasicBlock block, string label)
         {
             if (basicBlockToLabel != null && !basicBlockToLabel.ContainsKey(block))
@@ -70,12 +72,12 @@ namespace Microsoft.Zing
 
         private bool IsPredefinedType(TypeNode t)
         {
-            return (t == SystemTypes.Int8)   || (t == SystemTypes.UInt8)  ||
-                   (t == SystemTypes.Int16)  || (t == SystemTypes.UInt16) ||
-                   (t == SystemTypes.Int32)  || (t == SystemTypes.UInt32) ||
-                   (t == SystemTypes.Int64)  || (t == SystemTypes.UInt64) ||
+            return (t == SystemTypes.Int8) || (t == SystemTypes.UInt8) ||
+                   (t == SystemTypes.Int16) || (t == SystemTypes.UInt16) ||
+                   (t == SystemTypes.Int32) || (t == SystemTypes.UInt32) ||
+                   (t == SystemTypes.Int64) || (t == SystemTypes.UInt64) ||
                    (t == SystemTypes.Single) || (t == SystemTypes.Double) ||
-                   (t == SystemTypes.Boolean)|| (t == SystemTypes.Decimal)||
+                   (t == SystemTypes.Boolean) || (t == SystemTypes.Decimal) ||
                    (t == SystemTypes.String);
         }
 
@@ -89,7 +91,7 @@ namespace Microsoft.Zing
                 {
                     Namespace ns = (Namespace)compilation.CompilationUnits[c].Nodes[0];
                     Console.WriteLine("X" + ns.Name.ToString() + "X");
-                    
+
                     for (int i = 0, n = ns.Types.Length; i < n; i++)
                     {
                         TypeNode tn = (TypeNode)ns.Types[i];
@@ -99,10 +101,10 @@ namespace Microsoft.Zing
                 }
                  */
                 // END
-                
+
                 this.cZing = compilation;
                 Templates.module = compilation.TargetModule;
-                Templates.InitializeTemplates();                
+                Templates.InitializeTemplates();
 
                 // Scan the Zing AST for interesting high-level information.
                 MemberList globals = CollectGlobals();
@@ -191,7 +193,7 @@ namespace Microsoft.Zing
                 member.DeclaringType = createMethods;
                 createMethods.Members.Add(member);
             }
-            
+
             // Add the emitted class to our Zing application class
             InstallType(newClass);
         }
@@ -203,7 +205,7 @@ namespace Microsoft.Zing
             // and their code is placed in another assmbly)
             if (c is NativeZOM) return;
             // END of added code
-            
+
             TypeNode newClass = Templates.GetTypeTemplateByName("Class");
             if (c.Interfaces != null)
             {
@@ -215,8 +217,8 @@ namespace Microsoft.Zing
                 }
             }
 
-            Method writer = (Method) Templates.GetMemberByName(newClass.Members, "WriteString");
-			Method traverser = (Method) Templates.GetMemberByName(newClass.Members, "TraverseFields");
+            Method writer = (Method)Templates.GetMemberByName(newClass.Members, "WriteString");
+            Method traverser = (Method)Templates.GetMemberByName(newClass.Members, "TraverseFields");
 
             // Replace all references to the class name
             Replacer.Replace(newClass, newClass.Name, c.Name);
@@ -225,26 +227,26 @@ namespace Microsoft.Zing
             Block cloneFields = new Block();
             cloneFields.Statements = new StatementList();
 
-			Method getValue = (Method) Templates.GetMemberByName(newClass.Members, "GetValue");
-			Method setValue = (Method) Templates.GetMemberByName(newClass.Members, "SetValue");
-			System.Compiler.Switch switchGetValue = 
-				(System.Compiler.Switch) Templates.GetStatementTemplate("GetFieldInfoSwitch");
-			getValue.Body.Statements.Add(switchGetValue);
-			System.Compiler.Switch switchSetValue = 
-				(System.Compiler.Switch) Templates.GetStatementTemplate("SetFieldInfoSwitch");
-			setValue.Body.Statements.Add(switchSetValue);
+            Method getValue = (Method)Templates.GetMemberByName(newClass.Members, "GetValue");
+            Method setValue = (Method)Templates.GetMemberByName(newClass.Members, "SetValue");
+            System.Compiler.Switch switchGetValue =
+                (System.Compiler.Switch)Templates.GetStatementTemplate("GetFieldInfoSwitch");
+            getValue.Body.Statements.Add(switchGetValue);
+            System.Compiler.Switch switchSetValue =
+                (System.Compiler.Switch)Templates.GetStatementTemplate("SetFieldInfoSwitch");
+            setValue.Body.Statements.Add(switchSetValue);
 
             // Transfer non-static fields to the emitted class
-            for (int i=0, n = c.Members.Count; i < n ;i++)
+            for (int i = 0, n = c.Members.Count; i < n; i++)
             {
                 Field f = c.Members[i] as Field;
 
                 if (f != null && f.Type != null && !f.IsStatic)
                 {
                     // Clone the field since we might tinker with it
-                    Field newField = (Field) f.Clone();
+                    Field newField = (Field)f.Clone();
                     // change name of the field, so that the accessor can be named appropriately
-					newField.Name = new Identifier("priv_" + f.Name.Name);
+                    newField.Name = new Identifier("priv_" + f.Name.Name);
 
                     if (GetTypeClassification(f.Type) == TypeClassification.Heap)
                         newField.Type = this.ZingPtrType;
@@ -252,66 +254,66 @@ namespace Microsoft.Zing
                         newField.Type = new TypeExpression(new QualifiedIdentifier(
                             new Identifier("Application"), f.Type.Name), f.Type.SourceContext);
 
-					if (newField.Initializer != null)
-					{
-						// Move the initialization to our constructor.
-						Expression initializer = newField.Initializer;
-						newField.Initializer = null;
+                    if (newField.Initializer != null)
+                    {
+                        // Move the initialization to our constructor.
+                        Expression initializer = newField.Initializer;
+                        newField.Initializer = null;
 
-						Statement initStmt = Templates.GetStatementTemplate("InitComplexInstanceField");
-						Replacer.Replace(initStmt, "_FieldName", newField.Name);
-						Normalizer normalizer = new Normalizer(false);
-						Replacer.Replace(initStmt, "_expr", normalizer.VisitFieldInitializer(initializer));
-						Method ctor = (Method) newClass.Members[0];
-						Debug.Assert(ctor.Parameters.Count == 1);
-						ctor.Body.Statements.Add(initStmt);
-					}
+                        Statement initStmt = Templates.GetStatementTemplate("InitComplexInstanceField");
+                        Replacer.Replace(initStmt, "_FieldName", newField.Name);
+                        Normalizer normalizer = new Normalizer(false);
+                        Replacer.Replace(initStmt, "_expr", normalizer.VisitFieldInitializer(initializer));
+                        Method ctor = (Method)newClass.Members[0];
+                        Debug.Assert(ctor.Parameters.Count == 1);
+                        ctor.Body.Statements.Add(initStmt);
+                    }
 
-					Identifier idFieldName = new Identifier("id_" + f.Name.Name);
-					Field idf = new Field(newClass, null, FieldFlags.Public|FieldFlags.Static,
-						idFieldName,
-						SystemTypes.Int32, null);
-					idf.Initializer = new Literal(i, SystemTypes.Int32);
-					SwitchCase getCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("GetFieldInfoCase")).Cases[0];
-					Replacer.Replace(getCase, "_fieldId", new Literal(i, SystemTypes.Int32));
-					Replacer.Replace(getCase, "_fieldName", new Identifier(newField.Name.Name));
-					switchGetValue.Cases.Add(getCase);
+                    Identifier idFieldName = new Identifier("id_" + f.Name.Name);
+                    Field idf = new Field(newClass, null, FieldFlags.Public | FieldFlags.Static,
+                        idFieldName,
+                        SystemTypes.Int32, null);
+                    idf.Initializer = new Literal(i, SystemTypes.Int32);
+                    SwitchCase getCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("GetFieldInfoCase")).Cases[0];
+                    Replacer.Replace(getCase, "_fieldId", new Literal(i, SystemTypes.Int32));
+                    Replacer.Replace(getCase, "_fieldName", new Identifier(newField.Name.Name));
+                    switchGetValue.Cases.Add(getCase);
 
-					SwitchCase setCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("SetFieldInfoCase")).Cases[0];
-					Replacer.Replace(setCase, "_fieldId", new Literal(i, SystemTypes.Int32));
-					Replacer.Replace(setCase, "_fieldName", new Identifier(newField.Name.Name));
-					TypeExpression tn = newField.Type as TypeExpression;
-					Replacer.Replace(setCase, "_fieldType", tn != null ? tn.Expression : new Identifier(newField.Type.Name.Name));
-					switchSetValue.Cases.Add(setCase);
+                    SwitchCase setCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("SetFieldInfoCase")).Cases[0];
+                    Replacer.Replace(setCase, "_fieldId", new Literal(i, SystemTypes.Int32));
+                    Replacer.Replace(setCase, "_fieldName", new Identifier(newField.Name.Name));
+                    TypeExpression tn = newField.Type as TypeExpression;
+                    Replacer.Replace(setCase, "_fieldType", tn != null ? tn.Expression : new Identifier(newField.Type.Name.Name));
+                    switchSetValue.Cases.Add(setCase);
 
                     newClass.Members.Add(newField);
                     newField.DeclaringType = newClass;
                     newClass.Members.Add(idf);
                     idf.DeclaringType = newClass;
 
-        			// add property for the field
-					Property accessor = GetFieldAccessorProperty(f.Type, newField.Type, f.Name, newField.Name, idFieldName);
+                    // add property for the field
+                    Property accessor = GetFieldAccessorProperty(f.Type, newField.Type, f.Name, newField.Name, idFieldName);
                     newClass.Members.Add(accessor);
                     accessor.DeclaringType = newClass;
                     if (accessor.Getter != null)
                     {
-                    	newClass.Members.Add(accessor.Getter);
-                    	accessor.Getter.DeclaringType = newClass;
+                        newClass.Members.Add(accessor.Getter);
+                        accessor.Getter.DeclaringType = newClass;
                     }
                     if (accessor.Setter != null)
                     {
-                         newClass.Members.Add(accessor.Setter);
-                         accessor.Setter.DeclaringType = newClass;
+                        newClass.Members.Add(accessor.Setter);
+                        accessor.Setter.DeclaringType = newClass;
                     }
 
                     writer.Body.Statements.Add(GetWriterStatement("this", f.Type, newField.Name));
 
-					traverser.Body.Statements.Add(GetTraverserStatement("this", f.Type, newField.Name));
-					/*if(GetTypeClassification(f.Type) == TypeClassification.Heap)
-					{
-						refTraverser.Body.Statements.Add(GetTraverserStatement("this", f.Type, newField.Name));
-					}
-					*/
+                    traverser.Body.Statements.Add(GetTraverserStatement("this", f.Type, newField.Name));
+                    /*if(GetTypeClassification(f.Type) == TypeClassification.Heap)
+                    {
+                        refTraverser.Body.Statements.Add(GetTraverserStatement("this", f.Type, newField.Name));
+                    }
+                    */
 
                     Statement cloneStmt = GetCloneStatement(newField.Name);
                     cloneFields.Statements.Add(cloneStmt);
@@ -339,8 +341,8 @@ namespace Microsoft.Zing
                         Method member = (Method)Templates.GetMemberByName(tn.Members, "__CreateInterfaceMethod");
                         member.Name = new Identifier("Create" + methodClass.Name.Name);
                         member.DeclaringType = newClass;
-                        Replacer.Replace(member, 
-                            new Identifier("__InterfaceMethod"), 
+                        Replacer.Replace(member,
+                            new Identifier("__InterfaceMethod"),
                             new QualifiedIdentifier(x.Name, methodClass.Name));
                         Replacer.Replace(member,
                             new Identifier("__ClassMethod"),
@@ -352,7 +354,7 @@ namespace Microsoft.Zing
 
             // Splice the cloning assignment statements into the class's Clone method
             // at the appropriate place.
-            Method cloner = (Method) Templates.GetMemberByName(newClass.Members, "Clone");
+            Method cloner = (Method)Templates.GetMemberByName(newClass.Members, "Clone");
             Replacer.Replace(cloner.Body, "cloneFields", cloneFields);
 
             // Add the emitted class to our Zing application class
@@ -371,13 +373,13 @@ namespace Microsoft.Zing
 
             accessor.Getter.Name = Identifier.For("get_" + name.Name);
             accessor.Setter.Name = Identifier.For("set_" + name.Name);
-            
+
             return accessor;
         }
 
-       //TODO: this code is temporary. Need to integrate this with GetAccessorProperty
-        private Property GetStructAccessorProperty(string template, TypeNode type, 
-			Identifier name, Expression privExpr, Expression localInputOrOutput)
+        //TODO: this code is temporary. Need to integrate this with GetAccessorProperty
+        private Property GetStructAccessorProperty(string template, TypeNode type,
+            Identifier name, Expression privExpr, Expression localInputOrOutput)
         {
             Property accessor = Templates.GetPropertyTemplate("structAccessor");
             accessor.Type = type;
@@ -389,21 +391,21 @@ namespace Microsoft.Zing
 
             accessor.Getter.Name = Identifier.For("get_" + name.Name);
             accessor.Setter.Name = Identifier.For("set_" + name.Name);
-            
+
             return accessor;
         }
 
-        private Property GetAccessorProperty(string template, TypeNode type, 
-			Identifier name, Expression privExpr, Expression idExpr, Expression localInputOrOutput)
+        private Property GetAccessorProperty(string template, TypeNode type,
+            Identifier name, Expression privExpr, Expression idExpr, Expression localInputOrOutput)
         {
             Property accessor = Templates.GetPropertyTemplate(template);
             accessor.Type = type;
-            if(accessor.Getter != null)
+            if (accessor.Getter != null)
             {
                 accessor.Getter.ReturnType = type;
                 accessor.Getter.Name = Identifier.For("get_" + name.Name);
             }
-            if(accessor.Setter != null)
+            if (accessor.Setter != null)
             {
                 accessor.Setter.Parameters[0].Type = type;
                 accessor.Setter.Name = Identifier.For("set_" + name.Name);
@@ -419,18 +421,18 @@ namespace Microsoft.Zing
         }
 
         private Property GetFieldAccessorProperty(TypeNode oldType, TypeNode type, Identifier name, Expression privExpr,
-	                                          Expression idExpr)
+                                              Expression idExpr)
         {
-			Property accessor = null;
-			if (type == this.ZingPtrType) // Zing pointer type
-			{
-				accessor = Templates.GetPropertyTemplate("ptrFieldAccessor");
-				Replacer.Replace(accessor.Getter, "_fieldType", new Literal(oldType.Name.ToString(), SystemTypes.String));
-			}
-			else 
-			{
-				accessor = Templates.GetPropertyTemplate("fieldAccessor");
-			}
+            Property accessor = null;
+            if (type == this.ZingPtrType) // Zing pointer type
+            {
+                accessor = Templates.GetPropertyTemplate("ptrFieldAccessor");
+                Replacer.Replace(accessor.Getter, "_fieldType", new Literal(oldType.Name.ToString(), SystemTypes.String));
+            }
+            else
+            {
+                accessor = Templates.GetPropertyTemplate("fieldAccessor");
+            }
 
             accessor.Type = type;
             accessor.Getter.ReturnType = type;
@@ -443,7 +445,7 @@ namespace Microsoft.Zing
 
             accessor.Getter.Name = Identifier.For("get_" + name.Name);
             accessor.Setter.Name = Identifier.For("set_" + name.Name);
-            
+
             return accessor;
         }
 
@@ -525,7 +527,7 @@ namespace Microsoft.Zing
         private Class GenerateClassMethod(ZMethod zMethod, Interface x)
         {
             this.currentMethod = zMethod;
-            Class newClass = (Class) Templates.GetTypeTemplateByName("ClassMethod");
+            Class newClass = (Class)Templates.GetTypeTemplateByName("ClassMethod");
             QualifiedIdentifier qi = (x == null)
                                      ? new QualifiedIdentifier(new Identifier("Z"), new Identifier("ZingMethod"))
                                      : new QualifiedIdentifier(x.Name, zMethod.Name);
@@ -549,7 +551,7 @@ namespace Microsoft.Zing
                 GenerateOutputs(zMethod, outputsClass);
             }
 
-            Class localsClass = (Class)Templates.GetMemberByName(newClass.Members, "LocalVars"); 
+            Class localsClass = (Class)Templates.GetMemberByName(newClass.Members, "LocalVars");
             GenerateLocals(zMethod, localsClass);
 
             Class extras = (Class)Templates.GetTypeTemplateByName(zMethod.IsStatic
@@ -579,7 +581,7 @@ namespace Microsoft.Zing
             // property for accessing bool return values.
             if (zMethod.ReturnType == SystemTypes.Boolean)
             {
-                Property boolRetValProp = (Property) Templates.GetTypeTemplateByName("BooleanReturnValueProperty").Members[0];
+                Property boolRetValProp = (Property)Templates.GetTypeTemplateByName("BooleanReturnValueProperty").Members[0];
                 newClass.Members.Add(boolRetValProp);
                 boolRetValProp.DeclaringType = newClass;
                 newClass.Members.Add(boolRetValProp.Getter);
@@ -731,7 +733,6 @@ namespace Microsoft.Zing
                 else if (!IsPredefinedType(f.Type))
                     f.Type = new TypeExpression(new QualifiedIdentifier(
                         new Identifier("Application"), zingType.Name), zingType.SourceContext);
-                
 
                 Identifier idFieldName = new Identifier("id_" + param.Name.Name);
                 Field idf = new Field(outputsClass, null, FieldFlags.Public | FieldFlags.Static,
@@ -838,14 +839,11 @@ namespace Microsoft.Zing
                                                         new Identifier("_ReturnValue"),
                                                         f.Name, idf.Name, localInputOrOutput);
 
-
                 QualifiedIdentifier lfcOutput = new QualifiedIdentifier(new Identifier("LocType"), new Identifier("LastFunctionOutput"));
-
 
                 Property lfcAccessor = GetAccessorProperty("lastFunctionOutputAccessor", f.Type,
                                                            new Identifier("_Lfc_ReturnValue"),
                                                            f.Name, idf.Name, lfcOutput);
-
 
                 Identifier qualifier = new Identifier("outputs");
 
@@ -928,7 +926,7 @@ namespace Microsoft.Zing
                 else if (!IsPredefinedType(f.Type))
                     f.Type = new TypeExpression(new QualifiedIdentifier(
                         new Identifier("Application"), zingType.Name), zingType.SourceContext);
-                
+
                 Identifier idFieldName = new Identifier("id_" + localVar.Name.Name);
                 Field idf = new Field(localsClass, null, FieldFlags.Public | FieldFlags.Static,
                     idFieldName,
@@ -1066,7 +1064,7 @@ namespace Microsoft.Zing
 
             // Duplicate our basic constructor so we can make an extended version
             System.Compiler.Duplicator dup = new System.Compiler.Duplicator(null, null);
-            InstanceInitializer ctor = dup.VisitInstanceInitializer((InstanceInitializer) newClass.Members[0]);
+            InstanceInitializer ctor = dup.VisitInstanceInitializer((InstanceInitializer)newClass.Members[0]);
 
             if (!zMethod.IsStatic)
             {
@@ -1085,7 +1083,7 @@ namespace Microsoft.Zing
                 numAddedParams++;
             }
 
-            for (int i=0, n=zMethod.Parameters.Count; i < n ;i++)
+            for (int i = 0, n = zMethod.Parameters.Count; i < n; i++)
             {
                 TypeNode paramType;
                 Parameter param = zMethod.Parameters[i];
@@ -1096,7 +1094,7 @@ namespace Microsoft.Zing
                 if (param.IsOut)
                     continue;
 
-                if (GetTypeClassification(param.Type) == TypeClassification.Heap) 
+                if (GetTypeClassification(param.Type) == TypeClassification.Heap)
                     paramType = this.ZingPtrType;
                 else if (!IsPredefinedType(param.Type))
                     paramType = new TypeExpression(new QualifiedIdentifier(
@@ -1135,7 +1133,7 @@ namespace Microsoft.Zing
             if (scope.OuterScope != null && scope.OuterScope is MethodScope)
                 return false;
 
-            for (int i=0, n = scope.Members.Count; i < n ; i++)
+            for (int i = 0, n = scope.Members.Count; i < n; i++)
             {
                 if (scope.Members[i] is Field)
                     return true;
@@ -1145,13 +1143,13 @@ namespace Microsoft.Zing
 
         private void AddScopeCleanupMethod(Class methodClass, Scope scope)
         {
-            Method scopeMethod = (Method) Templates.GetTypeTemplateByName("ScopeMethod").Members[0];
+            Method scopeMethod = (Method)Templates.GetTypeTemplateByName("ScopeMethod").Members[0];
             scopeMethod.Name = new Identifier("Scope" + scope.UniqueKey.ToString());
             methodClass.Members.Add(scopeMethod);
             scopeMethod.DeclaringType = methodClass;
 
             // Generate a "finalizing" statement as appropriate for each local variable in the scope
-            for (int i=0, n=scope.Members.Count; i < n ;i++)
+            for (int i = 0, n = scope.Members.Count; i < n; i++)
             {
                 Field f = scope.Members[i] as Field;
 
@@ -1191,7 +1189,7 @@ namespace Microsoft.Zing
 
         private void AddBlockMethod(ZMethod zMethod, Class methodClass, BasicBlock block, List<Scope> nonTrivialScopes)
         {
-            Method blockMethod = (Method) Templates.GetTypeTemplateByName("BlockMethod").Members[0];
+            Method blockMethod = (Method)Templates.GetTypeTemplateByName("BlockMethod").Members[0];
             blockMethod.Name = new Identifier(block.Name);
             methodClass.Members.Add(blockMethod);
             blockMethod.DeclaringType = methodClass;
@@ -1245,17 +1243,17 @@ namespace Microsoft.Zing
             if (block.ConditionalTarget == null && block.UnconditionalTarget != null)
             {
                 stmt = Templates.GetStatementTemplate("UnconditionalBlockTransfer");
-                Replacer.Replace(stmt, "_UnconditionalBlock", 
+                Replacer.Replace(stmt, "_UnconditionalBlock",
                                  new Identifier(block.UnconditionalTarget.Name));
                 blockMethod.Body.Statements.Add(stmt);
             }
 #endif
-                
+
             if (block.Attributes != null)
             {
                 Duplicator duplicator = new Duplicator(null, null);
 
-                for (int i=0, n=block.Attributes.Count; i < n ;i++)
+                for (int i = 0, n = block.Attributes.Count; i < n; i++)
                 {
                     if (block.Attributes[i] == null)
                         continue;
@@ -1300,7 +1298,7 @@ namespace Microsoft.Zing
                     // Do statement-level code-gen pass on the block's statement
                     Normalizer normalizer = new Normalizer(this, block.Attributes, block.SecondOfTwo);
 
-                    blockMethod.Body.Statements.Add((Statement) normalizer.Visit(block.Statement));
+                    blockMethod.Body.Statements.Add((Statement)normalizer.Visit(block.Statement));
                 }
             }
 
@@ -1396,7 +1394,7 @@ namespace Microsoft.Zing
                         )
                     )
                 );
-			}
+            }
         }
 
         private void AddScopeCleanupCalls(StatementList stmts, BasicBlock source, BasicBlock target, List<Scope> nonTrivialScopes)
@@ -1408,7 +1406,7 @@ namespace Microsoft.Zing
             //
             // Scopes are different. Figure out if we're moving in or out. If the target scope
             // isn't "outward", then do nothing.
-            for (Scope scope = source.Scope; scope != target.Scope ;scope = scope.OuterScope)
+            for (Scope scope = source.Scope; scope != target.Scope; scope = scope.OuterScope)
             {
                 // If we encounter the method-level scope, then this must be an inward move
                 if (scope is MethodScope)
@@ -1416,7 +1414,7 @@ namespace Microsoft.Zing
             }
 
             // It's an outward move, so call the cleanup method for each scope that we're exiting
-            for (Scope scope = source.Scope; scope != target.Scope ;scope = scope.OuterScope)
+            for (Scope scope = source.Scope; scope != target.Scope; scope = scope.OuterScope)
             {
                 Debug.Assert(scope != null);
 
@@ -1436,11 +1434,11 @@ namespace Microsoft.Zing
 
         private void PatchDispatchMethod(Class methodClass, List<BasicBlock> basicBlocks)
         {
-            Method dispatchMethod = (Method) Templates.GetMemberByName(methodClass.Members, "Dispatch");
-			
+            Method dispatchMethod = (Method)Templates.GetMemberByName(methodClass.Members, "Dispatch");
+
             Debug.Assert(dispatchMethod.Body.Statements.Count == 1);
             Debug.Assert(dispatchMethod.Body.Statements[0] is System.Compiler.Switch);
-            System.Compiler.Switch switchStmt = (System.Compiler.Switch) dispatchMethod.Body.Statements[0];
+            System.Compiler.Switch switchStmt = (System.Compiler.Switch)dispatchMethod.Body.Statements[0];
 
             foreach (BasicBlock block in basicBlocks)
             {
@@ -1469,10 +1467,10 @@ namespace Microsoft.Zing
 
         private void PatchRunnableMethod(Class methodClass, List<BasicBlock> basicBlocks)
         {
-            Method runnableJSMethod = (Method) 
+            Method runnableJSMethod = (Method)
                 Templates.GetMemberByName(methodClass.Members, "GetRunnableJoinStatements");
             Debug.Assert(runnableJSMethod.Body.Statements[0] is System.Compiler.Switch);
-            System.Compiler.Switch switchStmt = (System.Compiler.Switch) runnableJSMethod.Body.Statements[0];
+            System.Compiler.Switch switchStmt = (System.Compiler.Switch)runnableJSMethod.Body.Statements[0];
 
             Normalizer normalizer = new Normalizer(this, null, false);
 
@@ -1484,7 +1482,7 @@ namespace Microsoft.Zing
                 {
                     Expression runnableExpr = null;
 
-                    for (int i=0, n = block.selectStmt.joinStatementList.Length; i < n ;i++)
+                    for (int i = 0, n = block.selectStmt.joinStatementList.Length; i < n; i++)
                     {
                         Expression jsRunnable = normalizer.GetRunnablePredicate(block.selectStmt.joinStatementList[i]);
 
@@ -1493,7 +1491,7 @@ namespace Microsoft.Zing
 
                         Expression jsRunnableBit = Templates.GetExpressionTemplate("JoinStatementRunnableBit");
                         Replacer.Replace(jsRunnableBit, "_jsRunnableBoolExpr", jsRunnable);
-                        Replacer.Replace(jsRunnableBit, "_jsBitMask", (Expression) new Literal((ulong) (1 << i), SystemTypes.UInt64));
+                        Replacer.Replace(jsRunnableBit, "_jsBitMask", (Expression)new Literal((ulong)(1 << i), SystemTypes.UInt64));
 
                         if (runnableExpr == null)
                             runnableExpr = jsRunnableBit;
@@ -1503,7 +1501,7 @@ namespace Microsoft.Zing
 
                     if (runnableExpr != null)
                     {
-                        newCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("RunnableSwitchSelect")).Cases[0];
+                        newCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("RunnableSwitchSelect")).Cases[0];
                         Replacer.Replace(newCase, "_BlockName", new Identifier(block.Name));
                         Replacer.Replace(newCase, "_expr", runnableExpr);
                         switchStmt.Cases.Add(newCase);
@@ -1519,7 +1517,7 @@ namespace Microsoft.Zing
                         if (previousBlock.UnconditionalTarget == block && previousBlock.ConditionalTarget == null &&
                             previousBlock.Statement == null && previousBlock.MiddleOfTransition)
                         {
-                            newCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("RelatedSwitchSelect")).Cases[0];
+                            newCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("RelatedSwitchSelect")).Cases[0];
                             Replacer.Replace(newCase, "_BlockName", new Identifier(previousBlock.Name));
                             Replacer.Replace(newCase, "_TargetName", new Identifier(block.Name));
                             switchStmt.Cases.Add(newCase);
@@ -1530,38 +1528,38 @@ namespace Microsoft.Zing
         }
 
         private void PatchIsAtomicEntryMethod(Class methodClass, List<BasicBlock> basicBlocks)
-		{
-			Method atomicEntryMethod = (Method) 
-				Templates.GetMemberByName(methodClass.Members, "IsAtomicEntryBlock");
-			Debug.Assert(atomicEntryMethod.Body.Statements[0] is System.Compiler.Switch);
-			System.Compiler.Switch switchStmt = (System.Compiler.Switch) atomicEntryMethod.Body.Statements[0];
+        {
+            Method atomicEntryMethod = (Method)
+                Templates.GetMemberByName(methodClass.Members, "IsAtomicEntryBlock");
+            Debug.Assert(atomicEntryMethod.Body.Statements[0] is System.Compiler.Switch);
+            System.Compiler.Switch switchStmt = (System.Compiler.Switch)atomicEntryMethod.Body.Statements[0];
 
-			Normalizer normalizer = new Normalizer(this, null, false);
+            Normalizer normalizer = new Normalizer(this, null, false);
 
-			foreach (BasicBlock block in basicBlocks)
-			{
-				SwitchCase newCase;
-				Expression trueExpr;
+            foreach (BasicBlock block in basicBlocks)
+            {
+                SwitchCase newCase;
+                Expression trueExpr;
 
-				if (block.IsAtomicEntry)
-				{
-					Debug.Assert(block.RelativeAtomicLevel == 1);
-					
-					trueExpr = new Literal(true, SystemTypes.Boolean);
-					newCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("RunnableSwitchSelect")).Cases[0];
-					Replacer.Replace(newCase, "_BlockName", new Identifier(block.Name));
-					Replacer.Replace(newCase, "_expr", trueExpr);
-					switchStmt.Cases.Add(newCase);
-				}
-			}
-		}
+                if (block.IsAtomicEntry)
+                {
+                    Debug.Assert(block.RelativeAtomicLevel == 1);
+
+                    trueExpr = new Literal(true, SystemTypes.Boolean);
+                    newCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("RunnableSwitchSelect")).Cases[0];
+                    Replacer.Replace(newCase, "_BlockName", new Identifier(block.Name));
+                    Replacer.Replace(newCase, "_expr", trueExpr);
+                    switchStmt.Cases.Add(newCase);
+                }
+            }
+        }
 
         private void PatchValidEndStateProperty(Class methodClass, List<BasicBlock> basicBlocks)
         {
-            Property validEndStateProperty = (Property) Templates.GetMemberByName(methodClass.Members, "ValidEndState");
+            Property validEndStateProperty = (Property)Templates.GetMemberByName(methodClass.Members, "ValidEndState");
             Method validEndStateMethod = validEndStateProperty.Getter;
             Debug.Assert(validEndStateMethod.Body.Statements[0] is System.Compiler.Switch);
-            System.Compiler.Switch switchStmt = (System.Compiler.Switch) validEndStateMethod.Body.Statements[0];
+            System.Compiler.Switch switchStmt = (System.Compiler.Switch)validEndStateMethod.Body.Statements[0];
 
             foreach (BasicBlock block in basicBlocks)
             {
@@ -1569,7 +1567,7 @@ namespace Microsoft.Zing
                 {
                     SwitchCase newCase;
 
-                    newCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("ValidEndStateSwitch")).Cases[0];
+                    newCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("ValidEndStateSwitch")).Cases[0];
                     Replacer.Replace(newCase, "_BlockName", new Identifier(block.Name));
                     switchStmt.Cases.Add(newCase);
 
@@ -1583,7 +1581,7 @@ namespace Microsoft.Zing
                         if (previousBlock.UnconditionalTarget == block && previousBlock.ConditionalTarget == null &&
                             previousBlock.Statement == null && previousBlock.MiddleOfTransition)
                         {
-                            newCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("RelatedSwitchSelect")).Cases[0];
+                            newCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("RelatedSwitchSelect")).Cases[0];
                             Replacer.Replace(newCase, "_BlockName", new Identifier(previousBlock.Name));
                             Replacer.Replace(newCase, "_TargetName", new Identifier(block.Name));
                             switchStmt.Cases.Add(newCase);
@@ -1595,14 +1593,14 @@ namespace Microsoft.Zing
 
         private void PatchSourceContextProperty(ZMethod zMethod, Class methodClass, List<BasicBlock> basicBlocks)
         {
-            Property contextProperty = (Property) Templates.GetMemberByName(methodClass.Members, "Context");
+            Property contextProperty = (Property)Templates.GetMemberByName(methodClass.Members, "Context");
             Method contextMethod = contextProperty.Getter;
             Debug.Assert(contextMethod.Body.Statements[0] is System.Compiler.Switch);
-            System.Compiler.Switch switchStmt = (System.Compiler.Switch) contextMethod.Body.Statements[0];
+            System.Compiler.Switch switchStmt = (System.Compiler.Switch)contextMethod.Body.Statements[0];
 
             foreach (BasicBlock block in basicBlocks)
             {
-                SourceContext ctxt = new SourceContext(null,0,0);
+                SourceContext ctxt = new SourceContext(null, 0, 0);
 
                 //ctxt.Document = null;
                 //ctxt.StartPos = 0;
@@ -1644,7 +1642,7 @@ namespace Microsoft.Zing
                             Block b = effectiveBlock.Statement as Block;
                             if (b != null)
                             {
-                                for (int i=0, n = b.Statements.Count; i < n ;i++)
+                                for (int i = 0, n = b.Statements.Count; i < n; i++)
                                 {
                                     if (b.Statements[i] != null)
                                     {
@@ -1664,7 +1662,7 @@ namespace Microsoft.Zing
                         // For "return" blocks, show the closing brace as the source context.
                         ctxt.Document = zMethod.SourceContext.Document;
                         ctxt.EndPos = zMethod.SourceContext.EndPos;
-                        ctxt.StartPos = ctxt.EndPos-1;
+                        ctxt.StartPos = ctxt.EndPos - 1;
                     }
                 }
 
@@ -1687,7 +1685,7 @@ namespace Microsoft.Zing
                 new MemberBinding(null, new TypeExpression(Identifier.For("ZingSourceContext"))),
                 new ExpressionList(
                     (ctx.Document != null && this.sourceDocuments.Contains(ctx.Document))
-                        ? new Literal((int) this.sourceDocuments[ctx.Document], SystemTypes.Int32)
+                        ? new Literal((int)this.sourceDocuments[ctx.Document], SystemTypes.Int32)
                         : new Literal(0, SystemTypes.Int32),
                     new Literal(ctx.StartPos, SystemTypes.Int32),
                     new Literal(ctx.EndPos, SystemTypes.Int32)));
@@ -1703,7 +1701,7 @@ namespace Microsoft.Zing
             Duplicator duplicator = new Duplicator(null, null);
             AttributeNode dupAttr = duplicator.VisitAttributeNode(contextAttr);
 
-            Construct cons = (Construct) Templates.GetExpressionTemplate("ContextAttributeConstructor");
+            Construct cons = (Construct)Templates.GetExpressionTemplate("ContextAttributeConstructor");
 
             Replacer.Replace(cons, "_AttributeName", dupAttr.Type.Name);
 
@@ -1715,10 +1713,10 @@ namespace Microsoft.Zing
 
         private void PatchContextAttributeProperty(ZMethod zMethod, Class methodClass, List<BasicBlock> basicBlocks)
         {
-            Property contextProperty = (Property) Templates.GetMemberByName(methodClass.Members, "ContextAttribute");
+            Property contextProperty = (Property)Templates.GetMemberByName(methodClass.Members, "ContextAttribute");
             Method contextMethod = contextProperty.Getter;
             Debug.Assert(contextMethod.Body.Statements[0] is System.Compiler.Switch);
-            System.Compiler.Switch switchStmt = (System.Compiler.Switch) contextMethod.Body.Statements[0];
+            System.Compiler.Switch switchStmt = (System.Compiler.Switch)contextMethod.Body.Statements[0];
 
             foreach (BasicBlock block in basicBlocks)
             {
@@ -1727,15 +1725,15 @@ namespace Microsoft.Zing
                 if (contextAttr == null)
                     continue;               // no context attribute found
 
-                SwitchCase newCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("ContextAttributeSwitch")).Cases[0];
+                SwitchCase newCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("ContextAttributeSwitch")).Cases[0];
                 Replacer.Replace(newCase, "_BlockName", new Identifier(block.Name));
 
                 // TODO: for user-defined attributes, we'll need to construct a qualified identifier here
                 Replacer.Replace(newCase, "_AttributeName", contextAttr.Type.Name);
 
                 // Patch the selected context columns into the constructor template
-                Return ret = (Return) newCase.Body.Statements[0];
-                Construct cons = (Construct) ret.Expression;
+                Return ret = (Return)newCase.Body.Statements[0];
+                Construct cons = (Construct)ret.Expression;
                 cons.Operands = contextAttr.Expressions;
 
                 switchStmt.Cases.Add(newCase);
@@ -1749,14 +1747,14 @@ namespace Microsoft.Zing
             if (attrs == null)
                 return null;
 
-            for (int i=0, n = attrs.Count; i < n ;i++)
+            for (int i = 0, n = attrs.Count; i < n; i++)
             {
                 AttributeNode attr = attrs[i];
 
                 if (attr == null)
                     continue;
 
-                TypeNode attrBase = ((Class) attr.Type).BaseClass;
+                TypeNode attrBase = ((Class)attr.Type).BaseClass;
 
                 if (attrBase.FullName == "Microsoft.Zing.ZingAttribute")
                 {
@@ -1776,15 +1774,15 @@ namespace Microsoft.Zing
         {
             MemberList members = new MemberList();
 
-            for (int c=0, nc=this.cZing.CompilationUnits.Count; c < nc ;c++)
+            for (int c = 0, nc = this.cZing.CompilationUnits.Count; c < nc; c++)
             {
-                for (int t=0, nTypes=((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes ;t++)
+                for (int t = 0, nTypes = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes; t++)
                 {
                     TypeNode type = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types[t];
 
                     if (type.NodeType == NodeType.Class)
                     {
-                        for (int m=0, nMembers = type.Members.Count; m < nMembers ;m++)
+                        for (int m = 0, nMembers = type.Members.Count; m < nMembers; m++)
                         {
                             Field f = type.Members[m] as Field;
 
@@ -1801,31 +1799,32 @@ namespace Microsoft.Zing
         {
             TypeNodeList classes = new TypeNodeList();
 
-            for (int c=0, nc=this.cZing.CompilationUnits.Count; c < nc ;c++)
+            for (int c = 0, nc = this.cZing.CompilationUnits.Count; c < nc; c++)
             {
-                for (int t=0, nTypes=((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes ;t++)
+                for (int t = 0, nTypes = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes; t++)
                 {
                     TypeNode type = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types[t];
 
                     if (type.NodeType == NodeType.Class)
                     {
-						classes.Add(type);
+                        classes.Add(type);
                     }
                 }
             }
             return classes;
         }
 
-        private void collectStructAccessors(bool isGlobalVar, Struct s, 
-                                            Expression expPrefix, 
+        private void collectStructAccessors(bool isGlobalVar, Struct s,
+                                            Expression expPrefix,
                                             string strPrefix, Class theClass)
         {
             if (s == null)
                 return;
 
-            for (int i = 0, n = s.Members.Count; i < n; i++) {
+            for (int i = 0, n = s.Members.Count; i < n; i++)
+            {
                 Field f = s.Members[i] as Field;
-                
+
                 if (f == null)
                     continue;
 
@@ -1839,14 +1838,14 @@ namespace Microsoft.Zing
                     generatedType = new TypeExpression(new QualifiedIdentifier(
                         new Identifier("Application"), f.Type.Name), f.Type.SourceContext);
 
-                QualifiedIdentifier localsInputsOrOutputs = isGlobalVar? 
-					new QualifiedIdentifier(new Identifier("LocType"), new Identifier("Global")):
-					new QualifiedIdentifier(new Identifier("LocType"), new Identifier("Local"));
+                QualifiedIdentifier localsInputsOrOutputs = isGlobalVar ?
+                    new QualifiedIdentifier(new Identifier("LocType"), new Identifier("Global")) :
+                    new QualifiedIdentifier(new Identifier("LocType"), new Identifier("Local"));
 
-                Property accessor = 
-                    GetStructAccessorProperty(isGlobalVar?"globalAccessor":"localAccessor", 
-                                        generatedType, new Identifier("__strprops_" + name), 
-                                        qf, localsInputsOrOutputs );
+                Property accessor =
+                    GetStructAccessorProperty(isGlobalVar ? "globalAccessor" : "localAccessor",
+                                        generatedType, new Identifier("__strprops_" + name),
+                                        qf, localsInputsOrOutputs);
 
                 theClass.Members.Add(accessor);
                 accessor.DeclaringType = theClass;
@@ -1860,9 +1859,9 @@ namespace Microsoft.Zing
                     theClass.Members.Add(accessor.Setter);
                     accessor.Setter.DeclaringType = theClass;
                 }
-                    
+
                 if (f.Type is Struct && !f.Type.IsPrimitive && f.Type != SystemTypes.Decimal)
-                    collectStructAccessors(isGlobalVar, (Struct) f.Type, 
+                    collectStructAccessors(isGlobalVar, (Struct)f.Type,
                                            qf, name, theClass);
             }
         }
@@ -1870,36 +1869,36 @@ namespace Microsoft.Zing
         private void ProcessGlobals(MemberList globals)
         {
             // Locate the "Globals" struct so we can add fields to it.
-            Class globalsClass = (Class) Templates.GetMemberByName(appClass.Members, 
+            Class globalsClass = (Class)Templates.GetMemberByName(appClass.Members,
                                                                    "GlobalVars");
 
             // Locate the "initialization" constructor so we can add initialization
             // statements to it.
             Debug.Assert(appClass.Members[1].Name.Name == ".ctor");
-            Method initCtor = (Method) appClass.Members[1];
+            Method initCtor = (Method)appClass.Members[1];
 
             // Locate the WriteString method so we can add statements to write out the globals
-            Method writer = 
-                (Method) Templates.GetMemberByName(globalsClass.Members, "WriteString");
+            Method writer =
+                (Method)Templates.GetMemberByName(globalsClass.Members, "WriteString");
             Method copier =
-                (Method) Templates.GetMemberByName(globalsClass.Members, "CopyContents");
-			Method traverser = (Method) Templates.GetMemberByName(globalsClass.Members, "TraverseFields");
+                (Method)Templates.GetMemberByName(globalsClass.Members, "CopyContents");
+            Method traverser = (Method)Templates.GetMemberByName(globalsClass.Members, "TraverseFields");
 
             Normalizer normalizer = new Normalizer(false);
 
-			Method getValue = (Method) Templates.GetMemberByName(globalsClass.Members, "GetValue");
-			Method setValue = (Method) Templates.GetMemberByName(globalsClass.Members, "SetValue");
-			System.Compiler.Switch switchGetValue = 
-				(System.Compiler.Switch) Templates.GetStatementTemplate("GetFieldInfoSwitch");
-			getValue.Body.Statements.Add(switchGetValue);
-			System.Compiler.Switch switchSetValue = 
-				(System.Compiler.Switch) Templates.GetStatementTemplate("SetFieldInfoSwitch");
-			setValue.Body.Statements.Add(switchSetValue);
+            Method getValue = (Method)Templates.GetMemberByName(globalsClass.Members, "GetValue");
+            Method setValue = (Method)Templates.GetMemberByName(globalsClass.Members, "SetValue");
+            System.Compiler.Switch switchGetValue =
+                (System.Compiler.Switch)Templates.GetStatementTemplate("GetFieldInfoSwitch");
+            getValue.Body.Statements.Add(switchGetValue);
+            System.Compiler.Switch switchSetValue =
+                (System.Compiler.Switch)Templates.GetStatementTemplate("SetFieldInfoSwitch");
+            setValue.Body.Statements.Add(switchSetValue);
 
-            for (int i=0, n = globals.Count; i < n ;i++)
+            for (int i = 0, n = globals.Count; i < n; i++)
             {
                 // Make a shallow copy of the field since we're going to tinker with it
-                Field f = (Field) ((Field) globals[i]).Clone();
+                Field f = (Field)((Field)globals[i]).Clone();
                 string name = f.DeclaringType.Name.Name + "_" + f.Name.Name;
 
                 TypeNode zingType = f.Type;
@@ -1913,28 +1912,28 @@ namespace Microsoft.Zing
                 // Mangle the name to guarantee uniqueness across the globals
                 f.Name = new Identifier("priv_" + name);
                 f.Flags &= ~FieldFlags.Static;
-				// Sriram: I have made this into a public field so that
-				// the fieldInfo below works. If the field is internal
-				// then fieldInfo gets set to null (there is some access
-				// permission problem)
-				// Need to check with Tony as to
-				// whether this is tbe best solution
+                // Sriram: I have made this into a public field so that
+                // the fieldInfo below works. If the field is internal
+                // then fieldInfo gets set to null (there is some access
+                // permission problem)
+                // Need to check with Tony as to
+                // whether this is tbe best solution
 
-				// The following two lines are Tony's code
-				//-----------------------------------------------------------
+                // The following two lines are Tony's code
+                //-----------------------------------------------------------
                 // f.Flags &= (FieldFlags)(~TypeFlags.VisibilityMask);
                 //f.Flags |= FieldFlags.Assembly;
-				//-----------------------------------------------------------
- 
-				//This is my replacement
+                //-----------------------------------------------------------
+
+                //This is my replacement
                 f.Flags |= FieldFlags.Public;
 
-				/*
+                /*
                 Identifier idFieldName = new Identifier("id_" + name);
-                System.Compiler.Expression idTypeExpr = 
-					new QualifiedIdentifier(
-						new QualifiedIdentifier(new Identifier("System"), new Identifier("Reflection")),
-						new Identifier("FieldInfo"));
+                System.Compiler.Expression idTypeExpr =
+                    new QualifiedIdentifier(
+                        new QualifiedIdentifier(new Identifier("System"), new Identifier("Reflection")),
+                        new Identifier("FieldInfo"));
                 System.Compiler.TypeNode idfType =  new System.Compiler.TypeExpression(idTypeExpr);
                 Field idf = new Field(globalsClass, null, FieldFlags.Public|FieldFlags.Static,
                                        idFieldName,
@@ -1942,35 +1941,35 @@ namespace Microsoft.Zing
                 idf.Initializer = Templates.GetExpressionTemplate("GetFieldInfo");
                 Replacer.Replace(idf.Initializer, "_class", globalsClass.Name);
                 Replacer.Replace(idf.Initializer, "_fieldName", new Literal(f.Name.Name, SystemTypes.String));
-				*/
+                */
 
-				Identifier idFieldName = new Identifier("id_" + name);
-				Field idf = new Field(globalsClass, null, FieldFlags.Public|FieldFlags.Static,
-					idFieldName,
-					SystemTypes.Int32, null);
-				idf.Initializer = new Literal(i, SystemTypes.Int32);
-				SwitchCase getCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("GetFieldInfoCase")).Cases[0];
-				Replacer.Replace(getCase, "_fieldId", new Literal(i, SystemTypes.Int32));
-				Replacer.Replace(getCase, "_fieldName", new Identifier(f.Name.Name));
-				switchGetValue.Cases.Add(getCase);
+                Identifier idFieldName = new Identifier("id_" + name);
+                Field idf = new Field(globalsClass, null, FieldFlags.Public | FieldFlags.Static,
+                    idFieldName,
+                    SystemTypes.Int32, null);
+                idf.Initializer = new Literal(i, SystemTypes.Int32);
+                SwitchCase getCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("GetFieldInfoCase")).Cases[0];
+                Replacer.Replace(getCase, "_fieldId", new Literal(i, SystemTypes.Int32));
+                Replacer.Replace(getCase, "_fieldName", new Identifier(f.Name.Name));
+                switchGetValue.Cases.Add(getCase);
 
-				SwitchCase setCase = ((System.Compiler.Switch) Templates.GetStatementTemplate("SetFieldInfoCase")).Cases[0];
-				Replacer.Replace(setCase, "_fieldId", new Literal(i, SystemTypes.Int32));
-				Replacer.Replace(setCase, "_fieldName", new Identifier(f.Name.Name));
-				TypeExpression tn = f.Type as TypeExpression;
-				Replacer.Replace(setCase, "_fieldType", tn != null ? tn.Expression : new Identifier(f.Type.Name.Name));
-				switchSetValue.Cases.Add(setCase);
+                SwitchCase setCase = ((System.Compiler.Switch)Templates.GetStatementTemplate("SetFieldInfoCase")).Cases[0];
+                Replacer.Replace(setCase, "_fieldId", new Literal(i, SystemTypes.Int32));
+                Replacer.Replace(setCase, "_fieldName", new Identifier(f.Name.Name));
+                TypeExpression tn = f.Type as TypeExpression;
+                Replacer.Replace(setCase, "_fieldType", tn != null ? tn.Expression : new Identifier(f.Type.Name.Name));
+                switchSetValue.Cases.Add(setCase);
 
-        		//The last argument to the call below is a dont care
-                Property accessor = GetAccessorProperty("globalAccessor", f.Type, 
+                //The last argument to the call below is a dont care
+                Property accessor = GetAccessorProperty("globalAccessor", f.Type,
                                                         new Identifier(name), f.Name, idFieldName, f.Name);
 
                 globalsClass.Members.Add(f);
                 globalsClass.Members.Add(idf);
                 globalsClass.Members.Add(accessor);
-				f.DeclaringType = globalsClass;
-				idf.DeclaringType = globalsClass;
-				accessor.DeclaringType = globalsClass;
+                f.DeclaringType = globalsClass;
+                idf.DeclaringType = globalsClass;
+                accessor.DeclaringType = globalsClass;
                 if (accessor.Getter != null)
                 {
                     globalsClass.Members.Add(accessor.Getter);
@@ -1983,7 +1982,7 @@ namespace Microsoft.Zing
                 }
 
                 if (zingType is Struct && !zingType.IsPrimitive && f.Type != SystemTypes.Decimal)
-                    collectStructAccessors(true, (Struct) zingType, f.Name, 
+                    collectStructAccessors(true, (Struct)zingType, f.Name,
                                            name, globalsClass);
 
                 if (f.Initializer != null)
@@ -1993,20 +1992,20 @@ namespace Microsoft.Zing
                     Replacer.Replace(stmt, "_FieldInitializer", normalizer.VisitFieldInitializer(f.Initializer));
                     initCtor.Body.Statements.Add(stmt);
                     f.Initializer = null;
-                } 
+                }
 
                 writer.Body.Statements.Add(GetWriterStatement(null, zingType, f.Name));
                 copier.Body.Statements.Add(GetCopyStatement(f.Name));
-				traverser.Body.Statements.Add(GetTraverserStatement(null, zingType, f.Name));
-				/*if(GetTypeClassification(f.Type) == TypeClassification.Heap)
-				{
-					refTraverser.Body.Statements.Add(GetTraverserStatement(null, zingType, f.Name));
-				}
-				*/
-
+                traverser.Body.Statements.Add(GetTraverserStatement(null, zingType, f.Name));
+                /*if(GetTypeClassification(f.Type) == TypeClassification.Heap)
+                {
+                    refTraverser.Body.Statements.Add(GetTraverserStatement(null, zingType, f.Name));
+                }
+                */
             }
         }
-        #endregion
+
+        #endregion Classes (+ methods & globals)
 
         #region Enums
 
@@ -2020,21 +2019,21 @@ namespace Microsoft.Zing
             TypeNode enumClass = Templates.GetTypeTemplateByName("Enum");
 
             Debug.Assert(enumClass.Members[0] is Field);
-            Field f = (Field) enumClass.Members[0];
+            Field f = (Field)enumClass.Members[0];
             f.Name = new Identifier(enumNode.Name.Name + "Choices");
 
             choosableTypes.Add(enumNode.Name, f.Name);
 
             Debug.Assert(f.Initializer != null && f.Initializer is ConstructArray);
-            ConstructArray consArray = (ConstructArray) f.Initializer;
-            for (int i=1, n = enumNode.Members.Count; i < n ;i++)
+            ConstructArray consArray = (ConstructArray)f.Initializer;
+            for (int i = 1, n = enumNode.Members.Count; i < n; i++)
                 consArray.Initializers.Add(new QualifiedIdentifier(enumNode.Name, enumNode.Members[i].Name));
 
             appClass.Members.Add(f);
             f.DeclaringType = appClass;
         }
 
-        #endregion
+        #endregion Enums
 
         #region Ranges
 
@@ -2043,49 +2042,49 @@ namespace Microsoft.Zing
             TypeNode rangeClass = Templates.GetTypeTemplateByName("Range");
 
             Debug.Assert(rangeClass.Members[0] is EnumNode);
-            EnumNode rangeEnum = (EnumNode) rangeClass.Members[0];
+            EnumNode rangeEnum = (EnumNode)rangeClass.Members[0];
             rangeEnum.Name = rangeNode.Name;
             Replacer.Replace(rangeEnum, "_MinValue", rangeNode.Min);
             Replacer.Replace(rangeEnum, "_MaxValue", rangeNode.Max);
             InstallType(rangeEnum);
 
             Debug.Assert(rangeClass.Members[1] is Field);
-            Field f = (Field) rangeClass.Members[1];
+            Field f = (Field)rangeClass.Members[1];
             f.Name = new Identifier(rangeNode.Name.Name + "Choices");
 
             choosableTypes.Add(rangeNode.Name, f.Name);
 
             Debug.Assert(f.Initializer != null && f.Initializer is ConstructArray);
-            ConstructArray consArray = (ConstructArray) f.Initializer;
+            ConstructArray consArray = (ConstructArray)f.Initializer;
             Debug.Assert(rangeNode.Min is Literal);
-            int min = (int) ((Literal) rangeNode.Min).Value;
-            int max = (int) ((Literal) rangeNode.Max).Value;
-            for (int i=min; i <= max ;i++)
+            int min = (int)((Literal)rangeNode.Min).Value;
+            int max = (int)((Literal)rangeNode.Max).Value;
+            for (int i = min; i <= max; i++)
                 consArray.Initializers.Add(new Literal(i, SystemTypes.Int32));
 
             appClass.Members.Add(f);
             f.DeclaringType = appClass;
         }
 
-        #endregion
+        #endregion Ranges
 
         #region Structs
 
         private void GenerateStruct(Struct structNode)
         {
             TypeNode newStruct = Templates.GetTypeTemplateByName("Struct");
-            Method writer = (Method) Templates.GetMemberByName(newStruct.Members, "WriteString");
+            Method writer = (Method)Templates.GetMemberByName(newStruct.Members, "WriteString");
 
             // Replace all references to the struct name
             Replacer.Replace(newStruct, newStruct.Name, structNode.Name);
 
-            for (int i=0, n = structNode.Members.Count; i < n ;i++)
+            for (int i = 0, n = structNode.Members.Count; i < n; i++)
             {
                 Field f = structNode.Members[i] as Field;
                 if (f != null)
                 {
                     // Clone the field since we might tinker with it (see other TODO below)
-                    Field newField = (Field) f.Clone();
+                    Field newField = (Field)f.Clone();
 
                     if (GetTypeClassification(f.Type) == TypeClassification.Heap)
                         newField.Type = this.ZingPtrType;
@@ -2106,7 +2105,7 @@ namespace Microsoft.Zing
             InstallType(newStruct);
         }
 
-        #endregion
+        #endregion Structs
 
         #region Sets
 
@@ -2124,12 +2123,15 @@ namespace Microsoft.Zing
                     setStyle = "SimpleSet";
                     ns = setNode.SetType.Namespace;
                     break;
+
                 case TypeClassification.Enum:
                     setStyle = "EnumSet";
                     break;
+
                 case TypeClassification.Struct:
                     setStyle = "StructSet";
                     break;
+
                 case TypeClassification.Heap:
                     setStyle = "ComplexSet";
                     if (setNode.SetType == SystemTypes.Object)
@@ -2137,7 +2139,7 @@ namespace Microsoft.Zing
                     break;
             }
 
-            Class setClass = (Class) Templates.GetTypeTemplateByName(setStyle);
+            Class setClass = (Class)Templates.GetTypeTemplateByName(setStyle);
 
             Replacer.Replace(setClass, setStyle, setNode.Name);
 
@@ -2149,7 +2151,7 @@ namespace Microsoft.Zing
             InstallType(setClass);
         }
 
-        #endregion
+        #endregion Sets
 
         #region Arrays
 
@@ -2175,7 +2177,7 @@ namespace Microsoft.Zing
                         ns = arrayNode.ElementType.Namespace;
                     arrayStyle = "ComplexArray"; break;
             }
-            Class arrayClass = (Class) Templates.GetTypeTemplateByName(arrayStyle);
+            Class arrayClass = (Class)Templates.GetTypeTemplateByName(arrayStyle);
 
             if (ns == null)
                 ns = new QualifiedIdentifier(new Identifier("Microsoft.Zing"), new Identifier("Application"));
@@ -2187,7 +2189,7 @@ namespace Microsoft.Zing
             InstallType(arrayClass);
         }
 
-        #endregion
+        #endregion Arrays
 
         #region Channels
 
@@ -2210,7 +2212,7 @@ namespace Microsoft.Zing
                         ns = chanNode.ChannelType.Namespace;
                     chanStyle = "ComplexChan"; break;
             }
-            Class chanClass = (Class) Templates.GetTypeTemplateByName(chanStyle);
+            Class chanClass = (Class)Templates.GetTypeTemplateByName(chanStyle);
 
             if (ns == null)
                 ns = new QualifiedIdentifier(new Identifier("Microsoft.Zing"), new Identifier("Application"));
@@ -2221,7 +2223,7 @@ namespace Microsoft.Zing
             InstallType(chanClass);
         }
 
-        #endregion
+        #endregion Channels
 
         #region Application-level code-gen
 
@@ -2233,7 +2235,8 @@ namespace Microsoft.Zing
         }
 
         private void SetTypeId(TypeNode type)
-        {   foreach (Member m in type.Members)
+        {
+            foreach (Member m in type.Members)
             {
                 Field f = m as Field;
                 if (f != null && f.Name.Name == "typeId")
@@ -2249,19 +2252,19 @@ namespace Microsoft.Zing
 
         private void SetSourceStrings(Compilation compilation)
         {
-            Field sourceField = (Field) Templates.GetMemberByName(appClass.Members, "sources");
-            Field filesField = (Field) Templates.GetMemberByName(appClass.Members, "sourceFiles");
+            Field sourceField = (Field)Templates.GetMemberByName(appClass.Members, "sources");
+            Field filesField = (Field)Templates.GetMemberByName(appClass.Members, "sourceFiles");
 
             Debug.Assert(sourceField.Initializer is ConstructArray);
-            ExpressionList sourceList = ((ConstructArray) sourceField.Initializer).Initializers;
+            ExpressionList sourceList = ((ConstructArray)sourceField.Initializer).Initializers;
 
             Debug.Assert(filesField.Initializer is ConstructArray);
-            ExpressionList filesList = ((ConstructArray) filesField.Initializer).Initializers;
+            ExpressionList filesList = ((ConstructArray)filesField.Initializer).Initializers;
 
             string source = string.Empty;
             string file = string.Empty;
 
-            for (int i=0, n = compilation.CompilationUnits.Count; i < n ;i++)
+            for (int i = 0, n = compilation.CompilationUnits.Count; i < n; i++)
             {
                 CompilationUnit cu = compilation.CompilationUnits[i];
 
@@ -2277,19 +2280,18 @@ namespace Microsoft.Zing
                         filesList.Add(new Literal(file, SystemTypes.String));
                     }
                 }
-              }
-
+            }
         }
 
         private void SetExceptionList()
         {
-            EnumNode e = (EnumNode) Templates.GetMemberByName(appClass.Members, "Exceptions");
+            EnumNode e = (EnumNode)Templates.GetMemberByName(appClass.Members, "Exceptions");
 
             int nextValue = 0;
             foreach (DictionaryEntry de in this.exceptionNames)
             {
-                Identifier id = new Identifier((string) de.Key);
-                Field f = new Field(e, null, FieldFlags.Public|FieldFlags.Literal|FieldFlags.Static|FieldFlags.HasDefault, id, e, null);
+                Identifier id = new Identifier((string)de.Key);
+                Field f = new Field(e, null, FieldFlags.Public | FieldFlags.Literal | FieldFlags.Static | FieldFlags.HasDefault, id, e, null);
                 f.Initializer = new Literal(nextValue++, SystemTypes.Int32);
                 e.Members.Add(f);
                 f.DeclaringType = e;
@@ -2300,7 +2302,7 @@ namespace Microsoft.Zing
         {
             TypeNode choiceHelperClass = Templates.GetTypeTemplateByName("ChoiceHelper");
             Debug.Assert(choiceHelperClass.Members[0] is Method);
-            Method choiceHelperMethod = (Method) choiceHelperClass.Members[0];
+            Method choiceHelperMethod = (Method)choiceHelperClass.Members[0];
             appClass.Members.Add(choiceHelperMethod);
             choiceHelperMethod.DeclaringType = appClass;
 
@@ -2314,9 +2316,9 @@ namespace Microsoft.Zing
 
             foreach (DictionaryEntry de in choosableTypes)
             {
-                If thisIf = (If) Templates.GetStatementTemplate("ChoiceHelperBody");
-                Replacer.Replace(thisIf, "_ChoiceType", (Node) de.Key);
-                Replacer.Replace(thisIf, "_ChoiceTypeChoices", (Node) de.Value);
+                If thisIf = (If)Templates.GetStatementTemplate("ChoiceHelperBody");
+                Replacer.Replace(thisIf, "_ChoiceType", (Node)de.Key);
+                Replacer.Replace(thisIf, "_ChoiceTypeChoices", (Node)de.Value);
 
                 if (lastIf != null)
                     lastIf.FalseBlock = new Block(new StatementList(thisIf));
@@ -2329,7 +2331,7 @@ namespace Microsoft.Zing
             lastIf.FalseBlock = new Block(new StatementList(Templates.GetStatementTemplate("ChoiceHelperEnd")));
         }
 
-        #endregion
+        #endregion Application-level code-gen
 
         #region Utility methods
 
@@ -2343,11 +2345,11 @@ namespace Microsoft.Zing
                 typeName = type.Name.Name;
             else if (type is TypeExpression)
             {
-                Expression expr = ((TypeExpression) type).Expression;
+                Expression expr = ((TypeExpression)type).Expression;
                 if (expr is Identifier)
-                    typeName = ((Identifier) expr).Name;
+                    typeName = ((Identifier)expr).Name;
                 else if (expr is QualifiedIdentifier)
-                    typeName = ((QualifiedIdentifier) expr).Identifier.Name;
+                    typeName = ((QualifiedIdentifier)expr).Identifier.Name;
                 else
                     throw new ApplicationException("unexpected type node");
             }
@@ -2361,16 +2363,16 @@ namespace Microsoft.Zing
         {
             // We see references on output parameters - they aren't interesting
             while (type is Reference)
-                type = ((Reference) type).ElementType;
+                type = ((Reference)type).ElementType;
 
             if (type == this.ZingPtrType)
                 return TypeClassification.Heap;
 
             string typeName = GetTypeName(type);
 
-            for (int c=0, nc=this.cZing.CompilationUnits.Count; c < nc ;c++)
+            for (int c = 0, nc = this.cZing.CompilationUnits.Count; c < nc; c++)
             {
-                for (int t=0, nTypes=((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes ;t++)
+                for (int t = 0, nTypes = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes; t++)
                 {
                     TypeNode tn = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types[t];
 
@@ -2402,7 +2404,7 @@ namespace Microsoft.Zing
         {
             Statement stmt = Templates.GetStatementTemplate("CloneField");
             Replacer.Replace(stmt, "_FieldName", varName);
-			return stmt;
+            return stmt;
         }
 
         private Statement GetCopyStatement(Identifier varName)
@@ -2412,27 +2414,27 @@ namespace Microsoft.Zing
             return stmt;
         }
 
-		private Statement GetTraverserStatement(string prefix, TypeNode type, Identifier varName)
-		{
-			Expression fullName;
+        private Statement GetTraverserStatement(string prefix, TypeNode type, Identifier varName)
+        {
+            Expression fullName;
 
-			if (prefix != null)
-			{
-				if (prefix == "this")
-				{
-					fullName = Templates.GetExpressionTemplate("SimpleFieldRef");
-					Replacer.Replace(fullName, "_fieldName", varName);
-				}
-				else
-					fullName = (Expression) new QualifiedIdentifier(new Identifier(prefix), varName);
-			}
-			else
-				fullName = (Expression) varName;
+            if (prefix != null)
+            {
+                if (prefix == "this")
+                {
+                    fullName = Templates.GetExpressionTemplate("SimpleFieldRef");
+                    Replacer.Replace(fullName, "_fieldName", varName);
+                }
+                else
+                    fullName = (Expression)new QualifiedIdentifier(new Identifier(prefix), varName);
+            }
+            else
+                fullName = (Expression)varName;
 
-			Statement travStmt = Templates.GetStatementTemplate("FieldTraverser");
-			Replacer.Replace(travStmt, "_Name", fullName);
-			return travStmt;
-		}
+            Statement travStmt = Templates.GetStatementTemplate("FieldTraverser");
+            Replacer.Replace(travStmt, "_Name", fullName);
+            return travStmt;
+        }
 
         private Statement GetWriterStatement(string prefix, TypeNode type, Identifier varName)
         {
@@ -2454,7 +2456,6 @@ namespace Microsoft.Zing
             else
                 fullName = (Expression)varName;
 
-
             switch (typeClass)
             {
                 case TypeClassification.Simple:
@@ -2464,12 +2465,15 @@ namespace Microsoft.Zing
                     else
                         writeStmt = Templates.GetStatementTemplate("SimpleWriter");
                     break;
+
                 case TypeClassification.Enum:
                     writeStmt = Templates.GetStatementTemplate("EnumWriter");
                     break;
+
                 case TypeClassification.Struct:
                     writeStmt = Templates.GetStatementTemplate("StructWriter");
                     break;
+
                 case TypeClassification.Heap:
                     writeStmt = Templates.GetStatementTemplate("ComplexWriter");
                     break;
@@ -2482,9 +2486,9 @@ namespace Microsoft.Zing
 
         private bool HeapUsed()
         {
-            for (int c=0, nc=this.cZing.CompilationUnits.Count; c < nc ;c++)
+            for (int c = 0, nc = this.cZing.CompilationUnits.Count; c < nc; c++)
             {
-                for (int t=0, nTypes=((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes ;t++)
+                for (int t = 0, nTypes = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types.Count; t < nTypes; t++)
                 {
                     TypeNode node = ((Namespace)this.cZing.CompilationUnits[c].Nodes[0]).Types[t];
 
@@ -2493,7 +2497,7 @@ namespace Microsoft.Zing
 
                     if (node is Class)
                     {
-                        for (int m=0, nMembers=node.Members.Count; m < nMembers ;m++)
+                        for (int m = 0, nMembers = node.Members.Count; m < nMembers; m++)
                         {
                             if (node.Members[m] != null && !node.Members[m].IsStatic)
                                 return true;
@@ -2504,7 +2508,7 @@ namespace Microsoft.Zing
             return false;
         }
 
-        #endregion
+        #endregion Utility methods
     }
 
     internal static class Templates
@@ -2563,7 +2567,7 @@ namespace Microsoft.Zing
 
             return cu;
         }
-        
+
         private static CompilationUnit CompileTemplate(string templateName, params object[] additionalDefines)
         {
             CSOPTIONS csOptions = new CSOPTIONS();
@@ -2607,10 +2611,10 @@ namespace Microsoft.Zing
 
             return cu;
         }
-        
+
         public static Statement GetStatementTemplate(string name)
         {
-            for (int i=0, n = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n ;i++)
+            for (int i = 0, n = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n; i++)
             {
                 Method m = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members[i] as Method;
 
@@ -2625,32 +2629,34 @@ namespace Microsoft.Zing
             throw new ArgumentException(string.Format("Statement template '{0}' not found", name));
         }
 
-		public static StatementList GetStatementsTemplate(string name)
-		{
-			for (int i=0, n = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n ;i++)
-			{
-				Method m = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members[i] as Method;
+        public static StatementList GetStatementsTemplate(string name)
+        {
+            for (int i = 0, n = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n; i++)
+            {
+                Method m = ((Namespace)cuStatements.Nodes[0]).NestedNamespaces[0].Types[0].Members[i] as Method;
 
-				if (m != null && m.Name.Name == name)
-				{
-					CS.Duplicator duplicator = new CS.Duplicator(module, null);
-					duplicator.SkipBodies = false;
-					return duplicator.VisitStatementList(m.Body.Statements);
-				}
-			}
-			throw new ArgumentException(string.Format("Statement template '{0}' not found", name));
-		}
+                if (m != null && m.Name.Name == name)
+                {
+                    CS.Duplicator duplicator = new CS.Duplicator(module, null);
+                    duplicator.SkipBodies = false;
+                    return duplicator.VisitStatementList(m.Body.Statements);
+                }
+            }
+            throw new ArgumentException(string.Format("Statement template '{0}' not found", name));
+        }
 
-		public static Property GetPropertyTemplate(string name)
+        public static Property GetPropertyTemplate(string name)
         {
             int i, n = ((Namespace)cuProperties.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count;
-            for (i = 0; i < n; i++) {
+            for (i = 0; i < n; i++)
+            {
                 Property p = ((Namespace)cuProperties.Nodes[0]).NestedNamespaces[0].Types[0].Members[i] as Property;
-                
-                if (p != null && p.Name.Name == name) {
-					CS.Duplicator duplicator = new CS.Duplicator(module, null);
-					duplicator.SkipBodies = false;
-					return duplicator.VisitProperty(p);
+
+                if (p != null && p.Name.Name == name)
+                {
+                    CS.Duplicator duplicator = new CS.Duplicator(module, null);
+                    duplicator.SkipBodies = false;
+                    return duplicator.VisitProperty(p);
                 }
             }
             throw new ArgumentException
@@ -2659,7 +2665,7 @@ namespace Microsoft.Zing
 
         public static Expression GetExpressionTemplate(string name)
         {
-            for (int i=0, n = ((Namespace)cuExpressions.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n ;i++)
+            for (int i = 0, n = ((Namespace)cuExpressions.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n; i++)
             {
                 Field f = ((Namespace)cuExpressions.Nodes[0]).NestedNamespaces[0].Types[0].Members[i] as Field;
 
@@ -2684,14 +2690,14 @@ namespace Microsoft.Zing
 
             template = cuParts;
 
-            for (int i=0, n = ((Namespace)template.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n ;i++)
+            for (int i = 0, n = ((Namespace)template.Nodes[0]).NestedNamespaces[0].Types[0].Members.Count; i < n; i++)
             {
                 Member m = ((Namespace)template.Nodes[0]).NestedNamespaces[0].Types[0].Members[i];
 
-                if (! (m is TypeNode))
+                if (!(m is TypeNode))
                     continue;
 
-                TypeNode tn = (TypeNode) m;
+                TypeNode tn = (TypeNode)m;
 
                 if (tn.Name.Name == name)
                 {
@@ -2708,7 +2714,7 @@ namespace Microsoft.Zing
 
         public static Member GetMemberByName(MemberList members, string name)
         {
-            for (int i=0, n = members.Count; i < n ;i++)
+            for (int i = 0, n = members.Count; i < n; i++)
             {
                 if (members[i] != null && members[i].Name.Name == name)
                     return members[i];
@@ -2719,7 +2725,7 @@ namespace Microsoft.Zing
 
         public static int GetMemberIndexByName(MemberList members, string name)
         {
-            for (int i=0, n = members.Count; i < n ;i++)
+            for (int i = 0, n = members.Count; i < n; i++)
             {
                 if (members[i] != null && members[i].Name.Name == name)
                     return i;

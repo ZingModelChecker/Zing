@@ -93,10 +93,10 @@
   <ItemGroup>
     <Compile Include="ZingerStateTable.cs" />
     <Compile Include="ZingExplorer.cs" />
-    <Compile Include="ZingExplorerAsModelChecker.cs" />
+    <Compile Include="ZingExplorerExhaustiveSearch.cs" />
     <Compile Include="ZingExplorerNDFSLiveness.cs" />
-    <Compile Include="ZingExplorerRandomWalk.cs" />
-    <Compile Include="ZingExplorerStateLessDFS.cs" />
+    <Compile Include="ZingExplorerSampling.cs" />
+    <Compile Include="ZingExplorerStateLessSearch.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

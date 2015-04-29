@@ -3,16 +3,11 @@
 
 using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
-namespace Microsoft.Zing 
+namespace Microsoft.Zing
 {
     /// <exclude/>
     /// <summary>
@@ -90,13 +85,14 @@ namespace Microsoft.Zing
         /// Field to store the assertion failure context
         /// </summary>
         public static ZingSourceContext[] AssertionFailureCtx = new ZingSourceContext[ZingerConfiguration.DegreeOfParallelism];
-        
+
         /// <summary>
-        /// Field to store the 
+        /// Field to store the
         /// </summary>
         private static Process[] currentProcess = new Process[ZingerConfiguration.DegreeOfParallelism];
 
-        public static Process CurrentProcess {
+        public static Process CurrentProcess
+        {
             get { return currentProcess[0]; }
             set { currentProcess[0] = value; }
         }
@@ -115,7 +111,6 @@ namespace Microsoft.Zing
             }
         }
 
-
         [NonSerialized]
         internal readonly StateImpl StateImpl;
 
@@ -123,12 +118,14 @@ namespace Microsoft.Zing
         // The friendly name of the process.
         // </summary>
         private string name;
+
         public string Name { get { return name; } }
 
         // <summary>
         // Identifier of the process.
         // </summary>
         private uint id;
+
         public uint Id { get { return id; } }
 
         // <summary>
@@ -142,12 +139,13 @@ namespace Microsoft.Zing
         // </remarks>
         [NonSerialized]
         private ZingMethod entryPoint;
-        public ZingMethod EntryPoint { 
-            get { return entryPoint; } 
-            set { entryPoint = value; } 
+
+        public ZingMethod EntryPoint
+        {
+            get { return entryPoint; }
+            set { entryPoint = value; }
         }
 
-        
         public enum Status
         {
             Runnable,       // runnable, but in a "stable" state
@@ -155,34 +153,40 @@ namespace Microsoft.Zing
             Completed,      // process has terminated
         };
 
-        // atomicity level records the current dynamic depth of 
+        // atomicity level records the current dynamic depth of
         // nested atomic blocks we have entered
         private int atomicityLevel;
+
         private bool middleOfTransition;
 
-        public int AtomicityLevel {
+        public int AtomicityLevel
+        {
             get { return atomicityLevel; }
             set { atomicityLevel = value; }
         }
-        public bool MiddleOfTransition {
+
+        public bool MiddleOfTransition
+        {
             get { return middleOfTransition; }
             set { middleOfTransition = value; }
         }
 
         private bool backTransitionEncountered;
-        public bool BackTransitionEncountered {
+
+        public bool BackTransitionEncountered
+        {
             get { return backTransitionEncountered; }
             set { backTransitionEncountered = value; }
         }
 
         // IsPreemptible tells RunProcess whether interleaving is allowed
-        public bool IsPreemptible {
+        public bool IsPreemptible
+        {
             get { return ((atomicityLevel == 0) && !middleOfTransition); }
         }
 
         internal bool choicePending;
 
-      
         public ProcessStatus CurrentStatus
         {
             get
@@ -197,7 +201,7 @@ namespace Microsoft.Zing
                     else if (this.topOfStack.ValidEndState)
                         returnValue = ProcessStatus.BlockedInEndState;
                     else
-                        returnValue= ProcessStatus.Blocked;
+                        returnValue = ProcessStatus.Blocked;
                     return returnValue;
                 }
                 catch (ZingException)
@@ -209,6 +213,7 @@ namespace Microsoft.Zing
                 }
             }
         }
+
         public ZingSourceContext Context
         {
             get
@@ -239,7 +244,8 @@ namespace Microsoft.Zing
 
         public string ProgramCounter
         {
-            get {
+            get
+            {
                 if (topOfStack == null)
                     return String.Empty;
 
@@ -249,7 +255,8 @@ namespace Microsoft.Zing
 
         public string MethodName
         {
-            get {
+            get
+            {
                 if (topOfStack == null)
                     return String.Empty;
 
@@ -259,7 +266,9 @@ namespace Microsoft.Zing
 
         [NonSerialized]
         private ZingMethod topOfStack;
+
         public ZingMethod TopOfStack { get { return topOfStack; } }
+
         [NonSerialized]
         private ZingMethod savedTopOfStack;
 
@@ -274,10 +283,12 @@ namespace Microsoft.Zing
 
         private ZingMethod doPop()
         {
-            if (stackULEs != null) {
+            if (stackULEs != null)
+            {
                 if (stackULEs.Count > 0 && stackULEs.Peek() is UndoPush)
                     stackULEs.Pop();
-                else {
+                else
+                {
                     Debug.Assert(topOfStack == savedTopOfStack);
                     stackULEs.Push(new UndoPop(this, topOfStack));
                     savedTopOfStack = topOfStack.Caller;
@@ -306,7 +317,8 @@ namespace Microsoft.Zing
 
             if (topOfStack != null)
                 lastFunctionCompleted = returningMethod;
-            else {
+            else
+            {
                 lastFunctionCompleted = null;
                 middleOfTransition = false;
             }
@@ -325,7 +337,9 @@ namespace Microsoft.Zing
         }
 
         #region some predicate nonsense
+
         private static bool[] runningPredicateMethod = new bool[ZingerConfiguration.DegreeOfParallelism];
+
         internal static bool[] RunningPredicateMethod
         {
             get { return runningPredicateMethod; }
@@ -398,7 +412,9 @@ namespace Microsoft.Zing
             this.StateImpl.Exception = savedException;
             return predicateMethod.BooleanReturnValue;
         }
-        #endregion
+
+        #endregion some predicate nonsense
+
         //
         // Find a stack frame capable of handling the exception, peeling off
         // stack frames as necessary to find someone. If nobody has a handler
@@ -410,8 +426,9 @@ namespace Microsoft.Zing
             this.lastFunctionCompleted = null;
 
             doPop();
-            
-            while (topOfStack != null) {
+
+            while (topOfStack != null)
+            {
                 this.atomicityLevel = this.topOfStack.SavedAtomicityLevel;
                 // If we find a handler, we're done
                 if (this.topOfStack.RaiseZingException(exception))
@@ -466,7 +483,7 @@ namespace Microsoft.Zing
                 if (Debugger.IsAttached)
                     Debugger.Break();
 
-                this.StateImpl.Exception = 
+                this.StateImpl.Exception =
                     new ZingUnexpectedFailureException("Unhandled exception in the Zing runtime", e);
                 (this.StateImpl.Exception as ZingException).myThreadId = MyThreadId;
             }
@@ -483,28 +500,33 @@ namespace Microsoft.Zing
 
         [NonSerialized]
         private ZingMethod lastFunctionCompleted;
+
         //the following is used during application of effects
-        public void UpdateDirectLastFunctionCompleted (ZingMethod method)
+        public void UpdateDirectLastFunctionCompleted(ZingMethod method)
         {
             lastFunctionCompleted = method;
         }
-        public ZingMethod LastFunctionCompleted { 
-            get { return lastFunctionCompleted; } 
-            set { 
+
+        public ZingMethod LastFunctionCompleted
+        {
+            get { return lastFunctionCompleted; }
+            set
+            {
                 Debug.Assert(value == null);
-                if((stackULEs != null) && (stackULEs.Count == 0))
+                if ((stackULEs != null) && (stackULEs.Count == 0))
                 {
-                    stackULEs.Push(new UndoResetLastFunctionCompleted(this,lastFunctionCompleted));
-                }	
+                    stackULEs.Push(new UndoResetLastFunctionCompleted(this, lastFunctionCompleted));
+                }
                 //value has to be null here!
-                lastFunctionCompleted = value; 
+                lastFunctionCompleted = value;
             }
         }
-        
+
         /// <summary>
         /// Field indicating the thread Id when used during parallel exploration
         /// </summary>
         private int myThreadId = 0;
+
         public int MyThreadId
         {
             get { return myThreadId; }
@@ -515,7 +537,7 @@ namespace Microsoft.Zing
         {
             Process clone = new Process(myState, Name, Id);
 
-            clone.atomicityLevel  = this.atomicityLevel;
+            clone.atomicityLevel = this.atomicityLevel;
             clone.middleOfTransition = this.middleOfTransition;
             clone.backTransitionEncountered = this.backTransitionEncountered;
             clone.choicePending = this.choicePending;
@@ -526,21 +548,25 @@ namespace Microsoft.Zing
             if (this.topOfStack != null)
                 clone.topOfStack = this.topOfStack.Clone(myState, clone, shallowCopy);
 
-            if (this.lastFunctionCompleted != null) {
-                 Debug.Fail("cannot happen anymore (xyc)");
-                 clone.lastFunctionCompleted = this.lastFunctionCompleted.Clone(myState, clone, true);
+            if (this.lastFunctionCompleted != null)
+            {
+                Debug.Fail("cannot happen anymore (xyc)");
+                clone.lastFunctionCompleted = this.lastFunctionCompleted.Clone(myState, clone, true);
             }
 
             return clone;
         }
 
         #region Process delta data structures
+
         private class ProcessULE
         {
             // cloned components
             public int atomicityLevel;
+
             public bool middleOfTransition;
             public bool choicePending;
+
             // the following field added because of summarization
             public ZingMethod lastFunctionCompleted;
 
@@ -548,25 +574,27 @@ namespace Microsoft.Zing
             public Stack stackULEs;
         }
 
-        private abstract class StackULE 
+        private abstract class StackULE
         {
             protected Process process;
-            
+
             protected StackULE(Process p)
             {
                 process = p;
             }
+
             public void Undo()
             {
                 doUndo();
             }
+
             protected abstract void doUndo();
         }
 
         private class UndoPush : StackULE
         {
-            public UndoPush(Process p) 
-                : base(p) {}
+            public UndoPush(Process p)
+                : base(p) { }
 
             protected override void doUndo()
             {
@@ -577,7 +605,7 @@ namespace Microsoft.Zing
 
         private class UndoPop : StackULE
         {
-            ZingMethod savedStackFrame;
+            private ZingMethod savedStackFrame;
 
             public UndoPop(Process p, ZingMethod theFrame)
                 : base(p)
@@ -596,9 +624,10 @@ namespace Microsoft.Zing
 
         private class UndoResetLastFunctionCompleted : StackULE
         {
-            ZingMethod savedLastFunctionCompleted;
+            private ZingMethod savedLastFunctionCompleted;
+
             public UndoResetLastFunctionCompleted(Process p, ZingMethod l)
-                : base (p)
+                : base(p)
             {
                 savedLastFunctionCompleted = l;
             }
@@ -611,7 +640,7 @@ namespace Microsoft.Zing
 
         private class UndoUpdate : StackULE
         {
-            object zingMethodULE;
+            private object zingMethodULE;
 
             public UndoUpdate(Process p, object ule)
                 : base(p)
@@ -627,14 +656,17 @@ namespace Microsoft.Zing
             }
         }
 
-        Stack stackULEs;
-        #endregion
+        private Stack stackULEs;
+
+        #endregion Process delta data structures
 
         #region Private process delta methods
+
         private Stack checkInStackFrames()
         {
             // this is the first time we checked in
-            if (stackULEs == null) {
+            if (stackULEs == null)
+            {
                 stackULEs = new Stack();
                 for (savedTopOfStack = topOfStack;
                      savedTopOfStack != null;
@@ -649,10 +681,11 @@ namespace Microsoft.Zing
 
             if (savedTopOfStack != null)
                 zmULE = savedTopOfStack.DoCheckIn();
-            
+
             // small optimization when no changes was made in the
             // current transition
-            if (stackULEs.Count == 0 && zmULE == null) {
+            if (stackULEs.Count == 0 && zmULE == null)
+            {
                 Debug.Assert(savedTopOfStack == topOfStack);
                 return null;
             }
@@ -667,8 +700,9 @@ namespace Microsoft.Zing
             // move newly pushed frames away from the result, save
             // them temporarily in stackULEs; while doing that, we
             // checkIn every newly pushed node
-            while (resStack.Count > 0 && resStack.Peek() is UndoPush) {
-                //object sfULE = 
+            while (resStack.Count > 0 && resStack.Peek() is UndoPush)
+            {
+                //object sfULE =
                 // this would be the first time we check in these
                 // freshly pushed nodes. so we discard their undo log
                 // entries
@@ -677,7 +711,7 @@ namespace Microsoft.Zing
                 stackFrame = stackFrame.Caller;
             }
 
-            // everything below should be UndoPop's or UndoResetLastFunctionCompleted, 
+            // everything below should be UndoPop's or UndoResetLastFunctionCompleted,
             // and if anything is to be saved, it should be right there at stackFrame
             Debug.Assert(resStack.Count == 0 || resStack.Peek() is UndoPop
                          || resStack.Peek() is UndoResetLastFunctionCompleted);
@@ -695,15 +729,16 @@ namespace Microsoft.Zing
             savedTopOfStack = topOfStack;
             return resStack;
         }
-        
+
         private void revertStackFrames()
         {
             Debug.Assert(stackULEs != null);
 
             if (savedTopOfStack != null)
                 savedTopOfStack.DoRevert();
-            while (stackULEs.Count > 0) {
-                StackULE ule = (StackULE) stackULEs.Pop();
+            while (stackULEs.Count > 0)
+            {
+                StackULE ule = (StackULE)stackULEs.Pop();
                 ule.Undo();
             }
             Debug.Assert(savedTopOfStack == topOfStack);
@@ -712,23 +747,27 @@ namespace Microsoft.Zing
         private void rollbackStackFrames(Stack sules)
         {
             StackULE ule;
-            
+
             Debug.Assert(stackULEs != null);
             Debug.Assert(stackULEs.Count == 0);
-            
-            if (sules == null) {
+
+            if (sules == null)
+            {
                 savedTopOfStack = topOfStack;
                 return;
             }
-            while (sules.Count > 0) {
-                ule = (StackULE) sules.Pop();
+            while (sules.Count > 0)
+            {
+                ule = (StackULE)sules.Pop();
                 ule.Undo();
             }
             savedTopOfStack = topOfStack;
         }
-        #endregion
+
+        #endregion Private process delta methods
 
         #region Public process delta methods
+
         public object DoCheckIn()
         {
             ProcessULE pULE = new ProcessULE();
@@ -738,7 +777,7 @@ namespace Microsoft.Zing
             pULE.middleOfTransition = middleOfTransition;
             pULE.choicePending = choicePending;
             pULE.lastFunctionCompleted = null;
-            if (lastFunctionCompleted != null) 
+            if (lastFunctionCompleted != null)
             {
                 pULE.lastFunctionCompleted = lastFunctionCompleted.Clone(StateImpl, this, false);
             }
@@ -750,7 +789,7 @@ namespace Microsoft.Zing
 
         public void DoCheckout(object currentUle)
         {
-            ProcessULE pULE = (ProcessULE) currentUle;
+            ProcessULE pULE = (ProcessULE)currentUle;
 
             // cloned components
             atomicityLevel = pULE.atomicityLevel;
@@ -764,7 +803,7 @@ namespace Microsoft.Zing
         public void DoRevert()
         {
             // cloned components -- do nothing
-            
+
             // undoable ones
             revertStackFrames();
         }
@@ -772,14 +811,15 @@ namespace Microsoft.Zing
         public void DoRollback(object[] uleList)
         {
             // cloned components -- do nothing
-            
+
             // undoable ones
             int n = uleList.Length, i;
 
             for (i = 0; i < n; i++)
-                rollbackStackFrames(((ProcessULE) uleList[i]).stackULEs);
+                rollbackStackFrames(((ProcessULE)uleList[i]).stackULEs);
         }
-        #endregion
+
+        #endregion Public process delta methods
 
         #region Fingerprinting
 
@@ -787,7 +827,7 @@ namespace Microsoft.Zing
         private BinaryWriter binWriter;
 
         /// <summary>
-        ///  Compute the fingerprint of a process. 
+        ///  Compute the fingerprint of a process.
         ///      The current implementation computes this fingerprint nonincrementally.
         ///      But in the future this can be made incremental
         /// </summary>
@@ -795,25 +835,24 @@ namespace Microsoft.Zing
         /// <returns>Fingerprint of a process</returns>
         public Fingerprint ComputeFingerprint(StateImpl state)
         {
-            if(memStream == null)
+            if (memStream == null)
             {
                 memStream = new MemoryStream();
                 binWriter = new BinaryWriter(memStream);
             }
             binWriter.Seek(0, SeekOrigin.Begin);
             this.WriteString(state, binWriter);
-            Fingerprint procPrint = StateImpl.FingerprintNonHeapBuffer(memStream.GetBuffer(), (int) memStream.Position);
+            Fingerprint procPrint = StateImpl.FingerprintNonHeapBuffer(memStream.GetBuffer(), (int)memStream.Position);
             return procPrint;
             //return Fingerprint.ComputeFingerprint(memStream.GetBuffer(), (int) memStream.Position, 0);
         }
 
-
         internal void WriteString(StateImpl state, BinaryWriter bw)
         {
-            for (ZingMethod m = topOfStack; m != null ;m = m.Caller)
+            for (ZingMethod m = topOfStack; m != null; m = m.Caller)
                 m.WriteString(state, bw);
 
-            if (lastFunctionCompleted != null) 
+            if (lastFunctionCompleted != null)
             {
                 Debug.Assert(state.Exception != null);
                 bw.Write((ushort)0xcafe);
@@ -826,9 +865,9 @@ namespace Microsoft.Zing
             // it's at least theoretically possible that two distinct states could
             // yield the same string.
 
-            bw.Write((ushort) 0xface);
+            bw.Write((ushort)0xface);
         }
-        #endregion
 
+        #endregion Fingerprinting
     }
 }

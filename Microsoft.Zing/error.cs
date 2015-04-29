@@ -49,8 +49,10 @@ namespace Microsoft.Zing
         ExpectedStaticMethod,
         ExpectedVoidMethod,
         ExpectedPluginDllName,
+
         [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly")]
         _unusedErrorCode5,
+
         TraceExpectedArguments,
         InvokePluginExpectedArguments,
         IllegalEscape,
@@ -119,12 +121,14 @@ namespace Microsoft.Zing
             : base((int)code, messageParameters)
         {
         }
+
         public override string GetMessage(System.Globalization.CultureInfo culture)
         {
             if (ZingErrorNode.resourceManager == null)
                 ZingErrorNode.resourceManager = new System.Resources.ResourceManager("Microsoft.Zing.ErrorMessages", typeof(ZingErrorNode).Module.Assembly);
             return this.GetMessage(((Error)this.Code).ToString(), ZingErrorNode.resourceManager, culture);
         }
+
         public override int Severity
         {
             get
@@ -152,7 +156,7 @@ namespace Microsoft.Zing
             if (mem.IsSpecialName || mem.DeclaringType is Range)
                 return null;
 
-            return base.GetUnqualifiedMemberSignature (mem);
+            return base.GetUnqualifiedMemberSignature(mem);
         }
 
         //
@@ -164,7 +168,7 @@ namespace Microsoft.Zing
             if (method.HasCompilerGeneratedSignature)
                 return null;
 
-            return base.GetUnqualifiedMethodSignature (method, noAccessor);
+            return base.GetUnqualifiedMethodSignature(method, noAccessor);
         }
 
         public override string GetMemberAccessString(System.Compiler.Member mem)
@@ -193,7 +197,7 @@ namespace Microsoft.Zing
             else if (type.TypeCode == TypeCode.Int32)
                 return "int";
             else
-                return base.GetTypeName (type);
+                return base.GetTypeName(type);
         }
     }
 }

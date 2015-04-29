@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.ComponentModel;
 
 namespace Microsoft.Zing
 {
@@ -8,7 +7,6 @@ namespace Microsoft.Zing
     /// Summary description for HeapTraverser
     /// </summary>
     [CLSCompliant(false)]
-    
     sealed public class HeapTraverser
     {
         private HeapTraverser()
@@ -16,7 +14,7 @@ namespace Microsoft.Zing
         }
 
         private static Queue heapQueue;
-        static Hashtable seen;
+        private static Hashtable seen;
 
         private class ReferenceTraverser : FieldTraverser
         {
@@ -28,52 +26,54 @@ namespace Microsoft.Zing
                 state = s;
                 perEdgeTraverser = e;
             }
+
             public override void DoTraversal(Object field)
             {
                 //nothing
             }
+
             public override void DoTraversal(Pointer ptr)
             {
-                if(ptr != 0u && !seen.Contains(ptr))
+                if (ptr != 0u && !seen.Contains(ptr))
                 {
                     seen.Add(ptr, null);
                     heapQueue.Enqueue(ptr);
                 }
-                if(perEdgeTraverser != null) perEdgeTraverser.DoTraversal(ptr);
+                if (perEdgeTraverser != null) perEdgeTraverser.DoTraversal(ptr);
             }
         }
 
-/*      private class EdgeCounter : FieldTraverser
-        {
-            private int count = 0;
-            public override void DoTraversal(Object field)
-            {
-                throw new ApplicationException("EdgePrinter should never traverse non Ptrs");
-            }
-            public override void DoTraversal(Pointer ptr)
-            {
-                if(ptr == 0u) return;
-                count ++;
-            }		
-            public void reset(){count = 0;}
-            public int edgeCount(){return count;}
-        }
+        /*      private class EdgeCounter : FieldTraverser
+                {
+                    private int count = 0;
+                    public override void DoTraversal(Object field)
+                    {
+                        throw new ApplicationException("EdgePrinter should never traverse non Ptrs");
+                    }
+                    public override void DoTraversal(Pointer ptr)
+                    {
+                        if(ptr == 0u) return;
+                        count ++;
+                    }
+                    public void reset(){count = 0;}
+                    public int edgeCount(){return count;}
+                }
 
-*/
+        */
 
         static public void TraverseHeap(StateImpl state, FieldTraverser edge, FieldTraverser node)
         {
             heapQueue = new Queue();
             seen = new Hashtable();
-            
+
             ReferenceTraverser et = new ReferenceTraverser(state, edge);
 
             state.TraverseGlobalReferences(et);
-            
-            for(int i=0; i<state.NumProcesses; i++)
+
+            for (int i = 0; i < state.NumProcesses; i++)
             {
                 Process p = state.GetProcess(i);
-                for(ZingMethod m = p.TopOfStack; m != null; m = m.Caller)
+                for (ZingMethod m = p.TopOfStack; m != null; m = m.Caller)
                 {
                     m.TraverseFields(et);
                 }
@@ -81,9 +81,9 @@ namespace Microsoft.Zing
 
             while (heapQueue.Count > 0)
             {
-                Pointer ptr = (Pointer) heapQueue.Dequeue();
-                if(node != null) node.DoTraversal(ptr);
-                HeapEntry he = (HeapEntry) state.Heap[ptr];
+                Pointer ptr = (Pointer)heapQueue.Dequeue();
+                if (node != null) node.DoTraversal(ptr);
+                HeapEntry he = (HeapEntry)state.Heap[ptr];
                 he.heList.TraverseFields(et);
             }
         }
@@ -94,6 +94,7 @@ namespace Microsoft.Zing
             public FieldTraverser nodeTrav;
             public FieldTraverser edgeTrav;
             private int offset;
+
             public HeapElementPrinter(StateImpl s)
             {
                 state = s;
@@ -101,49 +102,60 @@ namespace Microsoft.Zing
                 edgeTrav = new EdgePrinter(this);
             }
 
-            void OnEdge(Pointer ptr)
+            private void OnEdge(Pointer ptr)
             {
                 offset++;
                 System.Console.WriteLine("\t Offset[{0}] -> Ptr {1}", offset, ptr);
             }
 
-            void OnNode(Pointer ptr)
+            private void OnNode(Pointer ptr)
             {
-                if(ptr == 0u)
+                if (ptr == 0u)
                 {
                     return;
                 }
-//              HeapEntry he = state.GetHeapEntryFromPointer(ptr);
+                //              HeapEntry he = state.GetHeapEntryFromPointer(ptr);
                 HeapEntry he = (HeapEntry)state.Heap[ptr];
                 HeapElement helem = he.HeapObj;
-                System.Console.WriteLine("heap[{0}] = (dirty:{1}, canonId:{3}, fingerprint:{2})", 
-                    ptr, helem.IsDirty, helem.fingerprint, helem.canonId); 
+                System.Console.WriteLine("heap[{0}] = (dirty:{1}, canonId:{3}, fingerprint:{2})",
+                    ptr, helem.IsDirty, helem.fingerprint, helem.canonId);
                 offset = 0;
             }
 
             private class EdgePrinter : FieldTraverser
             {
-                HeapElementPrinter parent;
-                public EdgePrinter(HeapElementPrinter p){ parent = p;}
+                private HeapElementPrinter parent;
+
+                public EdgePrinter(HeapElementPrinter p)
+                {
+                    parent = p;
+                }
 
                 public override void DoTraversal(Object field)
                 {
                     throw new InvalidOperationException("HeapElementPrinter should never traverse non-pointers");
                 }
+
                 public override void DoTraversal(Pointer ptr)
                 {
                     parent.OnEdge(ptr);
                 }
             }
+
             private class NodePrinter : FieldTraverser
             {
-                HeapElementPrinter parent;
-                public NodePrinter(HeapElementPrinter p){ parent = p;}
+                private HeapElementPrinter parent;
+
+                public NodePrinter(HeapElementPrinter p)
+                {
+                    parent = p;
+                }
 
                 public override void DoTraversal(Object field)
                 {
                     throw new InvalidOperationException("HeapElementPrinter should never traverse non-pointers");
                 }
+
                 public override void DoTraversal(Pointer ptr)
                 {
                     parent.OnNode(ptr);
@@ -159,4 +171,3 @@ namespace Microsoft.Zing
         }
     }
 }
-

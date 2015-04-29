@@ -1,31 +1,22 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Compiler;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace Microsoft.Zing
 {
     // Code added by Jiri Adamek to support native ZOM classes
 
-
-
     public class NativeZOM : Class
     {
-
         public NativeZOM()
             : base()
         {
         }
     }
- 
-   // END of added code
+
+    // END of added code
 
     [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
     public enum ZingNodeType
@@ -59,16 +50,18 @@ namespace Microsoft.Zing
         With,
         Yield,
 
-        BasicBlock,        
+        BasicBlock,
     }
 
     /*
      *  New types
      */
+
     [SuppressMessage("Microsoft.Maintainability", "CA1501:AvoidExcessiveInheritance")]
     public class Range : ConstrainedType
     {
         private Expression min;
+
         public Expression Min
         {
             get { return this.min; }
@@ -76,23 +69,25 @@ namespace Microsoft.Zing
         }
 
         private Expression max;
+
         public Expression Max
         {
             get { return this.max; }
             set { this.max = value; }
         }
 
-        public Range() : base(SystemTypes.Int32, null)
+        public Range()
+            : base(SystemTypes.Int32, null)
         {
-            this.NodeType = (NodeType) ZingNodeType.Range;
-            this.Flags = TypeFlags.Public|TypeFlags.Sealed;
+            this.NodeType = (NodeType)ZingNodeType.Range;
+            this.Flags = TypeFlags.Public | TypeFlags.Sealed;
         }
 
         public Range(Expression min, Expression max)
             : base(SystemTypes.Int32, null)
         {
-            this.NodeType = (NodeType) ZingNodeType.Range;
-            this.Flags = TypeFlags.Public|TypeFlags.Sealed;
+            this.NodeType = (NodeType)ZingNodeType.Range;
+            this.Flags = TypeFlags.Public | TypeFlags.Sealed;
             this.Min = min;
             this.Max = max;
         }
@@ -108,7 +103,7 @@ namespace Microsoft.Zing
     {
         public Chan()
         {
-            this.NodeType = (NodeType) ZingNodeType.Chan;
+            this.NodeType = (NodeType)ZingNodeType.Chan;
         }
 
         public Chan(TypeNode channelType)
@@ -125,6 +120,7 @@ namespace Microsoft.Zing
             get { return this.aliasedType; }
             set { this.aliasedType = value; }
         }
+
         public override bool IsPrimitiveComparable
         {
             get { return true; }
@@ -136,7 +132,7 @@ namespace Microsoft.Zing
     {
         public Set()
         {
-            this.NodeType = (NodeType) ZingNodeType.Set;
+            this.NodeType = (NodeType)ZingNodeType.Set;
         }
 
         public Set(TypeNode setType)
@@ -153,6 +149,7 @@ namespace Microsoft.Zing
             get { return this.aliasedType; }
             set { this.aliasedType = value; }
         }
+
         public override bool IsPrimitiveComparable
         {
             get { return true; }
@@ -163,6 +160,7 @@ namespace Microsoft.Zing
     public class ZArray : ArrayTypeExpression
     {
         internal TypeNode domainType;     // if size is given as a type
+
         public TypeNode DomainType
         {
             get { return this.domainType; }
@@ -173,7 +171,7 @@ namespace Microsoft.Zing
 
         public ZArray()
         {
-            this.NodeType = (NodeType) ZingNodeType.Array;
+            this.NodeType = (NodeType)ZingNodeType.Array;
             this.domainType = SystemTypes.Int32;
             this.Rank = 1;
             this.LowerBounds = new int[] { 0 };
@@ -192,10 +190,10 @@ namespace Microsoft.Zing
         }
     }
 
-
     public class ZMethod : Method
     {
         private bool isAtomic;
+
         public bool Atomic
         {
             get { return this.isAtomic; }
@@ -203,6 +201,7 @@ namespace Microsoft.Zing
         }
 
         private bool isActivated;
+
         public bool Activated
         {
             get { return this.isActivated; }
@@ -210,10 +209,12 @@ namespace Microsoft.Zing
         }
 
         private List<Field> localVars = new List<Field>();
-		public List<Field> LocalVars 
-		{
-			get { return this.localVars; }
-		}
+
+        public List<Field> LocalVars
+        {
+            get { return this.localVars; }
+        }
+
         // For use by the duplicator
         internal void ResetLocals()
         {
@@ -239,7 +240,7 @@ namespace Microsoft.Zing
                 this.Flags |= MethodFlags.Static;
         }
     }
- 
+
     /*
      * New statements
      */
@@ -248,23 +249,26 @@ namespace Microsoft.Zing
     {
         public AtomicBlock()
         {
-            this.NodeType = (NodeType) ZingNodeType.Atomic;
+            this.NodeType = (NodeType)ZingNodeType.Atomic;
         }
+
         public AtomicBlock(StatementList statements)
             : base(statements)
         {
-            this.NodeType = (NodeType) ZingNodeType.Atomic;
+            this.NodeType = (NodeType)ZingNodeType.Atomic;
         }
+
         public AtomicBlock(StatementList statements, SourceContext sourceContext)
             : base(statements, sourceContext)
         {
-            this.NodeType = (NodeType) ZingNodeType.Atomic;
+            this.NodeType = (NodeType)ZingNodeType.Atomic;
         }
     }
 
     public class AssertStatement : Statement
     {
         internal Expression booleanExpr;
+
         public Expression Expression
         {
             get { return this.booleanExpr; }
@@ -272,6 +276,7 @@ namespace Microsoft.Zing
         }
 
         private string comment;
+
         public string Comment
         {
             get { return this.comment; }
@@ -279,7 +284,7 @@ namespace Microsoft.Zing
         }
 
         public AssertStatement()
-            : base((NodeType) ZingNodeType.Assert) {}
+            : base((NodeType)ZingNodeType.Assert) { }
 
         public AssertStatement(Expression booleanExpr, string comment)
             : this()
@@ -289,7 +294,7 @@ namespace Microsoft.Zing
         }
 
         public AssertStatement(Expression booleanExpr, string comment, SourceContext sourceContext)
-            : base((NodeType) ZingNodeType.Assert)
+            : base((NodeType)ZingNodeType.Assert)
         {
             this.booleanExpr = booleanExpr;
             this.Comment = comment;
@@ -300,22 +305,23 @@ namespace Microsoft.Zing
     public class AcceptStatement : Statement
     {
         internal Expression booleanExpr;
+
         public Expression Expression
         {
             get { return this.booleanExpr; }
             set { this.booleanExpr = value; }
         }
 
-        public AcceptStatement ()
+        public AcceptStatement()
             : base((NodeType)ZingNodeType.Accept) { }
 
-        public AcceptStatement (Expression booleanExpr)
+        public AcceptStatement(Expression booleanExpr)
             : this()
         {
             this.booleanExpr = booleanExpr;
         }
 
-        public AcceptStatement (Expression booleanExpr, SourceContext sourceContext)
+        public AcceptStatement(Expression booleanExpr, SourceContext sourceContext)
             : base((NodeType)ZingNodeType.Accept)
         {
             this.booleanExpr = booleanExpr;
@@ -326,6 +332,7 @@ namespace Microsoft.Zing
     public class EventStatement : Statement
     {
         internal Expression channelNumber;
+
         public Expression ChannelNumber
         {
             get { return this.channelNumber; }
@@ -333,6 +340,7 @@ namespace Microsoft.Zing
         }
 
         internal Expression messageType;
+
         public Expression MessageType
         {
             get { return this.messageType; }
@@ -340,6 +348,7 @@ namespace Microsoft.Zing
         }
 
         internal Expression direction;
+
         public Expression Direction
         {
             get { return this.direction; }
@@ -347,7 +356,7 @@ namespace Microsoft.Zing
         }
 
         public EventStatement()
-            : base((NodeType) ZingNodeType.Event) {}
+            : base((NodeType)ZingNodeType.Event) { }
 
         public EventStatement(Expression channelNumber, Expression messageType, Expression direction)
             : this()
@@ -378,6 +387,7 @@ namespace Microsoft.Zing
     public class AssumeStatement : Statement
     {
         internal Expression booleanExpr;
+
         public Expression Expression
         {
             get { return this.booleanExpr; }
@@ -385,7 +395,7 @@ namespace Microsoft.Zing
         }
 
         public AssumeStatement()
-            : base((NodeType) ZingNodeType.Assume) {}
+            : base((NodeType)ZingNodeType.Assume) { }
 
         public AssumeStatement(Expression booleanExpr)
             : this()
@@ -402,12 +412,10 @@ namespace Microsoft.Zing
 
     public class YieldStatement : Statement
     {
-        
-        public YieldStatement ()
+        public YieldStatement()
             : base((NodeType)ZingNodeType.Yield) { }
 
-
-        public YieldStatement (SourceContext sourceContext)
+        public YieldStatement(SourceContext sourceContext)
             : this()
         {
             this.SourceContext = sourceContext;
@@ -416,23 +424,24 @@ namespace Microsoft.Zing
 
     public class SelfExpression : Expression
     {
-        public SelfExpression () : base((NodeType)ZingNodeType.Self)
+        public SelfExpression()
+            : base((NodeType)ZingNodeType.Self)
         {
             this.NodeType = (NodeType)ZingNodeType.Self;
             this.Type = SystemTypes.Int32;
         }
 
         public SelfExpression(SourceContext sourceContext)
-            :this()
+            : this()
         {
             this.SourceContext = sourceContext;
         }
-
     }
 
     public class AttributedStatement : Statement
     {
         private AttributeList attributes;
+
         public AttributeList Attributes
         {
             get { return this.attributes; }
@@ -440,6 +449,7 @@ namespace Microsoft.Zing
         }
 
         private Statement statement;
+
         public Statement Statement
         {
             get { return this.statement; }
@@ -447,7 +457,7 @@ namespace Microsoft.Zing
         }
 
         public AttributedStatement()
-            : base((NodeType) ZingNodeType.AttributedStatement) {}
+            : base((NodeType)ZingNodeType.AttributedStatement) { }
 
         public AttributedStatement(AttributeList attributes)
             : this()
@@ -474,6 +484,7 @@ namespace Microsoft.Zing
     public class TraceStatement : Statement
     {
         private ExpressionList operands;
+
         public ExpressionList Operands
         {
             get { return this.operands; }
@@ -481,7 +492,7 @@ namespace Microsoft.Zing
         }
 
         public TraceStatement()
-            : base((NodeType) ZingNodeType.Trace) {}
+            : base((NodeType)ZingNodeType.Trace) { }
 
         public TraceStatement(ExpressionList operands)
             : this()
@@ -499,6 +510,7 @@ namespace Microsoft.Zing
     public class InvokePluginStatement : Statement
     {
         private ExpressionList operands;
+
         public ExpressionList Operands
         {
             get { return this.operands; }
@@ -524,32 +536,34 @@ namespace Microsoft.Zing
     public class InvokeSchedulerStatement : Statement
     {
         private ExpressionList operands;
+
         public ExpressionList Operands
         {
             get { return this.operands; }
             set { this.operands = value; }
         }
 
-        public InvokeSchedulerStatement ()
+        public InvokeSchedulerStatement()
             : base((NodeType)ZingNodeType.InvokeSched) { }
 
-        public InvokeSchedulerStatement (ExpressionList operands)
+        public InvokeSchedulerStatement(ExpressionList operands)
             : this()
         {
             this.operands = operands;
         }
 
-        public InvokeSchedulerStatement (ExpressionList operands, SourceContext sourceContext)
+        public InvokeSchedulerStatement(ExpressionList operands, SourceContext sourceContext)
             : this(operands)
         {
             this.SourceContext = sourceContext;
         }
     }
+
     public class AsyncMethodCall : ExpressionStatement
     {
         public AsyncMethodCall()
         {
-            this.NodeType = (NodeType) ZingNodeType.Async;
+            this.NodeType = (NodeType)ZingNodeType.Async;
         }
 
         public AsyncMethodCall(Expression callee, ExpressionList arguments)
@@ -567,29 +581,29 @@ namespace Microsoft.Zing
 
         public Expression Callee
         {
-            get 
+            get
             {
                 Debug.Assert(this.Expression is MethodCall);
-                return ((MethodCall) this.Expression).Callee;
+                return ((MethodCall)this.Expression).Callee;
             }
             set
             {
                 Debug.Assert(this.Expression is MethodCall);
-                ((MethodCall) this.Expression).Callee = value;
+                ((MethodCall)this.Expression).Callee = value;
             }
         }
 
         public ExpressionList Operands
         {
-            get 
+            get
             {
                 Debug.Assert(this.Expression is MethodCall);
-                return ((MethodCall) this.Expression).Operands;
+                return ((MethodCall)this.Expression).Operands;
             }
             set
             {
                 Debug.Assert(this.Expression is MethodCall);
-                ((MethodCall) this.Expression).Operands = value;
+                ((MethodCall)this.Expression).Operands = value;
             }
         }
     }
@@ -597,6 +611,7 @@ namespace Microsoft.Zing
     public class SendStatement : Statement
     {
         internal Expression channel;
+
         public Expression Channel
         {
             get { return this.channel; }
@@ -604,6 +619,7 @@ namespace Microsoft.Zing
         }
 
         internal Expression data;
+
         public Expression Data
         {
             get { return this.data; }
@@ -611,7 +627,7 @@ namespace Microsoft.Zing
         }
 
         public SendStatement()
-            : base((NodeType) ZingNodeType.Send) {}
+            : base((NodeType)ZingNodeType.Send) { }
 
         public SendStatement(Expression channel, Expression data)
             : this()
@@ -630,6 +646,7 @@ namespace Microsoft.Zing
     public class Select : Statement
     {
         internal bool validEndState;
+
         public bool ValidEndState
         {
             get { return this.validEndState; }
@@ -637,6 +654,7 @@ namespace Microsoft.Zing
         }
 
         internal bool deterministicSelection;
+
         public bool DeterministicSelection
         {
             get { return this.deterministicSelection; }
@@ -644,6 +662,7 @@ namespace Microsoft.Zing
         }
 
         internal bool visible;
+
         public bool Visible
         {
             get { return this.visible; }
@@ -651,6 +670,7 @@ namespace Microsoft.Zing
         }
 
         internal JoinStatementList joinStatementList;
+
         public JoinStatementList JoinStatements
         {
             get { return this.joinStatementList; }
@@ -658,7 +678,7 @@ namespace Microsoft.Zing
         }
 
         public Select()
-            : base((NodeType) ZingNodeType.Select) {}
+            : base((NodeType)ZingNodeType.Select) { }
 
         public Select(bool endState, bool deterministic, JoinStatementList joinStatementList)
             : this(endState, deterministic, false, joinStatementList)
@@ -690,6 +710,7 @@ namespace Microsoft.Zing
     public class JoinStatement : Statement
     {
         internal AttributeList attributes;
+
         public AttributeList Attributes
         {
             get { return this.attributes; }
@@ -697,6 +718,7 @@ namespace Microsoft.Zing
         }
 
         internal Statement statement;
+
         public Statement Statement
         {
             get { return this.statement; }
@@ -704,6 +726,7 @@ namespace Microsoft.Zing
         }
 
         internal JoinPatternList joinPatternList;
+
         public JoinPatternList JoinPatterns
         {
             get { return this.joinPatternList; }
@@ -711,7 +734,7 @@ namespace Microsoft.Zing
         }
 
         public JoinStatement()
-            : base((NodeType) ZingNodeType.JoinStatement) {}
+            : base((NodeType)ZingNodeType.JoinStatement) { }
 
         public JoinStatement(JoinPatternList joinPatternList, Statement statement)
             : this()
@@ -732,18 +755,19 @@ namespace Microsoft.Zing
     abstract public class JoinPattern : Node
     {
         protected JoinPattern(ZingNodeType nodeType)
-            : base((NodeType) nodeType) {}
+            : base((NodeType)nodeType) { }
     }
 
     public class TimeoutPattern : JoinPattern
     {
         public TimeoutPattern()
-            : base(ZingNodeType.TimeoutPattern) {}
+            : base(ZingNodeType.TimeoutPattern) { }
     }
 
     public class WaitPattern : JoinPattern
     {
         internal Expression expression;
+
         public Expression Expression
         {
             get { return this.expression; }
@@ -751,7 +775,7 @@ namespace Microsoft.Zing
         }
 
         public WaitPattern()
-            : base(ZingNodeType.WaitPattern) {}
+            : base(ZingNodeType.WaitPattern) { }
 
         public WaitPattern(Expression expression)
             : this()
@@ -763,6 +787,7 @@ namespace Microsoft.Zing
     public class ReceivePattern : JoinPattern
     {
         internal Expression channel;
+
         public Expression Channel
         {
             get { return this.channel; }
@@ -770,6 +795,7 @@ namespace Microsoft.Zing
         }
 
         internal Expression data;
+
         public Expression Data
         {
             get { return this.data; }
@@ -777,7 +803,7 @@ namespace Microsoft.Zing
         }
 
         public ReceivePattern()
-            : base(ZingNodeType.ReceivePattern) {}
+            : base(ZingNodeType.ReceivePattern) { }
 
         public ReceivePattern(Expression channel, Expression data)
             : this()
@@ -790,6 +816,7 @@ namespace Microsoft.Zing
     public class EventPattern : JoinPattern
     {
         internal Expression channelNumber;
+
         public Expression ChannelNumber
         {
             get { return this.channelNumber; }
@@ -797,6 +824,7 @@ namespace Microsoft.Zing
         }
 
         internal Expression messageType;
+
         public Expression MessageType
         {
             get { return this.messageType; }
@@ -804,6 +832,7 @@ namespace Microsoft.Zing
         }
 
         internal Expression direction;
+
         public Expression Direction
         {
             get { return this.direction; }
@@ -811,7 +840,7 @@ namespace Microsoft.Zing
         }
 
         public EventPattern()
-            : base(ZingNodeType.EventPattern) {}
+            : base(ZingNodeType.EventPattern) { }
 
         public EventPattern(Expression messageType, Expression direction)
             : this(new Literal(0, SystemTypes.Int32), messageType, direction)
@@ -830,6 +859,7 @@ namespace Microsoft.Zing
     public class ZTry : Statement
     {
         private WithList catchers;
+
         public WithList Catchers
         {
             get { return this.catchers; }
@@ -837,6 +867,7 @@ namespace Microsoft.Zing
         }
 
         private Block body;
+
         public Block Body
         {
             get { return this.body; }
@@ -847,6 +878,7 @@ namespace Microsoft.Zing
             : base((NodeType)ZingNodeType.Try)
         {
         }
+
         public ZTry(Block body, WithList catchers)
             : this()
         {
@@ -858,6 +890,7 @@ namespace Microsoft.Zing
     public class With : Statement
     {
         internal Block Block;
+
         public Block Body
         {
             get { return this.Block; }
@@ -865,6 +898,7 @@ namespace Microsoft.Zing
         }
 
         private Identifier name;
+
         public Identifier Name
         {
             get { return this.name; }
@@ -888,33 +922,38 @@ namespace Microsoft.Zing
     {
         private JoinStatement[] elements = new JoinStatement[16];
         private int length;
+
         public JoinStatementList()
         {
             this.elements = new JoinStatement[16];
         }
+
         public JoinStatementList(int capacity)
         {
             this.elements = new JoinStatement[capacity];
         }
+
         public JoinStatementList(params JoinStatement[] elements)
         {
             if (elements == null) elements = new JoinStatement[0];
             this.elements = elements;
             this.length = elements.Length;
         }
+
         public void Add(JoinStatement element)
         {
             int n = this.elements.Length;
             int i = this.length++;
             if (i == n)
             {
-                int m = n*2; if (m < 16) m = 16;
+                int m = n * 2; if (m < 16) m = 16;
                 JoinStatement[] newElements = new JoinStatement[m];
                 for (int j = 0; j < n; j++) newElements[j] = elements[j];
                 this.elements = newElements;
             }
             this.elements[i] = element;
         }
+
         public JoinStatementList Clone()
         {
             int n = this.length;
@@ -925,10 +964,12 @@ namespace Microsoft.Zing
                 newElements[i] = this.elements[i];
             return result;
         }
+
         public int Length
         {
-            get{return this.length;}
+            get { return this.length; }
         }
+
         public JoinStatement this[int index]
         {
             get
@@ -946,33 +987,38 @@ namespace Microsoft.Zing
     {
         private JoinPattern[] elements = new JoinPattern[16];
         private int length;
+
         public JoinPatternList()
         {
             this.elements = new JoinPattern[16];
         }
+
         public JoinPatternList(int capacity)
         {
             this.elements = new JoinPattern[capacity];
         }
+
         public JoinPatternList(params JoinPattern[] elements)
         {
             if (elements == null) elements = new JoinPattern[0];
             this.elements = elements;
             this.length = elements.Length;
         }
+
         public void Add(JoinPattern element)
         {
             int n = this.elements.Length;
             int i = this.length++;
             if (i == n)
             {
-                int m = n*2; if (m < 16) m = 16;
+                int m = n * 2; if (m < 16) m = 16;
                 JoinPattern[] newElements = new JoinPattern[m];
                 for (int j = 0; j < n; j++) newElements[j] = elements[j];
                 this.elements = newElements;
             }
             this.elements[i] = element;
         }
+
         public JoinPatternList Clone()
         {
             int n = this.length;
@@ -983,10 +1029,12 @@ namespace Microsoft.Zing
                 newElements[i] = this.elements[i];
             return result;
         }
+
         public int Length
         {
-            get{return this.length;}
+            get { return this.length; }
         }
+
         public JoinPattern this[int index]
         {
             get
@@ -1004,33 +1052,38 @@ namespace Microsoft.Zing
     {
         private With[] elements = new With[16];
         private int length;
+
         public WithList()
         {
             this.elements = new With[16];
         }
+
         public WithList(int capacity)
         {
             this.elements = new With[capacity];
         }
+
         public WithList(params With[] elements)
         {
             if (elements == null) elements = new With[0];
             this.elements = elements;
             this.length = elements.Length;
         }
+
         public void Add(With element)
         {
             int n = this.elements.Length;
             int i = this.length++;
             if (i == n)
             {
-                int m = n*2; if (m < 16) m = 16;
+                int m = n * 2; if (m < 16) m = 16;
                 With[] newElements = new With[m];
                 for (int j = 0; j < n; j++) newElements[j] = elements[j];
                 this.elements = newElements;
             }
             this.elements[i] = element;
         }
+
         public WithList Clone()
         {
             int n = this.length;
@@ -1041,10 +1094,12 @@ namespace Microsoft.Zing
                 newElements[i] = this.elements[i];
             return result;
         }
+
         public int Length
         {
-            get{return this.length;}
+            get { return this.length; }
         }
+
         public With this[int index]
         {
             get
@@ -1076,26 +1131,28 @@ namespace Microsoft.Zing
         internal BasicBlock handlerTarget;
 
         internal int RelativeAtomicLevel;
-		internal bool IsAtomicEntry;
-		internal bool MiddleOfTransition;
+        internal bool IsAtomicEntry;
+        internal bool MiddleOfTransition;
         internal bool Yields;
-		// EndsAtomicBlock was used for 2 purposes:
-		//      1) Transition Delimiter
-		//      2) Transaction Delimiter
-		// We use MiddleOfTransition for the 1st purpose
-		//    and {Enter,Exit}AtomicScope for the 2nd purpose
-		// Precise list of places EndAtomicBlock used as 
-		// Transition Delimiter:
-		//   1) when target of a branch points to a null block (VisitBlock)
-		//   2) ditto (VisitBranch)
-		//   3) raiseBlock (visitThrow)
-		//   4) defaultHandler, catchTester, setHandler (VisitZtry)
-		//   5) incrBlock, derefBlock, initBlock (VisitForEach)
-		//   6) jsTester, jsReceivers (VisitSelect)
-		//   7) choiceHelper, selectBlock
-		//   8) callBlock
+
+        // EndsAtomicBlock was used for 2 purposes:
+        //      1) Transition Delimiter
+        //      2) Transaction Delimiter
+        // We use MiddleOfTransition for the 1st purpose
+        //    and {Enter,Exit}AtomicScope for the 2nd purpose
+        // Precise list of places EndAtomicBlock used as
+        // Transition Delimiter:
+        //   1) when target of a branch points to a null block (VisitBlock)
+        //   2) ditto (VisitBranch)
+        //   3) raiseBlock (visitThrow)
+        //   4) defaultHandler, catchTester, setHandler (VisitZtry)
+        //   5) incrBlock, derefBlock, initBlock (VisitForEach)
+        //   6) jsTester, jsReceivers (VisitSelect)
+        //   7) choiceHelper, selectBlock
+        //   8) callBlock
         // internal bool EndsAtomicBlock;
         internal bool IsEntryPoint;
+
         internal bool SecondOfTwo;
         internal bool PropagatesException;
         internal bool SkipNormalizer;
@@ -1140,6 +1197,6 @@ namespace Microsoft.Zing
                 else
                     return "B" + Id.ToString(CultureInfo.InvariantCulture);
             }
-        }                
+        }
     }
 }

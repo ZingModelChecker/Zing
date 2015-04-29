@@ -1,4 +1,3 @@
-using System;
 using System.Compiler;
 
 namespace Microsoft.Zing
@@ -9,19 +8,19 @@ namespace Microsoft.Zing
     /// </summary>
     internal sealed class Declarer : System.Compiler.Declarer
     {
-		public Declarer(Zing.ErrorHandler errorHandler)
-			: base(errorHandler)
-		{
-		}
+        public Declarer(Zing.ErrorHandler errorHandler)
+            : base(errorHandler)
+        {
+        }
 
         public override Node Visit(Node node)
-		{
-			if (node == null) return null;
-			switch (((ZingNodeType)node.NodeType))
-			{
-				// None of these nodes may contain variable declarations, so we don't need to
-				// explore them. If an atomic block (erroneously) contains declarations, we'll
-				// discover that in the "checker" phase.
+        {
+            if (node == null) return null;
+            switch (((ZingNodeType)node.NodeType))
+            {
+                // None of these nodes may contain variable declarations, so we don't need to
+                // explore them. If an atomic block (erroneously) contains declarations, we'll
+                // discover that in the "checker" phase.
 
                 case ZingNodeType.Array:
                 case ZingNodeType.Accept:
@@ -44,25 +43,25 @@ namespace Microsoft.Zing
                 case ZingNodeType.Set:
                 case ZingNodeType.TimeoutPattern:
                 case ZingNodeType.Trace:
-				case ZingNodeType.Try:
-				case ZingNodeType.WaitPattern:
-				case ZingNodeType.With:
+                case ZingNodeType.Try:
+                case ZingNodeType.WaitPattern:
+                case ZingNodeType.With:
                 case ZingNodeType.Yield:
                 case ZingNodeType.In:
-					return node;
+                    return node;
 
                 case ZingNodeType.AttributedStatement:
-                    return this.VisitAttributedStatement((AttributedStatement) node);
+                    return this.VisitAttributedStatement((AttributedStatement)node);
 
-				default:
-					return base.Visit(node);
-			}
-		}
+                default:
+                    return base.Visit(node);
+            }
+        }
 
         private AttributedStatement VisitAttributedStatement(AttributedStatement attributedStmt)
         {
-            attributedStmt.Statement = (Statement) this.Visit(attributedStmt.Statement);
+            attributedStmt.Statement = (Statement)this.Visit(attributedStmt.Statement);
             return attributedStmt;
         }
-	}
+    }
 }

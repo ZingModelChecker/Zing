@@ -1,70 +1,94 @@
-using System;
 using System.Compiler;
 
-namespace Microsoft.Zing 
+namespace Microsoft.Zing
 {
-    internal class Partitioner: System.Compiler.Partitioner 
+    internal class Partitioner : System.Compiler.Partitioner
     {
         public Partitioner()
         {
         }
+
         public Partitioner(Visitor callingVisitor)
             : base(callingVisitor)
         {
         }
+
         public override Node Visit(Node node)
         {
             if (node == null) return null;
             switch (((ZingNodeType)node.NodeType))
             {
                 case ZingNodeType.Array:
-                    return this.VisitArray((ZArray) node);
+                    return this.VisitArray((ZArray)node);
+
                 case ZingNodeType.Accept:
-                    return this.VisitAccept((AcceptStatement) node);
+                    return this.VisitAccept((AcceptStatement)node);
+
                 case ZingNodeType.Assert:
-                    return this.VisitAssert((AssertStatement) node);
+                    return this.VisitAssert((AssertStatement)node);
+
                 case ZingNodeType.Assume:
-                    return this.VisitAssume((AssumeStatement) node);
+                    return this.VisitAssume((AssumeStatement)node);
+
                 case ZingNodeType.Async:
-                    return this.VisitAsync((AsyncMethodCall) node);
+                    return this.VisitAsync((AsyncMethodCall)node);
+
                 case ZingNodeType.Atomic:
-                    return this.VisitAtomic((AtomicBlock) node);
+                    return this.VisitAtomic((AtomicBlock)node);
+
                 case ZingNodeType.AttributedStatement:
-                    return this.VisitAttributedStatement((AttributedStatement) node);
+                    return this.VisitAttributedStatement((AttributedStatement)node);
+
                 case ZingNodeType.Chan:
-                    return this.VisitChan((Chan) node);
+                    return this.VisitChan((Chan)node);
+
                 case ZingNodeType.Choose:
-                    return this.VisitChoose((UnaryExpression) node);
+                    return this.VisitChoose((UnaryExpression)node);
+
                 case ZingNodeType.Event:
-                    return this.VisitEventStatement((EventStatement) node);
+                    return this.VisitEventStatement((EventStatement)node);
+
                 case ZingNodeType.EventPattern:
-                    return this.VisitEventPattern((EventPattern) node);
+                    return this.VisitEventPattern((EventPattern)node);
+
                 case ZingNodeType.JoinStatement:
-                    return this.VisitJoinStatement((JoinStatement) node);
+                    return this.VisitJoinStatement((JoinStatement)node);
+
                 case ZingNodeType.InvokePlugin:
                     return this.VisitInvokePlugin((InvokePluginStatement)node);
+
                 case ZingNodeType.Range:
-                    return this.VisitRange((Range) node);
+                    return this.VisitRange((Range)node);
+
                 case ZingNodeType.ReceivePattern:
-                    return this.VisitReceivePattern((ReceivePattern) node);
+                    return this.VisitReceivePattern((ReceivePattern)node);
+
                 case ZingNodeType.Select:
-                    return this.VisitSelect((Select) node);
+                    return this.VisitSelect((Select)node);
+
                 case ZingNodeType.Send:
-                    return this.VisitSend((SendStatement) node);
+                    return this.VisitSend((SendStatement)node);
+
                 case ZingNodeType.Set:
-                    return this.VisitSet((Set) node);
+                    return this.VisitSet((Set)node);
+
                 case ZingNodeType.Self:
                     return this.VisitSelf((SelfExpression)node);
+
                 case ZingNodeType.Trace:
-                    return this.VisitTrace((TraceStatement) node);
+                    return this.VisitTrace((TraceStatement)node);
+
                 case ZingNodeType.TimeoutPattern:
-                    return this.VisitTimeoutPattern((TimeoutPattern) node);
+                    return this.VisitTimeoutPattern((TimeoutPattern)node);
+
                 case ZingNodeType.Try:
-                    return this.VisitZTry((ZTry) node);
+                    return this.VisitZTry((ZTry)node);
+
                 case ZingNodeType.WaitPattern:
-                    return this.VisitWaitPattern((WaitPattern) node);
+                    return this.VisitWaitPattern((WaitPattern)node);
+
                 case ZingNodeType.With:
-                    return this.VisitWith((With) node);
+                    return this.VisitWith((With)node);
 
                 default:
                     return base.Visit(node);
@@ -74,7 +98,7 @@ namespace Microsoft.Zing
         private ZArray VisitArray(ZArray array)
         {
             array.domainType = base.VisitTypeReference(array.domainType);
-            return (ZArray) base.VisitTypeNode((TypeNode)array);
+            return (ZArray)base.VisitTypeNode((TypeNode)array);
         }
 
         private AssertStatement VisitAssert(AssertStatement assert)
@@ -83,7 +107,7 @@ namespace Microsoft.Zing
             return assert;
         }
 
-        private AcceptStatement VisitAccept (AcceptStatement accept)
+        private AcceptStatement VisitAccept(AcceptStatement accept)
         {
             accept.booleanExpr = this.VisitExpression(accept.booleanExpr);
             return accept;
@@ -126,18 +150,18 @@ namespace Microsoft.Zing
 
         private AsyncMethodCall VisitAsync(AsyncMethodCall async)
         {
-            return (AsyncMethodCall) this.VisitExpressionStatement((ExpressionStatement) async);
+            return (AsyncMethodCall)this.VisitExpressionStatement((ExpressionStatement)async);
         }
 
         private AtomicBlock VisitAtomic(AtomicBlock atomic)
         {
-            return (AtomicBlock) this.VisitBlock((Block) atomic);
+            return (AtomicBlock)this.VisitBlock((Block)atomic);
         }
 
         private AttributedStatement VisitAttributedStatement(AttributedStatement attributedStmt)
         {
             attributedStmt.Attributes = this.VisitAttributeList(attributedStmt.Attributes);
-            attributedStmt.Statement = (Statement) this.Visit(attributedStmt.Statement);
+            attributedStmt.Statement = (Statement)this.Visit(attributedStmt.Statement);
 
             return attributedStmt;
         }
@@ -150,18 +174,18 @@ namespace Microsoft.Zing
 
         private UnaryExpression VisitChoose(UnaryExpression expr)
         {
-            return (UnaryExpression) this.VisitUnaryExpression(expr);
+            return (UnaryExpression)this.VisitUnaryExpression(expr);
         }
 
         private JoinStatement VisitJoinStatement(JoinStatement joinstmt)
         {
             JoinPatternList newJoinPatternList = new JoinPatternList();
 
-            for (int i=0, n=joinstmt.joinPatternList.Length; i < n ;i++)
-                newJoinPatternList.Add((JoinPattern) this.Visit(joinstmt.joinPatternList[i]));
+            for (int i = 0, n = joinstmt.joinPatternList.Length; i < n; i++)
+                newJoinPatternList.Add((JoinPattern)this.Visit(joinstmt.joinPatternList[i]));
 
             joinstmt.joinPatternList = newJoinPatternList;
-            joinstmt.statement = (Statement) this.Visit(joinstmt.statement);
+            joinstmt.statement = (Statement)this.Visit(joinstmt.statement);
             joinstmt.attributes = this.VisitAttributeList(joinstmt.attributes);
             return joinstmt;
         }
@@ -171,7 +195,7 @@ namespace Microsoft.Zing
             range.Min = this.VisitExpression(range.Min);
             range.Max = this.VisitExpression(range.Max);
 
-            return (Range) this.VisitConstrainedType((ConstrainedType) range);
+            return (Range)this.VisitConstrainedType((ConstrainedType)range);
         }
 
         private ReceivePattern VisitReceivePattern(ReceivePattern rp)
@@ -186,8 +210,8 @@ namespace Microsoft.Zing
         {
             JoinStatementList newJoinStatementList = new JoinStatementList();
 
-            for (int i=0, n=select.joinStatementList.Length; i < n ;i++)
-                newJoinStatementList.Add((JoinStatement) this.VisitJoinStatement(select.joinStatementList[i]));
+            for (int i = 0, n = select.joinStatementList.Length; i < n; i++)
+                newJoinStatementList.Add((JoinStatement)this.VisitJoinStatement(select.joinStatementList[i]));
 
             select.joinStatementList = newJoinStatementList;
 
@@ -230,7 +254,7 @@ namespace Microsoft.Zing
 
             WithList newCatchers = new WithList();
 
-            for (int i=0, n=Try.Catchers.Length; i < n ;i++)
+            for (int i = 0, n = Try.Catchers.Length; i < n; i++)
                 newCatchers.Add(this.VisitWith(Try.Catchers[i]));
 
             Try.Catchers = newCatchers;
@@ -249,6 +273,5 @@ namespace Microsoft.Zing
             if (Throw == null) return null;
             return Throw;
         }
-
     }
 }

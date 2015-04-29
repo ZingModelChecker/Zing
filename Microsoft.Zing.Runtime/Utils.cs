@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Globalization;
 using System.Reflection;
 
@@ -8,7 +7,9 @@ namespace Microsoft.Zing
     /// <exclude/>
     internal class Utils
     {
-        private Utils() { }
+        private Utils()
+        {
+        }
 
         internal static string Unmangle(string type)
         {
@@ -40,7 +41,7 @@ namespace Microsoft.Zing
 
         internal static bool FingerprintInPreCommit = true;
 
-        private static object[] emptyArgs = new object[] {};
+        private static object[] emptyArgs = new object[] { };
 
         // <summary>
         // Locate field 'containerName' in object 'obj' and return its value as 'containerObj'.
@@ -75,10 +76,10 @@ namespace Microsoft.Zing
             }
 
             System.Type containerType = containerObj.GetType();
-            fi = containerType.GetField("priv_" + memberName, BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.Instance);
+            fi = containerType.GetField("priv_" + memberName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
         }
 
-        private static void GetContainerAndFieldInfoForReturnValue (
+        private static void GetContainerAndFieldInfoForReturnValue(
             object obj,
             string containerName,
             string memberName,
@@ -115,12 +116,11 @@ namespace Microsoft.Zing
             return fi != null;
         }
 
-
         internal static object LookupValueByName(object obj, string containerName, string memberName)
         {
             object containerObj;
             FieldInfo fi;
-            if(memberName == "ReturnValue")
+            if (memberName == "ReturnValue")
             {
                 GetContainerAndFieldInfoForReturnValue(obj, containerName, memberName, out containerObj, out fi);
             }
@@ -128,7 +128,6 @@ namespace Microsoft.Zing
             {
                 GetContainerAndFieldInfo(obj, containerName, "___" + memberName, out containerObj, out fi);
             }
-            
 
             if (fi == null)
                 return null;

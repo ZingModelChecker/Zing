@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Compiler;
-using System.CodeDom.Compiler;
-using System.Diagnostics;
-
 #if UNUSED  // The splicer no longer uses the optimizer because it breaks summarization
 namespace Microsoft.Zing
 {

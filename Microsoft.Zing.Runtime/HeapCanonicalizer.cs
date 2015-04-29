@@ -14,9 +14,9 @@ namespace Microsoft.Zing
 {
     /// <summary>
     /// HeapCanonicalizer encodes all the functionalities of heap canonicalization.
-    /// StateImpl forwards all heap canonicalization related functionalities to this class. 
-    /// 
-    /// The heap canonicalization itself is performed by the HeapCanonicalizationAlgorithm class. 
+    /// StateImpl forwards all heap canonicalization related functionalities to this class.
+    ///
+    /// The heap canonicalization itself is performed by the HeapCanonicalizationAlgorithm class.
     ///   Currently there are two implemented algorithms: the Iosif algorithm and the Incremental algorithm
     ///
     /// Apart from its own state, Heap Canonicalizer is responsible for the following fields
@@ -26,26 +26,25 @@ namespace Microsoft.Zing
     ///                                    * Contents of all non-reference fields of heap element
     ///                                    * CanonIds of all reference fields
     ///                                    * Its own canonId
-    ///                                    
+    ///
     ///   These two fields are 'essential' fields of a heap element. Thus, a heap element gets dirty when these
-    ///   fields change. (There is no need to clone the entire object in such a case - TODO for the future) 
-    ///                                    
+    ///   fields change. (There is no need to clone the entire object in such a case - TODO for the future)
+    ///
     /// Additionally, the heap canonicalizer maintains these TEMPORARY fields
     ///    HeapEntry.currCanonId : CanonId in the current traversal
     ///    HeapEntry.fingerprint : Fingeprint in the current traversal
-    ///    
+    ///
     ///  Obviously, these fields are valid only during the heap traversal
-    /// 
+    ///
     /// The fingerprint computation starts with a call to HeapCanonicalizer.OnFingerprintStart() and ends with
-    /// HeapCanonicalizer.OnFingerprintEnd(). During the computation, the heap canonicalizer computes he.canonId 
+    /// HeapCanonicalizer.OnFingerprintEnd(). During the computation, the heap canonicalizer computes he.canonId
     /// using the HeapCanonicalizationAlgorithm. Note, helem.canonId reflects the 'old' canonId before the current
     /// traversal
-    /// 
+    ///
     /// </summary>
 
     internal class HeapCanonicalizer
     {
-        
 #if DISABLE_INC_FINGERPRINTS
         private IosifAlgorithm algorithm;
 #else
@@ -54,7 +53,6 @@ namespace Microsoft.Zing
 
         public HeapCanonicalizer()
         {
-           
 #if DISABLE_INC_FINGERPRINTS
             algorithm = new IosifAlgorithm(this);
 #else
@@ -62,14 +60,15 @@ namespace Microsoft.Zing
 #endif
         }
 
-        public HeapCanonicalizer(int SerialNum) : this()
+        public HeapCanonicalizer(int SerialNum)
+            : this()
         {
             this.SerialNumber = SerialNum;
         }
 
         # region Per Fingerprinting Traversal State
         // The following state is maintained during a fingerprint traversal
-        // and should be cleared at the end of the traversal. 
+        // and should be cleared at the end of the traversal.
 
         // The list heap objects whose canonicalization state (canonId and fingerprint)
         // have changed during this traversal
@@ -79,6 +78,7 @@ namespace Microsoft.Zing
         //fingerprinting traversal
         //   --- This corresponds to StateImpl.sortedHeap in the old implementation
         private Queue pendingHeapEntries = new Queue(512);
+
         //private ArrayQueue pendingHeapEntries = new ArrayQueue(512);
 
         // number of heap objects traversed during this traversal
@@ -113,11 +113,11 @@ namespace Microsoft.Zing
 		private IncFingerprintStats oldStats;
 		internal void IncCanonIdMutations()
 		{
-			stats.numCanonIdMutations++;			
+			stats.numCanonIdMutations++;
 		}
 		internal void IncCanonIdReuses()
 		{
-			stats.numCanonIdReuses++;			
+			stats.numCanonIdReuses++;
 		}
 #endif
 
@@ -139,8 +139,8 @@ namespace Microsoft.Zing
         //---- Old Code
 
         // Fields orderBase and nextOrderBase are not necessary as we keep a table of seen pointers
-        // and clear this table after every traversal 
-        //                 --- madanm 
+        // and clear this table after every traversal
+        //                 --- madanm
         //
         //		Hashtable seenPtrs = new Hashtable();
         private bool[] seenPtrs;
@@ -213,7 +213,7 @@ namespace Microsoft.Zing
 
 #if STATS_INC_FINGERPRINTS
 			stats.numHeapTraversals++;
-			
+
 			if(stats.numHeapTraversals%5000 == 0)
 			{
 				System.Console.Write("#Travs: {0}, ", stats.numHeapTraversals);
@@ -238,7 +238,7 @@ namespace Microsoft.Zing
 			}
 #endif
 
-            // make sure the per traversal state is clean for the next traversal 
+            // make sure the per traversal state is clean for the next traversal
             Debug.Assert(dirtyHeapEntries.Count == 0);
             Debug.Assert(pendingHeapEntries.Count == 0);
             Debug.Assert(numHeapEntries == 0);
@@ -247,15 +247,14 @@ namespace Microsoft.Zing
             Debug.Assert(currentOffset == 0);
         }
 
-
         #region Entry points from StateImpl
 
         /// <summary>
         /// Get the canonicalized version of a particular heap object
-        /// 
+        ///
         /// When GetCanonicalId is called for a particular heap object
         /// for the first time in a traversal, the heap object is inserted
-        /// in the pendingHeapEntries queue for future traversals. 
+        /// in the pendingHeapEntries queue for future traversals.
         /// </summary>
         /// <param name="state"></param>
         /// <param name="p"></param>
@@ -292,7 +291,6 @@ namespace Microsoft.Zing
             return (uint)he.currCanonId;
         }
 
-
         /// <summary>
         /// Write the contents of all the heap objects in a StateImpl
         /// </summary>
@@ -319,7 +317,6 @@ namespace Microsoft.Zing
                 }
 
                 bw.Write((short)numHeapEntries);
-
             }
             else
                 bw.Write((int)0);
@@ -329,7 +326,7 @@ namespace Microsoft.Zing
         /// ComputeFingerprint computes the fingerprint of the state of heap in a given StateImpl
         /// after performing heap canonicalization.
         /// This function assumes that StateImpl has already computed the fingerprints of the globals
-        /// and the process states.  
+        /// and the process states.
         /// Thus pendingHeapEntries already contains all the heap objects referenced by these 'root' states
         /// </summary>
         /// <param name="state">The StateImpl containing the heap</param>
@@ -363,7 +360,7 @@ namespace Microsoft.Zing
                 byte[] len = new byte[2];
                 // the order is Little Endian to match the corresponding
                 //		bw.Write((short) pendingHeapEntries.Count);
-                // in the WriteString method. 
+                // in the WriteString method.
                 len[1] = (byte)((heapCount >> 8) & 0xff);
                 len[0] = (byte)((heapCount) & 0xff);
 
@@ -415,10 +412,10 @@ namespace Microsoft.Zing
             {
                 bool dirtyRefs = CheckDirtyReferences(state, helem);
 #if STATS_INC_FINGERPRINTS
-				if(dirtyRefs) 
+				if(dirtyRefs)
 					stats.numDirtyRefs++;
 				else
-					stats.numCacheHits++;										
+					stats.numCacheHits++;
 #endif
                 if (!dirtyRefs)
                 {
@@ -442,9 +439,8 @@ namespace Microsoft.Zing
 						System.Diagnostics.Debugger.Break();
 					}
 #endif
-                 return helem.fingerprint;
+                    return helem.fingerprint;
                 }
-
             }
 
 #if STATS_INC_FINGERPRINTS
@@ -463,7 +459,7 @@ namespace Microsoft.Zing
             he.currFingerprint = FingerprintHeapEntryUncached(state, he);
 
             // he.currFingerprint will be committed to helem.fingerprint at the end of the
-            // fingerprint traversal			
+            // fingerprint traversal
             // if he.canonId != helem.canonId, the heap entry is already in the dirtyHeapEntries queue
             if (he.currCanonId == helem.canonId)
             {
@@ -481,7 +477,7 @@ namespace Microsoft.Zing
         private static BinaryWriter[] binWriter = new BinaryWriter[ZingerConfiguration.DegreeOfParallelism];
 
         // Gives the fingerprint offset for each canonId
-        //   Hashtable for integers is expensive due to boxing overhead 
+        //   Hashtable for integers is expensive due to boxing overhead
         //   TODO in the future
         private Hashtable OffsetMap = new Hashtable();
 
@@ -522,7 +518,7 @@ namespace Microsoft.Zing
 #else
 			if(OffsetMap.Contains(he.currCanonId))
 			{
-				offset = (int)OffsetMap[he.currCanonId];	
+				offset = (int)OffsetMap[he.currCanonId];
 			}
 			else
 			{
@@ -545,13 +541,12 @@ namespace Microsoft.Zing
 #if PRINT_FINGERPRINTS
 			if(StateImpl.printFingerprintsFlag)
 			{
-				System.Console.Write("@{0} ", offset); 
+				System.Console.Write("@{0} ", offset);
 				state.PrintFingerprintBuffer(memStream.GetBuffer(), objLen, true);
 				System.Console.WriteLine("{0}", ret);
 			}
 #endif
             return ret;
-
         }
 
         // This version of dirty references, uses the cache of childReferences
@@ -565,8 +560,8 @@ namespace Microsoft.Zing
             {
                 Pointer ptr = refs[i];
 
-                // this call for GetCanonicalId is absolutely necessary: 
-                //       to mark the child objectss as reachable, 
+                // this call for GetCanonicalId is absolutely necessary:
+                //       to mark the child objectss as reachable,
                 //       and update their canonId if necessary
                 // To get the currentFieldIds correct, we need to make this call before the null check
                 state.GetCanonicalId(ptr);
@@ -598,10 +593,15 @@ namespace Microsoft.Zing
             public ArrayList children = new ArrayList();
             public int numSymFields;
 
-            public ChildRefGenerator() { }
+            public ChildRefGenerator()
+            {
+            }
 
-            public override void DoTraversal(Object field) { /* nothing */ }
-  
+            public override void DoTraversal(Object field)
+            {
+                /* nothing */
+            }
+
             public override void DoTraversal(Pointer ptr)
             {
                 children.Add(ptr);
@@ -609,7 +609,6 @@ namespace Microsoft.Zing
 
             public Pointer[] GetChilRef()
             {
-
                 Pointer[] ret = new Pointer[children.Count];
                 for (int i = 0; i < ret.Length; i++)
                 {
@@ -631,7 +630,7 @@ namespace Microsoft.Zing
 
         /*
 		// This is the "interface" for the canonicalization algorithm
-		//  This is just for documentation and reference, 
+		//  This is just for documentation and reference,
 		//  To avoid the virtual function call, the algorithms do not derive from this interface
 		private interface HeapCanonicalizationAlgorithm
 		{
@@ -645,10 +644,12 @@ namespace Microsoft.Zing
         {
             private HeapCanonicalizer heapCanonicalizer;
             private int heapCount;
+
             public IosifAlgorithm(HeapCanonicalizer parent)
             {
                 heapCanonicalizer = parent;
             }
+
             public void OnStart()
             {
                 heapCount = 0;
@@ -659,139 +660,142 @@ namespace Microsoft.Zing
                 heapCount++;
                 return heapCount;
             }
+
             public void OnEnd()
             {
                 // nothing - sleep tight
             }
         }
 
-		private class IncrementalAlgorithm 
-		{
-			private HeapCanonicalizer heapCanonicalizer;
-			private ArrayList canonTable = ArrayList.Repeat(null,1024);
-			public int unusedId = 1;
-		
-			public IncrementalAlgorithm(HeapCanonicalizer parent)
-			{	
-				heapCanonicalizer = parent;
-			}
+        private class IncrementalAlgorithm
+        {
+            private HeapCanonicalizer heapCanonicalizer;
+            private ArrayList canonTable = ArrayList.Repeat(null, 1024);
+            public int unusedId = 1;
+
+            public IncrementalAlgorithm(HeapCanonicalizer parent)
+            {
+                heapCanonicalizer = parent;
+            }
+
 #if REUSE_CANONS
-			bool[] seen = new bool[1024];
+            private bool[] seen = new bool[1024];
 #endif
-			
-			public void OnStart()
-			{
-				// nothing here
-			}
 
-			public int CanonId(int parentId, int fieldId, int oldCanonId)
-			{
-				if(parentId >= canonTable.Count)
-				{
-					for(int i=canonTable.Count; i<=parentId; i++)
-						canonTable.Add(null);
-					Debug.Assert(canonTable.Count > parentId);
-				}
-				if(canonTable[parentId] == null)
-				{
-					int[] newFieldArray = new int[4];
-					newFieldArray.Initialize();
-					canonTable[parentId] = newFieldArray;
-				}
+            public void OnStart()
+            {
+                // nothing here
+            }
 
-				int[] fieldArray = (int[])canonTable[parentId];
-				if(fieldId >= fieldArray.Length)
-				{
-					int newLength = fieldArray.Length * 2;
-					while(fieldId >= newLength)
-					{
-						newLength *= 2;
-					}
-					int[] newFieldArray = new int[newLength];
-					Array.Copy(fieldArray, 0, newFieldArray, 0, fieldArray.Length);
-					Array.Clear(newFieldArray, fieldArray.Length, newFieldArray.Length-fieldArray.Length);
-					canonTable[parentId] = newFieldArray;
-					fieldArray = newFieldArray;
-				}
-				if(fieldArray[fieldId] == 0)
-				{
+            public int CanonId(int parentId, int fieldId, int oldCanonId)
+            {
+                if (parentId >= canonTable.Count)
+                {
+                    for (int i = canonTable.Count; i <= parentId; i++)
+                        canonTable.Add(null);
+                    Debug.Assert(canonTable.Count > parentId);
+                }
+                if (canonTable[parentId] == null)
+                {
+                    int[] newFieldArray = new int[4];
+                    newFieldArray.Initialize();
+                    canonTable[parentId] = newFieldArray;
+                }
+
+                int[] fieldArray = (int[])canonTable[parentId];
+                if (fieldId >= fieldArray.Length)
+                {
+                    int newLength = fieldArray.Length * 2;
+                    while (fieldId >= newLength)
+                    {
+                        newLength *= 2;
+                    }
+                    int[] newFieldArray = new int[newLength];
+                    Array.Copy(fieldArray, 0, newFieldArray, 0, fieldArray.Length);
+                    Array.Clear(newFieldArray, fieldArray.Length, newFieldArray.Length - fieldArray.Length);
+                    canonTable[parentId] = newFieldArray;
+                    fieldArray = newFieldArray;
+                }
+                if (fieldArray[fieldId] == 0)
+                {
 #if REUSE_CANONS
-					if(oldCanonId!=0)
-					{
+                    if (oldCanonId != 0)
+                    {
 #if STATS_INC_FINGERPRINTS
 						heapCanonicalizer.IncCanonIdReuses();
 						System.Console.WriteLine("{0} canon for {1},{2} (reuse)", oldCanonId, parentId, fieldId);
 #endif
-						fieldArray[fieldId] = oldCanonId;
-					}
-					else
-					{
-						fieldArray[fieldId] = unusedId++;
-					}
+                        fieldArray[fieldId] = oldCanonId;
+                    }
+                    else
+                    {
+                        fieldArray[fieldId] = unusedId++;
+                    }
 #else
 					fieldArray[fieldId] = unusedId++;
 #endif
-				}
+                }
 
 #if REUSE_CANONS
-				// The returnId is fieldArray[fieldId]
-				// should ensure that this is not seen in the current state
-				if(fieldArray[fieldId] < seen.Length && seen[fieldArray[fieldId]])
-				{
-					// mutation
-					fieldArray[fieldId] = unusedId++;
+                // The returnId is fieldArray[fieldId]
+                // should ensure that this is not seen in the current state
+                if (fieldArray[fieldId] < seen.Length && seen[fieldArray[fieldId]])
+                {
+                    // mutation
+                    fieldArray[fieldId] = unusedId++;
 #if STATS_INC_FINGERPRINTS
 					System.Console.WriteLine("{0} canon for {1},{2} (mutation)", unusedId-1, parentId, fieldId);
 					heapCanonicalizer.IncCanonIdMutations();
 #endif
-				}
+                }
 
-				if(fieldArray[fieldId] >= seen.Length)
-				{
-					int newLength = seen.Length * 2;
-					while(fieldArray[fieldId] >= newLength)
-					{	
-						newLength *= 2;
-					}		
-					bool[] newSeen = new bool[newLength];
-					Array.Copy(seen, 0, newSeen, 0, seen.Length);
-					seen = newSeen;
-				}
-				seen[fieldArray[fieldId]] = true;					
+                if (fieldArray[fieldId] >= seen.Length)
+                {
+                    int newLength = seen.Length * 2;
+                    while (fieldArray[fieldId] >= newLength)
+                    {
+                        newLength *= 2;
+                    }
+                    bool[] newSeen = new bool[newLength];
+                    Array.Copy(seen, 0, newSeen, 0, seen.Length);
+                    seen = newSeen;
+                }
+                seen[fieldArray[fieldId]] = true;
 #endif
-				return fieldArray[fieldId];
-			}
+                return fieldArray[fieldId];
+            }
 
-			public void OnEnd()
-			{
+            public void OnEnd()
+            {
 #if REUSE_CANONS
-				Array.Clear(seen, 0, seen.Length);
+                Array.Clear(seen, 0, seen.Length);
 #endif
-			}
-		}
-						
-//		#endregion
-	}
+            }
+        }
 
-	internal class ArrayQueue
-	{
-		// Queue based on a Array - A slightly faster implementation than the one in standard library
-		// At this point, it is not clear if using ArrayQueue (over ArrayList) buys us anything --- madanm
-		// 
-		
-		// objList forms a circular queue from head to tail
-		private Object[] objList;
-		private int head;
-		private int tail;
-		private bool empty;
-	
-		// Class Invariant:
-		//  head, tail \in [0 .. objList.Length-1] provided objList.Length != 0
-		//   empty => head == tail
-		//   !empty =>
-		//          head points to the first element of the queue
-		//          tail points right after the last element in the queue
-		//
+        //		#endregion
+    }
+
+    internal class ArrayQueue
+    {
+        // Queue based on a Array - A slightly faster implementation than the one in standard library
+        // At this point, it is not clear if using ArrayQueue (over ArrayList) buys us anything --- madanm
+        //
+
+        // objList forms a circular queue from head to tail
+        private Object[] objList;
+
+        private int head;
+        private int tail;
+        private bool empty;
+
+        // Class Invariant:
+        //  head, tail \in [0 .. objList.Length-1] provided objList.Length != 0
+        //   empty => head == tail
+        //   !empty =>
+        //          head points to the first element of the queue
+        //          tail points right after the last element in the queue
+        //
 
 #if false
 		void CheckInvariant()
@@ -802,111 +806,111 @@ namespace Microsoft.Zing
 		}
 #endif
 
-		private void InitializeQueue(int capacity)
-		{
-			objList = new Object[capacity];
-			head = 0;
-			tail = 0;
-			empty = (capacity != 0); // if capacity is zero, we are full - otherwise we are empty
-
-#if false
-			CheckInvariant();
-#endif
-		}
-
-		private void DoubleCapacity()
-		{
-			Debug.Assert(tail == head && !empty);
-
-			int newCapacity = objList.Length * 2;
-			if(newCapacity == 0) newCapacity = 4;
-			Object[] newList = new Object[newCapacity];
-			System.Console.WriteLine("Doubling to {0}", newCapacity);
-
-			Array.Copy(objList, head, newList, 0, objList.Length-head);
-			if(head != 0)
-			{
-				Array.Copy(objList, 0, newList, objList.Length-head, head);
-			}
-			head = 0;
-			tail = objList.Length;
-			objList = newList;
+        private void InitializeQueue(int capacity)
+        {
+            objList = new Object[capacity];
+            head = 0;
+            tail = 0;
+            empty = (capacity != 0); // if capacity is zero, we are full - otherwise we are empty
 
 #if false
 			CheckInvariant();
 #endif
         }
 
-		public ArrayQueue()
-		{
-			InitializeQueue(0);
-		}
+        private void DoubleCapacity()
+        {
+            Debug.Assert(tail == head && !empty);
 
-		public ArrayQueue(int capacity)
-		{
-			InitializeQueue(capacity);
-		}
+            int newCapacity = objList.Length * 2;
+            if (newCapacity == 0) newCapacity = 4;
+            Object[] newList = new Object[newCapacity];
+            System.Console.WriteLine("Doubling to {0}", newCapacity);
+
+            Array.Copy(objList, head, newList, 0, objList.Length - head);
+            if (head != 0)
+            {
+                Array.Copy(objList, 0, newList, objList.Length - head, head);
+            }
+            head = 0;
+            tail = objList.Length;
+            objList = newList;
+
+#if false
+			CheckInvariant();
+#endif
+        }
+
+        public ArrayQueue()
+        {
+            InitializeQueue(0);
+        }
+
+        public ArrayQueue(int capacity)
+        {
+            InitializeQueue(capacity);
+        }
 
 #if UNUSED
 		public bool IsEmpty(){return empty;}
 #endif
 
-		public void Enqueue(Object obj)
-		{
-			if(tail == head && !empty)
-			{
-				// we are full
-				DoubleCapacity();
-			}
-			objList[tail] = obj;
-			tail++;
-			if(tail >= objList.Length)
-			{
-				tail = 0;
-			}
-			empty = false;
+        public void Enqueue(Object obj)
+        {
+            if (tail == head && !empty)
+            {
+                // we are full
+                DoubleCapacity();
+            }
+            objList[tail] = obj;
+            tail++;
+            if (tail >= objList.Length)
+            {
+                tail = 0;
+            }
+            empty = false;
 
 #if false
 			CheckInvariant();
 #endif
         }
 
-		public Object Dequeue()
-		{
-			if(empty)
-			{
+        public Object Dequeue()
+        {
+            if (empty)
+            {
                 throw new InvalidOperationException();
-			}
+            }
 
-			Object ret = objList[head];
-			objList[head] = null;
+            Object ret = objList[head];
+            objList[head] = null;
 
-			head++;
-			if(head >= objList.Length)
-			{
-				head = 0;
-			}
-			if(head == tail)
-			{
-				empty = true;
-			}
+            head++;
+            if (head >= objList.Length)
+            {
+                head = 0;
+            }
+            if (head == tail)
+            {
+                empty = true;
+            }
 
 #if false
 			CheckInvariant();
 #endif
             return ret;
-		}
+        }
 
-		public int Count 
-		{ 
-			get
-			{
-				if(empty) return 0;
-				if(head < tail) return tail - head;
-				else return objList.Length + tail - head;
-			}
-		}
-	}
+        public int Count
+        {
+            get
+            {
+                if (empty) return 0;
+                if (head < tail) return tail - head;
+                else return objList.Length + tail - head;
+            }
+        }
+    }
 }
 
-#endregion
+        #endregion

@@ -1,6 +1,6 @@
 ﻿/************************************************
  * Scheduler Information:
- * The run to completion (RTC) explorer was introduced in P: Safe event-driven programming language paper for testing device drivers written in P. 
+ * The run to completion (RTC) explorer was introduced in P: Safe event-driven programming language paper for testing device drivers written in P.
  * The default strategy in RTC is to follow the causal sequence of events, giving priority to the receiver of the most recently sent event.
  * When a delay is applied, the highest priority process is moved to the lowest priority position.
  * Even for small values of delay bound, this explorer is able to explore long paths in the program since it follows the chain of generated events.
@@ -8,12 +8,10 @@
 
 **************************************************/
 
+using Microsoft.Zing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Zing;
 
 namespace ExternalDelayingExplorer
 {
@@ -22,13 +20,16 @@ namespace ExternalDelayingExplorer
     {
         //stack to maintain the scheduler information
         public Stack<int> DBStack;
-        public RTCDBSchedulerState () : base()
+
+        public RTCDBSchedulerState()
+            : base()
         {
             DBStack = new Stack<int>();
         }
-        
+
         //copy consttuctor
-        public RTCDBSchedulerState(RTCDBSchedulerState copyThis) : base(copyThis)
+        public RTCDBSchedulerState(RTCDBSchedulerState copyThis)
+            : base(copyThis)
         {
             DBStack = new Stack<int>();
             var DbStackList = copyThis.DBStack.ToList();
@@ -36,33 +37,31 @@ namespace ExternalDelayingExplorer
             foreach (var item in DbStackList)
             {
                 this.DBStack.Push(item);
-            } 
+            }
         }
 
         //print the scheduler state
         public override string ToString()
         {
             string ret = "";
-            foreach(var item in DBStack)
+            foreach (var item in DBStack)
             {
                 ret = ret + "," + item.ToString();
             }
             return ret;
         }
 
-        //clone 
+        //clone
         public override ZingerSchedulerState Clone(bool isCloneForFrontier)
         {
             RTCDBSchedulerState cloned = new RTCDBSchedulerState(this);
             return cloned;
         }
-
     }
 
     public class RunToCompletionDelayingScheduler : ZingerDelayingScheduler
     {
-
-        public RunToCompletionDelayingScheduler ()
+        public RunToCompletionDelayingScheduler()
         {
         }
 
@@ -108,17 +107,16 @@ namespace ExternalDelayingExplorer
         /// This function is called when an enqueue is performed on a process, hence it has a pending event to be serviced.
         /// </summary>
         /// <param name="ZSchedulerState"></param>
-        /// <param name="targetSM"> targetSM is the target process in which the event was enqueued. 
+        /// <param name="targetSM"> targetSM is the target process in which the event was enqueued.
         /// This process is pushed on top of the stack to follow event enqueue order.</param>
         /// <param name="sourceSM">This parameter is passed for debugging purposes</param>
         public override void OnEnabled(ZingerSchedulerState ZSchedulerState, int targetSM, int sourceSM)
         {
             var SchedState = ZSchedulerState as RTCDBSchedulerState;
             var procId = SchedState.GetZingProcessId(targetSM);
-            
+
             if (!SchedState.DBStack.Contains(procId))
                 SchedState.DBStack.Push(procId);
-
         }
 
         /// <summary>
@@ -131,11 +129,12 @@ namespace ExternalDelayingExplorer
         public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
         {
             var SchedState = ZSchedulerState as RTCDBSchedulerState;
-            if(SchedState.DBStack.Count > 0)
+            if (SchedState.DBStack.Count > 0)
             {
                 SchedState.DBStack.Pop();
             }
         }
+
         /// <summary>
         /// Move the process on top of stack to the bottom of the stack. Moving the process to the bottom of the stack deviates
         /// the scheduler from following the casual order of events (RTC strategy).
@@ -162,7 +161,7 @@ namespace ExternalDelayingExplorer
         }
 
         /// <summary>
-        /// Return process at the top of stack. 
+        /// Return process at the top of stack.
         /// This process is executed next and follows the deterministic schedule.
         /// </summary>
         /// <returns>next process to be scheduled</returns>
@@ -177,7 +176,7 @@ namespace ExternalDelayingExplorer
 
         /// <summary>
         /// This function is used internally by the ZING explorer.
-        /// It checks if we have applied the maximum number of delays in the current state. 
+        /// It checks if we have applied the maximum number of delays in the current state.
         /// Applying any more delay operations will not lead to new transitions/states being explored.
         /// Maximum delay operations for a state is always (totalEnabledProcesses - 1).
         /// </summary>
@@ -187,7 +186,6 @@ namespace ExternalDelayingExplorer
         {
             var SchedState = zSchedState as RTCDBSchedulerState;
             return zSchedState.numOfTimesCurrStateDelayed >= (SchedState.DBStack.Count - 1);
-
         }
 
         /// <summary>

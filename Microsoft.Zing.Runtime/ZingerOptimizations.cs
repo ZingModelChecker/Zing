@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Microsoft.Zing.Runtime
+﻿namespace Microsoft.Zing.Runtime
 {
-    class ZingerOptimizations
+    internal class ZingerOptimizations
     {
-
     }
 }

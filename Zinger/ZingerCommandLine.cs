@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -49,9 +47,11 @@ namespace Microsoft.Zing
                         case "fbound":
                             ZingerConfiguration.zBoundedSearch.FinalExecutionCutOff = int.Parse(param);
                             break;
+
                         case "ibound":
                             ZingerConfiguration.zBoundedSearch.IterativeIncrement = int.Parse(param);
                             break;
+
                         case "p":
                             if (param.Length == 0)
                             {
@@ -62,48 +62,65 @@ namespace Microsoft.Zing
                                 ZingerConfiguration.DegreeOfParallelism = int.Parse(param);
                             }
                             break;
+
                         case "m":
                         case "multiple":
                             ZingerConfiguration.StopOnError = false;
                             break;
+
                         case "s":
                         case "stats":
                             ZingerConfiguration.PrintStats = true;
                             break;
+
                         case "et":
                             ZingerConfiguration.EnableTrace = true;
                             ZingerConfiguration.traceLogFile = param;
                             break;
+
                         case "entirezingtrace":
                             ZingerConfiguration.DetailedZingTrace = true;
                             break;
+
                         case "ct":
                             ZingerConfiguration.CompactTraces = true;
                             break;
+
                         case "frontiertodisk":
                             ZingerConfiguration.FrontierToDisk = true;
                             break;
+
                         case "co":
                             ZingerConfiguration.NonChooseProbability = double.Parse(param);
                             break;
+
                         case "maxmemory":
                             ZingerConfiguration.MaxMemoryConsumption = double.Parse(param);
                             break;
+
                         case "maxdfsstack":
                             ZingerConfiguration.BoundDFSStackLength = int.Parse(param);
                             break;
+
                         case "pb":
                             ZingerConfiguration.DoPreemptionBounding = true;
                             break;
-                        case "randomwalk":
+
+                        case "pct":
+                            ZingerConfiguration.DoPCT = true;
+                            throw new NotImplementedException("PCT implementation is under construction with some unfinished optimizations");
+                            break;
+
+                        case "randomsample":
                             {
-                                if(param.Length != 0)
+                                if (param.Length != 0)
                                 {
                                     ZingerConfiguration.MaxSchedulesPerIteration = int.Parse(param);
                                 }
-                                ZingerConfiguration.DoRandomWalk = true;
+                                ZingerConfiguration.DoRandomSampling = true;
                             }
                             break;
+
                         case "stateless":
                             if (param.Length != 0)
                             {
@@ -111,6 +128,7 @@ namespace Microsoft.Zing
                             }
                             ZingerConfiguration.DoStateLess = true;
                             break;
+
                         case "delayb":
                             {
                                 ZingerConfiguration.DoDelayBounding = true;
@@ -118,7 +136,7 @@ namespace Microsoft.Zing
                                 try
                                 {
                                     //check if the file exists
-                                    if(!File.Exists(ZingerConfiguration.delayingSchedDll))
+                                    if (!File.Exists(ZingerConfiguration.delayingSchedDll))
                                     {
                                         PrintZingerHelp(option, String.Format("File {0} not found", ZingerConfiguration.delayingSchedDll));
                                     }
@@ -126,18 +144,16 @@ namespace Microsoft.Zing
                                     var schedAssembly = Assembly.LoadFrom(ZingerConfiguration.delayingSchedDll);
                                     if (schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerDelayingScheduler")).Count() != 1)
                                     {
-
                                         ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class ZingerDelayingScheduler", ZingerConfiguration.delayingSchedDll));
                                         return false;
                                     }
 
                                     if (schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerSchedulerState")).Count() != 1)
                                     {
-
                                         ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class IZingerSchedulerState", ZingerConfiguration.delayingSchedDll));
                                         return false;
                                     }
-                                    // get class name 
+                                    // get class name
                                     string schedClassName = schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerDelayingScheduler")).First().FullName;
                                     var schedStateClassName = schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerSchedulerState")).First().FullName;
                                     var schedClassType = schedAssembly.GetType(schedClassName);
@@ -145,7 +161,7 @@ namespace Microsoft.Zing
                                     ZingerConfiguration.ZExternalScheduler.zDelaySched = Activator.CreateInstance(schedClassType) as ZingerDelayingScheduler;
                                     ZingerConfiguration.ZExternalScheduler.zSchedState = Activator.CreateInstance(schedStateClassType) as ZingerSchedulerState;
                                 }
-                                catch(Exception e)
+                                catch (Exception e)
                                 {
                                     ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing delaying scheduler is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
                                     ZingerUtilities.PrintErrorMessage(e.Message);
@@ -153,13 +169,16 @@ namespace Microsoft.Zing
                                 }
                             }
                             break;
+
                         case "bc":
                             ZingerConfiguration.BoundChoices = true;
                             ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff = int.Parse(param);
                             break;
+
                         case "ndfsliveness":
                             ZingerConfiguration.DoNDFSLiveness = true;
                             break;
+
                         case "maceliveness":
                             ZingerConfiguration.DoMaceliveness = true;
                             if (param.Length == 0)
@@ -171,7 +190,7 @@ namespace Microsoft.Zing
                             {
                                 var parameters = Regex.Match(param, "([0-9]*,[0-9]*,[0-9]*)").Groups[0].ToString();
                                 var bounds = parameters.Split(',');
-                                if(bounds.Count() != 3)
+                                if (bounds.Count() != 3)
                                 {
                                     PrintZingerHelp(arg, "Invalid parameters passed to maceliveness");
                                     return false;
@@ -182,24 +201,25 @@ namespace Microsoft.Zing
                                 }
                             }
                             break;
+
                         case "mapliveness":
                             ZingerConfiguration.DoMAPLiveness = true;
                             break;
+
                         default:
                             PrintZingerHelp(arg, "Invalid Option");
                             return false;
                     }
-
                 }
                 else
                 {
-                    if(ZingerConfiguration.ZingModelFile != "")
+                    if (ZingerConfiguration.ZingModelFile != "")
                     {
                         PrintZingerHelp(arg, "Only one Zing model may be referenced");
                         return false;
                     }
 
-                    if(!File.Exists(arg))
+                    if (!File.Exists(arg))
                     {
                         PrintZingerHelp(arg, "Can't find Zing Assembly");
                         return false;
@@ -209,14 +229,14 @@ namespace Microsoft.Zing
                 }
             }
 
-            if(ZingerConfiguration.ZingModelFile == "")
+            if (ZingerConfiguration.ZingModelFile == "")
             {
                 PrintZingerHelp(null, "No Zing Model Specified");
                 return false;
             }
             return true;
-
         }
+
         public static void PrintZingerHelp(string arg, string errorMessage)
         {
             if (errorMessage != null)
@@ -278,10 +298,12 @@ namespace Microsoft.Zing
             Console.WriteLine("Zinger performs stateless search. <int> max search depth(default is 10000). No state caching ! (default is stateful)\n");
             Console.WriteLine("-pb");
             Console.WriteLine("Perform preemption bounding\n");
+            Console.WriteLine("-pct");
+            Console.WriteLine("Perform PCT based Prioritization\n");
             Console.WriteLine("-delayB:<scheduler.dll>");
             Console.WriteLine("Zinger performs delay bounding using the deterministic scheduler (scheduler.dll).\n");
             Console.WriteLine("-bc:<int>");
-            Console.WriteLine("Bound the choice operations or bound the number of times choose(bool) returns true."); 
+            Console.WriteLine("Bound the choice operations or bound the number of times choose(bool) returns true.");
             Console.WriteLine("The default value is \"false\" for choose(bool), choice budget is used each time true is returned.\n");
             Console.WriteLine();
             Console.WriteLine("===========================");
@@ -295,8 +317,6 @@ namespace Microsoft.Zing
             Console.WriteLine("error trace is reported if no \"cold\" state is found within livestatebound interval\n");
             Console.WriteLine("-MAPLiveness");
             Console.WriteLine("Uses MAP cycle detection algorithm for finding accepting cycles. Can be used with Parallelism.\n");
-        
         }
-
     }
 }
