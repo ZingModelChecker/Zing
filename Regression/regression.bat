@@ -12,7 +12,7 @@ goto :EOF
 	echo %1
 	cd %1
 	if exist compile_param (
-		for /f "delims=;" %%n in (compile_param) do ..\..\zc\bin\Debug\zc.exe %%n %1.zing 
+		for /f "delims=;" %%n in (compile_param) do ..\..\zc\bin\x64\Debug\zc.exe %%n %1.zing 
 	) else (
 		@echo no compile_param declared. 
 	)
@@ -34,7 +34,7 @@ goto :EOF
 	set "arg=%~2"
 	if "%3" == "" (
 		
-		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >output_%counter%.txt"
+		cmd /c "..\..\Zinger\bin\x64\Debug\Zinger.exe %1.dll %arg% >output_%counter%.txt"
 		sleep 1
 		cmd /c "grep -v State: golden_%counter%.txt >stripped_golden_%counter%.txt"
 		cmd /c "grep -v State: output_%counter%.txt >stripped_output_%counter%.txt"
@@ -53,7 +53,7 @@ goto :EOF
 	) 
 	if "%3" == "%counter%" (
 		
-		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >output_%counter%.txt"
+		cmd /c "..\..\Zinger\bin\x64\Debug\Zinger.exe %1.dll %arg% >output_%counter%.txt"
 		sleep 1
 		cmd /c "grep -v State: golden_%counter%.txt >stripped_golden_%counter%.txt"
 		cmd /c "grep -v State: output_%counter%.txt >stripped_output_%counter%.txt"
