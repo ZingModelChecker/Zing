@@ -14,77 +14,10 @@ using System.Linq;
 
 namespace ExternalDelayingExplorer
 {
-    [Serializable]
-    public class RoundRobinDBSchedulerState : ZingerSchedulerState
-    {
-        //list of enabled processes.
-        public List<int> enabledProcesses;
-
-        public RoundRobinDBSchedulerState()
-            : base()
-        {
-            enabledProcesses = new List<int>();
-        }
-
-        //copy constructor
-        public RoundRobinDBSchedulerState(RoundRobinDBSchedulerState copyThis)
-            : base(copyThis)
-        {
-            enabledProcesses = new List<int>();
-            foreach (var item in copyThis.enabledProcesses)
-            {
-                enabledProcesses.Add(item);
-            }
-        }
-
-        //print the string
-        public override string ToString()
-        {
-            string ret = "";
-            foreach (var item in enabledProcesses)
-            {
-                ret = ret + item.ToString() + ",";
-            }
-            return ret;
-        }
-
-        //clone
-        public override ZingerSchedulerState Clone(bool isCloneForFrontier)
-        {
-            RoundRobinDBSchedulerState cloned = new RoundRobinDBSchedulerState(this);
-            return cloned;
-        }
-    }
-
     public class RoundRobinDBSched : ZingerDelayingScheduler
     {
         public RoundRobinDBSched()
         {
-        }
-
-        /// <summary>
-        /// This function is called by Zinger whenever a new process is created.
-        /// Add the new created process at the end of RR list.
-        /// </summary>
-        /// <param name="processId"> process Id of the newly created process</param>
-        public override void Start(ZingerSchedulerState ZSchedulerState, int processId)
-        {
-            var SchedState = ZSchedulerState as RoundRobinDBSchedulerState;
-            ZSchedulerState.Start(processId);
-            //add the process to the enabled processes list
-            SchedState.enabledProcesses.Add(processId);
-        }
-
-        /// <summary>
-        /// This function is called by Zinger whenever a process has finished execution.
-        /// Remove the process from list of enabled processes.
-        /// </summary>
-        /// <param name="processId"> process Id of the completed process</param>
-        public override void Finish(ZingerSchedulerState ZSchedulerState, int processId)
-        {
-            ZSchedulerState.Finish(processId);
-            var schedState = ZSchedulerState as RoundRobinDBSchedulerState;
-            schedState.enabledProcesses.Remove(processId);
         }
 
         /// <summary>
@@ -103,6 +36,17 @@ namespace ExternalDelayingExplorer
             SchedState.enabledProcesses.Add(delayProcess);
             //one delay operation performed
             zSchedState.numOfTimesCurrStateDelayed++;
+        }
+
+        /// <summary>
+        /// This function is called by Zinger whenever a process has finished execution.
+        /// Remove the process from list of enabled processes.
+        /// </summary>
+        /// <param name="processId"> process Id of the completed process</param>
+        public override void Finish(ZingerSchedulerState ZSchedulerState, int processId)
+        {
+            var schedState = ZSchedulerState as RoundRobinDBSchedulerState;
+            schedState.enabledProcesses.Remove(processId);
         }
 
         /// <summary>
@@ -134,6 +78,19 @@ namespace ExternalDelayingExplorer
         }
 
         /// <summary>
+        /// This function is called when a process is blocked on dequeue.
+        /// There are no more events to be serviced and the queue is empty.
+        /// </summary>
+        /// <param name="ZSchedulerState"></param>
+        /// <param name="sourceSM">Process that is blocked</param>
+        public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
+        {
+            var SchedState = (ZSchedulerState as RoundRobinDBSchedulerState);
+            var procId = SchedState.GetZingProcessId(sourceSM);
+            SchedState.enabledProcesses.Remove(procId);
+        }
+
+        /// <summary>
         /// This function is called on a enqueue operation. A process is enabled
         /// if it has messages in its queue to be serviced
         /// </summary>
@@ -149,18 +106,17 @@ namespace ExternalDelayingExplorer
         }
 
         /// <summary>
-        /// This function is called when a process is blocked on dequeue.
-        /// There are no more events to be serviced and the queue is empty.
+        /// This function is called by Zinger whenever a new process is created.
+        /// Add the new created process at the end of RR list.
         /// </summary>
-        /// <param name="ZSchedulerState"></param>
-        /// <param name="sourceSM">Process that is blocked</param>
-        public override void OnBlocked(ZingerSchedulerState ZSchedulerState, int sourceSM)
+        /// <param name="processId"> process Id of the newly created process</param>
+        public override void Start(ZingerSchedulerState ZSchedulerState, int processId)
         {
-            var SchedState = (ZSchedulerState as RoundRobinDBSchedulerState);
-            var procId = SchedState.GetZingProcessId(sourceSM);
-            SchedState.enabledProcesses.Remove(procId);
+            var SchedState = ZSchedulerState as RoundRobinDBSchedulerState;
+            ZSchedulerState.Start(processId);
+            //add the process to the enabled processes list
+            SchedState.enabledProcesses.Add(processId);
         }
-
         /// <summary>
         /// This function is provided for extending or customizing the delayingExplorer.
         /// </summary>
@@ -169,6 +125,48 @@ namespace ExternalDelayingExplorer
         public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)
         {
             //do nothing
+        }
+    }
+
+    [Serializable]
+    public class RoundRobinDBSchedulerState : ZingerSchedulerState
+    {
+        //list of enabled processes.
+        public List<int> enabledProcesses;
+
+        public RoundRobinDBSchedulerState()
+            : base()
+        {
+            enabledProcesses = new List<int>();
+        }
+
+        //copy constructor
+        public RoundRobinDBSchedulerState(RoundRobinDBSchedulerState copyThis)
+            : base(copyThis)
+        {
+            enabledProcesses = new List<int>();
+            foreach (var item in copyThis.enabledProcesses)
+            {
+                enabledProcesses.Add(item);
+            }
+        }
+
+        //clone
+        public override ZingerSchedulerState Clone(bool isCloneForFrontier)
+        {
+            RoundRobinDBSchedulerState cloned = new RoundRobinDBSchedulerState(this);
+            return cloned;
+        }
+
+        //print the string
+        public override string ToString()
+        {
+            string ret = "";
+            foreach (var item in enabledProcesses)
+            {
+                ret = ret + item.ToString() + ",";
+            }
+            return ret;
         }
     }
 }

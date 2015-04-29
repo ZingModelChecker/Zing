@@ -57,45 +57,12 @@ State:[fingerprint =326e8c8f:06d93e73]
           Outputs:
           Locals:
 
-#### State 2 (ran process 1) :
-State:[fingerprint =4d13aab0:404412d7]
+#### State 2 (ran process 0) :
+State:[fingerprint =770b1a80:4952b407]
 
   Globals:
   System.Boolean SingletonLock____locked = False
-  System.Boolean BoolProg____g0 = True
-
-
-  Processes: (2)
-
-    Process 0: Name='main', Id=0
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+main
-      Stack:
-        Function : Microsoft.Zing.Application+BoolProg+main
-          NextBlock: B1
-          Inputs:
-          Outputs:
-          Locals:
-
-
-    Process 1: Name='BoolProg.foo_1', Id=1
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+foo_1
-      Stack:
-        Function : Microsoft.Zing.Application+BoolProg+foo_1
-          NextBlock: B2
-          Inputs:
-          Outputs:
-          Locals:
-
-#### State 3 (ran process 0) :
-State:[fingerprint =08763cbf:0fcf98a3]
-
-  Globals:
-  System.Boolean SingletonLock____locked = False
-  System.Boolean BoolProg____g0 = True
+  System.Boolean BoolProg____g0 = False
 
 
   Processes: (3)
@@ -111,6 +78,86 @@ State:[fingerprint =08763cbf:0fcf98a3]
           Outputs:
           Locals:
 
+
+    Process 1: Name='BoolProg.foo_1', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BoolProg+foo_1
+      Stack:
+        Function : Microsoft.Zing.Application+BoolProg+foo_1
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 2: Name='BoolProg.bar_1', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BoolProg+bar_1
+      Stack:
+        Function : Microsoft.Zing.Application+BoolProg+bar_1
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 3 (ran process 0) :
+State:[fingerprint =18b1ff82:27bb776a]
+
+  Events:
+    TerminateProcess - process='main'
+
+  Globals:
+  System.Boolean SingletonLock____locked = False
+  System.Boolean BoolProg____g0 = False
+
+
+  Processes: (3)
+
+    Process 0: Name='main', Id=0
+      Status: Completed
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BoolProg+main
+      Stack:
+
+    Process 1: Name='BoolProg.foo_1', Id=1
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BoolProg+foo_1
+      Stack:
+        Function : Microsoft.Zing.Application+BoolProg+foo_1
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+
+    Process 2: Name='BoolProg.bar_1', Id=2
+      Status: Runnable
+      Choice pending: False
+      Entry point: Microsoft.Zing.Application+BoolProg+bar_1
+      Stack:
+        Function : Microsoft.Zing.Application+BoolProg+bar_1
+          NextBlock: Enter
+          Inputs:
+          Outputs:
+          Locals:
+
+#### State 4 (ran process 1) :
+State:[fingerprint =65ddec1e:02e12910]
+
+  Globals:
+  System.Boolean SingletonLock____locked = False
+  System.Boolean BoolProg____g0 = True
+
+
+  Processes: (3)
+
+    Process 0: Name='main', Id=0
+      Status: Completed
+      Choice pending: False
+      Stack:
 
     Process 1: Name='BoolProg.foo_1', Id=1
       Status: Runnable
@@ -135,8 +182,8 @@ State:[fingerprint =08763cbf:0fcf98a3]
           Outputs:
           Locals:
 
-#### State 4 (ran process 2) :
-State:[fingerprint =79c590ba:0e4055ef]
+#### State 5 (ran process 2) :
+State:[fingerprint =01e0edca:350fa414]
 
   Globals:
   System.Boolean SingletonLock____locked = False
@@ -146,16 +193,9 @@ State:[fingerprint =79c590ba:0e4055ef]
   Processes: (3)
 
     Process 0: Name='main', Id=0
-      Status: Runnable
+      Status: Completed
       Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+main
       Stack:
-        Function : Microsoft.Zing.Application+BoolProg+main
-          NextBlock: B0
-          Inputs:
-          Outputs:
-          Locals:
-
 
     Process 1: Name='BoolProg.foo_1', Id=1
       Status: Runnable
@@ -180,8 +220,8 @@ State:[fingerprint =79c590ba:0e4055ef]
           Outputs:
           Locals:
 
-#### State 5 (ran process 2) :
-State:[fingerprint =20836641:600dc953]
+#### State 6 (ran process 2) :
+State:[fingerprint =45fb375c:2ad04a9f]
 
   Events:
     TerminateProcess - process='BoolProg.bar_1'
@@ -194,16 +234,9 @@ State:[fingerprint =20836641:600dc953]
   Processes: (3)
 
     Process 0: Name='main', Id=0
-      Status: Runnable
+      Status: Completed
       Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+main
       Stack:
-        Function : Microsoft.Zing.Application+BoolProg+main
-          NextBlock: B0
-          Inputs:
-          Outputs:
-          Locals:
-
 
     Process 1: Name='BoolProg.foo_1', Id=1
       Status: Runnable
@@ -221,41 +254,6 @@ State:[fingerprint =20836641:600dc953]
       Status: Completed
       Choice pending: False
       Entry point: Microsoft.Zing.Application+BoolProg+bar_1
-      Stack:
-#### State 6 (ran process 0) :
-State:[fingerprint =45fb375c:2ad04a9f]
-
-  Events:
-    TerminateProcess - process='main'
-
-  Globals:
-  System.Boolean SingletonLock____locked = False
-  System.Boolean BoolProg____g0 = False
-
-
-  Processes: (3)
-
-    Process 0: Name='main', Id=0
-      Status: Completed
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+main
-      Stack:
-
-    Process 1: Name='BoolProg.foo_1', Id=1
-      Status: Runnable
-      Choice pending: False
-      Entry point: Microsoft.Zing.Application+BoolProg+foo_1
-      Stack:
-        Function : Microsoft.Zing.Application+BoolProg+foo_1
-          NextBlock: B2
-          Inputs:
-          Outputs:
-          Locals:
-
-
-    Process 2: Name='BoolProg.bar_1', Id=2
-      Status: Completed
-      Choice pending: False
       Stack:
 #### State 7 (ran process 1) :
 State:[fingerprint =2b4ee022:0dc81448]
@@ -330,4 +328,4 @@ Stack trace:
     BoolProg.foo_1 (interleave.zing, Line 31)
 
 
-13 distinct states explored
+12 distinct states explored

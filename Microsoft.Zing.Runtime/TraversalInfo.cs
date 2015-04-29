@@ -283,6 +283,8 @@ namespace Microsoft.Zing
                 else if (ZingerConfiguration.DoPreemptionBounding)
                 {
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, 0);
+                    //preemptionBounding.preempted = true;
+                    //doDelay = true;
                 }
             }
         }

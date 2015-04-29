@@ -1,12 +1,16 @@
 class Main {
 	static Foo f;
 
-	activate static void main1() {
+	activate static void main() {
+		async main1();
+		async main2();
+	}
+	static void main1() {
 		bar();
 		bar();
 	} 
 
-	activate static void main2() {
+	static void main2() {
 		bar();
 		bar();
 	} 

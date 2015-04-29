@@ -1,8 +1,8 @@
--entirezingtrace -p -ibound:100;
--entirezingtrace -frontiertodisk -p -ibound:100;
--entirezingtrace -p -delayb:../../DelayingSchedulers/RunToCompletionDelayingScheduler/bin/debug/RunToCompletionDelayingScheduler.dll -ibound:10;
--entirezingtrace -p -delayb:../../DelayingSchedulers/RoundRobinDelayingScheduler/bin/debug/RoundRobinDelayingScheduler.dll;
-
+-entirezingtrace;
+-entirezingtrace -delayb:../../DelayingSchedulers/RunToCompletionDelayingScheduler/bin/x64/debug/RunToCompletionDelayingScheduler.dll;
+-entirezingtrace -delayb:../../DelayingSchedulers/RoundRobinDelayingScheduler/bin/x64/debug/RoundRobinDelayingScheduler.dll;
+-entirezingtrace -delayb:../../DelayingSchedulers/RandomDelayingScheduler/bin/x64/debug/RandomDelayingScheduler.dll;
+-entirezingtrace -pb;
 
 
 

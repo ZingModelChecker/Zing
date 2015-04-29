@@ -12,7 +12,7 @@ goto :EOF
 	echo %1
 	cd %1
 	if exist compile_param (
-		for /f "delims=;" %%n in (compile_param) do ..\..\zc\bin\Debug\zc.exe %%n %1.zing 
+		for /f "delims=;" %%n in (compile_param) do ..\..\zc\bin\x64\Debug\zc.exe %%n %1.zing 
 	) else (
 		@echo no compile_param declared. 
 	)
@@ -26,11 +26,11 @@ goto :EOF
 	set "arg=%~2"
 	if "%3" == "" (
 		@echo golden for %arg%
-		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
+		cmd /c "..\..\Zinger\bin\x64\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
 		goto :EOF
 	) else if "%3" == "%counter%" (
 		@echo golden for %arg%
-		cmd /c "..\..\Zinger\bin\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
+		cmd /c "..\..\Zinger\bin\x64\Debug\Zinger.exe %1.dll %arg% >golden_%counter%.txt"
 		goto :EOF
 	) else (
 		goto :EOF

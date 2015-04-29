@@ -1191,4 +1191,4 @@ Stack trace:
     BlueTooth.BCSP_Miniport_PnpAdd (BlueGlobal.zing, Line 27)
 
 
-268 distinct states explored
+107 distinct states explored

@@ -1,4 +1,4 @@
-Model Internal Runtime Error
+Program Runtime Error
  *******************************************************************************
  Error trace 0: length: 4 states
 #### State 0 : 
