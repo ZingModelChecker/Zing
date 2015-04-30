@@ -292,8 +292,8 @@ namespace Microsoft.Zing
             Console.WriteLine("---------------------------");
             Console.WriteLine("-maxDFSStack:<int>");
             Console.WriteLine("Maximum size of the DFS search stack. A counter example is generated if size of the stack exceeds the bound.\n");
-            Console.WriteLine("-randomWalk:<int>");
-            Console.WriteLine("Zinger performs random walk without DFS stack. <int> represents the maximum number of schedules explored per iteration. (default is int max).\n");
+            Console.WriteLine("-randomsample:<int>");
+            Console.WriteLine("Zinger performs random walk without DFS stack. <int> represents the maximum number of schedules explored per iteration. (default is 1000).\n");
             Console.WriteLine("-stateless:<int>");
             Console.WriteLine("Zinger performs stateless search. <int> max search depth(default is 10000). No state caching ! (default is stateful)\n");
             Console.WriteLine("-pb");
