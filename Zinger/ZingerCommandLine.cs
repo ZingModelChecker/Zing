@@ -109,7 +109,6 @@ namespace Microsoft.Zing
                         case "pct":
                             ZingerConfiguration.DoPCT = true;
                             throw new NotImplementedException("PCT implementation is under construction with some unfinished optimizations");
-                            break;
 
                         case "randomsample":
                             {

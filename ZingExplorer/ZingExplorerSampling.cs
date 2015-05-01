@@ -307,18 +307,18 @@ namespace Microsoft.Zing
         protected override void SearchStateSpace(object obj)
         {
             int myThreadId = (int)obj;
-
+            int numberOfSchedulesExplored = 0;
             //maximum number of schedules per iteration = c1 + c2^d.
             // c1 = ZingerConfiguration.MaxSchedulesPerIteration.
             // c2 = 3 as we found that to work the best.
-            int numberOfSchedulesExplored = ZingerConfiguration.MaxSchedulesPerIteration + (int)Math.Pow(3, ZingerConfiguration.zBoundedSearch.IterativeCutoff);
+            int maxSchedulesPerIteration = ZingerConfiguration.MaxSchedulesPerIteration + (int)Math.Pow(3, ZingerConfiguration.zBoundedSearch.IterativeCutoff);
             int delayBudget = 0;
             Stack<TraversalInfo> searchStack = new Stack<TraversalInfo>();
             //frontier
             FrontierNode startfN = new FrontierNode(StartStateTraversalInfo);
             TraversalInfo startState = startfN.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
-            while (numberOfSchedulesExplored < ZingerConfiguration.MaxSchedulesPerIteration)
+            while (numberOfSchedulesExplored < maxSchedulesPerIteration)
             {
                 //kil the exploration if bug found
                 //Check if cancelation token triggered
