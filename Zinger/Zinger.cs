@@ -44,6 +44,9 @@ namespace Microsoft.Zing
                     ZingerStats.StartPeriodicStats();
                 }
 
+                //start the time out timer 
+                ZingerUtilities.StartTimeOut();
+
                 //start the search
                 result = zingExplorer.Explore();
 

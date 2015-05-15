@@ -312,7 +312,12 @@ namespace Microsoft.Zing
         /// <summary>
         /// DFS search stack size exceeded the maximum size.
         /// </summary>
-        DFSStackOverFlowError = 8
+        DFSStackOverFlowError = 8,
+
+        /// <summary>
+        /// Zinger Time Out
+        /// </summary>
+        ZingerTimeOut = 9
     }
 
     /// <summary>

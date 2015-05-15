@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.IO;
 
 namespace Microsoft.Zing
 {
@@ -33,6 +34,22 @@ namespace Microsoft.Zing
                 Console.ForegroundColor = prevColor;
             }
         }
+
+        public static void ZingerTimeOut(object obj)
+        {
+            ZingerUtilities.PrintMessage("");
+            ZingerUtilities.PrintMessage(String.Format("--Zinger Timed Out --"));
+            ZingerUtilities.PrintMessage(String.Format("--Final Stats --"));
+            ZingerStats.PrintPeriodicStats();
+            Environment.Exit((int)ZingerResult.ZingerTimeOut);
+        }
+
+        private static System.Threading.Timer TimeOutTimer;
+        public static void StartTimeOut()
+        {
+            TimerCallback tcb = ZingerTimeOut;
+            TimeOutTimer = new Timer(tcb, null, ZingerConfiguration.Timeout * 1000, ZingerConfiguration.Timeout * 1000);
+        }
     }
 
     public class ZingerStats
@@ -50,7 +67,15 @@ namespace Microsoft.Zing
             var finishTime = DateTime.Now;
             var elapsedTime = finishTime.Subtract(startTime);
             ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states explored", NumOfStatesVisited));
-            if (ZingerConfiguration.PrintStats)
+
+            //This is only for the FSE artifacts
+            #region FOR FSE ARTIFACT
+            if (ZingerConfiguration.DoRandomSampling)
+                ZingerUtilities.PrintMessage(String.Format("ERROR:{0}", NumOfSchedulesExplored));
+            else
+                ZingerUtilities.PrintMessage(String.Format("ERROR:{0}", NumOfStatesVisited));
+            #endregion
+                if (ZingerConfiguration.PrintStats)
             {
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
 
@@ -109,6 +134,7 @@ namespace Microsoft.Zing
             PrintPeriodicStats();
         }
 
+        
         public static void IncrementStatesCount()
         {
             Interlocked.Increment(ref NumOfStatesVisited);
@@ -132,6 +158,7 @@ namespace Microsoft.Zing
             PeriodicTimer = new Timer(tcb, null, 300000, 300000);
         }
 
+        
         public static void IncrementNumberOfSchedules()
         {
             Interlocked.Increment(ref NumOfSchedulesExplored);

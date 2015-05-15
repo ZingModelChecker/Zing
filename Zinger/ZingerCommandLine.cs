@@ -169,6 +169,12 @@ namespace Microsoft.Zing
                             }
                             break;
 
+                        case "timeout":
+                            if(param.Length != 0)
+                            {
+                                ZingerConfiguration.Timeout = int.Parse(param);
+                            }
+                            break;
                         case "bc":
                             ZingerConfiguration.BoundChoices = true;
                             ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff = int.Parse(param);
@@ -271,6 +277,10 @@ namespace Microsoft.Zing
             Console.WriteLine("-entireZingTrace");
             Console.WriteLine("Genererates detailed Zing Stack Error trace.\n");
             Console.WriteLine();
+            Console.WriteLine("-timeout:<time in seconds>");
+            Console.WriteLine("Maximum amount of time to run zinger. Zinger will be terminated after time-out period");
+            Console.WriteLine();
+
             Console.WriteLine("===========================");
             Console.WriteLine("Zinger Optimizations:");
             Console.WriteLine("---------------------------");

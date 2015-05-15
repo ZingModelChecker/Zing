@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Microsoft.Zing
 {
@@ -157,7 +158,7 @@ namespace Microsoft.Zing
             : base()
         {
             //maximum length of a schedule
-            maxScheduleLength = 10000;
+            maxScheduleLength = 1000;
         }
 
         /// <summary>
@@ -268,6 +269,9 @@ namespace Microsoft.Zing
 
                 try
                 {
+                    //set number of schedules explored to 0
+                    ZingerConfiguration.numberOfSchedulesExplored = 0;
+
                     searchWorkers = new Task[ZingerConfiguration.DegreeOfParallelism];
                     //create parallel search threads
                     for (int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
@@ -307,7 +311,6 @@ namespace Microsoft.Zing
         protected override void SearchStateSpace(object obj)
         {
             int myThreadId = (int)obj;
-            int numberOfSchedulesExplored = 0;
             //maximum number of schedules per iteration = c1 + c2^d.
             // c1 = ZingerConfiguration.MaxSchedulesPerIteration.
             // c2 = 3 as we found that to work the best.
@@ -318,7 +321,7 @@ namespace Microsoft.Zing
             FrontierNode startfN = new FrontierNode(StartStateTraversalInfo);
             TraversalInfo startState = startfN.GetTraversalInfo(StartStateStateImpl, myThreadId);
 
-            while (numberOfSchedulesExplored < maxSchedulesPerIteration)
+            while (ZingerConfiguration.numberOfSchedulesExplored < maxSchedulesPerIteration)
             {
                 //kil the exploration if bug found
                 //Check if cancelation token triggered
@@ -331,7 +334,8 @@ namespace Microsoft.Zing
                 delayBudget = ZingerConfiguration.zBoundedSearch.IterativeCutoff;
 
                 //increment the schedule count
-                numberOfSchedulesExplored++;
+                Interlocked.Increment(ref ZingerConfiguration.numberOfSchedulesExplored);
+
                 ZingerStats.IncrementNumberOfSchedules();
 
                 searchStack = new Stack<TraversalInfo>();

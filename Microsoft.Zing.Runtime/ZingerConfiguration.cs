@@ -288,8 +288,11 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.doRandomSampling = value; }
         }
 
+        //number of schedules explored
+        public static int numberOfSchedulesExplored = 0;
+
         //maximum number of schedules per iteration
-        private static int maxSchedulesPerIteration = 1000;
+        private static int maxSchedulesPerIteration = 100;
 
         public static int MaxSchedulesPerIteration
         {
@@ -396,6 +399,14 @@ namespace Microsoft.Zing
         {
             get { return ZingerConfiguration.executeTraceStatements; }
             set { ZingerConfiguration.executeTraceStatements = value; }
+        }
+
+        //Zinger time out in seconds
+        private static int timeout = 24*60*60; //default is 24 hours.
+        public static int Timeout
+        {
+            get { return timeout; }
+            set { timeout = value; }
         }
 
         public static void InferConfiguration()
