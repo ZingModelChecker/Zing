@@ -158,7 +158,7 @@ namespace Microsoft.Zing
             : base()
         {
             //maximum length of a schedule
-            maxScheduleLength = 1000;
+            maxScheduleLength = 600;
         }
 
         /// <summary>
