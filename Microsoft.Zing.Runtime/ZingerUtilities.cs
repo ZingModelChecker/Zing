@@ -68,14 +68,8 @@ namespace Microsoft.Zing
             var elapsedTime = finishTime.Subtract(startTime);
             ZingerUtilities.PrintErrorMessage(String.Format("{0} distinct states explored", NumOfStatesVisited));
 
-            //This is only for the FSE artifacts
-            #region FOR FSE ARTIFACT
-            if (ZingerConfiguration.DoRandomSampling)
-                ZingerUtilities.PrintMessage(String.Format("ERROR:{0}", NumOfSchedulesExplored));
-            else
-                ZingerUtilities.PrintMessage(String.Format("ERROR:{0}", NumOfStatesVisited));
-            #endregion
-                if (ZingerConfiguration.PrintStats)
+
+            if (ZingerConfiguration.PrintStats)
             {
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
 
