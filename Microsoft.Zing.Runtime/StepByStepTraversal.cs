@@ -570,9 +570,9 @@ namespace Microsoft.Zing
 
                 while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
                 {
-                    if (ProcessInfo[nextProcess].Status != RUNNABLE)
+                    if(ProcessInfo[nextProcess].Status == ProcessStatus.Completed)
                     {
-                        ZingDBScheduler.Delay(ZingDBSchedState);
+                        ZingDBScheduler.Finish(ZingDBSchedState, nextProcess);
                         continue;
                     }
                     else
