@@ -428,18 +428,12 @@ namespace Microsoft.Zing
         /// </summary>
         private ZingerSchedulerState schedulerState;
 
-        /// <summary>
-        /// stores the information about number of times the current frontier node has been delayed already
-        /// </summary>
-        private int numOfTimesCurrStateDelayed;
-
         public FrontierNode(TraversalInfo ti)
         {
             this.Bounds = new ZingerBounds(ti.zBounds.ExecutionCost, ti.zBounds.ChoiceCost);
             if (ZingerConfiguration.DoDelayBounding)
             {
                 schedulerState = ti.ZingDBSchedState.Clone(true);
-                numOfTimesCurrStateDelayed = ti.ZingDBSchedState.numOfTimesCurrStateDelayed;
             }
             else if (ZingerConfiguration.DoPreemptionBounding)
             {
@@ -460,7 +454,6 @@ namespace Microsoft.Zing
             if (ZingerConfiguration.DoDelayBounding)
             {
                 retTraversalInfo.ZingDBSchedState = schedulerState;
-                retTraversalInfo.ZingDBSchedState.numOfTimesCurrStateDelayed = numOfTimesCurrStateDelayed;
             }
             else if (ZingerConfiguration.DoPreemptionBounding)
             {
@@ -563,8 +556,6 @@ namespace Microsoft.Zing
             //dump scheduler state
             if (ZingerConfiguration.DoDelayBounding)
             {
-                //dump the numofdelays info
-                bWriter.Write(this.numOfTimesCurrStateDelayed);
                 BinaryFormatter bFormat = new BinaryFormatter();
                 bFormat.Serialize(outputStream, this.schedulerState);
             }
@@ -586,7 +577,6 @@ namespace Microsoft.Zing
             this.Bounds.ChoiceCost = bReader.ReadInt32();
             if (ZingerConfiguration.DoDelayBounding)
             {
-                this.numOfTimesCurrStateDelayed = bReader.ReadInt32();
                 BinaryFormatter bFormat = new BinaryFormatter();
                 bFormat.Binder = new AllowAllAssemblyVersionsDeserializationBinder();
                 this.schedulerState = (ZingerSchedulerState)bFormat.Deserialize(inputStream);

@@ -102,7 +102,9 @@ namespace Microsoft.Zing
                     continue;
                 }
                 TraversalInfo startState = fNode.GetTraversalInfo(StartStateStateImpl, myThreadId);
-
+                
+                /*
+                 * ANKUSH : Disabled optimization temporarily
                 //Check if we need to explore the current frontier state
                 if (!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
                 {
@@ -118,6 +120,7 @@ namespace Microsoft.Zing
                     GLobalFrontierSet.Add(startState);
                     continue;
                 }
+                */
 
                 //Visit the current state (add it to state table in the case of state ful search)
                 VisitState(startState);

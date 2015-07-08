@@ -60,7 +60,7 @@ namespace ExternalDelayingExplorer
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RoundRobinDBSchedulerState;
-            return zSchedState.numOfTimesCurrStateDelayed > (SchedState.enabledProcesses.Count - 1);
+            return zSchedState.numOfTimesCurrStateDelayed >= (SchedState.enabledProcesses.Count - 1);
         }
 
         /// <summary>

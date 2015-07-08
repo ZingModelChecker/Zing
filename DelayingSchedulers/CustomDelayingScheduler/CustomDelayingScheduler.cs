@@ -155,7 +155,7 @@ namespace ExternalDelayingExplorer
         public override bool MaxDelayReached(ZingerSchedulerState ZSchedulerState)
         {
             var schedState = ZSchedulerState as CustomDBSchedulerState;
-            return schedState.numOfTimesCurrStateDelayed > (schedState.EnabledProcessesWithPriority.Count() - 1);
+            return schedState.numOfTimesCurrStateDelayed >= (schedState.EnabledProcessesWithPriority.Count() - 1);
         }
 
         /// <summary>

@@ -174,7 +174,7 @@ namespace ExternalDelayingExplorer
         public override bool MaxDelayReached(ZingerSchedulerState zSchedState)
         {
             var SchedState = zSchedState as RandomDBSchedulerState;
-            return zSchedState.numOfTimesCurrStateDelayed > (SchedState.EnabledProcesses.Count() - 1);
+            return zSchedState.numOfTimesCurrStateDelayed >= (SchedState.EnabledProcesses.Count() - 1);
         }
 
         public override void ZingerOperation(ZingerSchedulerState ZSchedulerState, params object[] Params)

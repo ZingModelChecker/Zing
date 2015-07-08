@@ -2027,4 +2027,4 @@ Deadlock: no processes are runnable and one or more processes is blocked in an i
 
 
 
-151 distinct states explored
+200 distinct states explored

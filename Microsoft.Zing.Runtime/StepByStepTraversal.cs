@@ -277,36 +277,30 @@ namespace Microsoft.Zing
 
         public override TraversalInfo GetNextSuccessor()
         {
-            if (ZingerConfiguration.BoundChoices)
-            {
-                if (currChoice >= numChoices)
-                    return null;
-
-                if (doDelay)
-                {
-                    //increment the choice cost for choice bounding.
-                    zBounds.ChoiceCost = zBounds.ChoiceCost + 1;
-                    //increment the delay budget when using delaying explorers
-                    if (ZingerConfiguration.DoDelayBounding)
-                        zBounds.IncrementDelayCost();
-                }
-                else
-                {
-                    doDelay = true;
-                }
-
-                //if the final cutoff is already exceeded then return null !
-                if (ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff < zBounds.ChoiceCost)
-                    return null;
-
-                if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
-                    return this;
-            }
 
             if (currChoice >= numChoices)
                 return null;
 
-            return RunChoice(currChoice++);
+            //if the final cutoff is already exceeded then return null !
+            if (ZingerConfiguration.BoundChoices && ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff < zBounds.ChoiceCost)
+                return null;
+
+            TraversalInfo retVal = RunChoice(currChoice++);
+
+            if (doDelay)
+            {
+                //increment the choice cost for choice bounding.
+                retVal.zBounds.ChoiceCost = zBounds.ChoiceCost + 1;
+                //increment the delay budget when using delaying explorers
+                if (ZingerConfiguration.DoDelayBounding)
+                    retVal.zBounds.IncrementDelayCost();
+            }
+            else
+            {
+                doDelay = true;
+            }
+
+            return retVal;
         }
 
         protected override void Replay(TraversalInfo succ, Via bt)
@@ -565,14 +559,17 @@ namespace Microsoft.Zing
                 if (doDelay)
                 {
                     ZingDBScheduler.Delay(ZingDBSchedState);
-                    zBounds.IncrementDelayCost();
                 }
-
                 while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
                 {
                     if(ProcessInfo[nextProcess].Status == ProcessStatus.Completed)
                     {
                         ZingDBScheduler.Finish(ZingDBSchedState, nextProcess);
+                        continue;
+                    }
+                    else if(ProcessInfo[nextProcess].Status != ProcessStatus.Runnable)
+                    {
+                        ZingDBScheduler.Delay(ZingDBSchedState);
                         continue;
                     }
                     else
@@ -581,18 +578,20 @@ namespace Microsoft.Zing
                     }
                 }
 
+                //have explored all succ
                 if (nextProcess == -1)
                 {
                     return null;
                 }
 
-                if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(zBounds))
-                    return this;
-                else
-                {
+                TraversalInfo retVal = RunProcess(nextProcess);
+                if (!doDelay)
                     doDelay = true;
-                    return RunProcess(nextProcess);
-                }
+                else
+                    retVal.zBounds.IncrementDelayCost();
+
+                return retVal;
+               
             }
             else if (ZingerConfiguration.DoPreemptionBounding)
             {

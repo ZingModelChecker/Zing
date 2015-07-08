@@ -328,4 +328,4 @@ Stack trace:
     BoolProg.foo_1 (interleave.zing, Line 31)
 
 
-12 distinct states explored
+8 distinct states explored

@@ -87,7 +87,7 @@ namespace Microsoft.Zing
 
         public bool checkIfFinalCutOffReached()
         {
-            if (IterativeCutoff >= FinalExecutionCutOff)
+            if (IterativeCutoff > FinalExecutionCutOff)
             {
                 return true;
             }
@@ -99,7 +99,7 @@ namespace Microsoft.Zing
 
         public bool checkIfIterativeCutOffReached(ZingerBounds currBounds)
         {
-            if ((currBounds.ExecutionCost >= IterativeCutoff) || (ZingerConfiguration.BoundChoices && currBounds.ChoiceCost >= FinalChoiceCutOff))
+            if ((currBounds.ExecutionCost > IterativeCutoff) || (ZingerConfiguration.BoundChoices && currBounds.ChoiceCost > FinalChoiceCutOff))
             {
                 return true;
             }
@@ -112,7 +112,6 @@ namespace Microsoft.Zing
         public void IncrementIterativeBound()
         {
             IterativeCutoff += IterativeIncrement;
-            IterativeCutoff = Math.Min(FinalExecutionCutOff, IterativeCutoff);
         }
 
         #endregion Functions

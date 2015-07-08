@@ -1962,4 +1962,4 @@ Deadlock: no processes are runnable and one or more processes is blocked in an i
 
 
 
-68 distinct states explored
+162 distinct states explored
