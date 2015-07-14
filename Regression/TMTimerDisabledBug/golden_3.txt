@@ -20582,4 +20582,4 @@ Stack trace:
     ___X_TransactionTable.___RunTimer (TMTimerDisabledBug.zing, Line 199)
 
 
-12729 distinct states explored
+10343 distinct states explored
