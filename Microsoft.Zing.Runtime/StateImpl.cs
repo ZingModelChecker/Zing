@@ -1445,6 +1445,14 @@ namespace Microsoft.Zing
         private ArrayList events;
         private ArrayList traceLog;
 
+        public void InvokePlugin(params object[] arguments)
+        {
+            foreach(var items in arguments)
+            {
+                Console.WriteLine("invoke plugin : {0}", items.ToString());
+            }
+        }
+
         public void InvokeScheduler(params object[] arguments)
         {
             if (ZingerConfiguration.DoDelayBounding)
