@@ -118,6 +118,18 @@ namespace Microsoft.Zing
     }
 
     /// <summary>
+    /// Zing External Plugin 
+    /// </summary>
+    public class ZingerExternalPlugin
+    {
+        // Zing plugin state
+        public ZingerPluginState zPluginState;
+
+        // Zing plugin implementation
+        public ZingerPluginInterface zPlugin;
+    }
+
+    /// <summary>
     /// Zing External Scheduler
     /// </summary>
     public class ZingerExternalScheduler
@@ -406,6 +418,22 @@ namespace Microsoft.Zing
         {
             get { return timeout; }
             set { timeout = value; }
+        }
+
+        //Integrate motionplanning with Zing
+        private static bool doMotionPlanning = false;
+        public static bool DoMotionPlanning
+        {
+            get { return ZingerConfiguration.doMotionPlanning; }
+            set { ZingerConfiguration.doMotionPlanning = value; }
+        }
+
+        //Plugin dll
+        private static ZingerExternalPlugin zPlugin = new ZingerExternalPlugin();
+        public static ZingerExternalPlugin ZPlugin
+        {
+            get { return ZingerConfiguration.zPlugin; }
+            set { ZingerConfiguration.zPlugin = value; }
         }
 
         public static void InferConfiguration()

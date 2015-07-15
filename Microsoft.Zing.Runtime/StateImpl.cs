@@ -69,6 +69,12 @@ namespace Microsoft.Zing
                 ZingDBScheduler = ZingerConfiguration.ZExternalScheduler.zDelaySched;
             }
 
+            if(ZingerConfiguration.DoMotionPlanning)
+            {
+                ZingerPlugin = ZingerConfiguration.ZPlugin.zPlugin;
+                ZingerPluginState = ZingerConfiguration.ZPlugin.zPluginState;
+            }
+
             foreach (Type nestedClassType in this.GetType().GetNestedTypes(BindingFlags.NonPublic))
             {
                 if (nestedClassType.BaseType == typeof(ZingClass))
@@ -561,8 +567,13 @@ namespace Microsoft.Zing
         /// Fields for storing the delaying scheduler information
         /// </summary>
         public ZingerDelayingScheduler ZingDBScheduler = null;
-
         public ZingerSchedulerState ZingDBSchedState = null;
+
+        /// <summary>
+        /// Fields for storing the plugin information
+        /// </summary>
+        public ZingerPluginInterface ZingerPlugin = null;
+        public ZingerPluginState ZingerPluginState = null;
 
         //IExplorable
         public virtual string[] GetSources()
@@ -1447,9 +1458,9 @@ namespace Microsoft.Zing
 
         public void InvokePlugin(params object[] arguments)
         {
-            foreach(var items in arguments)
+            if(ZingerConfiguration.DoMotionPlanning)
             {
-                Console.WriteLine("invoke plugin : {0}", items.ToString());
+                ZingerPlugin.Invoke(ZingerPluginState, arguments);
             }
         }
 
@@ -1588,6 +1599,13 @@ namespace Microsoft.Zing
                 newState.ZingDBSchedState = ZingDBSchedState.Clone(false);
                 newState.ZingDBScheduler = ZingDBScheduler;
             }
+
+            if(ZingerConfiguration.DoMotionPlanning)
+            {
+                newState.ZingerPluginState = ZingerPluginState.Clone();
+                newState.ZingerPlugin = ZingerPlugin;
+            }
+
             newState.choiceList = this.choiceList;
             newState.choiceProcessNumber = this.choiceProcessNumber;
 

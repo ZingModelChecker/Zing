@@ -106,10 +106,6 @@ namespace Microsoft.Zing
                             ZingerConfiguration.DoPreemptionBounding = true;
                             break;
 
-                        case "pct":
-                            ZingerConfiguration.DoPCT = true;
-                            throw new NotImplementedException("PCT implementation is under construction with some unfinished optimizations");
-
                         case "randomsample":
                             {
                                 if (param.Length != 0)
@@ -183,7 +179,7 @@ namespace Microsoft.Zing
                         case "ndfsliveness":
                             ZingerConfiguration.DoNDFSLiveness = true;
                             break;
-
+                        
                         case "maceliveness":
                             ZingerConfiguration.DoMaceliveness = true;
                             if (param.Length == 0)
@@ -210,7 +206,45 @@ namespace Microsoft.Zing
                         case "mapliveness":
                             ZingerConfiguration.DoMAPLiveness = true;
                             break;
+                        case "motionplanning":
+                            {
+                                ZingerConfiguration.DoMotionPlanning = true;
+                                var pluginDll = param;
+                                try{
+                                    //check if the file exists
+                                    if (!File.Exists(pluginDll))
+                                    {
+                                        PrintZingerHelp(option, String.Format("File {0} not found", pluginDll));
+                                    }
 
+                                    var pluginAssembly = Assembly.LoadFrom(pluginDll);
+                                    if (pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginInterface")).Count() != 1)
+                                    {
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginInterface", ZingerConfiguration.delayingSchedDll));
+                                        return false;
+                                    }
+
+                                    if (pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginState")).Count() != 1)
+                                    {
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginState", ZingerConfiguration.delayingSchedDll));
+                                        return false;
+                                    }
+                                    // get class name
+                                    string pluginClassName = pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginInterface")).First().FullName;
+                                    var pluginStateClassName = pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginState")).First().FullName;
+                                    var pluginClassType = pluginAssembly.GetType(pluginClassName);
+                                    var pluginStateClassType = pluginAssembly.GetType(pluginStateClassName);
+                                    ZingerConfiguration.ZPlugin.zPlugin = Activator.CreateInstance(pluginClassType) as ZingerPluginInterface;
+                                    ZingerConfiguration.ZPlugin.zPluginState = Activator.CreateInstance(pluginStateClassType) as ZingerPluginState;
+                                }
+                                catch (Exception e)
+                                {
+                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing implementing plugin is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
+                                    ZingerUtilities.PrintErrorMessage(e.Message);
+                                    return false;
+                                }
+                            }
+                            break;
                         default:
                             PrintZingerHelp(arg, "Invalid Option");
                             return false;
@@ -307,8 +341,6 @@ namespace Microsoft.Zing
             Console.WriteLine("Zinger performs stateless search. <int> max search depth(default is 10000). No state caching ! (default is stateful)\n");
             Console.WriteLine("-pb");
             Console.WriteLine("Perform preemption bounding\n");
-            Console.WriteLine("-pct");
-            Console.WriteLine("Perform PCT based Prioritization\n");
             Console.WriteLine("-delayB:<scheduler.dll>");
             Console.WriteLine("Zinger performs delay bounding using the deterministic scheduler (scheduler.dll).\n");
             Console.WriteLine("-bc:<int>");
@@ -326,6 +358,12 @@ namespace Microsoft.Zing
             Console.WriteLine("error trace is reported if no \"cold\" state is found within livestatebound interval\n");
             Console.WriteLine("-MAPLiveness");
             Console.WriteLine("Uses MAP cycle detection algorithm for finding accepting cycles. Can be used with Parallelism.\n");
+            Console.WriteLine("===============================");
+            Console.WriteLine("Zinger Plugin:");
+            Console.WriteLine("-------------------------------");
+            Console.WriteLine("-motionplanning:<plugin.dll>");
+            
+
         }
     }
 }

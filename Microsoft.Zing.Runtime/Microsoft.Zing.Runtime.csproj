@@ -245,13 +245,13 @@
     <Compile Include="Utils.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ZingDelayingScheduler.cs" />
+    <Compile Include="ZingDelayingSchedulerInterface.cs" />
     <Compile Include="ZingerConfiguration.cs" />
     <Compile Include="ZingerUtilities.cs" />
     <Compile Include="ZingMethod.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ZingerOptimizations.cs" />
+    <Compile Include="ZingPluginInterface.cs" />
     <Compile Include="ZingPreemptionBounding.cs" />
   </ItemGroup>
   <ItemGroup>

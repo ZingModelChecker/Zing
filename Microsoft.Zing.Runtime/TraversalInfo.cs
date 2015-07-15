@@ -98,8 +98,10 @@ namespace Microsoft.Zing
         /// The delaying scheduler Info for the current state.
         /// </summary>
         public ZingerDelayingScheduler ZingDBScheduler;
-
         public ZingerSchedulerState ZingDBSchedState;
+
+        public ZingerPluginInterface ZingerPlugin;
+        public ZingerPluginState ZingerPluginState;
 
         protected ZingEvent[] events;
         protected Exception exception;
@@ -250,6 +252,8 @@ namespace Microsoft.Zing
             exception = s.Exception;
             IsAcceptingState = s.IsAcceptingState;
 
+            //initialize the plugin information.
+            
             if (pred != null)
             {
                 Predecessor = pred;
@@ -267,6 +271,12 @@ namespace Microsoft.Zing
                 {
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, Predecessor.preemptionBounding.currentProcess);
                 }
+
+                if(ZingerConfiguration.DoMotionPlanning)
+                {
+                    ZingerPlugin = s.ZingerPlugin;
+                    ZingerPluginState = s.ZingerPluginState;
+                }
                 pred.Successor = this;
                 MagicBit = pred.MagicBit;
             }
@@ -283,8 +293,11 @@ namespace Microsoft.Zing
                 else if (ZingerConfiguration.DoPreemptionBounding)
                 {
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, 0);
-                    //preemptionBounding.preempted = true;
-                    //doDelay = true;
+                }
+                if (ZingerConfiguration.DoMotionPlanning)
+                {
+                    ZingerPlugin = s.ZingerPlugin;
+                    ZingerPluginState = s.ZingerPluginState.Clone();
                 }
             }
         }
@@ -405,6 +418,10 @@ namespace Microsoft.Zing
                 stateImpl.ZingDBSchedState = ZingDBSchedState.Clone(false);
             }
 
+            if(ZingerConfiguration.DoMotionPlanning)
+            {
+                stateImpl.ZingerPluginState = ZingerPluginState.Clone();
+            }
             // let's get ready for a new child by orphanizing all
             // current descendents
             for (TraversalInfo ti = Successor; ti != null; ti = ti.Successor)
