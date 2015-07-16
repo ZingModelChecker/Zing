@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Microsoft.Zing
 {
@@ -654,6 +655,51 @@ namespace Microsoft.Zing
             }
         }
     }
+
+    [Serializable]
+    public class ZingerInvokeMotionPlanning : ZingException
+    {
+        public int startLocation;
+        public int endLocation;
+        public List<int> obstacles;
+        
+        public ZingerInvokeMotionPlanning(int st, int end, List<int> obs) : base()
+        {
+            startLocation = st;
+            endLocation = end;
+            obstacles = obs;
+        }
+        
+        public ZingerInvokeMotionPlanning()
+            : base()
+        {
+        }
+
+        public ZingerInvokeMotionPlanning(string message)
+            : base(message)
+        {
+        }
+
+        public ZingerInvokeMotionPlanning(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected ZingerInvokeMotionPlanning(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
+        {
+        }
+
+        protected override string ZingMessage
+        {
+            get
+            {
+                return string.Format(CultureInfo.CurrentUICulture,
+                    "Invocation to the motion planning plugin\r\n");
+            }
+        }
+    }
+
 
     [Serializable]
     public class ZingerAcceptingCycleFound : ZingException

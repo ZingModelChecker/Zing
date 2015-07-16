@@ -59,7 +59,7 @@ namespace Microsoft.Zing
 
         #endregion Variable Declarations
 
-        #region abstract functions
+        #region Abstract Functions
 
         protected abstract ZingerResult IterativeSearchStateSpace();
 
@@ -127,6 +127,11 @@ namespace Microsoft.Zing
                     ZingerUtilities.PrintErrorMessage("##################");
                     ZingerUtilities.PrintErrorMessage(String.Format("DFS Stack Size Exceeded {0}", ZingerConfiguration.BoundDFSStackLength));
                     break;
+                case ZingerResult.ZingerMotionPlanningInvocation:
+                    break;
+                default :
+                    ZingerUtilities.PrintErrorMessage("Zinger threw an unknown error. Please report this to the Zing developers");
+                    break;
             }
 
             ZingerConfiguration.ExecuteTraceStatements = true;
@@ -140,9 +145,119 @@ namespace Microsoft.Zing
                 PrintErrorTracesToFile();
             }
 
+            //In the end of the plugin is enabled then call the plugin
+            if(ZingerConfiguration.ZPlugin != null)
+            {
+                ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
+            }
+
             return result;
         }
 
+        public ZingerResult ExploreWithDronacharya()
+        {
+            //Load the zing model for the first time.
+            startStateStateImpl = StateImpl.Load(ZingerConfiguration.ZingModelFile);
+            Initialize();
+
+            //Terminate only when there are no motionPlanFrontier states remaining.
+            while (true)
+            {
+                //set the execute tracestatements to false
+                //trace statements should be executed only when error trace is generated.
+                ZingerConfiguration.ExecuteTraceStatements = false;
+
+                if (StartStateTraversalInfo.IsInvalidEndState())
+                {
+                    bool oldCT = ZingerConfiguration.CompactTraces;
+                    ZingerConfiguration.CompactTraces = false;
+                    SafetyErrors.Add(StartStateTraversalInfo.GenerateTrace());
+                    ZingerConfiguration.CompactTraces = oldCT;
+                    this.lastErrorFound = StartStateTraversalInfo.ErrorCode;
+                }
+
+                var result = IterativeSearchStateSpace();
+
+                //Handle Zinger Return Status
+                switch (lastErrorFound)
+                {
+                    case ZingerResult.Success:
+                        ZingerUtilities.PrintSuccessMessage("##################");
+                        ZingerUtilities.PrintSuccessMessage("Check Passed");
+                        ZingerUtilities.PrintSuccessMessage("##################");
+                        return ZingerResult.Success;
+
+                    case ZingerResult.ZingRuntimeError:
+                        ZingerUtilities.PrintErrorMessage("Zinger Internal Runtime Exception");
+                        break;
+
+                    case ZingerResult.ProgramRuntimeError:
+                        ZingerUtilities.PrintErrorMessage("Program Runtime Error");
+                        break;
+
+                    case ZingerResult.Assertion:
+                        ZingerUtilities.PrintErrorMessage("##################");
+                        ZingerUtilities.PrintErrorMessage("Check Failed");
+                        ZingerUtilities.PrintErrorMessage("##################");
+                        break;
+
+                    case ZingerResult.Deadlock:
+                        ZingerUtilities.PrintErrorMessage("Deadlock Detected !");
+                        break;
+
+                    case ZingerResult.AcceptanceCyleFound:
+                        ZingerUtilities.PrintErrorMessage("##################");
+                        ZingerUtilities.PrintErrorMessage("Liveness Check Failed");
+                        ZingerUtilities.PrintErrorMessage("##################");
+                        break;
+
+                    case ZingerResult.DFSStackOverFlowError:
+                        ZingerUtilities.PrintErrorMessage("##################");
+                        ZingerUtilities.PrintErrorMessage("Check Failed");
+                        ZingerUtilities.PrintErrorMessage("##################");
+                        ZingerUtilities.PrintErrorMessage(String.Format("DFS Stack Size Exceeded {0}", ZingerConfiguration.BoundDFSStackLength));
+                        break;
+                    case ZingerResult.ZingerMotionPlanningInvocation:
+                        break;
+                    default:
+                        ZingerUtilities.PrintErrorMessage("Zinger threw an unknown error. Please report this to the Zing developers");
+                        break;
+                }
+
+                //if the error is something other than motionPlanningInvocation
+                if (lastErrorFound != ZingerResult.ZingerMotionPlanningInvocation)
+                {
+                    ZingerConfiguration.ExecuteTraceStatements = true;
+
+                    if (ZingerConfiguration.DetailedZingTrace)
+                    {
+                        PrintErrorTracesDetailed();
+                    }
+                    if (ZingerConfiguration.EnableTrace)
+                    {
+                        PrintErrorTracesToFile();
+                    }
+
+                    //In the end of the plugin is enabled then call the plugin
+                    if (ZingerConfiguration.ZPlugin != null)
+                    {
+                        ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
+                    }
+                    return result;
+                }
+                else
+                {
+                    ZingerConfiguration.ZDronacharya.RunMotionPlanner();
+                    //In the end of the plugin is enabled then call the plugin
+                    if (ZingerConfiguration.ZPlugin != null)
+                    {
+                        ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
+                    }
+                    return result;
+                }
+            }
+            
+        }
         #region Constructor
 
         public ZingExplorer()

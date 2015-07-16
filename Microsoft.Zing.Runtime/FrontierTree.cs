@@ -123,6 +123,7 @@ namespace Microsoft.Zing
                 {
                     //Operation was cancelled so all is safe
                     //may be a bug is found
+                    Console.WriteLine(ex.ToString());
                 }
                 currFrontierSet.CompleteAdding();
             }

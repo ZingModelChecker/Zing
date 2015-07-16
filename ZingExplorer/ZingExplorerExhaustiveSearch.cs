@@ -82,7 +82,8 @@ namespace Microsoft.Zing
             }
             while (GLobalFrontierSet.Count() > 0 && !ZingerConfiguration.zBoundedSearch.checkIfFinalCutOffReached());
 
-            if (SafetyErrors.Count > 0 || AcceptingCycles.Count > 0)
+            
+            if (lastErrorFound != ZingerResult.Success)
                 return ZingerResult.Assertion;
             else
                 return ZingerResult.Success;
@@ -102,25 +103,6 @@ namespace Microsoft.Zing
                     continue;
                 }
                 TraversalInfo startState = fNode.GetTraversalInfo(StartStateStateImpl, myThreadId);
-                
-                /*
-                 * ANKUSH : Disabled optimization temporarily
-                //Check if we need to explore the current frontier state
-                if (!MustExplore(startState) && !ZingerConfiguration.DoDelayBounding && !ZingerConfiguration.DoPreemptionBounding)
-                {
-                    continue;
-                }
-
-                // Check if this frontier state is past the cut-off for this iteration.
-                // If so, don't explore, but simply pass the frontier as-is into the
-                // results. This will ensure that it stays in the right position in the
-                // postorder ordering of nodes which we maintain
-                if (ZingerConfiguration.zBoundedSearch.checkIfIterativeCutOffReached(fNode.Bounds))
-                {
-                    GLobalFrontierSet.Add(startState);
-                    continue;
-                }
-                */
 
                 //Visit the current state (add it to state table in the case of state ful search)
                 VisitState(startState);
@@ -183,6 +165,19 @@ namespace Microsoft.Zing
                     {
                         if (terminalState.IsErroneousTI)
                         {
+                            // If the exception is ZingInvokeMotionPlanning then handle it
+                            // by passing it to ZingDronacharya
+                            if(nextState.ErrorCode == ZingerResult.ZingerMotionPlanningInvocation)
+                            {
+                                if(ZingerConfiguration.DronacharyaEnabled)
+                                {
+                                    // return value
+                                    this.lastErrorFound = nextState.ErrorCode;
+                                    ZingerConfiguration.ZDronacharya.GenerateMotionPlanFor(nextState);
+                                }
+                                continue;
+                            }
+
                             lock (SafetyErrors)
                             {
                                 //BUG FOUND

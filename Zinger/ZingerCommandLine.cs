@@ -115,15 +115,6 @@ namespace Microsoft.Zing
                                 ZingerConfiguration.DoRandomSampling = true;
                             }
                             break;
-
-                        case "stateless":
-                            if (param.Length != 0)
-                            {
-                                ZingerConfiguration.MaxSchedulesPerIteration = int.Parse(param);
-                            }
-                            ZingerConfiguration.DoStateLess = true;
-                            break;
-
                         case "delayb":
                             {
                                 ZingerConfiguration.DoDelayBounding = true;
@@ -206,10 +197,13 @@ namespace Microsoft.Zing
                         case "mapliveness":
                             ZingerConfiguration.DoMAPLiveness = true;
                             break;
-                        case "motionplanning":
+                        case "dronacharya":
                             {
-                                ZingerConfiguration.DoMotionPlanning = true;
-                                var pluginDll = param;
+                                ZingerConfiguration.DronacharyaEnabled = true;
+
+                                ZingerConfiguration.ZDronacharya = new ZingDronacharya(param);
+
+                                var pluginDll = ZingerConfiguration.ZDronacharya.DronaConfiguration.motionPlannerPluginPath;
                                 try{
                                     //check if the file exists
                                     if (!File.Exists(pluginDll))
@@ -234,12 +228,13 @@ namespace Microsoft.Zing
                                     var pluginStateClassName = pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginState")).First().FullName;
                                     var pluginClassType = pluginAssembly.GetType(pluginClassName);
                                     var pluginStateClassType = pluginAssembly.GetType(pluginStateClassName);
+                                    ZingerConfiguration.ZPlugin = new ZingerExternalPlugin();
                                     ZingerConfiguration.ZPlugin.zPlugin = Activator.CreateInstance(pluginClassType) as ZingerPluginInterface;
                                     ZingerConfiguration.ZPlugin.zPluginState = Activator.CreateInstance(pluginStateClassType) as ZingerPluginState;
                                 }
                                 catch (Exception e)
                                 {
-                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing implementing plugin is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
+                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing plugin is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
                                     ZingerUtilities.PrintErrorMessage(e.Message);
                                     return false;
                                 }
@@ -337,8 +332,6 @@ namespace Microsoft.Zing
             Console.WriteLine("Maximum size of the DFS search stack. A counter example is generated if size of the stack exceeds the bound.\n");
             Console.WriteLine("-randomsample:<int>");
             Console.WriteLine("Zinger performs random walk without DFS stack. <int> represents the maximum number of schedules explored per iteration. (default is 1000).\n");
-            Console.WriteLine("-stateless:<int>");
-            Console.WriteLine("Zinger performs stateless search. <int> max search depth(default is 10000). No state caching ! (default is stateful)\n");
             Console.WriteLine("-pb");
             Console.WriteLine("Perform preemption bounding\n");
             Console.WriteLine("-delayB:<scheduler.dll>");

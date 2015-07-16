@@ -246,6 +246,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ZingDelayingSchedulerInterface.cs" />
+    <Compile Include="ZingDronacharya.cs" />
     <Compile Include="ZingerConfiguration.cs" />
     <Compile Include="ZingerUtilities.cs" />
     <Compile Include="ZingMethod.cs">

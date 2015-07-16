@@ -272,7 +272,7 @@ namespace Microsoft.Zing
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, Predecessor.preemptionBounding.currentProcess);
                 }
 
-                if(ZingerConfiguration.DoMotionPlanning)
+                if(ZingerConfiguration.DronacharyaEnabled)
                 {
                     ZingerPlugin = s.ZingerPlugin;
                     ZingerPluginState = s.ZingerPluginState;
@@ -294,7 +294,7 @@ namespace Microsoft.Zing
                 {
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, 0);
                 }
-                if (ZingerConfiguration.DoMotionPlanning)
+                if (ZingerConfiguration.DronacharyaEnabled)
                 {
                     ZingerPlugin = s.ZingerPlugin;
                     ZingerPluginState = s.ZingerPluginState.Clone();
@@ -418,7 +418,7 @@ namespace Microsoft.Zing
                 stateImpl.ZingDBSchedState = ZingDBSchedState.Clone(false);
             }
 
-            if(ZingerConfiguration.DoMotionPlanning)
+            if(ZingerConfiguration.DronacharyaEnabled)
             {
                 stateImpl.ZingerPluginState = ZingerPluginState.Clone();
             }

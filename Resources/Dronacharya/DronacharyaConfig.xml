@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dronacharya>
+  <PathToMotionPlannerPlugin>C:\WorkSpace\Zing\Plugins\MotionPlanning\bin\x64\Debug\Complan.dll</PathToMotionPlannerPlugin>
+  <PathToMotionPlannerEXE></PathToMotionPlannerEXE>
+  <Workspace>
+    <Length_X>4</Length_X>
+    <Length_Y>4</Length_Y>
+  </Workspace>
+  
+</Dronacharya>

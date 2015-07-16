@@ -11,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zinger", "Zinger\Zinger.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{9C1D1D06-70DF-4457-8E37-C61DE2D64428}"
 	ProjectSection(SolutionItems) = preProject
+		Resources\Dronacharya\DronacharyaConfig.xml = Resources\Dronacharya\DronacharyaConfig.xml
 		Resources\Source_Zing.ico = Resources\Source_Zing.ico
 	EndProjectSection
 EndProject

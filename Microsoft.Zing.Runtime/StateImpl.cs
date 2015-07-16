@@ -69,7 +69,7 @@ namespace Microsoft.Zing
                 ZingDBScheduler = ZingerConfiguration.ZExternalScheduler.zDelaySched;
             }
 
-            if(ZingerConfiguration.DoMotionPlanning)
+            if(ZingerConfiguration.DronacharyaEnabled)
             {
                 ZingerPlugin = ZingerConfiguration.ZPlugin.zPlugin;
                 ZingerPluginState = ZingerConfiguration.ZPlugin.zPluginState;
@@ -210,6 +210,8 @@ namespace Microsoft.Zing
                     return ZingerResult.ZingRuntimeError;
                 else if (e is ZingerDFSStackOverFlow)
                     return ZingerResult.DFSStackOverFlowError;
+                else if (e is ZingerInvokeMotionPlanning)
+                    return ZingerResult.ZingerMotionPlanningInvocation;
                 else
                     return ZingerResult.ProgramRuntimeError;
             }
@@ -1458,7 +1460,7 @@ namespace Microsoft.Zing
 
         public void InvokePlugin(params object[] arguments)
         {
-            if(ZingerConfiguration.DoMotionPlanning)
+            if(ZingerConfiguration.DronacharyaEnabled)
             {
                 ZingerPlugin.Invoke(ZingerPluginState, arguments);
             }
@@ -1600,7 +1602,7 @@ namespace Microsoft.Zing
                 newState.ZingDBScheduler = ZingDBScheduler;
             }
 
-            if(ZingerConfiguration.DoMotionPlanning)
+            if(ZingerConfiguration.DronacharyaEnabled)
             {
                 newState.ZingerPluginState = ZingerPluginState.Clone();
                 newState.ZingerPlugin = ZingerPlugin;

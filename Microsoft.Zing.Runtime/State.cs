@@ -317,7 +317,12 @@ namespace Microsoft.Zing
         /// <summary>
         /// Zinger Time Out
         /// </summary>
-        ZingerTimeOut = 9
+        ZingerTimeOut = 9,
+
+        /// <summary>
+        /// Zinger is terminating on a call to the motion planner
+        /// </summary>
+        ZingerMotionPlanningInvocation  = 10
     }
 
     /// <summary>

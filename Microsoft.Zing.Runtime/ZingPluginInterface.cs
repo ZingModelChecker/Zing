@@ -15,6 +15,6 @@ namespace Microsoft.Zing
     {
         public abstract void Invoke(ZingerPluginState ZPluginState, params object[] Params);
 
-        public abstract void EndPlugin(ZingerPluginState ZPluginState);
+        public abstract void EndPlugin();
     }
 }

@@ -27,17 +27,24 @@ namespace Microsoft.Zing
                 ZingerResult result;
 
                 ZingExplorer zingExplorer;
-                if (ZingerConfiguration.DoNDFSLiveness)
-                    zingExplorer = new ZingExplorerNDFSLiveness();
-                else if (ZingerConfiguration.DoRandomSampling && !ZingerConfiguration.DoDelayBounding)
-                    zingExplorer = new ZingExplorerNaiveRandomWalk();
-                else if (ZingerConfiguration.DoRandomSampling && ZingerConfiguration.DoDelayBounding)
-                    zingExplorer = new ZingExplorerDelayBoundedSampling();
-                else if (ZingerConfiguration.DoStateLess)
-                    zingExplorer = new ZingExplorerStateLessSearch();
-                else
-                    zingExplorer = new ZingExplorerExhaustiveSearch();
 
+                //currently the only search allowed with dronacharya enabled is exhaustive
+                if(ZingerConfiguration.DronacharyaEnabled)
+                {
+                    zingExplorer = new ZingExplorerExhaustiveSearch();
+                }
+                else
+                {
+                    if (ZingerConfiguration.DoNDFSLiveness)
+                        zingExplorer = new ZingExplorerNDFSLiveness();
+                    else if (ZingerConfiguration.DoRandomSampling && !ZingerConfiguration.DoDelayBounding)
+                        zingExplorer = new ZingExplorerNaiveRandomWalk();
+                    else if (ZingerConfiguration.DoRandomSampling && ZingerConfiguration.DoDelayBounding)
+                        zingExplorer = new ZingExplorerDelayBoundedSampling();
+                    else
+                        zingExplorer = new ZingExplorerExhaustiveSearch();
+                }
+               
                 //start periodic stats
                 if (ZingerConfiguration.PrintStats)
                 {
@@ -48,7 +55,14 @@ namespace Microsoft.Zing
                 ZingerUtilities.StartTimeOut();
 
                 //start the search
-                result = zingExplorer.Explore();
+                if(ZingerConfiguration.DronacharyaEnabled)
+                {
+                    result = zingExplorer.ExploreWithDronacharya();
+                }
+                else
+                {
+                    result = zingExplorer.Explore();
+                }
 
                 //Print Final Stats
                 ZingerStats.PrintFinalStats();

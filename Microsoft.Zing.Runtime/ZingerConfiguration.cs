@@ -311,15 +311,6 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.maxSchedulesPerIteration = value; }
         }
 
-        //do stateless search
-        private static bool doStateLess = false;
-
-        public static bool DoStateLess
-        {
-            get { return ZingerConfiguration.doStateLess; }
-            set { ZingerConfiguration.doStateLess = value; }
-        }
-
         //Zing External Scheduler for delay bounding
         private static ZingerExternalScheduler zExternalScheduler = new ZingerExternalScheduler();
 
@@ -421,15 +412,22 @@ namespace Microsoft.Zing
         }
 
         //Integrate motionplanning with Zing
-        private static bool doMotionPlanning = false;
-        public static bool DoMotionPlanning
+        private static bool dronacharyaEnabled = false;
+        public static bool DronacharyaEnabled
         {
-            get { return ZingerConfiguration.doMotionPlanning; }
-            set { ZingerConfiguration.doMotionPlanning = value; }
+            get { return ZingerConfiguration.dronacharyaEnabled; }
+            set { ZingerConfiguration.dronacharyaEnabled = value; }
+        }
+
+        private static ZingDronacharya zDronacharya;
+        public static ZingDronacharya ZDronacharya
+        {
+            get { return ZingerConfiguration.zDronacharya; }
+            set { ZingerConfiguration.zDronacharya = value; }
         }
 
         //Plugin dll
-        private static ZingerExternalPlugin zPlugin = new ZingerExternalPlugin();
+        private static ZingerExternalPlugin zPlugin = null;
         public static ZingerExternalPlugin ZPlugin
         {
             get { return ZingerConfiguration.zPlugin; }
@@ -442,16 +440,11 @@ namespace Microsoft.Zing
             //The set of conflicting configurations are
             //Randomwalk + Statefull
             //NDFliveness + iterative + sequential
-            if (DoRandomSampling)
-            {
-                DoStateLess = true;
-            }
 
             if (DoNDFSLiveness)
             {
                 zBoundedSearch.IterativeIncrement = zBoundedSearch.FinalExecutionCutOff;
                 DegreeOfParallelism = 1;
-                DoStateLess = false;
                 DoRandomSampling = false;
             }
 
@@ -473,7 +466,6 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Do Preemption Bounding :{0}", doPreemptionBounding));
             ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0} with Scheduler : {1}", doDelayBounding, delayingSchedDll));
             ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}", doRandomSampling, maxSchedulesPerIteration));
-            ZingerUtilities.PrintMessage(String.Format("Do Stateless : {0}", doStateLess));
             ZingerUtilities.PrintMessage(String.Format("Do NDFLiveness : {0}", doNDFSLiveness));
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));
             ZingerUtilities.PrintMessage(String.Format("Bound Choices: {0} and max Bound {1}", BoundChoices, zBoundedSearch.FinalChoiceCutOff));
@@ -483,6 +475,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Frontier to Disk :{0}", frontierToDisk));
             ZingerUtilities.PrintMessage(String.Format("Max memory : {0}", maxMemoryConsumption));
             ZingerUtilities.PrintMessage(String.Format("Stop on First Error: {0}", stopOnError));
+            ZingerUtilities.PrintMessage(String.Format("Dronacharya Enabled execution : {0}", DronacharyaEnabled));
             ZingerUtilities.PrintMessage("");
         }
     }
