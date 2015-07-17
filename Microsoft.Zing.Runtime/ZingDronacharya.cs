@@ -72,6 +72,31 @@ namespace Microsoft.Zing
             obstacles = new List<int>();
         }
 
+        
+        public override int GetHashCode()
+        {
+            int obsHash = 0;
+            int code = 0;
+            var intList = obstacles.ToList();
+            intList.Add(startPosition);
+            intList.Add(endPosition);
+            for (int i = 0; i < intList.Count(); ++i)
+		    {
+			    obsHash = intList[i].GetHashCode();
+			    for (int j = 0; j < 4; ++j)
+			    {
+				    code += (obsHash & 0x000000FF);
+				    code += (code << 10);
+				    code ^= (code >> 6);
+				    obsHash = (obsHash >> 8);
+			    }
+		    }
+
+		    code += (code << 3);
+		    code ^= (code >> 11);
+		    code += (code << 15);
+		    return 0x40000000 ^ code;
+        }
         public override bool Equals(object obj)
         {
             if (obj is GenerateMotionPlanFor)
