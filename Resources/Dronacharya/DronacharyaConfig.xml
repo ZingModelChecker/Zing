@@ -1,7 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Dronacharya>
   <PathToMotionPlannerPlugin>C:\WorkSpace\Zing\Plugins\MotionPlanning\bin\x64\Debug\Complan.dll</PathToMotionPlannerPlugin>
-  <PathToMotionPlannerEXE></PathToMotionPlannerEXE>
+  <PathToMotionPlannerDll>C:\WorkSpace\ComplanV2\Src\Debug\x64\Complan_v2.dll</PathToMotionPlannerDll>
+  <P_ProgramDirectory>C:\WorkSpace\dronacharya\Examples\AnimalHerd\</P_ProgramDirectory>
+  <P_DriverFile>C:\WorkSpace\dronacharya\Examples\AnimalHerd\TaskPlanning.p</P_DriverFile>
+  <P_Compiler>C:\WorkSpace\dronacharya\Binaries\P\Pc.exe</P_Compiler>
   <Workspace>
     <Length_X>4</Length_X>
     <Length_Y>4</Length_Y>

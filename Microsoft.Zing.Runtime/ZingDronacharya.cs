@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Microsoft.Zing
 {
@@ -21,7 +23,10 @@ namespace Microsoft.Zing
     public class DronacharyaConfiguration
     {
         public string motionPlannerPluginPath;
-        public string motionPlannerEXEPath;
+        public string motionPlannerDllPath;
+        public string PcompilerPath;
+        public string P_ProgramPath;
+        public string P_ProgramDriverPath;
         public WorkspaceInfo ws;
 
         public DronacharyaConfiguration()
@@ -45,10 +50,34 @@ namespace Microsoft.Zing
                     configXML.Load(configFile);
                     var configFileName = Path.GetFileName(configFile);
                     Console.WriteLine("Loaded the config file : {0}", configFileName);
+
                     motionPlannerPluginPath = configXML.GetElementsByTagName("PathToMotionPlannerPlugin")[0].InnerText;
-                    motionPlannerEXEPath = configXML.GetElementsByTagName("PathToMotionPlannerEXE")[0].InnerText;
+
+                    motionPlannerDllPath = configXML.GetElementsByTagName("PathToMotionPlannerDll")[0].InnerText;
+                    //copy the dll file locally
+                    if(!File.Exists(motionPlannerDllPath))
+                    {
+                        ZingerUtilities.PrintErrorMessage("The dll file does not exist");
+                        ZingerUtilities.PrintErrorMessage(motionPlannerDllPath);
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        File.Copy(motionPlannerDllPath, Path.GetFileName(motionPlannerDllPath), true);
+                    }
+                    //load workspace
                     ws.length_X = int.Parse(configXML.GetElementsByTagName("Length_X")[0].InnerText);
                     ws.length_Y = int.Parse(configXML.GetElementsByTagName("Length_Y")[0].InnerText);
+
+                    //load p compiler path
+                    PcompilerPath = configXML.GetElementsByTagName("P_Compiler")[0].InnerText;
+
+                    //load p program path
+                    P_ProgramPath = configXML.GetElementsByTagName("P_ProgramDirectory")[0].InnerText;
+
+                    //load p driver path
+                    P_ProgramDriverPath = configXML.GetElementsByTagName("P_DriverFile")[0].InnerText;
+
 
                 }
                 catch (Exception ex)
@@ -61,6 +90,9 @@ namespace Microsoft.Zing
         }
     }
 
+    /// <summary>
+    /// Stores the scenario for which we have to generate a motion plan
+    /// </summary>
     public class GenerateMotionPlanFor
     {
         public int startPosition;
@@ -71,8 +103,6 @@ namespace Microsoft.Zing
         {
             obstacles = new List<int>();
         }
-
-        
         public override int GetHashCode()
         {
             int obsHash = 0;
@@ -139,6 +169,8 @@ namespace Microsoft.Zing
             }
         }
     }
+
+
     /// <summary>
     /// Zing interaction with dronacharya
     /// </summary>
@@ -178,28 +210,117 @@ namespace Microsoft.Zing
             GMP.obstacles = ex.obstacles.ToList();
             GenerateMotionPlans.Add(GMP);
 
-            Console.WriteLine("In ZingDronacharya : {0}-{1}", ex.startLocation, ex.endLocation);
-            Console.WriteLine("Obstacles: {0}", ex.obstacles.Count());
+            
         }
 
-        public void RunMotionPlanner()
+
+        public class MotionPlan
         {
-            string inputFile = "Input_MotionPlanner.txt";
-            string outputFile = "Output_MotionPlanner.txt";
+            public int start;
+            public int end;
+            public List<int> Plan;
 
-            //Dump all the inputs in a file
-            StreamWriter sw = new StreamWriter(File.Open(inputFile, FileMode.Create));
-            foreach (var mp in GenerateMotionPlans)
+            public MotionPlan(int s, int e, List<int> p)
             {
-                sw.Write(String.Format("{0} {1} ", mp.startPosition, mp.endPosition));
-                foreach (var obs in mp.obstacles)
-                {
-                    sw.Write(String.Format("{0} ", obs));
-                }
-                sw.WriteLine();
+                start = s;
+                end = e;
+                Plan = p.ToList();
             }
-            sw.Close();
+        }
+        [DllImport("Complan_v2.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool GenerateMotionPlanFor(int startLocation, int endLocation, int[] sequenceObstacles, int obsSize, [In, Out]int[] sequenceOfSteps, [In, Out]ref int stepSize);
+        /// <summary>
+        /// This function is called at the end of IterativeSearch after exploring all the executions.
+        /// </summary>
+        public static void RunMotionPlanner(ZingDronacharya zDrona)
+        {
+            List<MotionPlan> allMotionPlans = new List<MotionPlan>();
+            foreach(var motionPlan in zDrona.GenerateMotionPlans)
+            {
+                int[] outputPath = new int[100];
+                int outputSize = 0;
+                Console.WriteLine("Invoking Complan:");
+                bool result = GenerateMotionPlanFor(motionPlan.startPosition, motionPlan.endPosition, motionPlan.obstacles.ToArray(), motionPlan.obstacles.Count(), outputPath, ref outputSize);
+                if (!result)
+                {
+                    outputPath = new int[1] { -1 };
+                    outputSize = 1;
+                }
+                allMotionPlans.Add(new MotionPlan(motionPlan.startPosition, motionPlan.endPosition, outputPath.Take(outputSize).ToList()));
+            }
+           
+            //generate the new function
+            GenerateMotionPlanningModelFunction(zDrona, allMotionPlans);
 
         }
+
+        public static void RecompileProgram(ZingDronacharya zDrona)
+        {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            process.StartInfo.CreateNoWindow = false;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.FileName = zDrona.DronaConfiguration.PcompilerPath;
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            process.StartInfo.Arguments = zDrona.DronaConfiguration.P_ProgramDriverPath;
+
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                process.Start();
+                process.WaitForExit();
+            }
+            catch(Exception ex)
+            {
+                ZingerUtilities.PrintErrorMessage("Failed to compile P program");
+                ZingerUtilities.PrintErrorMessage(ex.ToString());
+            }
+        }
+
+        public static void ReloadProgram(ZingDronacharya zDrona)
+        {
+
+        }
+        #region Helper functions 
+        public static void GenerateMotionPlanningModelFunction(ZingDronacharya zDrona, List<MotionPlan> allMotionPlans)
+        {
+            string motionPlanningFile = zDrona.DronaConfiguration.P_ProgramPath + "\\MotionPlanning.p";
+            if(!File.Exists(motionPlanningFile))
+            {
+                ZingerUtilities.PrintErrorMessage("Failed to find file: " + motionPlanningFile);
+            }
+            var motionPlanningFunction = File.ReadAllLines(motionPlanningFile);
+            //concatenate the strings
+            string newFunction = "";
+            foreach(var lines in motionPlanningFunction)
+            {
+                newFunction += (lines + "\n");
+            }
+
+            
+            
+
+            string genSeq = "\n tempSeq = default(seq[int]);\n";
+            foreach(var MP in allMotionPlans)
+            {
+
+                foreach(var point in MP.Plan)
+                {
+                    string temp1 = String.Format("tempSeq += (sizeof(tempSeq), {0});\n", point);
+                    genSeq = genSeq + temp1;
+                }
+                genSeq = genSeq + String.Format("AllMotionPlans[({0}, {1})] = tempSeq;\n\n", MP.start, MP.end);
+            }
+            genSeq += "return AllMotionPlans;\n";
+
+            newFunction = newFunction.Replace("return AllMotionPlans;", genSeq);
+            
+            //update the motion planning file.
+            File.Delete(motionPlanningFile);
+            StreamWriter sw = new StreamWriter(File.Create(motionPlanningFile));
+            sw.WriteLine(newFunction);
+            sw.Close();
+        }
+        #endregion
     }
 }

@@ -247,7 +247,9 @@ namespace Microsoft.Zing
                 }
                 else
                 {
-                    ZingerConfiguration.ZDronacharya.RunMotionPlanner();
+                    ZingDronacharya.RunMotionPlanner(ZingerConfiguration.ZDronacharya);
+                    ZingDronacharya.RecompileProgram(ZingerConfiguration.ZDronacharya);
+                    ZingDronacharya.ReloadProgram(ZingerConfiguration.ZDronacharya);
                     //In the end of the plugin is enabled then call the plugin
                     if (ZingerConfiguration.ZPlugin != null)
                     {

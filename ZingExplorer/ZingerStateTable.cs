@@ -46,6 +46,11 @@ namespace Microsoft.Zing
         {
             return st.magicBit == magicBit;
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     /// <summary>

@@ -8,8 +8,6 @@ namespace Microsoft.Zing
     public abstract class ZingerPluginState 
     {
         public abstract ZingerPluginState Clone();
-
-        public abstract string ToString();
     }
     public abstract class ZingerPluginInterface
     {

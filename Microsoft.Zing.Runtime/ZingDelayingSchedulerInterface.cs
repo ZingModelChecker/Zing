@@ -94,10 +94,6 @@ namespace Microsoft.Zing
             throw new NotImplementedException("Not implemented");
         }
 
-        /// <summary>
-        /// Print the current scheduler state
-        /// </summary>
-        public abstract string ToString();
 
         /// <summary>
         /// Clone current scheduler state for new zing state.
