@@ -83,10 +83,13 @@ namespace Microsoft.Zing
             while (GLobalFrontierSet.Count() > 0 && !ZingerConfiguration.zBoundedSearch.checkIfFinalCutOffReached());
 
             
+            /*
             if (lastErrorFound != ZingerResult.Success)
                 return ZingerResult.Assertion;
             else
                 return ZingerResult.Success;
+            */
+            return lastErrorFound;
         }
 
         protected override void SearchStateSpace(object obj)

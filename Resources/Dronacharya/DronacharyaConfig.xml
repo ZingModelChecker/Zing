@@ -5,6 +5,7 @@
   <P_ProgramDirectory>C:\WorkSpace\dronacharya\Examples\AnimalHerd\</P_ProgramDirectory>
   <P_DriverFile>C:\WorkSpace\dronacharya\Examples\AnimalHerd\TaskPlanning.p</P_DriverFile>
   <P_Compiler>C:\WorkSpace\dronacharya\Binaries\P\Pc.exe</P_Compiler>
+  <Zinger>C:\WorkSpace\Zing\Zinger\bin\x64\Debug\Zinger.exe</Zinger>
   <Workspace>
     <Length_X>4</Length_X>
     <Length_Y>4</Length_Y>

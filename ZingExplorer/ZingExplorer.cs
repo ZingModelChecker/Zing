@@ -156,10 +156,7 @@ namespace Microsoft.Zing
 
         public ZingerResult ExploreWithDronacharya()
         {
-            //Load the zing model for the first time.
-            startStateStateImpl = StateImpl.Load(ZingerConfiguration.ZingModelFile);
-            Initialize();
-
+            ZingerUtilities.PrintMessage("Starting new Zinger iteration ... ");
             //Terminate only when there are no motionPlanFrontier states remaining.
             while (true)
             {
@@ -248,8 +245,6 @@ namespace Microsoft.Zing
                 else
                 {
                     ZingDronacharya.RunMotionPlanner(ZingerConfiguration.ZDronacharya);
-                    ZingDronacharya.RecompileProgram(ZingerConfiguration.ZDronacharya);
-                    ZingDronacharya.ReloadProgram(ZingerConfiguration.ZDronacharya);
                     //In the end of the plugin is enabled then call the plugin
                     if (ZingerConfiguration.ZPlugin != null)
                     {

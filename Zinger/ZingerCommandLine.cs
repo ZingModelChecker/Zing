@@ -240,6 +240,9 @@ namespace Microsoft.Zing
                                 }
                             }
                             break;
+                        case "dronaworker":
+                            ZingerConfiguration.IsDronaMain = false;
+                            break;
                         default:
                             PrintZingerHelp(arg, "Invalid Option");
                             return false;

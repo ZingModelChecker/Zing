@@ -419,6 +419,14 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.dronacharyaEnabled = value; }
         }
 
+        // Is this the main dronaCharya instance
+        private static bool isDronaMain = true;
+        public static bool IsDronaMain
+        {
+            get { return ZingerConfiguration.isDronaMain; }
+            set { ZingerConfiguration.isDronaMain = value; }
+        }
+
         private static ZingDronacharya zDronacharya;
         public static ZingDronacharya ZDronacharya
         {

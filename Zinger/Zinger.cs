@@ -17,6 +17,12 @@ namespace Microsoft.Zing
             {
                 Environment.Exit((int)ZingerResult.InvalidParameters);
             }
+            //capture the commandline arguments for dronaworker
+            if(ZingerConfiguration.DronacharyaEnabled)
+            {
+                ZingDronacharya.ZingerCommandline = args;
+            }
+
             //Infer the Zinger Configuration and make sure all flags are set correctly.
             ZingerConfiguration.InferConfiguration();
             //Print the Current Configuration of Zinger
@@ -27,6 +33,14 @@ namespace Microsoft.Zing
                 ZingerResult result;
 
                 ZingExplorer zingExplorer;
+
+                //check if dronacharya is enabled and this is the main worker
+                if(ZingerConfiguration.DronacharyaEnabled && ZingerConfiguration.IsDronaMain)
+                {
+                    ZingDronacharya.PerformIterativeSearch();
+                    return;
+                }
+
 
                 //currently the only search allowed with dronacharya enabled is exhaustive
                 if(ZingerConfiguration.DronacharyaEnabled)
@@ -55,7 +69,7 @@ namespace Microsoft.Zing
                 ZingerUtilities.StartTimeOut();
 
                 //start the search
-                if(ZingerConfiguration.DronacharyaEnabled)
+                if(ZingerConfiguration.DronacharyaEnabled && !ZingerConfiguration.IsDronaMain)
                 {
                     result = zingExplorer.ExploreWithDronacharya();
                 }

@@ -25,6 +25,7 @@ namespace Microsoft.Zing
         public string motionPlannerPluginPath;
         public string motionPlannerDllPath;
         public string PcompilerPath;
+        public string ZingerPath;
         public string P_ProgramPath;
         public string P_ProgramDriverPath;
         public WorkspaceInfo ws;
@@ -71,6 +72,9 @@ namespace Microsoft.Zing
 
                     //load p compiler path
                     PcompilerPath = configXML.GetElementsByTagName("P_Compiler")[0].InnerText;
+
+                    //load the zinger path
+                    ZingerPath = configXML.GetElementsByTagName("Zinger")[0].InnerText;
 
                     //load p program path
                     P_ProgramPath = configXML.GetElementsByTagName("P_ProgramDirectory")[0].InnerText;
@@ -176,6 +180,12 @@ namespace Microsoft.Zing
     /// </summary>
     public class ZingDronacharya
     {
+        /// <summary>
+        /// 
+        /// Used to store the commandline arguments for zinger
+        /// </summary>
+        public static string[] ZingerCommandline;
+
         public string configFilepath;
 
         /// <summary>
@@ -239,7 +249,7 @@ namespace Microsoft.Zing
             {
                 int[] outputPath = new int[100];
                 int outputSize = 0;
-                Console.WriteLine("Invoking Complan:");
+                Console.WriteLine("Invoking Complan for : {0} {1}", motionPlan.startPosition, motionPlan.endPosition);
                 bool result = GenerateMotionPlanFor(motionPlan.startPosition, motionPlan.endPosition, motionPlan.obstacles.ToArray(), motionPlan.obstacles.Count(), outputPath, ref outputSize);
                 if (!result)
                 {
@@ -254,6 +264,55 @@ namespace Microsoft.Zing
 
         }
 
+        public static void PerformIterativeSearch()
+        {
+            ZingerResult result = ZingerResult.ProgramRuntimeError;
+            //Terminate when there are no more iterations to be performed
+            while(true)
+            {
+                result = LaunchNewZingerInstance(ZingerConfiguration.ZDronacharya, ZingerCommandline);
+                if (result != ZingerResult.ZingerMotionPlanningInvocation)
+                    return;
+
+                RecompileProgram(ZingerConfiguration.ZDronacharya);
+            }
+        }
+        public static ZingerResult LaunchNewZingerInstance(ZingDronacharya zDrona, string[] commandLineArgs)
+        {
+            //generate zing commandline
+            string commandline = "";
+            foreach(var s in ZingerCommandline)
+            {
+                commandline += " " + s;
+            }
+
+            ZingerResult returnValue = ZingerResult.ProgramRuntimeError;
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            process.StartInfo.CreateNoWindow = false;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.FileName = zDrona.DronaConfiguration.ZingerPath;
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            process.StartInfo.Arguments = (commandline + " -dronaworker ");
+            ZingerUtilities.PrintMessage(process.StartInfo.FileName + " " + process.StartInfo.Arguments);
+            try
+            {
+                // Start the process with the info we specified.
+                // Call WaitForExit and then the using statement will close.
+                process.Start();
+                process.WaitForExit();
+
+                returnValue = (ZingerResult) process.ExitCode;
+                
+            }
+            catch (Exception ex)
+            {
+                ZingerUtilities.PrintErrorMessage("Failed to run zinger");
+                ZingerUtilities.PrintErrorMessage(ex.ToString());
+                Environment.Exit((int)ZingerResult.ProgramRuntimeError);
+            }
+            return returnValue;
+
+        }
         public static void RecompileProgram(ZingDronacharya zDrona)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
@@ -261,7 +320,7 @@ namespace Microsoft.Zing
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.FileName = zDrona.DronaConfiguration.PcompilerPath;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.Arguments = zDrona.DronaConfiguration.P_ProgramDriverPath;
+            process.StartInfo.Arguments = (zDrona.DronaConfiguration.P_ProgramDriverPath);
 
             try
             {
@@ -274,13 +333,10 @@ namespace Microsoft.Zing
             {
                 ZingerUtilities.PrintErrorMessage("Failed to compile P program");
                 ZingerUtilities.PrintErrorMessage(ex.ToString());
+                Environment.Exit((int)ZingerResult.ProgramRuntimeError);
             }
         }
 
-        public static void ReloadProgram(ZingDronacharya zDrona)
-        {
-
-        }
         #region Helper functions 
         public static void GenerateMotionPlanningModelFunction(ZingDronacharya zDrona, List<MotionPlan> allMotionPlans)
         {
