@@ -6,6 +6,8 @@ using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Collections.Concurrent;
+
 
 namespace Microsoft.Zing
 {
@@ -196,14 +198,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// List of all the generate motion plans invocation.
         /// </summary>
-        public HashSet<GenerateMotionPlanFor> GenerateMotionPlans;
+        public ConcurrentBag<GenerateMotionPlanFor> GenerateMotionPlans;
 
         public ZingDronacharya(string configFile)
         {
             configFilepath = configFile;
             DronaConfiguration = new DronacharyaConfiguration();
             DronaConfiguration.Initialize(configFilepath);
-            GenerateMotionPlans = new HashSet<GenerateMotionPlanFor>();
+            GenerateMotionPlans = new ConcurrentBag<GenerateMotionPlanFor>();
         }
 
         /// <summary>
@@ -219,8 +221,6 @@ namespace Microsoft.Zing
             GMP.endPosition = ex.endLocation;
             GMP.obstacles = ex.obstacles.ToList();
             GenerateMotionPlans.Add(GMP);
-
-            
         }
 
 
