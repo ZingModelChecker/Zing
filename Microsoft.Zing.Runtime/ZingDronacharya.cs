@@ -105,6 +105,15 @@ namespace Microsoft.Zing
         public int endPosition;
         public List<int> obstacles;
 
+        public override string ToString()
+        {
+            string val = "";
+            val = startPosition.ToString() + " ";
+            val += (endPosition.ToString() + " ");
+            foreach (var obs in obstacles)
+                val += (obs.ToString() + " ");
+            return val;
+        }
         public GenerateMotionPlanFor()
         {
             obstacles = new List<int>();
@@ -166,7 +175,8 @@ namespace Microsoft.Zing
                 {
                     return false;
                 }
-
+                Console.WriteLine(compItem);
+                Console.WriteLine(this);
                 return true;
             }
             else
