@@ -45,6 +45,7 @@ namespace ZingExternalPlugin
         }
         override public void Invoke(ZingerPluginState ZPluginState, params object[] Params)
         {
+            
             var functionName = (string)Params[0];
             if (functionName == "GenerateMotionPlan")
             {

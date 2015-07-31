@@ -198,14 +198,14 @@ namespace Microsoft.Zing
         /// <summary>
         /// List of all the generate motion plans invocation.
         /// </summary>
-        public ConcurrentBag<GenerateMotionPlanFor> GenerateMotionPlans;
+        public HashSet<GenerateMotionPlanFor> GenerateMotionPlans;
 
         public ZingDronacharya(string configFile)
         {
             configFilepath = configFile;
             DronaConfiguration = new DronacharyaConfiguration();
             DronaConfiguration.Initialize(configFilepath);
-            GenerateMotionPlans = new ConcurrentBag<GenerateMotionPlanFor>();
+            GenerateMotionPlans = new HashSet<GenerateMotionPlanFor>();
         }
 
         /// <summary>
@@ -220,7 +220,10 @@ namespace Microsoft.Zing
             GMP.startPosition = ex.startLocation;
             GMP.endPosition = ex.endLocation;
             GMP.obstacles = ex.obstacles.ToList();
-            GenerateMotionPlans.Add(GMP);
+            lock (GenerateMotionPlans) 
+            {
+                GenerateMotionPlans.Add(GMP);
+            }
         }
 
 
@@ -340,7 +343,7 @@ namespace Microsoft.Zing
         #region Helper functions 
         public static void GenerateMotionPlanningModelFunction(ZingDronacharya zDrona, List<MotionPlan> allMotionPlans)
         {
-            string motionPlanningFile = zDrona.DronaConfiguration.P_ProgramPath + "\\MotionPlanning.p";
+            string motionPlanningFile = zDrona.DronaConfiguration.P_ProgramPath + "\\ModelOfMotionPlanning.p";
             if(!File.Exists(motionPlanningFile))
             {
                 ZingerUtilities.PrintErrorMessage("Failed to find file: " + motionPlanningFile);

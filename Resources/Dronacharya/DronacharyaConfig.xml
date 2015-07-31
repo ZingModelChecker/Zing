@@ -2,8 +2,8 @@
 <Dronacharya>
   <PathToMotionPlannerPlugin>C:\WorkSpace\Zing\Plugins\MotionPlanning\bin\x64\Debug\Complan.dll</PathToMotionPlannerPlugin>
   <PathToMotionPlannerDll>C:\WorkSpace\ComplanV2\Src\Debug\x64\Complan_v2.dll</PathToMotionPlannerDll>
-  <P_ProgramDirectory>C:\WorkSpace\dronacharya\Examples\AnimalHerd\</P_ProgramDirectory>
-  <P_DriverFile>C:\WorkSpace\dronacharya\Examples\AnimalHerd\TaskPlanning.p</P_DriverFile>
+  <P_ProgramDirectory>C:\WorkSpace\dronacharya\Examples\AnimalHerd_V1\</P_ProgramDirectory>
+  <P_DriverFile>C:\WorkSpace\dronacharya\Examples\AnimalHerd_V1\TaskPlanning.p</P_DriverFile>
   <P_Compiler>C:\WorkSpace\dronacharya\Binaries\P\Pc.exe</P_Compiler>
   <Zinger>C:\WorkSpace\Zing\Zinger\bin\x64\Debug\Zinger.exe</Zinger>
   <Workspace>
