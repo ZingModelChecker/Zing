@@ -37,13 +37,17 @@ namespace ZingExternalPlugin
     }
     public class ComplanMotionPlanner : ZingerPluginInterface
     {
-        private ComplanMotionPlannerState complanState;
+        private ComplanMotionPlannerState[] complanState;
 
         public ComplanMotionPlanner()
         {
-            complanState = new ComplanMotionPlannerState();
+            complanState = new ComplanMotionPlannerState[ZingerConfiguration.DegreeOfParallelism];
+            for(int i = 0; i<ZingerConfiguration.DegreeOfParallelism;i++)
+            {
+                complanState[i] = new ComplanMotionPlannerState();
+            }
         }
-        override public void Invoke(ZingerPluginState ZPluginState, params object[] Params)
+        override public void Invoke(int threadID, ZingerPluginState ZPluginState, params object[] Params)
         {
             
             var functionName = (string)Params[0];
@@ -51,15 +55,15 @@ namespace ZingExternalPlugin
             {
                 int start = (int)Params[1];
                 int end = (int)Params[2];
-                throw new ZingerInvokeMotionPlanning(start, end, complanState.Obstacles);
+                throw new ZingerInvokeMotionPlanning(start, end, complanState[threadID].Obstacles);
             }
             else if (functionName == "AddObstacle")
             {
-                complanState.Obstacles.Add((int)Params[1]);
+                complanState[threadID].Obstacles.Add((int)Params[1]);
             }
             else if (functionName == "ResetObstacle")
             {
-                complanState.Obstacles = new List<int>();
+                complanState[threadID].Obstacles = new List<int>();
             }
         }
 

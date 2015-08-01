@@ -175,8 +175,6 @@ namespace Microsoft.Zing
                 {
                     return false;
                 }
-                Console.WriteLine(compItem);
-                Console.WriteLine(this);
                 return true;
             }
             else

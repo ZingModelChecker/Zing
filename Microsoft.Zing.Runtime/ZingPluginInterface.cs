@@ -11,7 +11,7 @@ namespace Microsoft.Zing
     }
     public abstract class ZingerPluginInterface
     {
-        public abstract void Invoke(ZingerPluginState ZPluginState, params object[] Params);
+        public abstract void Invoke(int threadID, ZingerPluginState ZPluginState, params object[] Params);
 
         public abstract void EndPlugin();
     }

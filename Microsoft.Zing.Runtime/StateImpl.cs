@@ -1462,7 +1462,7 @@ namespace Microsoft.Zing
         {
             if(ZingerConfiguration.DronacharyaEnabled)
             {
-                ZingerPlugin.Invoke(ZingerPluginState, arguments);
+                ZingerPlugin.Invoke(this.mySerialNum, ZingerPluginState, arguments);
             }
         }
 
