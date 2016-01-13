@@ -69,7 +69,7 @@ namespace Microsoft.Zing
                 ZingDBScheduler = ZingerConfiguration.ZExternalScheduler.zDelaySched;
             }
 
-            if(ZingerConfiguration.DronacharyaEnabled)
+            if (ZingerConfiguration.DronacharyaEnabled || ZingerConfiguration.IsPluginEnabled)
             {
                 ZingerPlugin = ZingerConfiguration.ZPlugin.zPlugin;
                 ZingerPluginState = ZingerConfiguration.ZPlugin.zPluginState;
@@ -569,12 +569,14 @@ namespace Microsoft.Zing
         /// Fields for storing the delaying scheduler information
         /// </summary>
         public ZingerDelayingScheduler ZingDBScheduler = null;
+
         public ZingerSchedulerState ZingDBSchedState = null;
 
         /// <summary>
         /// Fields for storing the plugin information
         /// </summary>
         public ZingerPluginInterface ZingerPlugin = null;
+
         public ZingerPluginState ZingerPluginState = null;
 
         //IExplorable
@@ -1460,7 +1462,7 @@ namespace Microsoft.Zing
 
         public void InvokePlugin(params object[] arguments)
         {
-            if(ZingerConfiguration.DronacharyaEnabled)
+            if (ZingerConfiguration.DronacharyaEnabled || ZingerConfiguration.IsPluginEnabled)
             {
                 ZingerPlugin.Invoke(this.mySerialNum, ZingerPluginState, arguments);
             }
@@ -1602,7 +1604,7 @@ namespace Microsoft.Zing
                 newState.ZingDBScheduler = ZingDBScheduler;
             }
 
-            if(ZingerConfiguration.DronacharyaEnabled)
+            if (ZingerConfiguration.DronacharyaEnabled || ZingerConfiguration.IsPluginEnabled)
             {
                 newState.ZingerPluginState = ZingerPluginState.Clone();
                 newState.ZingerPlugin = ZingerPlugin;

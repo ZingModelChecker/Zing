@@ -115,6 +115,7 @@ namespace Microsoft.Zing
                                 ZingerConfiguration.DoRandomSampling = true;
                             }
                             break;
+
                         case "delayb":
                             {
                                 ZingerConfiguration.DoDelayBounding = true;
@@ -157,11 +158,12 @@ namespace Microsoft.Zing
                             break;
 
                         case "timeout":
-                            if(param.Length != 0)
+                            if (param.Length != 0)
                             {
                                 ZingerConfiguration.Timeout = int.Parse(param);
                             }
                             break;
+
                         case "bc":
                             ZingerConfiguration.BoundChoices = true;
                             ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff = int.Parse(param);
@@ -170,7 +172,7 @@ namespace Microsoft.Zing
                         case "ndfsliveness":
                             ZingerConfiguration.DoNDFSLiveness = true;
                             break;
-                        
+
                         case "maceliveness":
                             ZingerConfiguration.DoMaceliveness = true;
                             if (param.Length == 0)
@@ -197,14 +199,67 @@ namespace Microsoft.Zing
                         case "mapliveness":
                             ZingerConfiguration.DoMAPLiveness = true;
                             break;
+
+                        case "plugin":
+                            {
+                                if (ZingerConfiguration.DronacharyaEnabled)
+                                {
+                                    PrintZingerHelp(option, String.Format("Dronacharya and plugin cannot be enabled together"));
+                                }
+                                try
+                                {
+                                    //check if the file exists
+                                    if (!File.Exists(param))
+                                    {
+                                        PrintZingerHelp(option, String.Format("File {0} not found", param));
+                                    }
+
+                                    var pluginAssembly = Assembly.LoadFrom(param);
+                                    if (pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginInterface")).Count() != 1)
+                                    {
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginInterface", param));
+                                        return false;
+                                    }
+
+                                    if (pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginState")).Count() != 1)
+                                    {
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginState", param));
+                                        return false;
+                                    }
+                                    // get class name
+                                    string pluginClassName = pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginInterface")).First().FullName;
+                                    var pluginStateClassName = pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginState")).First().FullName;
+                                    var pluginClassType = pluginAssembly.GetType(pluginClassName);
+                                    var pluginStateClassType = pluginAssembly.GetType(pluginStateClassName);
+                                    ZingerConfiguration.ZPlugin = new ZingerExternalPlugin();
+                                    ZingerConfiguration.ZPlugin.zPlugin = Activator.CreateInstance(pluginClassType) as ZingerPluginInterface;
+                                    ZingerConfiguration.ZPlugin.zPluginState = Activator.CreateInstance(pluginStateClassType) as ZingerPluginState;
+
+                                    ZingerConfiguration.IsPluginEnabled = true;
+                                }
+                                catch (Exception e)
+                                {
+                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing plugin is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
+                                    ZingerUtilities.PrintErrorMessage(e.Message);
+                                    return false;
+                                }
+                            }
+                            break;
+
                         case "dronacharya":
                             {
+                                if (ZingerConfiguration.IsPluginEnabled)
+                                {
+                                    PrintZingerHelp(option, String.Format("Dronacharya and plugin cannot be enabled together"));
+                                }
+
                                 ZingerConfiguration.DronacharyaEnabled = true;
 
                                 ZingerConfiguration.ZDronacharya = new ZingDronacharya(param);
 
                                 var pluginDll = ZingerConfiguration.ZDronacharya.DronaConfiguration.motionPlannerPluginPath;
-                                try{
+                                try
+                                {
                                     //check if the file exists
                                     if (!File.Exists(pluginDll))
                                     {
@@ -214,13 +269,13 @@ namespace Microsoft.Zing
                                     var pluginAssembly = Assembly.LoadFrom(pluginDll);
                                     if (pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginInterface")).Count() != 1)
                                     {
-                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginInterface", ZingerConfiguration.delayingSchedDll));
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginInterface", pluginDll));
                                         return false;
                                     }
 
                                     if (pluginAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerPluginState")).Count() != 1)
                                     {
-                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginState", ZingerConfiguration.delayingSchedDll));
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing plugin {0}: Should have (only one) class inheriting the base class ZingerPluginState", pluginDll));
                                         return false;
                                     }
                                     // get class name
@@ -240,9 +295,11 @@ namespace Microsoft.Zing
                                 }
                             }
                             break;
+
                         case "dronaworker":
                             ZingerConfiguration.IsDronaMain = false;
                             break;
+
                         default:
                             PrintZingerHelp(arg, "Invalid Option");
                             return false;
@@ -358,8 +415,6 @@ namespace Microsoft.Zing
             Console.WriteLine("Zinger Plugin:");
             Console.WriteLine("-------------------------------");
             Console.WriteLine("-motionplanning:<plugin.dll>");
-            
-
         }
     }
 }

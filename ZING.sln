@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Zing", "Microsoft.Zing\Microsoft.Zing.csproj", "{8DE6F528-36BB-487E-908F-62B9485098C0}"
 EndProject
@@ -29,9 +29,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunToCompletionDelayingSche
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomDelayingScheduler", "DelayingSchedulers\CustomDelayingScheduler\CustomDelayingScheduler.csproj", "{AEEAA9E8-6622-4C65-8798-646EC7F67C04}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{8BA3992A-2AE4-495A-946F-3AA212D47B4E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{8BA3992A-2AE4-495A-946F-3AA212D47B4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Complan", "Plugins\MotionPlanning\Complan.csproj", "{09827C57-CD29-4B66-81CE-02A3448F75C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateCoveragePlugin", "Plugins\StateCoveragePlugin\StateCoveragePlugin.csproj", "{B0212FBE-2205-4678-90F1-F29AC5222191}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -203,6 +205,20 @@ Global
 		{09827C57-CD29-4B66-81CE-02A3448F75C0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{09827C57-CD29-4B66-81CE-02A3448F75C0}.Release|x64.ActiveCfg = Release|Any CPU
 		{09827C57-CD29-4B66-81CE-02A3448F75C0}.Release|x86.ActiveCfg = Release|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|x64.ActiveCfg = Debug|x64
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|x64.Build.0 = Debug|x64
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|x86.ActiveCfg = Debug|x86
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Debug|x86.Build.0 = Debug|x86
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Release|x64.ActiveCfg = Release|Any CPU
+		{B0212FBE-2205-4678-90F1-F29AC5222191}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -213,5 +229,6 @@ Global
 		{372082A5-2C0B-4196-BF97-095C398666C1} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 		{AEEAA9E8-6622-4C65-8798-646EC7F67C04} = {DAFEF7CD-D4E3-4626-870A-E224EE380025}
 		{09827C57-CD29-4B66-81CE-02A3448F75C0} = {8BA3992A-2AE4-495A-946F-3AA212D47B4E}
+		{B0212FBE-2205-4678-90F1-F29AC5222191} = {8BA3992A-2AE4-495A-946F-3AA212D47B4E}
 	EndGlobalSection
 EndGlobal
