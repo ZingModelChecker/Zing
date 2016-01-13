@@ -69,7 +69,7 @@ namespace Microsoft.Zing
 
         protected abstract void VisitState(TraversalInfo ti);
 
-        #endregion abstract functions
+        #endregion Abstract Functions
 
         public ZingerResult Explore()
         {
@@ -87,6 +87,13 @@ namespace Microsoft.Zing
             }
 
             var result = IterativeSearchStateSpace();
+
+            //In the end of the plugin is enabled then call the plugin
+            if (ZingerConfiguration.ZPlugin != null)
+            {
+                Console.WriteLine("Executed EndPlugin Function");
+                ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
+            }
 
             //Handle Zinger Return Status
             switch (result)
@@ -127,9 +134,11 @@ namespace Microsoft.Zing
                     ZingerUtilities.PrintErrorMessage("##################");
                     ZingerUtilities.PrintErrorMessage(String.Format("DFS Stack Size Exceeded {0}", ZingerConfiguration.BoundDFSStackLength));
                     break;
+
                 case ZingerResult.ZingerMotionPlanningInvocation:
                     break;
-                default :
+
+                default:
                     ZingerUtilities.PrintErrorMessage("Zinger threw an unknown error. Please report this to the Zing developers");
                     break;
             }
@@ -143,12 +152,6 @@ namespace Microsoft.Zing
             if (ZingerConfiguration.EnableTrace)
             {
                 PrintErrorTracesToFile();
-            }
-
-            //In the end of the plugin is enabled then call the plugin
-            if(ZingerConfiguration.ZPlugin != null)
-            {
-                ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
             }
 
             return result;
@@ -214,8 +217,10 @@ namespace Microsoft.Zing
                         ZingerUtilities.PrintErrorMessage("##################");
                         ZingerUtilities.PrintErrorMessage(String.Format("DFS Stack Size Exceeded {0}", ZingerConfiguration.BoundDFSStackLength));
                         break;
+
                     case ZingerResult.ZingerMotionPlanningInvocation:
                         break;
+
                     default:
                         ZingerUtilities.PrintErrorMessage("Zinger threw an unknown error. Please report this to the Zing developers");
                         break;
@@ -234,27 +239,21 @@ namespace Microsoft.Zing
                     {
                         PrintErrorTracesToFile();
                     }
-
-                    //In the end of the plugin is enabled then call the plugin
-                    if (ZingerConfiguration.ZPlugin != null)
-                    {
-                        ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
-                    }
-                    return result;
                 }
                 else
                 {
                     ZingDronacharya.RunMotionPlanner(ZingerConfiguration.ZDronacharya);
-                    //In the end of the plugin is enabled then call the plugin
-                    if (ZingerConfiguration.ZPlugin != null)
-                    {
-                        ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
-                    }
-                    return result;
                 }
+                //In the end if the plugin is enabled then call the plugin
+                if (ZingerConfiguration.ZPlugin != null)
+                {
+                    Console.WriteLine("Executed EndPlugin Function");
+                    ZingerConfiguration.ZPlugin.zPlugin.EndPlugin();
+                }
+                return result;
             }
-            
         }
+
         #region Constructor
 
         public ZingExplorer()

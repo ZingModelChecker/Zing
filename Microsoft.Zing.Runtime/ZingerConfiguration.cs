@@ -118,7 +118,7 @@ namespace Microsoft.Zing
     }
 
     /// <summary>
-    /// Zing External Plugin 
+    /// Zing External Plugin
     /// </summary>
     public class ZingerExternalPlugin
     {
@@ -404,7 +404,8 @@ namespace Microsoft.Zing
         }
 
         //Zinger time out in seconds
-        private static int timeout = 24*60*60; //default is 24 hours.
+        private static int timeout = 24 * 60 * 60; //default is 24 hours.
+
         public static int Timeout
         {
             get { return timeout; }
@@ -413,6 +414,7 @@ namespace Microsoft.Zing
 
         //Integrate motionplanning with Zing
         private static bool dronacharyaEnabled = false;
+
         public static bool DronacharyaEnabled
         {
             get { return ZingerConfiguration.dronacharyaEnabled; }
@@ -421,6 +423,7 @@ namespace Microsoft.Zing
 
         // Is this the main dronaCharya instance
         private static bool isDronaMain = true;
+
         public static bool IsDronaMain
         {
             get { return ZingerConfiguration.isDronaMain; }
@@ -428,14 +431,24 @@ namespace Microsoft.Zing
         }
 
         private static ZingDronacharya zDronacharya;
+
         public static ZingDronacharya ZDronacharya
         {
             get { return ZingerConfiguration.zDronacharya; }
             set { ZingerConfiguration.zDronacharya = value; }
         }
 
+        private static bool isPluginEnabled = false;
+
+        public static bool IsPluginEnabled
+        {
+            get { return ZingerConfiguration.isPluginEnabled; }
+            set { ZingerConfiguration.isPluginEnabled = value; }
+        }
+
         //Plugin dll
         private static ZingerExternalPlugin zPlugin = null;
+
         public static ZingerExternalPlugin ZPlugin
         {
             get { return ZingerConfiguration.zPlugin; }
@@ -484,6 +497,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Max memory : {0}", maxMemoryConsumption));
             ZingerUtilities.PrintMessage(String.Format("Stop on First Error: {0}", stopOnError));
             ZingerUtilities.PrintMessage(String.Format("Dronacharya Enabled execution : {0}", DronacharyaEnabled));
+            ZingerUtilities.PrintMessage(String.Format("Plugin Enabled execution : {0}", IsPluginEnabled));
             ZingerUtilities.PrintMessage("");
         }
     }

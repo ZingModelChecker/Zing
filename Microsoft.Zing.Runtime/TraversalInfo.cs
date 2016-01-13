@@ -98,6 +98,7 @@ namespace Microsoft.Zing
         /// The delaying scheduler Info for the current state.
         /// </summary>
         public ZingerDelayingScheduler ZingDBScheduler;
+
         public ZingerSchedulerState ZingDBSchedState;
 
         public ZingerPluginInterface ZingerPlugin;
@@ -253,7 +254,7 @@ namespace Microsoft.Zing
             IsAcceptingState = s.IsAcceptingState;
 
             //initialize the plugin information.
-            
+
             if (pred != null)
             {
                 Predecessor = pred;
@@ -272,7 +273,7 @@ namespace Microsoft.Zing
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, Predecessor.preemptionBounding.currentProcess);
                 }
 
-                if(ZingerConfiguration.DronacharyaEnabled)
+                if (ZingerConfiguration.DronacharyaEnabled || ZingerConfiguration.IsPluginEnabled)
                 {
                     ZingerPlugin = s.ZingerPlugin;
                     ZingerPluginState = s.ZingerPluginState;
@@ -294,7 +295,7 @@ namespace Microsoft.Zing
                 {
                     preemptionBounding = new ZingPreemptionBounding(ProcessInfo, NumProcesses, 0);
                 }
-                if (ZingerConfiguration.DronacharyaEnabled)
+                if (ZingerConfiguration.DronacharyaEnabled || ZingerConfiguration.IsPluginEnabled)
                 {
                     ZingerPlugin = s.ZingerPlugin;
                     ZingerPluginState = s.ZingerPluginState.Clone();
@@ -418,7 +419,7 @@ namespace Microsoft.Zing
                 stateImpl.ZingDBSchedState = ZingDBSchedState.Clone(false);
             }
 
-            if(ZingerConfiguration.DronacharyaEnabled)
+            if (ZingerConfiguration.DronacharyaEnabled || ZingerConfiguration.IsPluginEnabled)
             {
                 stateImpl.ZingerPluginState = ZingerPluginState.Clone();
             }
