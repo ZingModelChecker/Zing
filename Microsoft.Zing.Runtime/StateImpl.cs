@@ -1050,7 +1050,7 @@ namespace Microsoft.Zing
                     process.BackTransitionEncountered = true;
 
                 // Stop infinite executions within an atomic block
-                if (numBlocksExecuted++ > 100000)
+                if (numBlocksExecuted++ > 1000000)
                     this.exception = new ZingInfiniteLoopException();
             } while (ShouldRunBlocksContinue(process));
         }

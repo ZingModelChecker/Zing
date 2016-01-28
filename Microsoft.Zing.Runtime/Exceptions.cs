@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
-using System.Collections.Generic;
 
 namespace Microsoft.Zing
 {
@@ -662,14 +662,15 @@ namespace Microsoft.Zing
         public int startLocation;
         public int endLocation;
         public List<int> obstacles;
-        
-        public ZingerInvokeMotionPlanning(int st, int end, List<int> obs) : base()
+
+        public ZingerInvokeMotionPlanning(int st, int end, List<int> obs)
+            : base()
         {
             startLocation = st;
             endLocation = end;
             obstacles = obs;
         }
-        
+
         public ZingerInvokeMotionPlanning()
             : base()
         {
@@ -699,7 +700,6 @@ namespace Microsoft.Zing
             }
         }
     }
-
 
     [Serializable]
     public class ZingerAcceptingCycleFound : ZingException
@@ -769,7 +769,7 @@ namespace Microsoft.Zing
             get
             {
                 return string.Format(CultureInfo.CurrentUICulture,
-                    "The Zing model appears to have encountered an infinite loop within an atomic block\r\n");
+                    "The Zing model appears to have encountered a loop within an atomic block. Zinger executed 1000000 internals steps without executing a nondeterminitic external choice statement\r\n");
             }
         }
     }
