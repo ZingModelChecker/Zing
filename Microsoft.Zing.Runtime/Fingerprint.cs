@@ -126,7 +126,7 @@ namespace Microsoft.Zing
     public class computeHASH
     {
         //static variables
-        private static int gratelen = 1024000;
+        private static int gratelen = 8192000;
 
         private static int[] grate = new int[gratelen * 4];
 
