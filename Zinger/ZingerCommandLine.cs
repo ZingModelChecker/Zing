@@ -196,7 +196,7 @@ namespace Microsoft.Zing
                             }
                             break;
 
-                        case "mapliveness":
+                        case "randomliveness":
                             ZingerConfiguration.DoMAPLiveness = true;
                             break;
 
@@ -405,12 +405,11 @@ namespace Microsoft.Zing
             Console.WriteLine("---------------------------");
             Console.WriteLine("-NDFSliveness");
             Console.WriteLine("To perform liveness search using NDFS <use only with sequential and non-iterative>\n");
-            Console.WriteLine("-maceliveness:(exhaustivesearchbound,livestatebound,finalcutoff)");
-            Console.WriteLine("This option uses MaceMC liveness algorithm.");
-            Console.WriteLine("It performs exhaustive search till bound exhaustivesearchbound and then performs randomwalk till finalcutoff.");
-            Console.WriteLine("error trace is reported if no \"cold\" state is found within livestatebound interval\n");
-            Console.WriteLine("-MAPLiveness");
-            Console.WriteLine("Uses MAP cycle detection algorithm for finding accepting cycles. Can be used with Parallelism.\n");
+            Console.WriteLine("-randomliveness:(exhaustivesearchbound,livestatebound,finalcutoff)");
+            Console.WriteLine("This option uses random search based liveness algorithm.");
+            Console.WriteLine("It performs random search untill it finds a cycles in the execution.");
+            /*Console.WriteLine("-MAPLiveness");
+            Console.WriteLine("Uses MAP cycle detection algorithm for finding accepting cycles. Can be used with Parallelism.\n");*/
             Console.WriteLine("===============================");
             Console.WriteLine("Zinger Plugin:");
             Console.WriteLine("-------------------------------");

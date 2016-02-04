@@ -163,33 +163,35 @@ namespace Microsoft.Zing
             stateImpl = s;
 
             receipt = s.CheckIn();
-
-            if (ZingerConfiguration.FingerprintSingleTransitionStates)
+            if (!ZingerConfiguration.DoRandomSampling)
             {
-                if (this.NumChoices > 1)
+                if (ZingerConfiguration.FingerprintSingleTransitionStates)
                 {
-                    this.fingerprint = s.Fingerprint;
-                    this.IsFingerPrinted = true;
-                }
-                else
-                {
-                    // Fingerprint with probability p
-                    if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
+                    if (this.NumChoices > 1)
                     {
                         this.fingerprint = s.Fingerprint;
                         this.IsFingerPrinted = true;
                     }
                     else
                     {
-                        this.fingerprint = null;
-                        this.IsFingerPrinted = false;
+                        // Fingerprint with probability p
+                        if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
+                        {
+                            this.fingerprint = s.Fingerprint;
+                            this.IsFingerPrinted = true;
+                        }
+                        else
+                        {
+                            this.fingerprint = null;
+                            this.IsFingerPrinted = false;
+                        }
                     }
                 }
-            }
-            else
-            {
-                this.fingerprint = s.Fingerprint;
-                this.IsFingerPrinted = true;
+                else
+                {
+                    this.fingerprint = s.Fingerprint;
+                    this.IsFingerPrinted = true;
+                }
             }
         }
 
@@ -202,16 +204,18 @@ namespace Microsoft.Zing
             hasMultipleSuccessors = s.NumChoices > 1;
 
             receipt = s.CheckIn();
-
-            if (MustFingerprint)
+            if (!ZingerConfiguration.DoRandomSampling)
             {
-                fingerprint = s.Fingerprint;
-                this.IsFingerPrinted = true;
-            }
-            else
-            {
-                this.fingerprint = null;
-                this.IsFingerPrinted = false;
+                if (MustFingerprint)
+                {
+                    fingerprint = s.Fingerprint;
+                    this.IsFingerPrinted = true;
+                }
+                else
+                {
+                    this.fingerprint = null;
+                    this.IsFingerPrinted = false;
+                }
             }
         }
 
@@ -277,7 +281,6 @@ namespace Microsoft.Zing
 
         public override TraversalInfo GetNextSuccessor()
         {
-
             if (currChoice >= numChoices)
                 return null;
 
@@ -356,32 +359,36 @@ namespace Microsoft.Zing
             receipt = s.CheckIn();
 
 #if true
-            if (ZingerConfiguration.FingerprintSingleTransitionStates)
+            //dont fingerprint during random sampling
+            if (!ZingerConfiguration.DoRandomSampling)
             {
-                if (this.NumProcesses > 1)
+                if (ZingerConfiguration.FingerprintSingleTransitionStates)
                 {
-                    this.fingerprint = s.Fingerprint;
-                    this.IsFingerPrinted = true;
-                }
-                else
-                {
-                    // Fingerprint with probability p
-                    if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
+                    if (this.NumProcesses > 1)
                     {
                         this.fingerprint = s.Fingerprint;
                         this.IsFingerPrinted = true;
                     }
                     else
                     {
-                        this.fingerprint = null;
-                        this.IsFingerPrinted = false;
+                        // Fingerprint with probability p
+                        if (ZingerUtilities.rand.NextDouble() <= ZingerConfiguration.NonChooseProbability)
+                        {
+                            this.fingerprint = s.Fingerprint;
+                            this.IsFingerPrinted = true;
+                        }
+                        else
+                        {
+                            this.fingerprint = null;
+                            this.IsFingerPrinted = false;
+                        }
                     }
                 }
-            }
-            else
-            {
-                this.fingerprint = s.Fingerprint;
-                this.IsFingerPrinted = true;
+                else
+                {
+                    this.fingerprint = s.Fingerprint;
+                    this.IsFingerPrinted = true;
+                }
             }
 #endif
         }
@@ -397,15 +404,18 @@ namespace Microsoft.Zing
             hasMultipleSuccessors = NumSuccessors() > 1;
             receipt = s.CheckIn();
 
-            if (MustFingerprint)
+            if (!ZingerConfiguration.DoRandomSampling)
             {
-                this.fingerprint = s.Fingerprint;
-                this.IsFingerPrinted = true;
-            }
-            else
-            {
-                this.fingerprint = null;
-                this.IsFingerPrinted = false;
+                if (MustFingerprint)
+                {
+                    this.fingerprint = s.Fingerprint;
+                    this.IsFingerPrinted = true;
+                }
+                else
+                {
+                    this.fingerprint = null;
+                    this.IsFingerPrinted = false;
+                }
             }
         }
 
@@ -562,12 +572,12 @@ namespace Microsoft.Zing
                 }
                 while ((nextProcess = ZingDBScheduler.Next(ZingDBSchedState)) != -1)
                 {
-                    if(ProcessInfo[nextProcess].Status == ProcessStatus.Completed)
+                    if (ProcessInfo[nextProcess].Status == ProcessStatus.Completed)
                     {
                         ZingDBScheduler.Finish(ZingDBSchedState, nextProcess);
                         continue;
                     }
-                    else if(ProcessInfo[nextProcess].Status != ProcessStatus.Runnable)
+                    else if (ProcessInfo[nextProcess].Status != ProcessStatus.Runnable)
                     {
                         ZingDBScheduler.Delay(ZingDBSchedState);
                         continue;
@@ -591,7 +601,6 @@ namespace Microsoft.Zing
                     retVal.zBounds.IncrementDelayCost();
 
                 return retVal;
-               
             }
             else if (ZingerConfiguration.DoPreemptionBounding)
             {
