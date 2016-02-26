@@ -149,17 +149,6 @@ namespace Microsoft.Zing
     /// </summary>
     public class ZingExplorerDelayBoundedSampling : ZingExplorer
     {
-        /// <summary>
-        /// maximum length of the trace
-        /// </summary>
-        protected int maxScheduleLength;
-
-        public ZingExplorerDelayBoundedSampling()
-            : base()
-        {
-            //maximum length of a schedule
-            maxScheduleLength = 600;
-        }
 
         /// <summary>
         /// Explores a deterministic schedule from the peek of the stack to the terminal state.
@@ -168,7 +157,7 @@ namespace Microsoft.Zing
         {
             var currentState = searchStack.Peek();
 
-            while (currentState.CurrentDepth < maxScheduleLength)
+            while (currentState.CurrentDepth < ZingerConfiguration.MaxDepthPerSchedule)
             {
                 ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
                 TraversalInfo nextState = currentState.GetNextSuccessorUnderDelayZeroForRW();

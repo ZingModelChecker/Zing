@@ -105,7 +105,9 @@ namespace Microsoft.Zing
                 {
                     ZingerUtilities.PrintMessage(String.Format("Depth Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));
                 }
-                ZingerUtilities.PrintMessage(String.Format("No. of Frontiers {0}", NumOfFrontiers));
+                if(!ZingerConfiguration.DoRandomSampling)
+                    ZingerUtilities.PrintMessage(String.Format("No. of Frontiers {0}", NumOfFrontiers));
+
                 ZingerUtilities.PrintMessage(String.Format("No. of Distinct States {0}", NumOfStatesVisited));
                 ZingerUtilities.PrintMessage(String.Format("Total Transitions: {0}", NumOfTransitionExplored));
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));

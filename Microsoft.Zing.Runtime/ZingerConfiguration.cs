@@ -311,6 +311,9 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.maxSchedulesPerIteration = value; }
         }
 
+        //maximum depth per schedule when performing random sampleing
+        public static int MaxDepthPerSchedule = 600;
+
         //Zing External Scheduler for delay bounding
         private static ZingerExternalScheduler zExternalScheduler = new ZingerExternalScheduler();
 
@@ -486,7 +489,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Compact Trace : {0}", CompactTraces));
             ZingerUtilities.PrintMessage(String.Format("Do Preemption Bounding :{0}", doPreemptionBounding));
             ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0} with Scheduler : {1}", doDelayBounding, delayingSchedDll));
-            ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}", doRandomSampling, maxSchedulesPerIteration));
+            ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}, max depth {2}", doRandomSampling, maxSchedulesPerIteration, MaxDepthPerSchedule));
             ZingerUtilities.PrintMessage(String.Format("Do NDFLiveness : {0}", doNDFSLiveness));
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));
             ZingerUtilities.PrintMessage(String.Format("Bound Choices: {0} and max Bound {1}", BoundChoices, zBoundedSearch.FinalChoiceCutOff));

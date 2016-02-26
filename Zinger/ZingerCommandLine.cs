@@ -110,7 +110,17 @@ namespace Microsoft.Zing
                             {
                                 if (param.Length != 0)
                                 {
-                                    ZingerConfiguration.MaxSchedulesPerIteration = int.Parse(param);
+                                    string pattern = @"(\d+,\d+)";
+                                    Match result = Regex.Match(param, pattern);
+                                    if (result.Success)
+                                    {
+                                        ZingerConfiguration.MaxSchedulesPerIteration = int.Parse(result.Value.Split(',').ElementAt(0));
+                                        ZingerConfiguration.MaxDepthPerSchedule = int.Parse(result.Value.Split(',').ElementAt(1));
+                                    }
+                                    else
+                                    {
+                                        PrintZingerHelp(option, String.Format("Invalid parameter passed with randomsample, expecting (int,int)"));
+                                    }
                                 }
                                 ZingerConfiguration.DoRandomSampling = true;
                             }
@@ -390,8 +400,8 @@ namespace Microsoft.Zing
             Console.WriteLine("---------------------------");
             Console.WriteLine("-maxDFSStack:<int>");
             Console.WriteLine("Maximum size of the DFS search stack. A counter example is generated if size of the stack exceeds the bound.\n");
-            Console.WriteLine("-randomsample:<int>");
-            Console.WriteLine("Zinger performs random walk without DFS stack. <int> represents the maximum number of schedules explored per iteration. (default is 1000).\n");
+            Console.WriteLine("-randomsample:(numOfSchedulesPerIteration,maxDepth)");
+            Console.WriteLine("Zinger performs random walk without DFS stack. default is (1000,600).\n");
             Console.WriteLine("-pb");
             Console.WriteLine("Perform preemption bounding\n");
             Console.WriteLine("-delayB:<scheduler.dll>");
@@ -413,7 +423,7 @@ namespace Microsoft.Zing
             Console.WriteLine("===============================");
             Console.WriteLine("Zinger Plugin:");
             Console.WriteLine("-------------------------------");
-            Console.WriteLine("-motionplanning:<plugin.dll>");
+            Console.WriteLine("-plugin:<plugin.dll>");
         }
     }
 }
