@@ -120,6 +120,7 @@ namespace Microsoft.Zing
                                     else
                                     {
                                         PrintZingerHelp(option, String.Format("Invalid parameter passed with randomsample, expecting (int,int)"));
+                                        return false;
                                     }
                                 }
                                 ZingerConfiguration.DoRandomSampling = true;
@@ -132,13 +133,27 @@ namespace Microsoft.Zing
                                 ZingerConfiguration.delayingSchedDll = param;
                                 try
                                 {
-                                    //check if the file exists
-                                    if (!File.Exists(ZingerConfiguration.delayingSchedDll))
+                                    //if the dll path is a valid path then use that 
+                                    //or else search for the dll in zinger folder
+                                    var schedDllFileName = Path.GetFileName(ZingerConfiguration.delayingSchedDll);
+                                    string schedDllinZingerDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\" + schedDllFileName;
+                                    string schedDll = "";
+
+                                    if (File.Exists(ZingerConfiguration.delayingSchedDll))
                                     {
-                                        PrintZingerHelp(option, String.Format("File {0} not found", ZingerConfiguration.delayingSchedDll));
+                                        schedDll = ZingerConfiguration.delayingSchedDll;
+                                    }
+                                    else if(File.Exists(schedDllinZingerDirectory))
+                                    {
+                                        schedDll = schedDllinZingerDirectory;
+                                    }
+                                    else
+                                    {
+                                        PrintZingerHelp(option, string.Format("File {0} or {1} not found", ZingerConfiguration.delayingSchedDll, schedDllinZingerDirectory));
+                                        return false;
                                     }
 
-                                    var schedAssembly = Assembly.LoadFrom(ZingerConfiguration.delayingSchedDll);
+                                    var schedAssembly = Assembly.LoadFrom(schedDll);
                                     if (schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerDelayingScheduler")).Count() != 1)
                                     {
                                         ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class ZingerDelayingScheduler", ZingerConfiguration.delayingSchedDll));
