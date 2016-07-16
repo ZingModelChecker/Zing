@@ -123,7 +123,7 @@ namespace Microsoft.Zing
                 {
                     //Operation was cancelled so all is safe
                     //may be a bug is found
-                    
+                    Console.WriteLine("Internal Error: {0}", ex.GetBaseException());
                 }
                 currFrontierSet.CompleteAdding();
             }
@@ -142,7 +142,7 @@ namespace Microsoft.Zing
                 {
                     System.Threading.Tasks.Task.WaitAll(writerWorkers, cancel);
                 }
-                catch (OperationCanceledException ex)
+                catch
                 {
                     //Operation was cancelled so all is safe
                     //may be a bug is found

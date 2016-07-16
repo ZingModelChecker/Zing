@@ -26,7 +26,7 @@ namespace Microsoft.Zing
             {
                 SearchStateSpace(0);
             }
-            catch (ZingException ex)
+            catch
             {
                 return lastErrorFound;
             }
