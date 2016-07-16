@@ -1,4 +1,7 @@
 using System;
+using System.Reflection;
+using System.IO;
+using System.Linq;
 
 namespace Microsoft.Zing
 {
@@ -139,6 +142,32 @@ namespace Microsoft.Zing
 
         // Zing External Scheduler State
         public ZingerSchedulerState zSchedState;
+
+        public ZingerExternalScheduler()
+        {
+            var zingerPath = new Uri(
+                System.IO.Path.GetDirectoryName(
+                    System.Reflection.Assembly.GetExecutingAssembly().CodeBase)
+                ).LocalPath;
+            var schedDllPath = zingerPath + "\\" + "RunToCompletionDelayingScheduler.dll";
+
+            if (!File.Exists(schedDllPath))
+            {
+                ZingerUtilities.PrintErrorMessage(String.Format("Scheduler file {0} not found", schedDllPath));
+                ZingerConfiguration.DoDelayBounding = false;
+                return;
+            }
+
+            var schedAssembly = Assembly.LoadFrom(schedDllPath);
+            // get class name
+            string schedClassName = schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerDelayingScheduler")).First().FullName;
+            var schedStateClassName = schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerSchedulerState")).First().FullName;
+            var schedClassType = schedAssembly.GetType(schedClassName);
+            var schedStateClassType = schedAssembly.GetType(schedStateClassName);
+            zDelaySched = Activator.CreateInstance(schedClassType) as ZingerDelayingScheduler;
+            zSchedState = Activator.CreateInstance(schedStateClassType) as ZingerSchedulerState;
+            
+        }
     }
 
     /// <summary>
@@ -184,9 +213,6 @@ namespace Microsoft.Zing
 
         //zing model file
         public static string ZingModelFile = "";
-
-        //deterministic delaying scheduler dll
-        public static string delayingSchedDll = "";
 
         //trace log file
         public static string traceLogFile = "";
@@ -282,7 +308,7 @@ namespace Microsoft.Zing
         }
 
         //do delay bounding
-        private static bool doDelayBounding = false;
+        private static bool doDelayBounding = true;
 
         public static bool DoDelayBounding
         {
@@ -488,7 +514,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Print Statistics: {0}", PrintStats));
             ZingerUtilities.PrintMessage(String.Format("Compact Trace : {0}", CompactTraces));
             ZingerUtilities.PrintMessage(String.Format("Do Preemption Bounding :{0}", doPreemptionBounding));
-            ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0} with Scheduler : {1}", doDelayBounding, delayingSchedDll));
+            ZingerUtilities.PrintMessage(String.Format("Delay Bounding : {0}", doDelayBounding));
             ZingerUtilities.PrintMessage(String.Format("Do RanddomWalk : {0} and max schedules per iteration {1}, max depth {2}", doRandomSampling, maxSchedulesPerIteration, MaxDepthPerSchedule));
             ZingerUtilities.PrintMessage(String.Format("Do NDFLiveness : {0}", doNDFSLiveness));
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));

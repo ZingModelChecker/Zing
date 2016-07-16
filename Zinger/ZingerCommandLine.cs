@@ -127,42 +127,32 @@ namespace Microsoft.Zing
                             }
                             break;
 
-                        case "delayb":
+                        case "depthb":
                             {
-                                ZingerConfiguration.DoDelayBounding = true;
-                                ZingerConfiguration.delayingSchedDll = param;
+                                ZingerConfiguration.DoDelayBounding = false;
+                                break;
+                            }
+                        case "sched":
+                            {
                                 try
                                 {
-                                    //if the dll path is a valid path then use that 
-                                    //or else search for the dll in zinger folder
-                                    var schedDllFileName = Path.GetFileName(ZingerConfiguration.delayingSchedDll);
-                                    string schedDllinZingerDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) + "\\" + schedDllFileName;
-                                    string schedDll = "";
 
-                                    if (File.Exists(ZingerConfiguration.delayingSchedDll))
+                                    if (!File.Exists(param))
                                     {
-                                        schedDll = ZingerConfiguration.delayingSchedDll;
-                                    }
-                                    else if(File.Exists(schedDllinZingerDirectory))
-                                    {
-                                        schedDll = schedDllinZingerDirectory;
-                                    }
-                                    else
-                                    {
-                                        PrintZingerHelp(option, string.Format("File {0} or {1} not found", ZingerConfiguration.delayingSchedDll, schedDllinZingerDirectory));
+                                        PrintZingerHelp(option, string.Format("File {0} not found", param));
                                         return false;
                                     }
 
-                                    var schedAssembly = Assembly.LoadFrom(schedDll);
+                                    var schedAssembly = Assembly.LoadFrom(param);
                                     if (schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerDelayingScheduler")).Count() != 1)
                                     {
-                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class ZingerDelayingScheduler", ZingerConfiguration.delayingSchedDll));
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class ZingerDelayingScheduler", Path.GetFileName(param)));
                                         return false;
                                     }
 
                                     if (schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerSchedulerState")).Count() != 1)
                                     {
-                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class IZingerSchedulerState", ZingerConfiguration.delayingSchedDll));
+                                        ZingerUtilities.PrintErrorMessage(String.Format("Zing Scheduler {0}: Should have (only one) class inheriting the base class IZingerSchedulerState", Path.GetFileName(param)));
                                         return false;
                                     }
                                     // get class name
@@ -175,7 +165,7 @@ namespace Microsoft.Zing
                                 }
                                 catch (Exception e)
                                 {
-                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing delaying scheduler is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
+                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed scheduler dll {0} implementing delaying scheduler is Invalid", Path.GetFileName(param)));
                                     ZingerUtilities.PrintErrorMessage(e.Message);
                                     return false;
                                 }
@@ -264,7 +254,7 @@ namespace Microsoft.Zing
                                 }
                                 catch (Exception e)
                                 {
-                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing plugin is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
+                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing plugin is Invalid", Path.GetFileName(param)));
                                     ZingerUtilities.PrintErrorMessage(e.Message);
                                     return false;
                                 }
@@ -314,7 +304,7 @@ namespace Microsoft.Zing
                                 }
                                 catch (Exception e)
                                 {
-                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing plugin is Invalid", Path.GetFileName(ZingerConfiguration.delayingSchedDll)));
+                                    ZingerUtilities.PrintErrorMessage(String.Format("Passed dll {0} implementing plugin is Invalid", Path.GetFileName(param)));
                                     ZingerUtilities.PrintErrorMessage(e.Message);
                                     return false;
                                 }
@@ -419,11 +409,13 @@ namespace Microsoft.Zing
             Console.WriteLine("Zinger performs random walk without DFS stack. default is (1000,600).\n");
             Console.WriteLine("-pb");
             Console.WriteLine("Perform preemption bounding\n");
-            Console.WriteLine("-delayB:<scheduler.dll>");
+            Console.WriteLine("-sched:<scheduler.dll>");
             Console.WriteLine("Zinger performs delay bounding using the deterministic scheduler (scheduler.dll).\n");
             Console.WriteLine("-bc:<int>");
             Console.WriteLine("Bound the choice operations or bound the number of times choose(bool) returns true.");
             Console.WriteLine("The default value is \"false\" for choose(bool), choice budget is used each time true is returned.\n");
+            Console.WriteLine("-depthb");
+            Console.WriteLine("Perform iterative depth bounding (default is delay bounded search)");
             Console.WriteLine();
             Console.WriteLine("===========================");
             Console.WriteLine("Zinger Search Strategy For Liveness:");
