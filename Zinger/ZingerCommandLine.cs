@@ -136,7 +136,7 @@ namespace Microsoft.Zing
                             {
                                 try
                                 {
-
+                                    ZingerConfiguration.DoDelayBounding = true;
                                     if (!File.Exists(param))
                                     {
                                         PrintZingerHelp(option, string.Format("File {0} not found", param));

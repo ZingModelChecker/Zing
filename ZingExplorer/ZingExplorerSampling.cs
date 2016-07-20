@@ -98,6 +98,18 @@ namespace Microsoft.Zing
 
                     ZingerStats.MaxDepth = Math.Max(ZingerStats.MaxDepth, currentState.CurrentDepth);
 
+                    //Check if the DFS Stack Overflow has occured.
+                    if (currentState.CurrentDepth > ZingerConfiguration.BoundDFSStackLength)
+                    {
+                        
+                        //update the safety traces
+                        SafetyErrors.Add(currentState.GenerateNonCompactTrace());
+                        // return value
+                        this.lastErrorFound = ZingerResult.DFSStackOverFlowError;
+
+                        throw new ZingerDFSStackOverFlow();
+                    }
+
                     TraversalInfo nextSuccessor = currentState.GetNextSuccessorUniformRandomly();
                     ZingerStats.IncrementTransitionsCount();
                     ZingerStats.IncrementStatesCount();
@@ -166,6 +178,18 @@ namespace Microsoft.Zing
                 if (nextState == null)
                 {
                     return;
+                }
+
+                //Check if the DFS Stack Overflow has occured.
+                if (currentState.CurrentDepth > ZingerConfiguration.BoundDFSStackLength)
+                {
+                    //BUG FOUND
+                    //update the safety traces
+                    SafetyErrors.Add(currentState.GenerateNonCompactTrace());
+                    // return value
+                    this.lastErrorFound = ZingerResult.DFSStackOverFlowError;
+
+                    throw new ZingerDFSStackOverFlow();
                 }
 
                 TerminalState terminal = nextState as TerminalState;
