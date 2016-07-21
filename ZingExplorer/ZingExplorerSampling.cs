@@ -327,7 +327,7 @@ namespace Microsoft.Zing
             //maximum number of schedules per iteration = c1 + c2^d.
             // c1 = ZingerConfiguration.MaxSchedulesPerIteration.
             // c2 = 3 as we found that to work the best.
-            int maxSchedulesPerIteration = ZingerConfiguration.MaxSchedulesPerIteration + (int)Math.Pow(3, ZingerConfiguration.zBoundedSearch.IterativeCutoff);
+            int maxSchedulesPerIteration = ZingerConfiguration.MaxSchedulesPerIteration + (int)Math.Pow(1.3, ZingerConfiguration.zBoundedSearch.IterativeCutoff);
             int delayBudget = 0;
             Stack<TraversalInfo> searchStack = new Stack<TraversalInfo>();
             //frontier
