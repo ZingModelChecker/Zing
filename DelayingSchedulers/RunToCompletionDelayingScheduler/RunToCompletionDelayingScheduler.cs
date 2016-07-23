@@ -171,7 +171,7 @@ namespace ExternalDelayingExplorer
             if (SchedState.DBStack.Count == 0)
                 return -1;
 
-            return (int)SchedState.DBStack.Peek();
+            return SchedState.DBStack.Peek();
         }
 
         /// <summary>

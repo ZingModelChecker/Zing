@@ -560,7 +560,7 @@ namespace Microsoft.Zing
                 // if we have delayed the scheduler for the current state more than maxdelay then we should
                 // not call delay on this state again because we have explored all its successors
                 //
-                if ((doDelay && ZingDBScheduler.MaxDelayReached(ZingDBSchedState)) || (doDelay && ZingDBScheduler.IsSealed(ZingDBSchedState)))
+                if ((doDelay && ZingDBScheduler.MaxDelayReached(ZingDBSchedState)))
                 {
                     return null;
                 }

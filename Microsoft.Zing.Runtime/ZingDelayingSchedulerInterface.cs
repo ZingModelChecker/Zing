@@ -7,17 +7,6 @@ namespace Microsoft.Zing
     public abstract class ZingerSchedulerState
     {
         /// <summary>
-        /// Check if the delaying scheduler is Sealed
-        /// </summary>
-        private bool isSealed;
-
-        public bool IsSealed
-        {
-            get { return isSealed; }
-            set { isSealed = value; }
-        }
-
-        /// <summary>
         /// Map from the P Statemachine id to Zing Process Id.
         /// </summary>
         protected Dictionary<int, int> PprocessToZingprocess;
@@ -36,7 +25,6 @@ namespace Microsoft.Zing
         {
             PprocessToZingprocess = new Dictionary<int, int>();
             lastZingProcessCreatedId = -1;
-            isSealed = false;
             numOfTimesCurrStateDelayed = 0;
         }
 
@@ -53,7 +41,6 @@ namespace Microsoft.Zing
                 this.PprocessToZingprocess.Add(item.Key, item.Value);
             }
             lastZingProcessCreatedId = copyThis.lastZingProcessCreatedId;
-            isSealed = copyThis.isSealed;
             numOfTimesCurrStateDelayed = 0;
         }
 
@@ -103,16 +90,7 @@ namespace Microsoft.Zing
     }
 
     public abstract class ZingerDelayingScheduler
-    {
-        /// <summary>
-        /// This functions returns whether the scheduler is sealed or not.
-        /// </summary>
-        /// <param name="ZSchedulerState"></param>
-        /// <returns></returns>
-        public bool IsSealed(ZingerSchedulerState ZSchedulerState)
-        {
-            return ZSchedulerState.IsSealed;
-        }
+    { 
 
         /// <summary>
         /// This function is called by Zinger whenever a new process is created.
@@ -154,14 +132,6 @@ namespace Microsoft.Zing
             {
                 var Param2_PprocessId = (int)Params[1];
                 ZSchedulerState.Map(Param2_PprocessId);
-            }
-            else if (param1_operation == "seal")
-            {
-                ZSchedulerState.IsSealed = true;
-            }
-            else if (param1_operation == "unseal")
-            {
-                ZSchedulerState.IsSealed = false;
             }
             else if (param1_operation == "enabled")
             {
