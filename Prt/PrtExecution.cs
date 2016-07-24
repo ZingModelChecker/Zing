@@ -4,30 +4,25 @@ using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-//TODO: insert Trace and Print method calls everywhere (copy from generated .cs)
-//Do it after Z.Application._PrtValue._Print is implemented
-//TODO: check and correct ZingException reporting, especially inside non ZingClasses.
-//.zing "static activate void Run() {" compiles into [Z.Activate] annotation in Main.Run
-//TODO: check all offset refs and make sure we don't need those in the template code,
-//or replace those with other mechanisms (i.e., argument, as in Start)
 namespace Microsoft.Prt
 {
     public abstract class Machine
     {
-        Z.StateImpl application;
         State initState;
 
-        public Machine(Z.StateImpl application, State initState)
+        public abstract void CalculateDeferredAndActionSet(State state);
+
+        public Machine(State initState)
         {
-            this.application = application;
             this.initState = initState;
         }
 
         public MachineHandle myHandle;
 
-        internal sealed class Start
-            : Z.ZingMethod
+        internal sealed class Start : Z.ZingMethod
         {
+            private static readonly short typeId = 3;
+
             public override object DoCheckInOthers()
             {
                 throw new NotImplementedException();
@@ -41,20 +36,18 @@ namespace Microsoft.Prt
                 throw new NotImplementedException();
             }
 
-            Blocks nextBlock;
-            Blocks handlerBlock;
+            private Z.StateImpl application;
+            private Machine machine;
 
-            Machine machine;
+            // locals
+            private Blocks nextBlock;
 
             public Start(Z.StateImpl app, Machine machine)
             {
                 application = app;
                 this.machine = machine;
                 nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
             }
-
-            private Z.StateImpl application;
 
             public override Z.StateImpl StateImpl
             {
@@ -116,50 +109,11 @@ namespace Microsoft.Prt
                 }
             }
 
-            public override Z.ZingSourceContext Context
+            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
             {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                throw new ApplicationException();
-                            }
-                        case Blocks.B0:
-                            {
-                                return new ZingSourceContext(0, 1057, 1058);
-                            }
-                        case Blocks.Enter:
-                            {
-                                return new ZingSourceContext(0, 6786, 6813);
-                            }
-                    }
-                }
-            }
-
-            public override Z.ZingAttribute ContextAttribute
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return null;
-                            }
-                    }
-                }
-            }
-
-            private static readonly short typeId = 3;
-
-            public override Z.ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
-            {
-                Start clone = new Start(myState, machine);
+                Start clone = new Start(application, machine);
                 clone.nextBlock = this.nextBlock;
-                clone.handlerBlock = this.handlerBlock;
-                if ((this.Caller != null))
+                if (this.Caller != null)
                 {
                     if (shallowCopy)
                     {
@@ -167,12 +121,12 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        clone.Caller = this.Caller.Clone(myState, myProcess, false);
+                        clone.Caller = this.Caller.Clone(application, myProcess, false);
                     }
                 }
                 else
                 {
-                    if ((myProcess != null))
+                    if (myProcess != null)
                     {
                         myProcess.EntryPoint = this;
                     }
@@ -212,17 +166,17 @@ namespace Microsoft.Prt
                     haltedSet.Add(handle);
                     enabledSet.Remove(handle);
 
-                    p.Return(new ZingSourceContext(0, 892, 898), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 else
                 {
                     application.Trace(
-                        new ZingSourceContext(0, 903, 990), null, 
+                        null, null, 
                         @"<StateLog> Unhandled event exception by machine Real1-{0}", 
                         handle.instance);
                     this.StateImpl.Exception = new Z.ZingAssertionFailureException(@"false", @"Unhandled event exception by machine <mach name>");
-                    p.Return(new ZingSourceContext(0, 1057, 1058), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
             }
@@ -230,10 +184,25 @@ namespace Microsoft.Prt
 
         internal sealed class Run : Z.ZingMethod
         {
-            Blocks nextBlock;
-            Blocks handlerBlock;
+            private static readonly short typeId = 4;
 
             private Z.StateImpl application;
+            private Machine machine;
+
+            // inputs
+            private State state;
+            
+            // locals
+            private Blocks nextBlock;
+            private bool doPop;
+
+            public Run(Z.StateImpl app, Machine machine, State state)
+            {
+                application = app;
+                nextBlock = Blocks.Enter;
+                this.machine = machine;
+                this.state = state;
+            }
 
             public override Z.StateImpl StateImpl
             {
@@ -304,45 +273,11 @@ namespace Microsoft.Prt
                         }
                 }
             }
-            
-            public override Z.ZingSourceContext Context
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                throw new ApplicationException();
-                            }
-                        case Blocks.B0:
-                            {
-                                return new ZingSourceContext(0, 1397, 1398);
-                            }
-                    }
-                }
-            }
-
-            public override Z.ZingAttribute ContextAttribute
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return null;
-                            }
-                    }
-                }
-            }
 
             public override int CompareTo(object obj)
             {
                 return 0;
             }
-
-            private static readonly short typeId = 4;
 
             public override ushort NextBlock
             {
@@ -356,15 +291,12 @@ namespace Microsoft.Prt
                 }
             }
 
-            Machine machine;
-
-            public override Z.ZingMethod Clone(Z.StateImpl app, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
             {
-                Run clone = new Run(app, machine, state);
+                Run clone = new Run(application, this.machine, this.state);
                 clone.nextBlock = this.nextBlock;
-                clone.handlerBlock = this.handlerBlock;
-                clone.machine = this.machine;
-                if ((this.Caller != null))
+                clone.doPop = this.doPop;
+                if (this.Caller != null)
                 {
                     if (shallowCopy)
                     {
@@ -372,12 +304,12 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        clone.Caller = this.Caller.Clone(app, myProcess, false);
+                        clone.Caller = this.Caller.Clone(application, myProcess, false);
                     }
                 }
                 else
                 {
-                    if ((myProcess != null))
+                    if (myProcess != null)
                     {
                         myProcess.EntryPoint = this;
                     }
@@ -388,34 +320,20 @@ namespace Microsoft.Prt
             public override void WriteString(Z.StateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
-                bw.Write(((ushort)nextBlock));
-            }
-
-            State state;
-
-            public Run(Z.StateImpl app, Machine machine, State state)
-            {
-
-                application = app;
-                nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
-                this.machine = machine;
-                this.state = state;
+                bw.Write((ushort)nextBlock);
             }
 
             public void B5(Z.Process p)
             {
                 var handle = machine.myHandle;
                 handle.Pop();
-                p.Return(new ZingSourceContext(0, 1397, 1398), null);
+                p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
 
-            bool doPop;
-
             public void B4(Z.Process p)
             {
-                doPop = ((Machine.RunHelper)p.LastFunctionCompleted)).ReturnValue;
+                doPop = ((Machine.RunHelper)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
 
                 //B1 is header of the "while" loop:
@@ -427,8 +345,6 @@ namespace Microsoft.Prt
                 //Return from DequeueEvent:
                 p.LastFunctionCompleted = null;
 
-                //doPop = RunHelper(false);
-                //Calling ZingMethod RunHelper:
                 Machine.RunHelper callee = new Machine.RunHelper(application, machine, false);
                 p.Call(callee);
                 StateImpl.IsCall = true;
@@ -461,7 +377,7 @@ namespace Microsoft.Prt
             public void B0(Z.Process p)
             {
                 //Return from RunHelper:
-                doPop = (((Machine.RunHelper)p.LastFunctionCompleted)).outputs._Lfc_ReturnValue;
+                doPop = ((Machine.RunHelper)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
                 nextBlock = Blocks.B1;
             }
@@ -481,20 +397,39 @@ namespace Microsoft.Prt
             }
         }
 
-        //RunHelper is not P program-dependent if no liveness
         internal sealed class RunHelper : Z.ZingMethod
         {
-            Blocks nextBlock;
-            Blocks handlerBlock;
+            private static readonly short typeId = 8;
 
-            public RunHelper(Z.StateImpl app)
+            private Z.StateImpl application;
+            private Machine machine;
+
+            // inputs
+            private bool start;
+
+            // locals
+            private Blocks nextBlock;
+            private State state;
+            private ActionOrFun actionFun;
+            private Transition transition;
+
+            // output
+            private bool _ReturnValue;
+            public bool ReturnValue
+            {
+                get
+                {
+                    return _ReturnValue;
+                }
+            }
+
+            public RunHelper(Z.StateImpl app, Machine machine, bool start)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
+                this.machine = machine;
+                this.start = start;
             }
-
-            private Z.StateImpl application;
 
             public override Z.StateImpl StateImpl
             {
@@ -593,97 +528,30 @@ namespace Microsoft.Prt
                         }
                     case Blocks.B7:
                         {
-                            B5(p);
+                            B7(p);
                             break;
                         }
                     case Blocks.B8:
                         {
-                            B6(p);
+                            B8(p);
                             break;
                         }
                 }
             }
            
-            public override Z.ZingSourceContext Context
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                throw new ApplicationException();
-                            }
-                        case Blocks.B0:
-                            {
-                                return new ZingSourceContext(0, 3315, 3316);
-                            }
-                        case Blocks.B1:
-                            {
-                                return new ZingSourceContext(0, 3315, 3316);
-                            }
-                        case Blocks.B2:
-                            {
-                                return new ZingSourceContext(0, 3300, 3311);
-                            }
-                        case Blocks.B3:
-                            {
-                                return new ZingSourceContext(0, 3300, 3311);
-                            }
-                        case Blocks.B4:
-                            {
-                                return new ZingSourceContext(0, 3270, 3299);
-                            }
-                        case Blocks.B5:
-                            {
-                                return new ZingSourceContext(0, 3232, 3269);
-                            }
-                        case Blocks.B6:
-                            {
-                                return new ZingSourceContext(0, 3232, 3269);
-                            }
-                        case Blocks.B6:
-                            {
-                                return new ZingSourceContext(0, 3232, 3269);
-                            }
-                        case Blocks.B6:
-                            {
-                                return new ZingSourceContext(0, 3232, 3269);
-                            }
-                        case Blocks.Enter:
-                            {
-                                return new ZingSourceContext(0, 6786, 6813);
-                            }
-                    }
-                }
-            }
-            public override Z.ZingAttribute ContextAttribute
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return null;
-                            }
-                    }
-                }
-            }
-
             public override int CompareTo(object obj)
             {
                 return 0;
             }
 
-            private static readonly short typeId = 8;
-
-            public override Z.ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
             {
-                RunHelper clone = new RunHelper(myState);
+                RunHelper clone = new RunHelper(application, this.machine, this.start);
                 clone.nextBlock = this.nextBlock;
-                clone.handlerBlock = this.handlerBlock;
-                if ((this.Caller != null))
+                clone.state = this.state;
+                clone.transition = this.transition;
+                clone.actionFun = this.actionFun;
+                if (this.Caller != null)
                 {
                     if (shallowCopy)
                     {
@@ -691,12 +559,12 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        clone.Caller = this.Caller.Clone(myState, myProcess, false);
+                        clone.Caller = this.Caller.Clone(application, myProcess, false);
                     }
                 }
                 else
                 {
-                    if ((myProcess != null))
+                    if (myProcess != null)
                     {
                         myProcess.EntryPoint = this;
                     }
@@ -708,33 +576,6 @@ namespace Microsoft.Prt
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
-            }
-
-            // inputs
-            Machine machine;
-            bool start;
-
-            // locals
-            State state;
-            ActionOrFun actionFun;
-            Transition transition;
-
-            public RunHelper(Z.StateImpl app, Machine machine, bool start)
-            {
-                application = app;
-                nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
-                this.machine = machine;
-                this.start = start;
-            }
-
-            private bool _ReturnValue;
-            public bool ReturnValue
-            {
-                get
-                {
-                    return _ReturnValue;
-                }
             }
 
             public void Enter(Z.Process p)
@@ -760,8 +601,7 @@ namespace Microsoft.Prt
                 state = stateStack.state;
 
                 //enter:
-                //CalculateDeferredAndActionSet(state);
-                machine.CalculateDeferredAndActionSet(application, state);
+                machine.CalculateDeferredAndActionSet(state);
 
                 actionFun = state.entryFun;
                 nextBlock = Blocks.B2;
@@ -777,6 +617,7 @@ namespace Microsoft.Prt
                 StateImpl.IsCall = true;
                 nextBlock = Blocks.B3;
             }
+
             public void B3(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
@@ -791,15 +632,11 @@ namespace Microsoft.Prt
                 else
                 {
                     handle.currentEvent = null;
-
-                    //myHandle.currentArg = PrtValue.PrtMkDefaultValue(Main.type_0_PrtType);
-                    //Main_type_0_PrtType P is not program dependent
-                    handle.currentArg = PrtValue.PrtMkDefaultValue(application, application.globals.Main_type_0_PrtType);
-                    //if ((myHandle.cont.reason != ContinuationReason.Pop))
+                    handle.currentArg = PrtValue.PrtMkDefaultValue(PrtType.PrtMkPrimitiveType(PrtTypeKind.PRT_KIND_NULL));
                     if (reason != ContinuationReason.Pop)
                     {
                         _ReturnValue = false;
-                        p.Return(new ZingSourceContext(0, 2619, 2631), null);
+                        p.Return(null, null);
                         StateImpl.IsReturn = true;
                     }
                     else
@@ -818,7 +655,7 @@ namespace Microsoft.Prt
                 p.LastFunctionCompleted = null;
 
                 _ReturnValue = true;
-                p.Return(new ZingSourceContext(0, 2692, 2703), null);
+                p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
 
@@ -851,7 +688,6 @@ namespace Microsoft.Prt
                     {
                         nextBlock = Blocks.B6;
                     }
-
                 }
             }
 
@@ -861,11 +697,10 @@ namespace Microsoft.Prt
 
                 var handle = machine.myHandle;
 
-                //if (myHandle.currentEvent = null) {return false;}
-                if (handle.currentEvent = 0)
+                if (handle.currentEvent == null)
                 {
                     _ReturnValue = false;
-                    p.Return(new ZingSourceContext(0, 2619, 2631), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 else
@@ -893,7 +728,7 @@ namespace Microsoft.Prt
                 if (transition == null)
                 {
                     _ReturnValue = true;
-                    p.Return(new ZingSourceContext(0, 2619, 2631), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 else
@@ -928,14 +763,26 @@ namespace Microsoft.Prt
 
         internal sealed class ProcessContinuation : Z.ZingMethod
         {
-            public ProcessContinuation(Z.StateImpl app)
+            private Z.StateImpl application;
+            private Machine machine;
+
+            // locals
+            private Blocks nextBlock;
+
+            // output
+            private bool _ReturnValue;
+
+            bool ReturnValue
             {
-                application = app;
-                nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
+                get { return _ReturnValue; }
             }
 
-            private Z.StateImpl application;
+            public ProcessContinuation(Z.StateImpl app, Machine machine)
+            {
+                application = app;
+                this.machine = machine;
+                nextBlock = Blocks.Enter;
+            }
 
             public override Z.StateImpl StateImpl
             {
@@ -976,10 +823,7 @@ namespace Microsoft.Prt
                 {
                     return nextBlock.ToString();
                 }
-            }
-
-            private Blocks nextBlock;
-            private Blocks handlerBlock;
+            }            
 
             public override void Dispatch(Z.Process p)
             {
@@ -1012,50 +856,6 @@ namespace Microsoft.Prt
                 }
             }
             
-            public override Z.ZingSourceContext Context
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                throw new ApplicationException();
-                            }
-                        case Blocks.B0:
-                            {
-                                return new ZingSourceContext(0, 3978, 3979);
-                            }
-                        case Blocks.B1:
-                            {
-                                return new ZingSourceContext(0, 3978, 3979);
-                            }
-                        case Blocks.B2:
-                            {
-                                return new ZingSourceContext(0, 3957, 3969);
-                            }
-                        case Blocks.Enter:
-                            {
-                                return new ZingSourceContext(0, 6786, 6813);
-                            }
-                    }
-                }
-            }
-
-            public override Z.ZingAttribute ContextAttribute
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return null;
-                            }
-                    }
-                }
-            }
-
             public override int CompareTo(object obj)
             {
                 return 0;
@@ -1063,12 +863,11 @@ namespace Microsoft.Prt
 
             private static readonly short typeId = 9;
 
-            public override Z.ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
             {
-                ProcessContinuation clone = new ProcessContinuation(myState);
+                ProcessContinuation clone = new ProcessContinuation(application, this.machine);
                 clone.nextBlock = this.nextBlock;
-                clone.handlerBlock = this.handlerBlock;
-                if ((this.Caller != null))
+                if (this.Caller != null)
                 {
                     if (shallowCopy)
                     {
@@ -1076,12 +875,12 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        clone.Caller = this.Caller.Clone(myState, myProcess, false);
+                        clone.Caller = this.Caller.Clone(application, myProcess, false);
                     }
                 }
                 else
                 {
-                    if ((myProcess != null))
+                    if (myProcess != null)
                     {
                         myProcess.EntryPoint = this;
                     }
@@ -1095,23 +894,6 @@ namespace Microsoft.Prt
                 bw.Write(((ushort)nextBlock));
             }
 
-            public ProcessContinuation(Z.StateImpl app, Machine machine)
-            {
-                application = app;
-                this.machine = machine;
-                nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
-            }
-
-            Machine machine;
-
-            private bool _ReturnValue;
-
-            bool ReturnValue
-            {
-                get { return _ReturnValue; }
-            }
-
             public void Enter(Z.Process p)
             {
                 var handle = machine.myHandle;
@@ -1120,19 +902,19 @@ namespace Microsoft.Prt
                 if (reason == ContinuationReason.Return)
                 {
                     _ReturnValue = true;
-                    p.Return(new ZingSourceContext(0, 3424, 3435), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 if (reason == ContinuationReason.Pop)
                 {
                     _ReturnValue = true;
-                    p.Return(new ZingSourceContext(0, 3424, 3435), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 if (reason == ContinuationReason.Raise)
                 {
                     _ReturnValue = true;
-                    p.Return(new ZingSourceContext(0, 3424, 3435), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 if (reason == ContinuationReason.Receive)
@@ -1146,10 +928,10 @@ namespace Microsoft.Prt
                 {
                     //No splitting into a new Block after nondet, since it is a local thing
                     //myHandle.cont.nondet = choose(bool);
-                    application.SetPendingChoices(p, GetChoicesForType(typeof(bool)));
+                    application.SetPendingChoices(p, new object[] { false, true });
                     cont.nondet = ((Boolean)application.GetSelectedChoiceValue(p));
                     _ReturnValue = false;
-                    p.Return(new ZingSourceContext(0, 3789, 3801), null);
+                    p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
                 if (reason == ContinuationReason.NewMachine)
@@ -1171,7 +953,7 @@ namespace Microsoft.Prt
                 //ContinuationReason.Receive after Dequeue call:
                 p.LastFunctionCompleted = null;
                 _ReturnValue = false;
-                p.Return(new ZingSourceContext(0, 3676, 3688), null);
+                p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
 
@@ -1179,26 +961,26 @@ namespace Microsoft.Prt
             {
                 //ContinuationReason.NewMachine after yield:
                 _ReturnValue = false;
-                p.Return(new ZingSourceContext(0, 3876, 3888), null);
+                p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
 
             public void B2(Z.Process p)
             {
                 //ContinuationReason.Send after yield:
-                ReturnValue = false;
-                p.Return(new ZingSourceContext(0, 3957, 3969), null);
+                _ReturnValue = false;
+                p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
         }
 
-        public void ignore(Z.StateImpl app, Continuation entryCtxt)
+        public void ignore(Z.StateImpl application, Continuation entryCtxt)
         {
             StackFrame retTo;
             retTo = entryCtxt.PopReturnTo();
             if (retTo.pc != 0)
             {
-                this.application.Exception = new Z.ZingAssertionFailureException(@"false", @"Internal error in ignore");
+                application.Exception = new Z.ZingAssertionFailureException(@"false", @"Internal error in ignore");
             }
             entryCtxt.Return();
         }
@@ -1236,10 +1018,7 @@ namespace Microsoft.Prt
         }
     };
 
-    public class ActionOrFun
-    {
-
-    }
+    public delegate void ActionOrFun(Z.StateImpl application, Continuation ctxt);
 
     public class Transition
     {
@@ -1352,7 +1131,7 @@ namespace Microsoft.Prt
             this.stack = this.stack.next;
         }
 
-        public void EnqueueEvent(Event e, PrtValue arg, MachineHandle source)
+        public void EnqueueEvent(Z.StateImpl application, Event e, PrtValue arg, MachineHandle source)
         {
             bool b;
             bool isEnabled;
@@ -1375,7 +1154,7 @@ namespace Microsoft.Prt
             {
                 //TODO: will this work?
                 application.Trace(
-                    new ZingSourceContext(0, 12172, 12283),
+                    null,
                     null,
                     @"<EnqueueLog> {0}-{1} Machine has been halted and Event {2} is dropped",
                     this.machineName, this.instance, e.name);
@@ -1385,7 +1164,7 @@ namespace Microsoft.Prt
                 if (arg != null)
                 {
                     application.Trace(
-                        new ZingSourceContext(0, 12542, 12686),
+                        null,
                         null,
                         @"<EnqueueLog> Enqueued Event < {0} > in Machine {1}-{2} by {3}-{4}",
                         e.name, this.machineName, this.instance, source.machineName, source.instance);
@@ -1393,7 +1172,7 @@ namespace Microsoft.Prt
                 else
                 {
                     application.Trace(
-                        new ZingSourceContext(0, 12335, 12387),
+                        null,
                         null,
                         @"<EnqueueLog> Enqueued Event < {0}, ",
                         e.name);
@@ -1402,7 +1181,9 @@ namespace Microsoft.Prt
                 this.buffer.EnqueueEvent(e, arg);
                 if (this.maxBufferSize != -1 && this.buffer.eventBufferSize > this.maxBufferSize)
                 {
-                    application.Trace(new ZingSourceContext(0, 12811, 12921), null, @"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
+                    application.Trace(
+                        null, null, 
+                        @"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
                         this.maxBufferSize, this.machineName, this.instance);
                     Debug.Assert(false);
                 }
