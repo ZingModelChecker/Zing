@@ -14,13 +14,16 @@ namespace Microsoft.Prt
 {
     public abstract class Machine
     {
-        public Machine(Z.StateImpl application)
+        Z.StateImpl application;
+        State initState;
+
+        public Machine(Z.StateImpl application, State initState)
         {
+            this.application = application;
+            this.initState = initState;
         }
 
-        public static int id_myHandle = 0;
-        public int myHandle;
-
+        public MachineHandle myHandle;
 
         internal sealed class Start
             : Z.ZingMethod
@@ -37,17 +40,22 @@ namespace Microsoft.Prt
             {
                 throw new NotImplementedException();
             }
+
             Blocks nextBlock;
             Blocks handlerBlock;
-            public Start(Z.StateImpl app)
+
+            Machine machine;
+
+            public Start(Z.StateImpl app, Machine machine)
             {
                 application = app;
+                this.machine = machine;
                 nextBlock = Blocks.Enter;
                 handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
             }
+
             private Z.StateImpl application;
+
             public override Z.StateImpl StateImpl
             {
                 get
@@ -59,65 +67,14 @@ namespace Microsoft.Prt
                     application = value;
                 }
             }
-            public sealed class LocalVars
-            {
-                private Z.ZingMethod stackFrame;
-                internal LocalVars(Z.ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new LocalVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    LocalVars src = (usSrc as LocalVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of LocalVars as source");
-                    }
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                }
-            }
+
             public enum Blocks : ushort
             {
                 None = 0,
                 Enter = 1,
                 B0 = 2,
             };
-            public LocalVars locals;
-            public override UndoableStorage Locals
-            {
-                get
-                {
-                    return locals;
-                }
-            }
+
             public override ushort NextBlock
             {
                 get
@@ -129,10 +86,7 @@ namespace Microsoft.Prt
                     nextBlock = ((Blocks)value);
                 }
             }
-            public override void WriteOutputsString(StateImpl state, BinaryWriter bw)
-            {
-                outputs.WriteString(state, bw);
-            }
+
             public override string ProgramCounter
             {
                 get
@@ -140,6 +94,7 @@ namespace Microsoft.Prt
                     return nextBlock.ToString();
                 }
             }
+
             public override void Dispatch(Z.Process p)
             {
                 switch (nextBlock)
@@ -160,7 +115,7 @@ namespace Microsoft.Prt
                         }
                 }
             }
-            //TODO(offsets): which numbers should be in ZingSourceContext, if we need those?
+
             public override Z.ZingSourceContext Context
             {
                 get
@@ -173,17 +128,16 @@ namespace Microsoft.Prt
                             }
                         case Blocks.B0:
                             {
-                                //TODO
                                 return new ZingSourceContext(0, 1057, 1058);
                             }
                         case Blocks.Enter:
                             {
-                                //TODO
                                 return new ZingSourceContext(0, 6786, 6813);
                             }
                     }
                 }
             }
+
             public override Z.ZingAttribute ContextAttribute
             {
                 get
@@ -197,102 +151,12 @@ namespace Microsoft.Prt
                     }
                 }
             }
-            public override int CompareTo(object obj)
-            {
-                return 0;
-            }
+
             private static readonly short typeId = 3;
-            //Adding machine init state name to input vars in new compiler:
-            //TODO: add machineName to inputs
-            public sealed class InputVars
-              : UndoableStorage
+
+            public override Z.ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
             {
-                internal ZingMethod stackFrame;
-                internal InputVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new InputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    InputVars src = (usSrc as InputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of InputVars as source");
-                    }
-                    this.priv_initState = src.priv_initState;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_initState;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_initState = ((Z.Pointer)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(state.GetCanonicalId(this.priv_initState));
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_initState);
-                }
-                public Z.Pointer priv_initState;
-                public Z.Pointer initState
-                {
-                    get
-                    {
-                        return priv_initState;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_initState = value;
-                    }
-                }
-            }
-            public InputVars inputs;
-            public override UndoableStorage Inputs
-            {
-                get
-                {
-                    return inputs;
-                }
-            }
-            public override ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
-            {
-                Start clone = new Start(((Application)myState));
-                clone.locals = new LocalVars(clone);
-                clone.locals.CopyContents(locals);
-                clone.inputs = new InputVars(clone);
-                clone.inputs.CopyContents(inputs);
+                Start clone = new Start(myState, machine);
                 clone.nextBlock = this.nextBlock;
                 clone.handlerBlock = this.handlerBlock;
                 if ((this.Caller != null))
@@ -315,33 +179,16 @@ namespace Microsoft.Prt
                 }
                 return clone;
             }
-            public override void WriteString(StateImpl state, BinaryWriter bw)
+
+            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
-                inputs.WriteString(state, bw);
-                locals.WriteString(state, bw);
             }
-            public override void TraverseFields(FieldTraverser ft)
-            {
-                ft.DoTraversal(typeId);
-                ft.DoTraversal(nextBlock);
-                inputs.TraverseFields(ft);
-                locals.TraverseFields(ft);
-            }
-            public Start(Application app, Z.Pointer initState)
-            {
-                application = app;
-                nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                inputs.initState = initState;
-            }
+
             public void Enter(Z.Process p)
             {
-                Z.Application.Machine.Run callee = new Z.Application.Machine.Run(application);
-                callee.inputs.priv_state = this.inputs.priv_initState;
+                Machine.Run callee = new Machine.Run(application, machine, machine.initState);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -351,175 +198,55 @@ namespace Microsoft.Prt
             {
                 p.LastFunctionCompleted = null;
 
-                //aux vars:
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
+                var handle = machine.myHandle;
                 var currentEvent = handle.currentEvent;
-                var haltedSet = (ZingSet)application.LookupObject(application.globals.MachineHandle_halted);
-                var enabledSet = (ZingSet)application.LookupObject(application.globals.MachineHandle_enabled);
+                var haltedSet = MachineHandle.halted;
+                var enabledSet = MachineHandle.enabled;
 
                 //Checking if currentEvent is halt:
-                if (currentEvent = application.globals.Main_haltEvent)
+                if (currentEvent == Event.HaltEvent)
                 {
-                    // myHandle.stack = null;
-                    handle.stack = 0;
-                    //myHandle.buffer = null;
-                    handle.buffer = 0;
-                    //myHandle.currentArg = null;
-                    handle.currentArg = 0;
-                    //MachineHandle.halted = (MachineHandle.halted + myHandle);
+                    handle.stack = null;
+                    handle.buffer = null;
+                    handle.currentArg = null;
                     haltedSet.Add(handle);
-                    //MachineHandle.enabled = (MachineHandle.enabled - myHandle);
                     enabledSet.Remove(handle);
 
-                    //return;  
-                    //TODO(offsets) (question)
                     p.Return(new ZingSourceContext(0, 892, 898), null);
                     StateImpl.IsReturn = true;
                 }
                 else
                 {
-                    //Unhandled event - report Zinger exception:
-                    //TODO(offsets)
-                    //For this Trace call, only machine name is needed; we can get it by passing the machine name
-                    //to the Machine class constructor that has machine name as an argument
-                    application.Trace(new ZingSourceContext(0, 903, 990), null, @"<StateLog> Unhandled event exception by machine Real1-{0}", handle.instance);
+                    application.Trace(
+                        new ZingSourceContext(0, 903, 990), null, 
+                        @"<StateLog> Unhandled event exception by machine Real1-{0}", 
+                        handle.instance);
                     this.StateImpl.Exception = new Z.ZingAssertionFailureException(@"false", @"Unhandled event exception by machine <mach name>");
-                    //return;  
-                    //TODO(offsets)
                     p.Return(new ZingSourceContext(0, 1057, 1058), null);
                     StateImpl.IsReturn = true;
                 }
             }
         }
 
-        //Keeping Run as a ZingMethod.
-        //Not P-program-dependent
-        internal sealed class Run
-            : Z.ZingMethod
+        internal sealed class Run : Z.ZingMethod
         {
-            public Run(Application app)
-            {
-                application = app;
-                nextBlock = Blocks.Enter;
-                handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                outputs = new OutputVars(this);
-            }
-            private Application application;
-            public override StateImpl StateImpl
+            Blocks nextBlock;
+            Blocks handlerBlock;
+
+            private Z.StateImpl application;
+
+            public override Z.StateImpl StateImpl
             {
                 get
                 {
-                    return ((StateImpl)application);
+                    return application;
                 }
                 set
                 {
-                    application = ((Application)value);
+                    application = value;
                 }
             }
-            public sealed class LocalVars
-              : UndoableStorage
-            {
-                private ZingMethod stackFrame;
-                internal LocalVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new LocalVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    LocalVars src = (usSrc as LocalVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of LocalVars as source");
-                    }
-                    this.priv_doPop = src.priv_doPop;
-                    this.priv_hasNullTransitionOrAction = src.priv_hasNullTransitionOrAction;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_doPop;
-                            }
-                        case 1:
-                            {
-                                return priv_hasNullTransitionOrAction;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_doPop = ((Boolean)val);
-                                return;
-                            }
-                        case 1:
-                            {
-                                priv_hasNullTransitionOrAction = ((Boolean)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(this.priv_doPop);
-                    bw.Write(this.priv_hasNullTransitionOrAction);
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_doPop);
-                    ft.DoTraversal(this.priv_hasNullTransitionOrAction);
-                }
-                public bool priv_doPop;
-                public static int id_doPop = 0;
-                public bool doPop
-                {
-                    get
-                    {
-                        return priv_doPop;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_doPop = value;
-                    }
-                }
-                public bool priv_hasNullTransitionOrAction;
-                public static int id_hasNullTransitionOrAction = 1;
-                public bool hasNullTransitionOrAction
-                {
-                    get
-                    {
-                        return priv_hasNullTransitionOrAction;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_hasNullTransitionOrAction = value;
-                    }
-                }
-            }
+
             public enum Blocks : ushort
             {
                 None = 0,
@@ -531,14 +258,7 @@ namespace Microsoft.Prt
                 B4 = 6,
                 B5 = 7,
             };
-            public LocalVars locals;
-            public override UndoableStorage Locals
-            {
-                get
-                {
-                    return locals;
-                }
-            }
+            
             public override void Dispatch(Z.Process p)
             {
                 switch (nextBlock)
@@ -584,39 +304,7 @@ namespace Microsoft.Prt
                         }
                 }
             }
-            public override ulong GetRunnableJoinStatements(Process p)
-            {
-                switch (nextBlock)
-                {
-                    default:
-                        {
-                            return ~((ulong)0);
-                        }
-                }
-            }
-            public override bool IsAtomicEntryBlock()
-            {
-                switch (nextBlock)
-                {
-                    default:
-                        {
-                            return false;
-                        }
-                }
-            }
-            public override bool ValidEndState
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return false;
-                            }
-                    }
-                }
-            }
+            
             public override Z.ZingSourceContext Context
             {
                 get
@@ -629,12 +317,12 @@ namespace Microsoft.Prt
                             }
                         case Blocks.B0:
                             {
-                                //TODO(offsets)
                                 return new ZingSourceContext(0, 1397, 1398);
                             }
                     }
                 }
             }
+
             public override Z.ZingAttribute ContextAttribute
             {
                 get
@@ -648,11 +336,14 @@ namespace Microsoft.Prt
                     }
                 }
             }
+
             public override int CompareTo(object obj)
             {
                 return 0;
             }
+
             private static readonly short typeId = 4;
+
             public override ushort NextBlock
             {
                 get
@@ -664,160 +355,15 @@ namespace Microsoft.Prt
                     nextBlock = ((Blocks)value);
                 }
             }
-            public override void WriteOutputsString(StateImpl state, BinaryWriter bw)
-            {
-                outputs.WriteString(state, bw);
-            }
-            public sealed class InputVars
-              : UndoableStorage
-            {
-                internal ZingMethod stackFrame;
-                internal InputVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new InputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    InputVars src = (usSrc as InputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of InputVars as source");
-                    }
-                    this.priv_state = src.priv_state;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_state;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_state = ((Z.Pointer)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(state.GetCanonicalId(this.priv_state));
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_state);
-                }
-                public Z.Pointer priv_state;
-                public static int id_state = 0;
-                public Z.Pointer state
-                {
-                    get
-                    {
-                        return priv_state;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_state = value;
-                    }
-                }
 
-            }
-            public sealed class OutputVars
-              : UndoableStorage
+            Machine machine;
+
+            public override Z.ZingMethod Clone(Z.StateImpl app, Z.Process myProcess, bool shallowCopy)
             {
-                private ZingMethod stackFrame;
-                internal OutputVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new OutputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    OutputVars src = (usSrc as OutputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of OutputVars as source");
-                    }
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw) { }
-                public void TraverseFields(FieldTraverser ft) { }
-            }
-            public InputVars inputs;
-            public OutputVars outputs;
-            public override UndoableStorage Inputs
-            {
-                get
-                {
-                    return inputs;
-                }
-            }
-            public override UndoableStorage Outputs
-            {
-                get
-                {
-                    return outputs;
-                }
-            }
-            public override ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
-            {
-                Run clone = new Run(((Application)myState));
-                clone.locals = new LocalVars(clone);
-                clone.locals.CopyContents(locals);
-                clone.inputs = new InputVars(clone);
-                clone.inputs.CopyContents(inputs);
-                clone.outputs = new OutputVars(clone);
-                clone.outputs.CopyContents(outputs);
+                Run clone = new Run(app, machine, state);
                 clone.nextBlock = this.nextBlock;
                 clone.handlerBlock = this.handlerBlock;
-                clone.SavedAtomicityLevel = this.SavedAtomicityLevel;
-                clone.privThis = this.privThis;
+                clone.machine = this.machine;
                 if ((this.Caller != null))
                 {
                     if (shallowCopy)
@@ -826,7 +372,7 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        clone.Caller = this.Caller.Clone(myState, myProcess, false);
+                        clone.Caller = this.Caller.Clone(app, myProcess, false);
                     }
                 }
                 else
@@ -838,103 +384,71 @@ namespace Microsoft.Prt
                 }
                 return clone;
             }
-            public override void WriteString(StateImpl state, BinaryWriter bw)
+
+            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
-                bw.Write(state.GetCanonicalId(privThis));
-                inputs.WriteString(state, bw);
-                outputs.WriteString(state, bw);
-                locals.WriteString(state, bw);
             }
-            public override void TraverseFields(FieldTraverser ft)
-            {
-                ft.DoTraversal(typeId);
-                ft.DoTraversal(nextBlock);
-                ft.DoTraversal(privThis);
-                inputs.TraverseFields(ft);
-                outputs.TraverseFields(ft);
-                locals.TraverseFields(ft);
-            }
-            //TODO: why no "void" in old compiler?
-            public void Run(Application app, Pointer This, Z.Pointer state)
+
+            State state;
+
+            public Run(Z.StateImpl app, Machine machine, State state)
             {
 
                 application = app;
                 nextBlock = Blocks.Enter;
                 handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                outputs = new OutputVars(this);
-                this.This = This;
-                inputs.state = state;
+                this.machine = machine;
+                this.state = state;
             }
+
             public void B5(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                //After "while" loop:
-                //myHandle.Pop();
-                //This is not a ZingMethod call in the new compiler:
+                var handle = machine.myHandle;
                 handle.Pop();
-
-                //Return from Run:
-                //TODO(offsets)
                 p.Return(new ZingSourceContext(0, 1397, 1398), null);
                 StateImpl.IsReturn = true;
             }
+
+            bool doPop;
+
             public void B4(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                //Return from RunHelper:
-                locals.doPop = (((machine.RunHelper)p.LastFunctionCompleted)).outputs._Lfc_ReturnValue;
+                doPop = ((Machine.RunHelper)p.LastFunctionCompleted)).ReturnValue;
                 p.LastFunctionCompleted = null;
 
                 //B1 is header of the "while" loop:
                 nextBlock = Blocks.B1;
             }
+
             public void B3(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
                 //Return from DequeueEvent:
                 p.LastFunctionCompleted = null;
 
                 //doPop = RunHelper(false);
                 //Calling ZingMethod RunHelper:
-                Z.Application.Machine.RunHelper callee = new Z.Application.Machine.RunHelper(application);
-                callee.inputs.priv_start = false;
-                callee.This = This;
+                Machine.RunHelper callee = new Machine.RunHelper(application, machine, false);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
                 nextBlock = Blocks.B4;
-
-                //locals.doPop = machine.RunHelper(application, false);
             }
+
             public void B2(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                //body of the "while" loop before DequeueEvent call:
-                //hasNullTransitionOrAction = myHandle.stack.HasNullTransitionOrAction();
-                //Calling regular C# method
-                locals.hasNullTransitionOrAction = stateStack.HasNullTransitionOrAction(application);
-
-                //myHandle.DequeueEvent(hasNullTransitionOrAction);
-                //(TODO: check this code after implementing DequeueEvent) 
-                //Calling ZingMethod:
-                handle.DequeueEvent callee = new handle.DequeueEvent(application);
-                callee.inputs.priv_hasNullTransition = locals.hasNullTransitionOrAction;
-                callee.This = handle;
-                p.Call(callee);
-                StateImpl.IsCall = true;
-
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
+                var hasNullTransitionOrAction = stateStack.HasNullTransitionOrAction();
+                // Shaz: Fix this 
+                handle.DequeueEvent(hasNullTransitionOrAction);
                 nextBlock = Blocks.B3;
             }
+
             public void B1(Z.Process p)
             {
-                //while (!doPop) {
-                if (!locals.doPop)
+                if (!doPop)
                 {
                     nextBlock = Blocks.B2;
                 }
@@ -943,31 +457,23 @@ namespace Microsoft.Prt
                     nextBlock = Blocks.B5;
                 }
             }
+
             public void B0(Z.Process p)
             {
                 //Return from RunHelper:
-                locals.doPop = (((machine.RunHelper)p.LastFunctionCompleted)).outputs._Lfc_ReturnValue;
+                doPop = (((Machine.RunHelper)p.LastFunctionCompleted)).outputs._Lfc_ReturnValue;
                 p.LastFunctionCompleted = null;
                 nextBlock = Blocks.B1;
             }
+
             public void Enter(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var stateStack = (Z.Application.StateStack)application.LookupObject(handle.stack);
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
+                handle.Push();
+                stateStack.state = state;
 
-                //myHandle.Push();
-                //This is not a ZingMethod call in the new compiler:
-                handle.Push(application);
-
-                //myHandle.stack.state = state;
-                stateStack.state = inputs.state;
-
-                //doPop = RunHelper(true);
-                //Calling ZingMethod RunHelper:
-                Z.Application.Machine.RunHelper callee = new Z.Application.Machine.RunHelper(application);
-                callee.inputs.priv_start = true;
-                callee.This = This;
+                Machine.RunHelper callee = new Machine.RunHelper(application, machine, true);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -975,161 +481,33 @@ namespace Microsoft.Prt
             }
         }
 
-        //public virtual void CalculateDeferredAndActionSet(Application app, Pointer This, Z.Pointer state) 
-        //moved to the derived class Machine_<machine name>
-
         //RunHelper is not P program-dependent if no liveness
-        internal sealed class RunHelper
-                : Z.ZingMethod
+        internal sealed class RunHelper : Z.ZingMethod
         {
-            public RunHelper(Application app)
+            Blocks nextBlock;
+            Blocks handlerBlock;
+
+            public RunHelper(Z.StateImpl app)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
                 handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                outputs = new OutputVars(this);
             }
-            private Application application;
-            public override StateImpl StateImpl
+
+            private Z.StateImpl application;
+
+            public override Z.StateImpl StateImpl
             {
                 get
                 {
-                    return ((StateImpl)application);
+                    return application;
                 }
                 set
                 {
-                    application = ((Application)value);
+                    application = value;
                 }
             }
-            public sealed class LocalVars
-              : UndoableStorage
-            {
-                private ZingMethod stackFrame;
-                internal LocalVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new LocalVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    LocalVars src = (usSrc as LocalVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of LocalVars as source");
-                    }
-                    this.priv_state = src.priv_state;
-                    this.priv_transition = src.priv_transition;
-                    this.priv_actionFun = src.priv_actionFun;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_state;
-                            }
-                        case 1:
-                            {
-                                return priv_transition;
-                            }
-                        case 2:
-                            {
-                                return priv_actionFun;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_state = ((Z.Pointer)val);
-                                return;
-                            }
-                        case 1:
-                            {
-                                priv_transition = ((Z.Pointer)val);
-                                return;
-                            }
-                        case 2:
-                            {
-                                priv_actionFun = ((Application.ActionOrFun)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(state.GetCanonicalId(this.priv_state));
-                    bw.Write(state.GetCanonicalId(this.priv_transition));
-                    bw.Write(((byte)this.priv_actionFun));
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_state);
-                    ft.DoTraversal(this.priv_transition);
-                    ft.DoTraversal(this.priv_actionFun);
-                }
-                public Z.Pointer priv_state;
-                public static int id_state = 0;
-                public Z.Pointer state
-                {
-                    get
-                    {
-                        return priv_state;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_state = value;
-                    }
-                }
-                public Z.Pointer priv_transition;
-                public static int id_transition = 1;
-                public Z.Pointer transition
-                {
-                    get
-                    {
-                        return priv_transition;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_transition = value;
-                    }
-                }
-                public Application.ActionOrFun priv_actionFun;
-                public static int id_actionFun = 2;
-                public Application.ActionOrFun actionFun
-                {
-                    get
-                    {
-                        return priv_actionFun;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_actionFun = value;
-                    }
-                }
-            }
+
             public enum Blocks : ushort
             {
                 None = 0,
@@ -1144,14 +522,7 @@ namespace Microsoft.Prt
                 B7 = 9,
                 B8 = 10,
             }
-            public LocalVars locals;
-            public override UndoableStorage Locals
-            {
-                get
-                {
-                    return locals;
-                }
-            }
+
             public override ushort NextBlock
             {
                 get
@@ -1163,10 +534,7 @@ namespace Microsoft.Prt
                     nextBlock = ((Blocks)value);
                 }
             }
-            public override void WriteOutputsString(StateImpl state, BinaryWriter bw)
-            {
-                outputs.WriteString(state, bw);
-            }
+
             public override string ProgramCounter
             {
                 get
@@ -1174,6 +542,7 @@ namespace Microsoft.Prt
                     return nextBlock.ToString();
                 }
             }
+
             public override void Dispatch(Z.Process p)
             {
                 switch (nextBlock)
@@ -1234,40 +603,7 @@ namespace Microsoft.Prt
                         }
                 }
             }
-            public override ulong GetRunnableJoinStatements(Process p)
-            {
-                switch (nextBlock)
-                {
-                    default:
-                        {
-                            return ~((ulong)0);
-                        }
-                }
-            }
-            public override bool IsAtomicEntryBlock()
-            {
-                switch (nextBlock)
-                {
-                    default:
-                        {
-                            return false;
-                        }
-                }
-            }
-            public override bool ValidEndState
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return false;
-                            }
-                    }
-                }
-            }
-            //TODO(offsets)
+           
             public override Z.ZingSourceContext Context
             {
                 get
@@ -1334,209 +670,19 @@ namespace Microsoft.Prt
                     }
                 }
             }
+
             public override int CompareTo(object obj)
             {
                 return 0;
             }
+
             private static readonly short typeId = 8;
-            public Z.Pointer privThis;
-            public override Z.Pointer This
+
+            public override Z.ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
             {
-                get
-                {
-                    return privThis;
-                }
-                set
-                {
-                    privThis = value;
-                }
-            }
-            public sealed class InputVars
-              : UndoableStorage
-            {
-                internal ZingMethod stackFrame;
-                internal InputVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new InputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    InputVars src = (usSrc as InputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of InputVars as source");
-                    }
-                    this.priv_start = src.priv_start;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_start;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_start = ((Boolean)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(this.priv_start);
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_start);
-                }
-                public bool priv_start;
-                public static int id_start = 0;
-                public bool start
-                {
-                    get
-                    {
-                        return priv_start;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_start = value;
-                    }
-                }
-            }
-            public sealed class OutputVars
-              : UndoableStorage
-            {
-                private ZingMethod stackFrame;
-                internal OutputVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new OutputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    OutputVars src = (usSrc as OutputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of OutputVars as source");
-                    }
-                    this.priv_ReturnValue = src.priv_ReturnValue;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 1:
-                            {
-                                return priv_ReturnValue;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 1:
-                            {
-                                priv_ReturnValue = ((Boolean)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(this.priv_ReturnValue);
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_ReturnValue);
-                }
-                public bool priv_ReturnValue;
-                public static int id_ReturnValue = 1;
-                public bool _ReturnValue
-                {
-                    get
-                    {
-                        return priv_ReturnValue;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_ReturnValue = value;
-                    }
-                }
-                public bool _Lfc_ReturnValue
-                {
-                    get
-                    {
-                        return priv_ReturnValue;
-                    }
-                }
-            }
-            public InputVars inputs;
-            public OutputVars outputs;
-            public override UndoableStorage Inputs
-            {
-                get
-                {
-                    return inputs;
-                }
-            }
-            public override UndoableStorage Outputs
-            {
-                get
-                {
-                    return outputs;
-                }
-            }
-            public override ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
-            {
-                RunHelper clone = new RunHelper(((Application)myState));
-                clone.locals = new LocalVars(clone);
-                clone.locals.CopyContents(locals);
-                clone.inputs = new InputVars(clone);
-                clone.inputs.CopyContents(inputs);
-                clone.outputs = new OutputVars(clone);
-                clone.outputs.CopyContents(outputs);
+                RunHelper clone = new RunHelper(myState);
                 clone.nextBlock = this.nextBlock;
                 clone.handlerBlock = this.handlerBlock;
-                clone.SavedAtomicityLevel = this.SavedAtomicityLevel;
-                clone.privThis = this.privThis;
                 if ((this.Caller != null))
                 {
                     if (shallowCopy)
@@ -1557,54 +703,47 @@ namespace Microsoft.Prt
                 }
                 return clone;
             }
-            public override void WriteString(StateImpl state, BinaryWriter bw)
+
+            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
-                bw.Write(state.GetCanonicalId(privThis));
-                inputs.WriteString(state, bw);
-                outputs.WriteString(state, bw);
-                locals.WriteString(state, bw);
             }
-            public override void TraverseFields(FieldTraverser ft)
-            {
-                ft.DoTraversal(typeId);
-                ft.DoTraversal(nextBlock);
-                ft.DoTraversal(privThis);
-                inputs.TraverseFields(ft);
-                outputs.TraverseFields(ft);
-                locals.TraverseFields(ft);
-            }
-            public RunHelper(Application app, Pointer This, bool start)
+
+            // inputs
+            Machine machine;
+            bool start;
+
+            // locals
+            State state;
+            ActionOrFun actionFun;
+            Transition transition;
+
+            public RunHelper(Z.StateImpl app, Machine machine, bool start)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
                 handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                outputs = new OutputVars(this);
-
-                this.This = This;
-                inputs.start = start;
+                this.machine = machine;
+                this.start = start;
             }
-            public override bool BooleanReturnValue
+
+            private bool _ReturnValue;
+            public bool ReturnValue
             {
                 get
                 {
-                    return outputs._ReturnValue;
+                    return _ReturnValue;
                 }
             }
+
             public void Enter(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var stateStack = (Z.Application.StateStack)application.LookupObject(handle.stack);
-                var state = (Z.Application.State)stateStack.state;
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
+                this.state = stateStack.state;
 
-                //init:
-                //state = myHandle.stack.state;
-                locals.state = state;
-                if (inputs.start)
+                if (start)
                 {
                     nextBlock = Blocks.B0;
                 }
@@ -1613,33 +752,27 @@ namespace Microsoft.Prt
                     nextBlock = Blocks.B1;
                 }
             }
+
             public void B0(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var stateStack = (Z.Application.StateStack)application.LookupObject(handle.stack);
-                var state = (Z.Application.State)stateStack.state;
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
+                state = stateStack.state;
 
                 //enter:
                 //CalculateDeferredAndActionSet(state);
                 machine.CalculateDeferredAndActionSet(application, state);
 
-                //actionFun = state.entryFun;
-                var localState = (Z.Application.State)application.LookupObject(locals.state);
-                locals.actionFun = localState.entryFun;
+                actionFun = state.entryFun;
                 nextBlock = Blocks.B2;
             }
+
             public void B2(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var stateStack = (Z.Application.StateStack)application.LookupObject(handle.stack);
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
 
-                //execute: ReentrancyHelper(actionFun);
-                //Calling ZingMethod ReentrancyHelper:
-                machine.ReentrancyHelper callee = new machine.ReentrancyHelper(application);
-                callee.inputs.priv_actionFun = locals.actionFun;
-                callee.This = This;
+                Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, actionFun);
                 p.Call(callee);
                 StateImpl.IsCall = true;
                 nextBlock = Blocks.B3;
@@ -1648,86 +781,67 @@ namespace Microsoft.Prt
             {
                 p.LastFunctionCompleted = null;
 
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var reason = ((Z.Application.Continuation)handle.cont).reason;
-                //if ((myHandle.cont.reason == ContinuationReason.Raise))
-                if (reason == (ContinuationReason)3)
+                var handle = machine.myHandle;
+                var reason = handle.cont.reason;
+                if (reason == ContinuationReason.Raise)
                 {
                     //goto handle;
                     nextBlock = Blocks.B1;
                 }
                 else
                 {
-                    //myHandle.currentEvent = null;
-                    handle.currentEvent = 0;
+                    handle.currentEvent = null;
 
                     //myHandle.currentArg = PrtValue.PrtMkDefaultValue(Main.type_0_PrtType);
                     //Main_type_0_PrtType P is not program dependent
-                    handle.currentArg = application.PrtValue.PrtMkDefaultValue(application, application.globals.Main_type_0_PrtType);
+                    handle.currentArg = PrtValue.PrtMkDefaultValue(application, application.globals.Main_type_0_PrtType);
                     //if ((myHandle.cont.reason != ContinuationReason.Pop))
-                    if (reason != (ContinuationReason)2)
+                    if (reason != ContinuationReason.Pop)
                     {
-                        //return false;
-                        outputs._ReturnValue = false;
-                        //TODO(offsets)
+                        _ReturnValue = false;
                         p.Return(new ZingSourceContext(0, 2619, 2631), null);
                         StateImpl.IsReturn = true;
                     }
                     else
                     {
-                        var localState = (Z.Application.State)application.LookupObject(locals.state);
-                        //ReentrancyHelper(state.exitFun);
-                        Z.Application.Machine.ReentrancyHelper callee = new Z.Application.Machine.ReentrancyHelper(application);
-                        callee.inputs.priv_actionFun = localState.exitFun;
-                        callee.This = This;
+                        Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, state.exitFun);
                         p.Call(callee);
                         StateImpl.IsCall = true;
 
                         nextBlock = Blocks.B4;
-
                     }
                 }
             }
+
             public void B4(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
-                //return true;
-                outputs._ReturnValue = true;
-                //TODO(offsets)
+                _ReturnValue = true;
                 p.Return(new ZingSourceContext(0, 2692, 2703), null);
                 StateImpl.IsReturn = true;
             }
+
             public void B1(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var stateStack = (Z.Application.StateStack)application.LookupObject(handle.stack);
-                var state = (Z.Application.State)stateStack.state;
-                var actionSet = (ZingSet)stateStack.actionSet;
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
+                var state = stateStack.state;
+                var actionSet = stateStack.actionSet;
 
                 //handle:
-                //if ((myHandle.currentEvent in myHandle.stack.actionSet))
-                if (actionSet.IsMember(handle.currentEvent))
+                if (actionSet.Contains(handle.currentEvent))
                 {
-                    //actionFun = myHandle.stack.Find(myHandle.currentEvent);
-                    locals.actionFun = stateStack.Find(handle.currentEvent);
+                    actionFun = stateStack.Find(handle.currentEvent);
                     //goto execute;
                     nextBlock = Blocks.B2;
                 }
                 else
                 {
-                    //transition = state.FindPushTransition(myHandle.currentEvent);
-                    locals.transition = state.FindPushTransition(handle.currentEvent);
-                    //if ((transition != null)) {
-                    if ((locals.transition != 0))
+                    transition = state.FindPushTransition(handle.currentEvent);
+                    if (transition != null)
                     {
-                        //Run(transition.to);
-                        Z.Application.Machine.Run callee = new Z.Application.Machine.Run(application);
-                        var localTransition = (Z.Application.Transition)application.LookupObject(locals.transition);
-                        callee.inputs.priv_state = localTransition.to;
-                        callee.This = This;
+                        Machine.Run callee = new Machine.Run(application, machine, transition.to);
                         p.Call(callee);
                         StateImpl.IsCall = true;
 
@@ -1740,18 +854,17 @@ namespace Microsoft.Prt
 
                 }
             }
+
             public void B5(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
+                var handle = machine.myHandle;
 
                 //if (myHandle.currentEvent = null) {return false;}
                 if (handle.currentEvent = 0)
                 {
-                    outputs._ReturnValue = false;
-                    //TODO(offsets)
+                    _ReturnValue = false;
                     p.Return(new ZingSourceContext(0, 2619, 2631), null);
                     StateImpl.IsReturn = true;
                 }
@@ -1761,160 +874,81 @@ namespace Microsoft.Prt
                     nextBlock = Blocks.B1;
                 }
             }
+
             public void B6(Z.Process p)
             {
-                //ReentrancyHelper(state.exitFun);
-                Z.Application.Machine.ReentrancyHelper callee = new Z.Application.Machine.ReentrancyHelper(application);
-                callee.inputs.priv_actionFun = localState.exitFun;
-                callee.This = This;
+                Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, state.exitFun);
                 p.Call(callee);
                 StateImpl.IsCall = true;
+
                 nextBlock = Blocks.B7;
             }
+
             public void B7(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
-                //transition = state.FindTransition(myHandle.currentEvent);
-                locals.transition = state.FindTransition(handle.currentEvent);
-                //if ((transition == null)) { return true; }
-                if ((locals.transition == 0))
+                var handle = machine.myHandle;
+                transition = state.FindTransition(handle.currentEvent);
+                if (transition == null)
                 {
-                    outputs._ReturnValue = true;
-                    //TODO(offsets)
+                    _ReturnValue = true;
                     p.Return(new ZingSourceContext(0, 2619, 2631), null);
                     StateImpl.IsReturn = true;
                 }
                 else
                 {
-                    //ReentrancyHelper(transition.fun);
-                    Z.Application.Machine.ReentrancyHelper callee = new Z.Application.Machine.ReentrancyHelper(application);
-                    callee.inputs.priv_actionFun = locals.transition.fun;
-                    callee.This = This;
+                    Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, transition.fun);
                     p.Call(callee);
                     StateImpl.IsCall = true;
                     nextBlock = Blocks.B8;
                 }
             }
+
             public void B8(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var stateStack = (Z.Application.StateStack)application.LookupObject(handle.stack);
-                var localTransition = (Z.Application.Transition)application.LookupObject(locals.transition);
-                //myHandle.stack.state = transition.to;
-                stateStack = localTransition.to;
-
-                //state = myHandle.stack.state;
-                locals.state = stateStack.state;
+                var handle = machine.myHandle;
+                var stateStack = handle.stack;
+                stateStack.state = transition.to;
+                state = stateStack.state;
 
                 //goto enter;
                 nextBlock = Blocks.B0;
             }
         }
 
-        //Not P program dependent:
-        internal sealed class ProcessContinuation
-            : Z.ZingMethod
+        internal sealed class ReentrancyHelper : Z.ZingMethod
         {
-            public ProcessContinuation(Application app)
+            public ReentrancyHelper(Z.StateImpl app, Machine machine, ActionOrFun actionFun)
+            {
+
+            }
+        }
+
+        internal sealed class ProcessContinuation : Z.ZingMethod
+        {
+            public ProcessContinuation(Z.StateImpl app)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
                 handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                outputs = new OutputVars(this);
             }
-            private Application application;
-            public override StateImpl StateImpl
+
+            private Z.StateImpl application;
+
+            public override Z.StateImpl StateImpl
             {
                 get
                 {
-                    return ((StateImpl)application);
+                    return application;
                 }
                 set
                 {
-                    application = ((Application)value);
+                    application = value;
                 }
             }
-            public sealed class LocalVars
-              : UndoableStorage
-            {
-                private ZingMethod stackFrame;
-                internal LocalVars(ZingMethod zm)
-                {
 
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new LocalVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    LocalVars src = (usSrc as LocalVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of LocalVars as source");
-                    }
-                    this.priv_doPop = src.priv_doPop;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_doPop;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_doPop = ((Boolean)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(this.priv_doPop);
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_doPop);
-                }
-                public bool priv_doPop;
-                public static int id_doPop = 0;
-                public bool doPop
-                {
-                    get
-                    {
-                        return priv_doPop;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_doPop = value;
-                    }
-                }
-            }
             public enum Blocks : ushort
             {
                 None = 0,
@@ -1923,14 +957,7 @@ namespace Microsoft.Prt
                 B1 = 3,
                 B2 = 4,
             };
-            public LocalVars locals;
-            public override UndoableStorage Locals
-            {
-                get
-                {
-                    return locals;
-                }
-            }
+
             public override ushort NextBlock
             {
                 get
@@ -1942,10 +969,7 @@ namespace Microsoft.Prt
                     nextBlock = ((Blocks)value);
                 }
             }
-            public override void WriteOutputsString(StateImpl state, BinaryWriter bw)
-            {
-                outputs.WriteString(state, bw);
-            }
+
             public override string ProgramCounter
             {
                 get
@@ -1953,22 +977,10 @@ namespace Microsoft.Prt
                     return nextBlock.ToString();
                 }
             }
-            private Blocks nextBlock
-            {
-                get
-                {
-                    return privNextBlock;
-                }
-                set
-                {
-                    if (((othersULE != null) && !othersULE.nextBlockChanged))
-                    {
-                        othersULE.nextBlockChanged = true;
-                        othersULE.savedNextBlock = privNextBlock;
-                    }
-                    privNextBlock = value;
-                }
-            }
+
+            private Blocks nextBlock;
+            private Blocks handlerBlock;
+
             public override void Dispatch(Z.Process p)
             {
                 switch (nextBlock)
@@ -1999,40 +1011,7 @@ namespace Microsoft.Prt
                         }
                 }
             }
-            public override ulong GetRunnableJoinStatements(Process p)
-            {
-                switch (nextBlock)
-                {
-                    default:
-                        {
-                            return ~((ulong)0);
-                        }
-                }
-            }
-            public override bool IsAtomicEntryBlock()
-            {
-                switch (nextBlock)
-                {
-                    default:
-                        {
-                            return false;
-                        }
-                }
-            }
-            public override bool ValidEndState
-            {
-                get
-                {
-                    switch (nextBlock)
-                    {
-                        default:
-                            {
-                                return false;
-                            }
-                    }
-                }
-            }
-            //TODO
+            
             public override Z.ZingSourceContext Context
             {
                 get
@@ -2062,6 +1041,7 @@ namespace Microsoft.Prt
                     }
                 }
             }
+
             public override Z.ZingAttribute ContextAttribute
             {
                 get
@@ -2075,180 +1055,19 @@ namespace Microsoft.Prt
                     }
                 }
             }
+
             public override int CompareTo(object obj)
             {
                 return 0;
             }
+
             private static readonly short typeId = 9;
-            public sealed class InputVars
-              : UndoableStorage
-            {
-                internal ZingMethod stackFrame;
-                internal InputVars(ZingMethod zm)
-                {
 
-                    {
-                        ;
-                    }
-                    {
-                        stackFrame = zm;
-                    }
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new InputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    InputVars src = (usSrc as InputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of InputVars as source");
-                    }
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                {
-                                    Debug.Assert(false);
-                                    return null;
-                                }
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                }
-
-            }
-            public sealed class OutputVars
-              : UndoableStorage
+            public override Z.ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
             {
-                private ZingMethod stackFrame;
-                internal OutputVars(ZingMethod zm)
-                {
-                    stackFrame = zm;
-                }
-                public override UndoableStorage MakeInstance()
-                {
-                    return new OutputVars(stackFrame);
-                }
-                public override void CopyContents(UndoableStorage usSrc)
-                {
-                    OutputVars src = (usSrc as OutputVars);
-                    if ((src == null))
-                    {
-                        throw new ArgumentException(@"expecting instance of OutputVars as source");
-                    }
-                    this.priv_ReturnValue = src.priv_ReturnValue;
-                }
-                public override object GetValue(int fi)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return null;
-                            }
-                        case 0:
-                            {
-                                return priv_ReturnValue;
-                            }
-                    }
-                }
-                public override void SetValue(int fi, object val)
-                {
-                    switch (fi)
-                    {
-                        default:
-                            {
-                                Debug.Assert(false);
-                                return;
-                            }
-                        case 0:
-                            {
-                                priv_ReturnValue = ((Boolean)val);
-                                return;
-                            }
-                    }
-                }
-                public void WriteString(StateImpl state, BinaryWriter bw)
-                {
-                    bw.Write(this.priv_ReturnValue);
-                }
-                public void TraverseFields(FieldTraverser ft)
-                {
-                    ft.DoTraversal(this.priv_ReturnValue);
-                }
-                public bool priv_ReturnValue;
-                public static int id_ReturnValue = 0;
-                public bool _ReturnValue
-                {
-                    get
-                    {
-                        return priv_ReturnValue;
-                    }
-                    set
-                    {
-                        SetDirty();
-                        priv_ReturnValue = value;
-                    }
-                }
-                public bool _Lfc_ReturnValue
-                {
-                    get
-                    {
-                        return priv_ReturnValue;
-                    }
-                }
-            }
-            public InputVars inputs;
-            public OutputVars outputs;
-            public override UndoableStorage Inputs
-            {
-                get
-                {
-                    return inputs;
-                }
-            }
-            public override UndoableStorage Outputs
-            {
-                get
-                {
-                    return outputs;
-                }
-            }
-            public override ZingMethod Clone(Z.StateImpl myState, Z.Process myProcess, bool shallowCopy)
-            {
-                ProcessContinuation clone = new ProcessContinuation(((Application)myState));
-                clone.locals = new LocalVars(clone);
-                clone.locals.CopyContents(locals);
-                clone.inputs = new InputVars(clone);
-                clone.inputs.CopyContents(inputs);
-                clone.outputs = new OutputVars(clone);
-                clone.outputs.CopyContents(outputs);
+                ProcessContinuation clone = new ProcessContinuation(myState);
                 clone.nextBlock = this.nextBlock;
                 clone.handlerBlock = this.handlerBlock;
-                clone.SavedAtomicityLevel = this.SavedAtomicityLevel;
-                clone.privThis = this.privThis;
                 if ((this.Caller != null))
                 {
                     if (shallowCopy)
@@ -2269,179 +1088,121 @@ namespace Microsoft.Prt
                 }
                 return clone;
             }
-            public override void WriteString(StateImpl state, BinaryWriter bw)
+
+            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
-                bw.Write(state.GetCanonicalId(privThis));
-                inputs.WriteString(state, bw);
-                outputs.WriteString(state, bw);
-                locals.WriteString(state, bw);
             }
-            public override void TraverseFields(FieldTraverser ft)
-            {
-                ft.DoTraversal(typeId);
-                ft.DoTraversal(nextBlock);
-                ft.DoTraversal(privThis);
-                inputs.TraverseFields(ft);
-                outputs.TraverseFields(ft);
-                locals.TraverseFields(ft);
-            }
-            public ProcessContinuation(Application app, Pointer This)
+
+            public ProcessContinuation(Z.StateImpl app, Machine machine)
             {
                 application = app;
+                this.machine = machine;
                 nextBlock = Blocks.Enter;
                 handlerBlock = Blocks.None;
-                locals = new LocalVars(this);
-                inputs = new InputVars(this);
-                outputs = new OutputVars(this);
-                this.This = This;
             }
-            public override bool BooleanReturnValue
+
+            Machine machine;
+
+            private bool _ReturnValue;
+
+            bool ReturnValue
             {
-                get
-                {
-                    return outputs._ReturnValue;
-                }
+                get { return _ReturnValue; }
             }
+
             public void Enter(Z.Process p)
             {
-                var machine = (Z.Application.Machine)application.LookupObject(This);
-                var handle = (Z.Application.MachineHandle)application.LookupObject(machine.myHandle);
-                var cont = (Z.Application.Continuation)handle.cont;
+                var handle = machine.myHandle;
+                var cont = handle.cont;
                 var reason = cont.reason;
-                //if ((myHandle.cont.reason == ContinuationReason.Raise))
-                if (reason == (ContinuationReason)0)     //ContinuationReason.Return
+                if (reason == ContinuationReason.Return)
                 {
-                    //return true;
-                    outputs._ReturnValue = true;
-                    //TODO 
+                    _ReturnValue = true;
                     p.Return(new ZingSourceContext(0, 3424, 3435), null);
                     StateImpl.IsReturn = true;
                 }
-                if (reason == (ContinuationReason)2)   //ContinuationReason.Pop
+                if (reason == ContinuationReason.Pop)
                 {
-                    //return true;
-                    outputs._ReturnValue = true;
-                    //TODO 
+                    _ReturnValue = true;
                     p.Return(new ZingSourceContext(0, 3424, 3435), null);
                     StateImpl.IsReturn = true;
                 }
-                if (reason == (ContinuationReason)3) //ContinuationReason.Raise
+                if (reason == ContinuationReason.Raise)
                 {
-                    //return true;
-                    outputs._ReturnValue = true;
-                    //TODO 
+                    _ReturnValue = true;
                     p.Return(new ZingSourceContext(0, 3424, 3435), null);
                     StateImpl.IsReturn = true;
                 }
-                if (reason == (ContinuationReason)4)  //ContinuationReason.Receive
+                if (reason == ContinuationReason.Receive)
                 {
-                    //myHandle.DequeueEvent(false);
-                    Z.Application.MachineHandle.DequeueEvent callee = new Z.Application.MachineHandle.DequeueEvent(application);
-                    callee.inputs.priv_hasNullTransition = false;
-                    callee.This = handle;
-                    p.Call(callee);
-                    StateImpl.IsCall = true;
+                    // Shaz: Fix me
+                    var status = handle.DequeueEvent(false);
 
                     nextBlock = Blocks.B0;
                 }
-                if (reason == (ContinuationReason)1)  //ContinuationReason.Nondet
+                if (reason == ContinuationReason.Nondet)
                 {
                     //No splitting into a new Block after nondet, since it is a local thing
                     //myHandle.cont.nondet = choose(bool);
-                    application.SetPendingChoices(p, Microsoft.Zing.Application.GetChoicesForType(typeof(bool)));
+                    application.SetPendingChoices(p, GetChoicesForType(typeof(bool)));
                     cont.nondet = ((Boolean)application.GetSelectedChoiceValue(p));
-                    //return false;
-                    outputs._ReturnValue = false;
-                    //TODO
+                    _ReturnValue = false;
                     p.Return(new ZingSourceContext(0, 3789, 3801), null);
                     StateImpl.IsReturn = true;
                 }
-                if (reason == (ContinuationReason)6)  //ContinuationReason.NewMachine
+                if (reason == ContinuationReason.NewMachine)
                 {
                     //yield;
                     p.MiddleOfTransition = false;
-                    //Finish the Block after asgn into MiddleOfTransition
                     nextBlock = Blocks.B1;
                 }
-                if (reason == (ContinuationReason)5)  //ContinuationReason.Send
+                if (reason == ContinuationReason.Send)
                 {
                     //yield;
                     p.MiddleOfTransition = false;
-                    //Finish the Block after asgn into MiddleOfTransition
                     nextBlock = Blocks.B2;
                 }
             }
+
             public void B0(Z.Process p)
             {
                 //ContinuationReason.Receive after Dequeue call:
                 p.LastFunctionCompleted = null;
-                //return false;
-                outputs._ReturnValue = false;
-                //TODO
+                _ReturnValue = false;
                 p.Return(new ZingSourceContext(0, 3676, 3688), null);
                 StateImpl.IsReturn = true;
             }
+
             public void B1(Z.Process p)
             {
                 //ContinuationReason.NewMachine after yield:
-                //return false;
-                outputs._ReturnValue = false;
-                //TODO
+                _ReturnValue = false;
                 p.Return(new ZingSourceContext(0, 3876, 3888), null);
                 StateImpl.IsReturn = true;
             }
+
             public void B2(Z.Process p)
             {
                 //ContinuationReason.Send after yield:
-                //return false;
-                outputs._ReturnValue = false;
-                //TODO
+                ReturnValue = false;
                 p.Return(new ZingSourceContext(0, 3957, 3969), null);
                 StateImpl.IsReturn = true;
             }
         }
 
-        //P program-dependent:
-        //ZingMethod ReentrancyHelper is located in the generated Machine_<> class
-
-        //not P program-dependent:
-        //regular C# method now:
-        public void ignore(Application app, Pointer This, Continuation entryCtxt)
+        public void ignore(Z.StateImpl app, Continuation entryCtxt)
         {
-            //PrtValue_ARRAY locals;
-            ArrayList<PrtValue> locals;
-            //Alternative:
-            //Z.Pointer locals;
-            //StackFrame retTo_0;
-            StackFrame retTo_0;
-            //Alternative:
-            //Z.Pointer retTo_0;
-
-            //dummy:
-            //retTo_0 = entryCtxt.PopReturnTo();
-            retTo_0 = entryCtxt.PopReturnTo();
-            //locals = retTo_0.locals;
-            locals = retTo_0.locals;
-            //if ((retTo_0.pc == 0)) { goto start;} ++++++++++++++++++++++++stopped here
-            if (retTo_0.pc != 0)
+            StackFrame retTo;
+            retTo = entryCtxt.PopReturnTo();
+            if (retTo.pc != 0)
             {
-                //assert(false, "Internal error");
-                //"this" is Machine class (unlike in old compiler, where it is Machine.ignore class -
-                //hence, "in ignore" is added to the message)
-                this.StateImpl.Exception = new Z.ZingAssertionFailureException(@"false", @"Internal error in ignore");
+                this.application.Exception = new Z.ZingAssertionFailureException(@"false", @"Internal error in ignore");
             }
-            //start:
-            //entryCtxt.Return();
-            entryCtxt.Return(app);
-            //return;
-            return;
+            entryCtxt.Return();
         }
-
-        //P program-dependent (user-defined, have to be generated) AnonFunXXX (anon action and functions)
-        //will be located in the derived Machine_<machine name> class
-    }   //for class Machine
+    }
 
     internal class MachineId
     {
@@ -2458,7 +1219,7 @@ namespace Microsoft.Prt
     public class Event
     {
         public static Event NullEvent;
-        public static Event ConstEvent;
+        public static Event HaltEvent;
         public string name;
         public PrtType payload;
         public int maxInstances;
@@ -2505,7 +1266,7 @@ namespace Microsoft.Prt
         public bool hasNullTransition;
         public StateTemperature temperature;
 
-        static State Construct(State name, ActionOrFun entryFun, ActionOrFun exitFun, int numTransitions, bool hasNullTransition, StateTemperature temperature)
+        public static State Construct(State name, ActionOrFun entryFun, ActionOrFun exitFun, int numTransitions, bool hasNullTransition, StateTemperature temperature)
         {
             State state = new State();
             state.name = name;
@@ -2517,7 +1278,7 @@ namespace Microsoft.Prt
             return state;
         }
 
-        Transition FindPushTransition(Event evt)
+        public Transition FindPushTransition(Event evt)
         {
             foreach (Transition transition in transitions)
             {
@@ -2529,7 +1290,7 @@ namespace Microsoft.Prt
             return null;
         }
 
-        Transition FindTransition(Event evt)
+        public Transition FindTransition(Event evt)
         {
             foreach (Transition transition in transitions)
             {
@@ -2547,16 +1308,16 @@ namespace Microsoft.Prt
         public static HashSet<MachineHandle> halted = new HashSet<MachineHandle>();
         public static HashSet<MachineHandle> enabled = new HashSet<MachineHandle>();
         public static HashSet<MachineHandle> hot = new HashSet<MachineHandle>();
-        StateStack stack;
-        Continuation cont;
-        EventBuffer buffer;
-        int maxBufferSize;
-        Machine machineName;
-        int machineId;
-        int instance;
-        Event currentEvent;
-        PrtValue currentArg;
-        HashSet<Event> receiveSet;
+        public StateStack stack;
+        public Continuation cont;
+        public EventBuffer buffer;
+        public int maxBufferSize;
+        public Machine machineName;
+        public int machineId;
+        public int instance;
+        public Event currentEvent;
+        public PrtValue currentArg;
+        public HashSet<Event> receiveSet;
 
         public MachineHandle Construct(Machine machine, int inst, int maxBufferSize)
         {
@@ -2873,7 +1634,7 @@ namespace Microsoft.Prt
             public List<ActionOrFun> actions;
             public StateStack next;
 
-            ActionOrFun Find(Event f)
+            public ActionOrFun Find(Event f)
             {
                 for (int i = 0; i < events.Count; i++)
                 {
@@ -2885,7 +1646,7 @@ namespace Microsoft.Prt
                 return next.Find(f);
             }
 
-            void AddStackDeferredSet(HashSet<Event> localDeferredSet)
+            public void AddStackDeferredSet(HashSet<Event> localDeferredSet)
             {
                 if (next == null)
                 {
@@ -2894,7 +1655,7 @@ namespace Microsoft.Prt
                 localDeferredSet.UnionWith(next.deferredSet);
             }
 
-            void AddStackActionSet(HashSet<Event> localActionSet)
+            public void AddStackActionSet(HashSet<Event> localActionSet)
             {
                 if (next == null)
                 {
@@ -2903,7 +1664,7 @@ namespace Microsoft.Prt
                 localActionSet.UnionWith(next.actionSet);
             }
 
-            bool HasNullTransitionOrAction()
+            public bool HasNullTransitionOrAction()
             {
                 if (state.hasNullTransition) return true;
                 return actionSet.Contains(Event.NullEvent);
@@ -2911,7 +1672,7 @@ namespace Microsoft.Prt
         }
     }
 
-    internal enum ContinuationReason : int
+    public enum ContinuationReason : int
     {
         Return,
         Nondet,
@@ -2931,15 +1692,15 @@ namespace Microsoft.Prt
 
     public class Continuation
     {
-        StackFrame returnTo;
-        ContinuationReason reason;
-        MachineHandle id;
-        PrtValue retVal;
+        public StackFrame returnTo;
+        public ContinuationReason reason;
+        public MachineHandle id;
+        public PrtValue retVal;
 
         // The nondet field is different from the fields above because it is used 
         // by ReentrancyHelper to pass the choice to the nondet choice point.
         // Therefore, nondet should not be reinitialized in this class.
-        bool nondet;
+        public bool nondet;
 
         public static Continuation Construct()
         {
