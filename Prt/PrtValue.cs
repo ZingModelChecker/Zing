@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Microsoft.Prt
 {
-    //PrtValues.zing starts here: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
     public class PrtValue
     {
         public PrtType type;
@@ -360,7 +356,7 @@ namespace Microsoft.Prt
 
         static int PrtSeqSizeOf(PrtValue seq)
         {
-            return (seq.seq).Count();
+            return seq.seq.SizeOf();
         }
 
         static void PrtMapSet(PrtValue map, PrtValue key, PrtValue value)
@@ -430,7 +426,7 @@ namespace Microsoft.Prt
             seq.contents = new List<PrtValue>(this.size);
             for (int i = 0; i < this.size; i++)
             {
-                (seq.contents)[i] = PrtValue.PrtCloneValue((this.contents)[i]);
+                seq.contents[i] = PrtValue.PrtCloneValue(this.contents[i]);
             }
             return seq;
         }
@@ -438,7 +434,7 @@ namespace Microsoft.Prt
         public void Set(int index, PrtValue value)
         {
             Debug.Assert(0 <= index && index < this.size, "index out of bound");
-            (this.contents)[index] = PrtValue.PrtCloneValue(value);
+            this.contents[index] = PrtValue.PrtCloneValue(value);
         }
 
         public void Insert(int index, PrtValue value)
@@ -543,8 +539,8 @@ namespace Microsoft.Prt
             map.values = new List<PrtValue>(this.size);
             for (int i = 0; i < this.size; i++)
             {
-                (map.keys)[i] = PrtValue.PrtCloneValue((this.keys)[i]);
-                (map.values)[i] = PrtValue.PrtCloneValue((this.values)[i]);
+                map.keys[i] = PrtValue.PrtCloneValue(this.keys[i]);
+                map.values[i] = PrtValue.PrtCloneValue(this.values[i]);
             }
             return map;
         }
@@ -553,9 +549,9 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (PrtValue.PrtIsEqualValue((this.keys)[i], key))
+                if (PrtValue.PrtIsEqualValue(this.keys[i], key))
                 {
-                    (this.values)[i] = PrtValue.PrtCloneValue(value);
+                    this.values[i] = PrtValue.PrtCloneValue(value);
                     return;
                 }
             }
@@ -564,8 +560,8 @@ namespace Microsoft.Prt
             List<PrtValue> newValues = new List<PrtValue>(this.size + 1);
             for (int i = 0; i < this.size; i++)
             {
-                newKeys[i] = (this.keys)[i];
-                newValues[i] = (this.values)[i];
+                newKeys[i] = this.keys[i];
+                newValues[i] = this.values[i];
             }
             newKeys[this.size] = PrtValue.PrtCloneValue(key);
             newValues[this.size] = PrtValue.PrtCloneValue(value);
@@ -579,7 +575,7 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (PrtValue.PrtIsEqualValue((this.keys)[i], key))
+                if (PrtValue.PrtIsEqualValue(this.keys[i], key))
                 {
                     List<PrtValue> newKeys = new List<PrtValue>(this.size - 1);
                     List<PrtValue> newValues = new List<PrtValue>(this.size - 1);
@@ -588,13 +584,13 @@ namespace Microsoft.Prt
                     {
                         if (j < i)
                         {
-                            newKeys[i] = (this.keys)[i];
-                            newValues[i] = (this.values)[i];
+                            newKeys[i] = this.keys[i];
+                            newValues[i] = this.values[i];
                         }
                         else if (j > i)
                         {
-                            newKeys[j - 1] = (this.keys)[j];
-                            newValues[j - 1] = (this.values)[j];
+                            newKeys[j - 1] = this.keys[j];
+                            newValues[j - 1] = this.values[j];
                         }
                     }
 
@@ -611,9 +607,9 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (PrtValue.PrtIsEqualValue((this.keys)[i], key))
+                if (PrtValue.PrtIsEqualValue(this.keys[i], key))
                 {
-                    return PrtValue.PrtCloneValue((this.values)[i]);
+                    return PrtValue.PrtCloneValue(this.values[i]);
                 }
             }
             Debug.Assert(false, "key not found");
@@ -624,9 +620,9 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (PrtValue.PrtIsEqualValue((this.keys)[i], key))
+                if (PrtValue.PrtIsEqualValue(this.keys[i], key))
                 {
-                    return (this.values)[i];
+                    return this.values[i];
                 }
             }
             Debug.Assert(false, "key not found");
@@ -640,7 +636,7 @@ namespace Microsoft.Prt
             seq.contents = new List<PrtValue>(this.size);
             for (int i = 0; i < this.size; i++)
             {
-                (seq.contents)[i] = PrtValue.PrtCloneValue((this.keys)[i]);
+                seq.contents[i] = PrtValue.PrtCloneValue(this.keys[i]);
             }
             PrtType seqType = PrtType.PrtMkSeqType(domType);
             PrtValue retVal = PrtValue.PrtMkDefaultValue(seqType);
@@ -655,7 +651,7 @@ namespace Microsoft.Prt
             seq.contents = new List<PrtValue>(this.size);
             for (int i = 0; i < this.size; i++)
             {
-                (seq.contents)[i] = PrtValue.PrtCloneValue((this.values)[i]);
+                seq.contents[i] = PrtValue.PrtCloneValue(this.values[i]);
             }
             PrtType seqType = PrtType.PrtMkSeqType(codType);
             PrtValue retVal = PrtValue.PrtMkDefaultValue(seqType);
@@ -667,7 +663,7 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (PrtValue.PrtIsEqualValue((this.keys)[i], key))
+                if (PrtValue.PrtIsEqualValue(this.keys[i], key))
                 {
                     return true;
                 }
@@ -684,9 +680,9 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (PrtValue.PrtIsEqualValue((this.keys)[i], key))
+                if (PrtValue.PrtIsEqualValue(this.keys[i], key))
                 {
-                    return PrtValue.PrtIsEqualValue((this.values)[i], value);
+                    return PrtValue.PrtIsEqualValue(this.values[i], value);
                 }
             }
             return false;
@@ -696,11 +692,11 @@ namespace Microsoft.Prt
         {
             for (int i = 0; i < this.size; i++)
             {
-                if (!PrtValue.PrtInhabitsType((this.keys)[i], type.domType))
+                if (!PrtValue.PrtInhabitsType(this.keys[i], type.domType))
                 {
                     return false;
                 }
-                if (!PrtValue.PrtInhabitsType((this.values)[i], type.codType))
+                if (!PrtValue.PrtInhabitsType(this.values[i], type.codType))
                 {
                     return false;
                 }
@@ -716,7 +712,7 @@ namespace Microsoft.Prt
             }
             for (int i = 0; i < this.size; i++)
             {
-                if (!map.IsSameMapping((this.keys)[i], (this.values)[i]))
+                if (!map.IsSameMapping(this.keys[i], this.values[i]))
                 {
                     return false;
                 }
