@@ -6,6 +6,31 @@ using System.Collections.Generic;
 
 namespace Microsoft.Prt
 {
+    /*
+      if A is a function is machine Foo, it will look like:
+
+        class Foo : Machine {
+            static int nextInstance = 0;
+            Foo(): base(nextInstance, n) {
+                nextInstance++;
+                A = new A_Fun(this);
+            }
+            class A_Fun : Fun {
+                A_Fun(Machine m) : base(m) {}
+                // implement the abstract methods in Fun
+            }
+            A_Fun A;
+        }
+
+        if B is a static function, it will look like:
+
+        class B_Fun : Fun {
+            public static B_Fun B = new B_Fun();
+            B_Fun() : base(null) {}
+            // implement the abstract methods in Fun
+        }
+     */
+
     public abstract class Machine
     {
         public abstract State StartState
@@ -17,6 +42,8 @@ namespace Microsoft.Prt
         {
             get;
         }
+
+        public List<PrtValue> fields;
 
         public static HashSet<Machine> halted = new HashSet<Machine>();
         public static HashSet<Machine> enabled = new HashSet<Machine>();
@@ -33,6 +60,7 @@ namespace Microsoft.Prt
 
         public Machine(int instance, int maxBufferSize)
         {
+            fields = new List<PrtValue>();
             stack = null;
             cont = new Continuation();
             buffer = new EventBuffer();
@@ -1022,7 +1050,7 @@ namespace Microsoft.Prt
             public void Enter(Z.Process p)
             {
                 machine.cont.Reset();
-                fun.PushEventHandlerFrame(machine.cont, payload);
+                fun.PushFrame(machine.cont, payload);
 
                 nextBlock = Blocks.B0;
             }
@@ -1107,6 +1135,7 @@ namespace Microsoft.Prt
                 B0 = 2,
                 B1 = 3,
                 B2 = 4,
+                B3 = 5,
             };
 
             public override ushort NextBlock
@@ -1155,6 +1184,11 @@ namespace Microsoft.Prt
                     case Blocks.B2:
                         {
                             B2(p);
+                            break;
+                        }
+                    case Blocks.B3:
+                        {
+                            B3(p);
                             break;
                         }
                 }
@@ -1237,27 +1271,25 @@ namespace Microsoft.Prt
                     //myHandle.cont.nondet = choose(bool);
                     application.SetPendingChoices(p, new object[] { false, true });
                     cont.nondet = ((Boolean)application.GetSelectedChoiceValue(p));
-                    _ReturnValue = false;
-                    p.Return(null, null);
-                    StateImpl.IsReturn = true;
+                    nextBlock = Blocks.B1;
                 }
                 if (reason == ContinuationReason.NewMachine)
                 {
                     //yield;
                     p.MiddleOfTransition = false;
-                    nextBlock = Blocks.B1;
+                    nextBlock = Blocks.B2;
                 }
                 if (reason == ContinuationReason.Send)
                 {
                     //yield;
                     p.MiddleOfTransition = false;
-                    nextBlock = Blocks.B2;
+                    nextBlock = Blocks.B3;
                 }
             }
 
             public void B0(Z.Process p)
             {
-                //ContinuationReason.Receive after Dequeue call:
+                // ContinuationReason.Receive
                 _ReturnValue = false;
                 p.Return(null, null);
                 StateImpl.IsReturn = true;
@@ -1265,7 +1297,7 @@ namespace Microsoft.Prt
 
             public void B1(Z.Process p)
             {
-                //ContinuationReason.NewMachine after yield:
+                // ContinuationReason.Nondet after 
                 _ReturnValue = false;
                 p.Return(null, null);
                 StateImpl.IsReturn = true;
@@ -1273,13 +1305,21 @@ namespace Microsoft.Prt
 
             public void B2(Z.Process p)
             {
-                //ContinuationReason.Send after yield:
+                // ContinuationReason.NewMachine
+                _ReturnValue = false;
+                p.Return(null, null);
+                StateImpl.IsReturn = true;
+            }
+            public void B3(Z.Process p)
+            {
+                // ContinuationReason.Send
                 _ReturnValue = false;
                 p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
         }
 
+        // Convert this into a static Fun 
         public void ignore(Z.StateImpl application, Continuation entryCtxt)
         {
             StackFrame retTo;
@@ -1288,15 +1328,20 @@ namespace Microsoft.Prt
             {
                 application.Exception = new Z.ZingAssertionFailureException(@"false", @"Internal error in ignore");
             }
-            entryCtxt.Return();
+            entryCtxt.Return(null);
         }
     }
 
     public abstract class Fun
     {
-        public abstract void PushFunCallFrame(Continuation ctxt, params PrtValue[] args);
+        public Machine parent;
 
-        public abstract void PushEventHandlerFrame(Continuation ctxt, PrtValue payload);
+        public string Name
+        {
+            get;
+        }
+
+        public abstract void PushFrame(Continuation ctxt, params PrtValue[] args);
 
         public abstract void Execute(Z.StateImpl application, Continuation ctxt);
     }
@@ -1310,18 +1355,14 @@ namespace Microsoft.Prt
         public int maxInstances;
         public bool doAssume;
 
-        static Event Construct(string name, PrtType payload, int mInstances, bool doAssume)
+        public Event(string name, PrtType payload, int mInstances, bool doAssume)
         {
-            Event ev = new Event();
-            ev.name = name;
-            ev.payload = payload;
-            ev.maxInstances = mInstances;
-            ev.doAssume = doAssume;
-            return ev;
+            this.name = name;
+            this.payload = payload;
+            this.maxInstances = mInstances;
+            this.doAssume = doAssume;
         }
     };
-
-    public delegate void Action(Z.StateImpl application, Continuation ctxt);
 
     public class Transition
     {
@@ -1355,17 +1396,15 @@ namespace Microsoft.Prt
         public StateTemperature temperature;
         public HashSet<Event> deferredSet;
 
-        public static State Construct(State name, Fun entryFun, Fun exitFun, bool hasNullTransition, StateTemperature temperature)
+        public State(State name, Fun entryFun, Fun exitFun, bool hasNullTransition, StateTemperature temperature)
         {
-            State state = new State();
-            state.name = name;
-            state.entryFun = entryFun;
-            state.exitFun = exitFun;
-            state.transitions = new Dictionary<Event, Transition>();
-            state.dos = new Dictionary<Event, Fun>();
-            state.hasNullTransition = hasNullTransition;
-            state.temperature = temperature;
-            return state;
+            this.name = name;
+            this.entryFun = entryFun;
+            this.exitFun = exitFun;
+            this.transitions = new Dictionary<Event, Transition>();
+            this.dos = new Dictionary<Event, Fun>();
+            this.hasNullTransition = hasNullTransition;
+            this.temperature = temperature;
         }
 
         public Transition FindPushTransition(Event evt)
