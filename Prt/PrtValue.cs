@@ -6,11 +6,13 @@ namespace Microsoft.Prt
 {
     public class PrtValue
     {
+        public static PrtValue NullValue = PrtMkDefaultValue(PrtType.NullType);
+
         public PrtType type;
         public bool bl;
         public Event ev;
         public int nt;
-        public MachineHandle mach;
+        public Machine mach;
         public List<PrtValue> tuple;
         public PrtSeq seq;
         public PrtMap map;
@@ -309,12 +311,12 @@ namespace Microsoft.Prt
             return prmVal.nt;
         }
 
-        static void PrtPrimSetMachine(PrtValue prmVal, MachineHandle value)
+        static void PrtPrimSetMachine(PrtValue prmVal, Machine value)
         {
             prmVal.mach = value;
         }
 
-        static MachineHandle PrtPrimGetMachine(PrtValue prmVal)
+        static Machine PrtPrimGetMachine(PrtValue prmVal)
         {
             return prmVal.mach;
         }

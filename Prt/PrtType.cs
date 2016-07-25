@@ -31,6 +31,8 @@ namespace Microsoft.Prt
         public PrtType domType;
         public PrtType codType;
 
+        public static PrtType NullType = PrtMkPrimitiveType(PrtTypeKind.PRT_KIND_NULL);
+
         public static PrtType BuildDefault(PrtTypeKind typeKind)
         {
             PrtType type = new PrtType();
