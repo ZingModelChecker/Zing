@@ -484,9 +484,6 @@ namespace Microsoft.Prt
 
             public void B3(Z.Process p)
             {
-                //Return from DequeueEvent:
-                p.LastFunctionCompleted = null;
-
                 Machine.RunHelper callee = new Machine.RunHelper(application, machine, false);
                 p.Call(callee);
                 StateImpl.IsCall = true;
