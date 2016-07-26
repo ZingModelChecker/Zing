@@ -45,6 +45,8 @@ namespace Microsoft.Prt
 
         public List<PrtValue> fields;
 
+        /***** TODO ******/
+        //these static fields have to be moved to the application class.
         public static HashSet<Machine> halted = new HashSet<Machine>();
         public static HashSet<Machine> enabled = new HashSet<Machine>();
         public static HashSet<Machine> hot = new HashSet<Machine>();
@@ -96,7 +98,8 @@ namespace Microsoft.Prt
             if (prtType.typeKind != PrtTypeKind.PRT_KIND_NULL)
             {
                 b = PrtValue.PrtInhabitsType(arg, prtType);
-                Debug.Assert(b, "Type of payload does not match the expected type with event");
+                if (!b)
+                    application.Exception = new Z.ZingAssertionFailureException(@"", String.Format("Type of payload does not match the expected type with event <{0}>", e.name));
             }
             else
             {

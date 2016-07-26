@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="PingPong.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ref_AlternatingBit\AlternatingBit.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Zing.Runtime\Microsoft.Zing.Runtime.csproj">
