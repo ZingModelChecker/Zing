@@ -91,26 +91,24 @@ namespace Microsoft.Prt
             bool isEnabled;
             PrtType prtType;
 
-            Debug.Assert(e != null, "Enqueued event must be non-null");
+            if (e == null)
+            {
+                throw new PrtIllegalEnqueueException("Enqueued event must be non-null");
+            }
+
             //assertion to check if argument passed inhabits the payload type.
             prtType = e.payload;
 
-            if (prtType.typeKind != PrtTypeKind.PRT_KIND_NULL)
+            if ((arg.type.typeKind == PrtTypeKind.PRT_KIND_NULL) 
+                || (prtType.typeKind != PrtTypeKind.PRT_KIND_NULL && !PrtValue.PrtInhabitsType(arg, prtType)))
             {
-                b = PrtValue.PrtInhabitsType(arg, prtType);
-                if (!b)
-                    application.Exception = new Z.ZingAssertionFailureException(@"", String.Format("Type of payload does not match the expected type with event <{0}>", e.name));
+                throw new PrtInhabitsTypeException(String.Format("Type of payload <{0}> does not match the expected type <{1}> with event <{2}>", arg.type.ToString(), prtType.ToString(), e.name));
             }
-            else
-            {
-                Debug.Assert(arg.type.typeKind == PrtTypeKind.PRT_KIND_NULL, "Type of payload does not match the expected type with event");
-            }
+            
             if (halted.Contains(this))
             {
                 //TODO: will this work?
                 application.Trace(
-                    null,
-                    null,
                     @"<EnqueueLog> {0}-{1} Machine has been halted and Event {2} is dropped",
                     this.Name, this.instance, e.name);
             }
@@ -119,28 +117,22 @@ namespace Microsoft.Prt
                 if (arg != null)
                 {
                     application.Trace(
-                        null,
-                        null,
-                        @"<EnqueueLog> Enqueued Event < {0} > in Machine {1}-{2} by {3}-{4}",
+                        @"<EnqueueLog> Enqueued Event < {0} > in {1}-{2} by {3}-{4}",
                         e.name, this.Name, this.instance, source.Name, source.instance);
                 }
                 else
                 {
                     application.Trace(
-                        null,
-                        null,
-                        @"<EnqueueLog> Enqueued Event < {0}, ",
-                        e.name);
+                        @"<EnqueueLog> Enqueued Event <{0}, {1}> in {2}-{3} by {4}-{5}",
+                        e.name, arg.ToString(), this.Name, this.instance, source.Name, source.instance);
                 }
 
                 this.buffer.EnqueueEvent(e, arg);
                 if (this.maxBufferSize != -1 && this.buffer.eventBufferSize > this.maxBufferSize)
                 {
-                    application.Trace(
-                        null, null,
-                        @"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
-                        this.maxBufferSize, this.Name, this.instance);
-                    Debug.Assert(false);
+                    throw new PrtMaxBufferSizeExceededException(
+                        String.Format(@"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
+                        this.maxBufferSize, this.Name, this.instance));
                 }
                 if (enabled.Contains(this))
                 {
@@ -156,7 +148,7 @@ namespace Microsoft.Prt
                 }
                 if (enabled.Contains(this))
                 {
-                    // invokescheduler("enabled", machineId, source.machineId);
+                    application.invokescheduler("enabled", machineId, source.machineId);
                 }
             }
         }
@@ -170,15 +162,25 @@ namespace Microsoft.Prt
             buffer.DequeueEvent(this);
             if (currentEvent != null)
             {
-                Debug.Assert(currentArg != null, "Internal error");
-                Debug.Assert(Machine.enabled.Contains(this), "Internal error");
+                if (currentArg == null)
+                {
+                    throw new PrtInternalException("Internal error: currentArg is null");
+                }
+                if(!Machine.enabled.Contains(this))
+                {
+                    throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
+                }
+                
                 //trace("<DequeueLog> Dequeued Event < {0}, ", currentEvent.name); PRT_VALUE.Print(currentArg); trace(" > at Machine {0}-{1}\n", machineName, instance);
                 receiveSet = new HashSet<Event>();
                 return DequeueEventReturnStatus.SUCCESS;
             }
             else if (hasNullTransition || receiveSet.Contains(currentEvent))
             {
-                Debug.Assert(Machine.enabled.Contains(this), "Internal error");
+                if (!Machine.enabled.Contains(this))
+                {
+                    throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
+                }
                 //trace("<NullTransLog> Null transition taken by Machine {0}-{1}\n", machineName, instance);
                 currentArg = PrtValue.NullValue;
                 //FairScheduler.AtYieldStatic(this);
@@ -191,7 +193,10 @@ namespace Microsoft.Prt
                 //invokescheduler("blocked", machineId);
                 //assume(this in SM_HANDLE.enabled);
                 Machine.enabled.Remove(this);
-                Debug.Assert(Machine.enabled.Count != 0 || Machine.hot.Count == 0, "Deadlock");
+                if (!(Machine.enabled.Count != 0 || Machine.hot.Count == 0))
+                {
+                    throw new PrtDeadlockException("Deadlock detected");
+                }
                 //FairScheduler.AtYieldStatic(this);
                 //FairChoice.AtYieldOrChooseStatic();
                 return DequeueEventReturnStatus.BLOCKED;
@@ -354,7 +359,7 @@ namespace Microsoft.Prt
                         null, null, 
                         @"<StateLog> Unhandled event exception by machine Real1-{0}", 
                         machine.instance);
-                    this.StateImpl.Exception = new Z.ZingAssertionFailureException(@"false", @"Unhandled event exception by machine <mach name>");
+                    this.StateImpl.Exception = new PrtUnhandledEventException("Unhandled event exception by machine <mach name>");
                     p.Return(null, null);
                     StateImpl.IsReturn = true;
                 }
@@ -526,7 +531,16 @@ namespace Microsoft.Prt
             {
                 var stateStack = machine.stack;
                 var hasNullTransitionOrAction = stateStack.HasNullTransitionOrAction();
-                var status = machine.DequeueEvent(hasNullTransitionOrAction);
+                DequeueEventReturnStatus status;
+                try
+                {
+                    status = machine.DequeueEvent(hasNullTransitionOrAction);
+                }
+                catch(PrtException ex)
+                {
+                    application.Exception = ex;
+                }
+
                 if (status == DequeueEventReturnStatus.BLOCKED)
                 {
                     p.MiddleOfTransition = false;
@@ -1060,11 +1074,17 @@ namespace Microsoft.Prt
 
             public void B0(Z.Process p)
             {
-                fun.Execute(application, machine.cont);
+                try
+                {
+                    fun.Execute(application, machine.cont);
+                }
+                catch(PrtException ex)
+                {
+                    application.Exception = ex;
+                }
                 Machine.ProcessContinuation callee = new ProcessContinuation(application, machine);
                 p.Call(callee);
                 StateImpl.IsCall = true;
-
                 nextBlock = Blocks.B1;
             }
 
@@ -1135,10 +1155,7 @@ namespace Microsoft.Prt
             {
                 None = 0,
                 Enter = 1,
-                B0 = 2,
-                B1 = 3,
-                B2 = 4,
-                B3 = 5,
+                B0 = 2
             };
 
             public override ushort NextBlock
@@ -1177,21 +1194,6 @@ namespace Microsoft.Prt
                     case Blocks.B0:
                         {
                             B0(p);
-                            break;
-                        }
-                    case Blocks.B1:
-                        {
-                            B1(p);
-                            break;
-                        }
-                    case Blocks.B2:
-                        {
-                            B2(p);
-                            break;
-                        }
-                    case Blocks.B3:
-                        {
-                            B3(p);
                             break;
                         }
                 }
@@ -1252,7 +1254,16 @@ namespace Microsoft.Prt
                 }
                 if (reason == ContinuationReason.Receive)
                 {
-                    var status = machine.DequeueEvent(false);
+                    DequeueEventReturnStatus status;
+                    try
+                    {
+                        status = machine.DequeueEvent(false);
+                    }
+                    catch (PrtException ex)
+                    {
+                        application.Exception = ex;
+                    }
+
                     if (status == DequeueEventReturnStatus.BLOCKED)
                     {
                         p.MiddleOfTransition = false;
@@ -1274,19 +1285,19 @@ namespace Microsoft.Prt
                     //myHandle.cont.nondet = choose(bool);
                     application.SetPendingChoices(p, new object[] { false, true });
                     cont.nondet = ((Boolean)application.GetSelectedChoiceValue(p));
-                    nextBlock = Blocks.B1;
+                    nextBlock = Blocks.B0;
                 }
                 if (reason == ContinuationReason.NewMachine)
                 {
                     //yield;
                     p.MiddleOfTransition = false;
-                    nextBlock = Blocks.B2;
+                    nextBlock = Blocks.B0;
                 }
                 if (reason == ContinuationReason.Send)
                 {
                     //yield;
                     p.MiddleOfTransition = false;
-                    nextBlock = Blocks.B3;
+                    nextBlock = Blocks.B0;
                 }
             }
 
@@ -1294,32 +1305,10 @@ namespace Microsoft.Prt
             {
                 // ContinuationReason.Receive
                 _ReturnValue = false;
-                p.Return(null, null);
+                p.Return();
                 StateImpl.IsReturn = true;
             }
 
-            public void B1(Z.Process p)
-            {
-                // ContinuationReason.Nondet after 
-                _ReturnValue = false;
-                p.Return(null, null);
-                StateImpl.IsReturn = true;
-            }
-
-            public void B2(Z.Process p)
-            {
-                // ContinuationReason.NewMachine
-                _ReturnValue = false;
-                p.Return(null, null);
-                StateImpl.IsReturn = true;
-            }
-            public void B3(Z.Process p)
-            {
-                // ContinuationReason.Send
-                _ReturnValue = false;
-                p.Return(null, null);
-                StateImpl.IsReturn = true;
-            }
         }
 
         // Convert this into a static Fun 
@@ -1471,7 +1460,6 @@ namespace Microsoft.Prt
                 }
                 elem = elem.next;
             }
-            Debug.Assert(currInstances <= e.maxInstances, "Internal error");
             return currInstances;
         }
 
@@ -1499,9 +1487,7 @@ namespace Microsoft.Prt
                 {
                     if (e.doAssume)
                     {
-                        //assume(false);
-                        //TODO(question): is this a correct replacement?
-                        Debug.Assert(false);
+                        throw new Z.ZingAssumeFailureException();
                     }
                     else
                     {
@@ -1512,7 +1498,8 @@ namespace Microsoft.Prt
                         //this.StateImpl.Exception = new Z.ZingAssertionFailureException(@"false");
                         //TODO(question): what to replace with in the new compiler?
                         //assert(false);
-                        Debug.Assert(false);
+                        throw new PrtMaxEventInstancesException(
+                            String.Format(@"< Exception > Attempting to enqueue event {0} more than max instance of {1}\n", e.name, e.maxInstances));
                     }
                 }
                 else
