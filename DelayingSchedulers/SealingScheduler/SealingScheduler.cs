@@ -234,7 +234,7 @@ namespace ExternalDelayingExplorer
             
             var SchedState = zSchedState as SSSchedulerState;
             if (SchedState.isSealedRR || SchedState.isSealedRTC)
-                Debug.Assert(false, "Delay called when the scheduler is sealed");
+                Debug.Assert(false, "Delay called when the scheduler is sealed.");
             // Drop the element
             SchedState.setOfProcesses.Remove(SchedState.scheculedProcess);
             zSchedState.numOfTimesCurrStateDelayed++;
@@ -329,7 +329,6 @@ namespace ExternalDelayingExplorer
             {
                 Debug.Assert(!SchedState.isSealedRR, "sealRTC called when scheduler is sealed with RR");
                 SchedState.isSealedRTC = true;
-                SchedState.IsSealed = true;
                 //control going to the RTC scheduler
                 SchedState.RTCStack = new Stack<int>();
                 SchedState.RTCStack.Push(SchedState.scheculedProcess);
@@ -337,15 +336,12 @@ namespace ExternalDelayingExplorer
             else if(param1_operation == "unsealRTC")
             {
                 Debug.Assert(SchedState.isSealedRTC, "UnsealRTC called when scheduler is not sealed with RTC");
-                SchedState.scheculedProcess = SchedState.RTCStack.Peek();
                 SchedState.isSealedRTC = false;
-                SchedState.IsSealed = false;
             }
             else if(param1_operation == "sealRR")
             {
                 Debug.Assert(!SchedState.isSealedRTC, "sealRR called when scheduler is sealed with RTC");
                 SchedState.isSealedRR = true;
-                SchedState.IsSealed = true;
                 //control going to the RR scheduler
                 SchedState.RRList = new List<int>();
                 SchedState.RRList.Add(SchedState.scheculedProcess);
@@ -361,8 +357,6 @@ namespace ExternalDelayingExplorer
             {
                 Debug.Assert(SchedState.isSealedRR, "UnsealRR called when scheduler is not sealed with RR");
                 SchedState.isSealedRR = false;
-                SchedState.IsSealed = false;
-                SchedState.scheculedProcess = SchedState.RRList.ElementAt(0);
             }
             else
             {

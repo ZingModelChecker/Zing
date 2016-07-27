@@ -227,17 +227,9 @@ namespace Microsoft.Zing
                 searchStack.Pop();
             }
             //try to get to an execution state
-            while (searchStack.Count > 1)
+            while (searchStack.Count > 1 && !(searchStack.Peek() is ExecutionState))
             {
-                if(!(searchStack.Peek() is ExecutionState))
-                {
-                    searchStack.Pop();
-                }
-                else if (searchStack.Peek().ZingDBSchedState.IsSealed)
-                {
-                    searchStack.Pop();
-                }
-                
+                searchStack.Pop();
             }
             //delay at
             var currentState = searchStack.Peek();

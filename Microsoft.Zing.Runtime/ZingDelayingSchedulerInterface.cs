@@ -18,7 +18,6 @@ namespace Microsoft.Zing
 
         public int numOfTimesCurrStateDelayed;
 
-        public bool IsSealed;
         /// <summary>
         /// Defualt Constructor
         /// </summary>
@@ -27,7 +26,6 @@ namespace Microsoft.Zing
             PprocessToZingprocess = new Dictionary<int, int>();
             lastZingProcessCreatedId = -1;
             numOfTimesCurrStateDelayed = 0;
-            IsSealed = false;
         }
 
         /// <summary>
@@ -44,7 +42,6 @@ namespace Microsoft.Zing
             }
             lastZingProcessCreatedId = copyThis.lastZingProcessCreatedId;
             numOfTimesCurrStateDelayed = 0;
-            IsSealed = copyThis.IsSealed;
         }
 
         /// <summary>
