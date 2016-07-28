@@ -6,32 +6,83 @@ using System.Collections.Generic;
 
 namespace Microsoft.Prt
 {
-    /*
-      if A is a function is machine Foo, it will look like:
+    /*    
+      class Application : PStateImpl {
+         ...
+      }
 
-        class Foo : Machine {
-            static int nextInstance = 0;
-            Foo(): base(nextInstance, n) {
-                nextInstance++;
-                A = new A_Fun(this);
-            }
-            class A_Fun : Fun {
-                A_Fun(Machine m) : base(m) {}
-                // implement the abstract methods in Fun
-            }
-            A_Fun A;
+
+        Each event becomes a static field in Application class
+      
+        Each static function  B becomes a class and static field in Application class
+
+        public class B_Fun : Fun {
+            // implement the abstract methods in Fun
         }
 
-        if B is a static function, it will look like:
+        public static B_Fun B = new B_Fun();  // static field declaration in Application
 
-        class B_Fun : Fun {
-            public static B_Fun B = new B_Fun();
-            B_Fun() : base(null) {}
-            // implement the abstract methods in Fun
+        Each machine becomes a class in Application class
+
+        public class Foo : Machine {
+            public Foo(int instance, int maxBufferSize): base(instance, maxBufferSize) {
+                // initialize fields
+            }
+
+            Each function A in machine Foo becomes a class and a static field
+
+            public class A_Fun : Fun {
+                // implement the abstract methods in Fun
+            }
+            public static A_Fun A = new A_Fun();
+
+            Each state X in machine Foo becomes a static field
+            
+            public static State X = new State(...);
+
+            static {
+                // Create transitions
+                // Wire up the states and transitions
+                // Put the appropriate funs in states and transitions 
+                // Presumably the static fields containing funs have already been initialized
+            }
         }
      */
 
-    public abstract class Machine
+    public abstract class PStateImpl : Z.StateImpl
+    {
+        public abstract IEnumerable<Machine> AllMachines
+        {
+            get;
+        }
+
+        public abstract IEnumerable<Monitor> AllMonitors
+        {
+            get;
+        }
+
+        public bool Deadlock
+        {
+            get
+            {
+                bool enabled = false;
+                foreach (var x in AllMachines)
+                {
+                    if (enabled) break;
+                    enabled = enabled || x.enabled;
+                }
+                bool hot = false;
+                foreach (var x in AllMonitors)
+                {
+                    if (hot) break;
+                    hot = hot || x.hot;
+                }
+                return (!enabled && hot);
+            }
+        }
+    }
+
+    public abstract class BaseMachine
     {
         public abstract State StartState
         {
@@ -44,24 +95,32 @@ namespace Microsoft.Prt
         }
 
         public List<PrtValue> fields;
+        public Event currentEvent;
+        public PrtValue currentArg;
+    }
 
-        /***** TODO ******/
-        //these static fields have to be moved to the application class.
-        public static HashSet<Machine> halted = new HashSet<Machine>();
-        public static HashSet<Machine> enabled = new HashSet<Machine>();
-        public static HashSet<Machine> hot = new HashSet<Machine>();
+    public abstract class Monitor : BaseMachine
+    {
+        public bool hot;
 
+        public abstract void Invoke();
+    }
+
+    public abstract class Machine : BaseMachine
+    {
+        public bool halted;
+        public bool enabled;
         public StateStack stack;
         public Continuation cont;
         public EventBuffer buffer;
         public int maxBufferSize;
         public int instance;
-        public Event currentEvent;
-        public PrtValue currentArg;
         public HashSet<Event> receiveSet;
 
         public Machine(int instance, int maxBufferSize)
         {
+            halted = false;
+            enabled = true;
             fields = new List<PrtValue>();
             stack = null;
             cont = new Continuation();
@@ -85,10 +144,8 @@ namespace Microsoft.Prt
             this.stack = this.stack.next;
         }
 
-        public void EnqueueEvent(Z.StateImpl application, Event e, PrtValue arg, Machine source)
+        public void EnqueueEvent(PStateImpl application, Event e, PrtValue arg, Machine source)
         {
-            bool b;
-            bool isEnabled;
             PrtType prtType;
 
             if (e == null)
@@ -105,7 +162,7 @@ namespace Microsoft.Prt
                 throw new PrtInhabitsTypeException(String.Format("Type of payload <{0}> does not match the expected type <{1}> with event <{2}>", arg.type.ToString(), prtType.ToString(), e.name));
             }
             
-            if (halted.Contains(this))
+            if (halted)
             {
                 //TODO: will this work?
                 application.Trace(
@@ -134,19 +191,11 @@ namespace Microsoft.Prt
                         String.Format(@"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
                         this.maxBufferSize, this.Name, this.instance));
                 }
-                if (enabled.Contains(this))
+                if (!enabled && this.buffer.IsEnabled(this))
                 {
-                    // do nothing because cannot change the status
+                    enabled = true;
                 }
-                else
-                {
-                    isEnabled = this.buffer.IsEnabled(this);
-                    if (isEnabled)
-                    {
-                        enabled.Add(this);
-                    }
-                }
-                if (enabled.Contains(this))
+                if (enabled)
                 {
                     application.invokescheduler("enabled", machineId, source.machineId);
                 }
@@ -155,7 +204,7 @@ namespace Microsoft.Prt
 
         public enum DequeueEventReturnStatus { SUCCESS, NULL, BLOCKED };
 
-        public DequeueEventReturnStatus DequeueEvent(bool hasNullTransition)
+        public DequeueEventReturnStatus DequeueEvent(PStateImpl application, bool hasNullTransition)
         {
             currentEvent = null;
             currentArg = null;
@@ -166,7 +215,7 @@ namespace Microsoft.Prt
                 {
                     throw new PrtInternalException("Internal error: currentArg is null");
                 }
-                if(!Machine.enabled.Contains(this))
+                if (!enabled)
                 {
                     throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
                 }
@@ -177,28 +226,27 @@ namespace Microsoft.Prt
             }
             else if (hasNullTransition || receiveSet.Contains(currentEvent))
             {
-                if (!Machine.enabled.Contains(this))
+                if (!enabled)
                 {
                     throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
                 }
                 //trace("<NullTransLog> Null transition taken by Machine {0}-{1}\n", machineName, instance);
                 currentArg = PrtValue.NullValue;
-                //FairScheduler.AtYieldStatic(this);
-                //FairChoice.AtYieldOrChooseStatic();
                 receiveSet = new HashSet<Event>();
                 return DequeueEventReturnStatus.NULL;
             }
             else
             {
                 //invokescheduler("blocked", machineId);
-                //assume(this in SM_HANDLE.enabled);
-                Machine.enabled.Remove(this);
-                if (!(Machine.enabled.Count != 0 || Machine.hot.Count == 0))
+                if (!enabled)
+                {
+                    throw new Z.ZingAssumeFailureException();
+                }
+                enabled = false;
+                if (application.Deadlock)
                 {
                     throw new PrtDeadlockException("Deadlock detected");
                 }
-                //FairScheduler.AtYieldStatic(this);
-                //FairChoice.AtYieldOrChooseStatic();
                 return DequeueEventReturnStatus.BLOCKED;
             }
         }
@@ -220,20 +268,20 @@ namespace Microsoft.Prt
                 throw new NotImplementedException();
             }
 
-            private Z.StateImpl application;
+            private PStateImpl application;
             private Machine machine;
 
             // locals
             private Blocks nextBlock;
 
-            public Start(Z.StateImpl app, Machine machine)
+            public Start(PStateImpl app, Machine machine)
             {
                 application = app;
                 this.machine = machine;
                 nextBlock = Blocks.Enter;
             }
 
-            public override Z.StateImpl StateImpl
+            public override PStateImpl StateImpl
             {
                 get
                 {
@@ -293,7 +341,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 Start clone = new Start(application, machine);
                 clone.nextBlock = this.nextBlock;
@@ -318,7 +366,7 @@ namespace Microsoft.Prt
                 return clone;
             }
 
-            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
+            public override void WriteString(PStateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
@@ -338,8 +386,6 @@ namespace Microsoft.Prt
                 p.LastFunctionCompleted = null;
 
                 var currentEvent = machine.currentEvent;
-                var haltedSet = Machine.halted;
-                var enabledSet = Machine.enabled;
 
                 //Checking if currentEvent is halt:
                 if (currentEvent == Event.HaltEvent)
@@ -347,8 +393,8 @@ namespace Microsoft.Prt
                     machine.stack = null;
                     machine.buffer = null;
                     machine.currentArg = null;
-                    haltedSet.Add(machine);
-                    enabledSet.Remove(machine);
+                    machine.halted = true;
+                    machine.enabled = false;
 
                     p.Return(null, null);
                     StateImpl.IsReturn = true;
@@ -370,7 +416,7 @@ namespace Microsoft.Prt
         {
             private static readonly short typeId = 1;
 
-            private Z.StateImpl application;
+            private PStateImpl application;
             private Machine machine;
 
             // inputs
@@ -380,7 +426,7 @@ namespace Microsoft.Prt
             private Blocks nextBlock;
             private bool doPop;
 
-            public Run(Z.StateImpl app, Machine machine, State state)
+            public Run(PStateImpl app, Machine machine, State state)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
@@ -388,7 +434,7 @@ namespace Microsoft.Prt
                 this.state = state;
             }
 
-            public override Z.StateImpl StateImpl
+            public override PStateImpl StateImpl
             {
                 get
                 {
@@ -470,7 +516,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 Run clone = new Run(application, this.machine, this.state);
                 clone.nextBlock = this.nextBlock;
@@ -496,7 +542,7 @@ namespace Microsoft.Prt
                 return clone;
             }
 
-            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
+            public override void WriteString(PStateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write((ushort)nextBlock);
@@ -534,7 +580,7 @@ namespace Microsoft.Prt
                 DequeueEventReturnStatus status;
                 try
                 {
-                    status = machine.DequeueEvent(hasNullTransitionOrAction);
+                    status = machine.DequeueEvent(application, hasNullTransitionOrAction);
                 }
                 catch(PrtException ex)
                 {
@@ -595,7 +641,7 @@ namespace Microsoft.Prt
         {
             private static readonly short typeId = 2;
 
-            private Z.StateImpl application;
+            private PStateImpl application;
             private Machine machine;
 
             // inputs
@@ -617,7 +663,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public RunHelper(Z.StateImpl app, Machine machine, bool start)
+            public RunHelper(PStateImpl app, Machine machine, bool start)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
@@ -625,7 +671,7 @@ namespace Microsoft.Prt
                 this.start = start;
             }
 
-            public override Z.StateImpl StateImpl
+            public override PStateImpl StateImpl
             {
                 get
                 {
@@ -733,7 +779,7 @@ namespace Microsoft.Prt
                 }
             }
            
-            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 RunHelper clone = new RunHelper(application, this.machine, this.start);
                 clone.nextBlock = this.nextBlock;
@@ -761,7 +807,7 @@ namespace Microsoft.Prt
                 return clone;
             }
 
-            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
+            public override void WriteString(PStateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
@@ -936,7 +982,7 @@ namespace Microsoft.Prt
         {
             private static readonly short typeId = 3;
 
-            private Z.StateImpl application;
+            private PStateImpl application;
             private Machine machine;
             private Fun fun;
 
@@ -957,7 +1003,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public ReentrancyHelper(Z.StateImpl app, Machine machine, Fun fun, PrtValue payload)
+            public ReentrancyHelper(PStateImpl app, Machine machine, Fun fun, PrtValue payload)
             {
                 this.application = app;
                 this.machine = machine;
@@ -965,7 +1011,7 @@ namespace Microsoft.Prt
                 this.payload = payload;
             }
 
-            public override Z.StateImpl StateImpl
+            public override PStateImpl StateImpl
             {
                 get
                 {
@@ -1031,7 +1077,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 ReentrancyHelper clone = new ReentrancyHelper(application, this.machine, this.fun, this.payload);
                 clone.nextBlock = this.nextBlock;
@@ -1058,7 +1104,7 @@ namespace Microsoft.Prt
                 return clone;
             }
 
-            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
+            public override void WriteString(PStateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
@@ -1067,7 +1113,7 @@ namespace Microsoft.Prt
             public void Enter(Z.Process p)
             {
                 machine.cont.Reset();
-                fun.PushFrame(machine.cont, payload);
+                fun.PushFrame(machine, payload);
 
                 nextBlock = Blocks.B0;
             }
@@ -1076,7 +1122,7 @@ namespace Microsoft.Prt
             {
                 try
                 {
-                    fun.Execute(application, machine.cont);
+                    fun.Execute(application, machine);
                 }
                 catch(PrtException ex)
                 {
@@ -1118,7 +1164,7 @@ namespace Microsoft.Prt
         {
             private static readonly short typeId = 4;
 
-            private Z.StateImpl application;
+            private PStateImpl application;
             private Machine machine;
 
             // locals
@@ -1132,14 +1178,14 @@ namespace Microsoft.Prt
                 get { return _ReturnValue; }
             }
 
-            public ProcessContinuation(Z.StateImpl app, Machine machine)
+            public ProcessContinuation(PStateImpl app, Machine machine)
             {
                 application = app;
                 this.machine = machine;
                 nextBlock = Blocks.Enter;
             }
 
-            public override Z.StateImpl StateImpl
+            public override PStateImpl StateImpl
             {
                 get
                 {
@@ -1199,7 +1245,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public override Z.ZingMethod Clone(Z.StateImpl application, Z.Process myProcess, bool shallowCopy)
+            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 ProcessContinuation clone = new ProcessContinuation(application, this.machine);
                 clone.nextBlock = this.nextBlock;
@@ -1224,7 +1270,7 @@ namespace Microsoft.Prt
                 return clone;
             }
 
-            public override void WriteString(Z.StateImpl state, BinaryWriter bw)
+            public override void WriteString(PStateImpl state, BinaryWriter bw)
             {
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
@@ -1257,7 +1303,7 @@ namespace Microsoft.Prt
                     DequeueEventReturnStatus status;
                     try
                     {
-                        status = machine.DequeueEvent(false);
+                        status = machine.DequeueEvent(application, false);
                     }
                     catch (PrtException ex)
                     {
@@ -1312,7 +1358,7 @@ namespace Microsoft.Prt
         }
 
         // Convert this into a static Fun 
-        public void ignore(Z.StateImpl application, Continuation entryCtxt)
+        public void ignore(PStateImpl application, Continuation entryCtxt)
         {
             StackFrame retTo;
             retTo = entryCtxt.PopReturnTo();
@@ -1326,16 +1372,14 @@ namespace Microsoft.Prt
 
     public abstract class Fun
     {
-        public Machine parent;
-
         public string Name
         {
             get;
         }
 
-        public abstract void PushFrame(Continuation ctxt, params PrtValue[] args);
+        public abstract void PushFrame(Machine parent, params PrtValue[] args);
 
-        public abstract void Execute(Z.StateImpl application, Continuation ctxt);
+        public abstract void Execute(PStateImpl application, Machine parent);
     }
 
     public class Event
