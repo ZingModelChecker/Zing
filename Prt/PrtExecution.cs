@@ -63,12 +63,12 @@ namespace Microsoft.Prt
 
     public abstract class PStateImpl : Z.StateImpl
     {
-        public abstract IEnumerable<Machine> AllMachines
+        public abstract IEnumerable<BaseMachine> AllMachines
         {
             get;
         }
 
-        public abstract IEnumerable<Monitor> AllMonitors
+        public abstract IEnumerable<BaseMonitor> AllMonitors
         {
             get;
         }
@@ -94,13 +94,8 @@ namespace Microsoft.Prt
         }
     }
 
-    public abstract class BaseMachine
+    public abstract class Root
     {
-        public abstract State<T> StartState
-        {
-            get;
-        }
-
         public abstract string Name
         {
             get;
@@ -112,20 +107,31 @@ namespace Microsoft.Prt
         public Continuation cont;
     }
 
+    public abstract class BaseMachine : Root
+    {
+        public bool halted;
+        public bool enabled;
+    }
 
-    public abstract class Monitor : BaseMachine
+    public abstract class BaseMonitor : Root
     {
         public bool hot;
+    }
+
+    public abstract class Monitor<T> : BaseMonitor
+    {
+        public abstract State<T> StartState
+        {
+            get;
+        }
 
         public abstract void Invoke();
     }
 
-    public abstract class Machine : BaseMachine
+    public abstract class Machine<T> : BaseMachine where T: Machine<T> 
     {
-        public bool halted;
-        public bool enabled;
-        public StateStack stack;
-        public EventBuffer buffer;
+        public StateStack<T> stack;
+        public EventBuffer<T> buffer;
         public int maxBufferSize;
         public int instance;
         public HashSet<Event> receiveSet;
@@ -134,10 +140,10 @@ namespace Microsoft.Prt
         {
             halted = false;
             enabled = true;
-            fields = new List<PrtValue>();
             stack = null;
+            fields = new List<PrtValue>();
             cont = new Continuation();
-            buffer = new EventBuffer();
+            buffer = new EventBuffer<T>();
             this.maxBufferSize = maxBufferSize;
             this.instance = instance;
             currentEvent = null;
@@ -145,11 +151,12 @@ namespace Microsoft.Prt
             receiveSet = new HashSet<Event>();
         }
 
-        public void Push()
+        public void Push(State<T> s)
         {
-            StateStack s = new StateStack();
-            s.next = this.stack;
-            this.stack = s;
+            StateStack<T> ss = new StateStack<T>();
+            ss.next = this.stack;
+            ss.state = s;
+            this.stack = ss;
         }
 
         public void Pop()
@@ -157,7 +164,12 @@ namespace Microsoft.Prt
             this.stack = this.stack.next;
         }
 
-        public void EnqueueEvent(PStateImpl application, Event e, PrtValue arg, Machine source)
+        public abstract State<T> StartState
+        {
+            get;
+        }
+
+        public void EnqueueEvent(PStateImpl application, Event e, PrtValue arg, Machine<T> source)
         {
             PrtType prtType;
 
@@ -177,7 +189,6 @@ namespace Microsoft.Prt
             
             if (halted)
             {
-                //TODO: will this work?
                 application.Trace(null, null,
                     @"<EnqueueLog> {0}-{1} Machine has been halted and Event {2} is dropped",
                     this.Name, this.instance, e.name);
@@ -204,13 +215,13 @@ namespace Microsoft.Prt
                         String.Format(@"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
                         this.maxBufferSize, this.Name, this.instance));
                 }
-                if (!enabled && this.buffer.IsEnabled(this))
+                if (!enabled && this.buffer.IsEnabled((T)this))
                 {
                     enabled = true;
                 }
                 if (enabled)
                 {
-                    application.invokescheduler("enabled", machineId, source.machineId);
+                    //application.invokescheduler("enabled", machineId, source.machineId);
                 }
             }
         }
@@ -221,7 +232,7 @@ namespace Microsoft.Prt
         {
             currentEvent = null;
             currentArg = null;
-            buffer.DequeueEvent(this);
+            buffer.DequeueEvent((T)this);
             if (currentEvent != null)
             {
                 if (currentArg == null)
@@ -233,7 +244,9 @@ namespace Microsoft.Prt
                     throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
                 }
                 
-                //trace("<DequeueLog> Dequeued Event < {0}, ", currentEvent.name); PRT_VALUE.Print(currentArg); trace(" > at Machine {0}-{1}\n", machineName, instance);
+                application.Trace(null, null,
+                    "<DequeueLog> Dequeued Event < {0}, {1} > at Machine {2}-{3}\n", 
+                    currentEvent.name, currentArg.ToString(), Name, instance);
                 receiveSet = new HashSet<Event>();
                 return DequeueEventReturnStatus.SUCCESS;
             }
@@ -243,7 +256,9 @@ namespace Microsoft.Prt
                 {
                     throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
                 }
-                //trace("<NullTransLog> Null transition taken by Machine {0}-{1}\n", machineName, instance);
+                application.Trace(null, null,
+                    "<NullTransLog> Null transition taken by Machine {0}-{1}\n", 
+                    Name, instance);
                 currentArg = PrtValue.NullValue;
                 receiveSet = new HashSet<Event>();
                 return DequeueEventReturnStatus.NULL;
@@ -286,17 +301,17 @@ namespace Microsoft.Prt
             public abstract void Dispatch(Z.Process p);
         }
 
-        internal sealed class Start<T> : PrtExecutorFun
+        internal sealed class Start : PrtExecutorFun
         {
             private static readonly short typeId = 0;
 
             private PStateImpl application;
-            private Machine machine;
+            private Machine<T> machine;
 
             // locals
             private Blocks nextBlock;
 
-            public Start(PStateImpl app, Machine machine)
+            public Start(PStateImpl app, Machine<T> machine)
             {
                 application = app;
                 this.machine = machine;
@@ -398,7 +413,7 @@ namespace Microsoft.Prt
 
             private void Enter(Z.Process p)
             {
-                Machine.Run<T> callee = new Machine.Run<T>(application, machine, machine.StartState);
+                Machine<T>.Run callee = new Machine<T>.Run(application, machine, machine.StartState);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -436,12 +451,12 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class Run<T> : PrtExecutorFun
+        internal sealed class Run : PrtExecutorFun
         {
             private static readonly short typeId = 1;
 
             private PStateImpl application;
-            private Machine machine;
+            private Machine<T> machine;
 
             // inputs
             private State<T> state;
@@ -450,7 +465,15 @@ namespace Microsoft.Prt
             private Blocks nextBlock;
             private bool doPop;
 
-            public Run(PStateImpl app, Machine machine, State<T> state)
+            public Run(PStateImpl app, Machine<T> machine)
+            {
+                application = app;
+                nextBlock = Blocks.Enter;
+                this.machine = machine;
+                this.state = null;
+            }
+
+            public Run(PStateImpl app, Machine<T> machine, State<T> state)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
@@ -591,7 +614,7 @@ namespace Microsoft.Prt
 
             private void B4(Z.Process p)
             {
-                doPop = ((Machine.RunHelper<T>)p.LastFunctionCompleted).ReturnValue;
+                doPop = ((Machine<T>.RunHelper)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
 
                 //B1 is header of the "while" loop:
@@ -600,7 +623,7 @@ namespace Microsoft.Prt
 
             private void B3(Z.Process p)
             {
-                Machine.RunHelper<T> callee = new Machine.RunHelper<T>(application, machine, false);
+                Machine<T>.RunHelper callee = new Machine<T>.RunHelper(application, machine, false);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -619,6 +642,9 @@ namespace Microsoft.Prt
                 catch(PrtException ex)
                 {
                     application.Exception = ex;
+                    p.Return(null, null);
+                    StateImpl.IsReturn = true;
+                    return;
                 }
 
                 if (status == DequeueEventReturnStatus.BLOCKED)
@@ -652,18 +678,16 @@ namespace Microsoft.Prt
             private void B0(Z.Process p)
             {
                 //Return from RunHelper:
-                doPop = ((Machine.RunHelper<T>)p.LastFunctionCompleted).ReturnValue;
+                doPop = ((Machine<T>.RunHelper)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
                 nextBlock = Blocks.B1;
             }
 
             private void Enter(Z.Process p)
             {
-                var stateStack = machine.stack;
-                machine.Push();
-                stateStack.state = state;
+                machine.Push(state);
 
-                Machine.RunHelper<T> callee = new Machine.RunHelper<T>(application, machine, true);
+                Machine<T>.RunHelper callee = new Machine<T>.RunHelper(application, machine, true);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -671,19 +695,19 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class RunHelper<T> : PrtExecutorFun
+        internal sealed class RunHelper : PrtExecutorFun
         {
             private static readonly short typeId = 2;
 
             private PStateImpl application;
-            private Machine machine;
+            private Machine<T> machine;
 
             // inputs
             private bool start;
 
             // locals
             private Blocks nextBlock;
-            private State state;
+            private State<T> state;
             private Fun<T> fun;
             private Transition<T> transition;
 
@@ -697,7 +721,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public RunHelper(PStateImpl app, Machine machine, bool start)
+            public RunHelper(PStateImpl app, Machine<T> machine, bool start)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
@@ -879,7 +903,7 @@ namespace Microsoft.Prt
             {
                 var stateStack = machine.stack;
 
-                Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper<T>(application, machine, fun);
+                Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, fun);
                 p.Call(callee);
                 StateImpl.IsCall = true;
                 nextBlock = Blocks.B3;
@@ -907,7 +931,7 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, state.exitFun);
+                        Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, state.exitFun);
                         p.Call(callee);
                         StateImpl.IsCall = true;
 
@@ -943,7 +967,7 @@ namespace Microsoft.Prt
                     transition = state.FindPushTransition(machine.currentEvent);
                     if (transition != null)
                     {
-                        Machine.Run callee = new Machine.Run(application, machine, transition.to);
+                        Machine<T>.Run callee = new Machine<T>.Run(application, machine, transition.to);
                         p.Call(callee);
                         StateImpl.IsCall = true;
 
@@ -975,7 +999,7 @@ namespace Microsoft.Prt
 
             private void B6(Z.Process p)
             {
-                Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, state.exitFun);
+                Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, state.exitFun);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -995,7 +1019,7 @@ namespace Microsoft.Prt
                 }
                 else
                 {
-                    Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, transition.fun);
+                    Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, transition.fun);
                     p.Call(callee);
                     StateImpl.IsCall = true;
                     nextBlock = Blocks.B8;
@@ -1014,12 +1038,12 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class ReentrancyHelper<T> : PrtExecutorFun
+        internal sealed class ReentrancyHelper : PrtExecutorFun
         {
             private static readonly short typeId = 3;
 
             private PStateImpl application;
-            private Machine machine;
+            private Machine<T> machine;
             private Fun<T> fun;
 
             // inputs
@@ -1039,7 +1063,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public ReentrancyHelper(PStateImpl app, Machine machine, Fun<T> fun, PrtValue payload)
+            public ReentrancyHelper(PStateImpl app, Machine<T> machine, Fun<T> fun, PrtValue payload)
             {
                 this.application = app;
                 this.machine = machine;
@@ -1151,7 +1175,7 @@ namespace Microsoft.Prt
             private void Enter(Z.Process p)
             {
                 machine.cont.Reset();
-                fun.PushFrame(machine, payload);
+                fun.PushFrame((T)machine, payload);
 
                 nextBlock = Blocks.B0;
             }
@@ -1160,13 +1184,13 @@ namespace Microsoft.Prt
             {
                 try
                 {
-                    fun.Execute(application, machine);
+                    fun.Execute(application, (T)machine);
                 }
                 catch(PrtException ex)
                 {
                     application.Exception = ex;
                 }
-                Machine.ProcessContinuation callee = new ProcessContinuation(application, machine);
+                Machine<T>.ProcessContinuation callee = new ProcessContinuation(application, machine);
                 p.Call(callee);
                 StateImpl.IsCall = true;
                 nextBlock = Blocks.B1;
@@ -1174,7 +1198,7 @@ namespace Microsoft.Prt
 
             private void B1(Z.Process p)
             {
-                var doPop = ((Machine.ProcessContinuation)p.LastFunctionCompleted).ReturnValue;
+                var doPop = ((Machine<T>.ProcessContinuation)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
 
                 if (doPop)
@@ -1202,7 +1226,7 @@ namespace Microsoft.Prt
             private static readonly short typeId = 4;
 
             private PStateImpl application;
-            private Machine machine;
+            private Machine<T> machine;
 
             // locals
             private Blocks nextBlock;
@@ -1215,7 +1239,7 @@ namespace Microsoft.Prt
                 get { return _ReturnValue; }
             }
 
-            public ProcessContinuation(PStateImpl app, Machine machine)
+            public ProcessContinuation(PStateImpl app, Machine<T> machine)
             {
                 application = app;
                 this.machine = machine;
@@ -1347,6 +1371,9 @@ namespace Microsoft.Prt
                     catch (PrtException ex)
                     {
                         application.Exception = ex;
+                        p.Return(null, null);
+                        StateImpl.IsReturn = true;
+                        return;
                     }
 
                     if (status == DequeueEventReturnStatus.BLOCKED)
@@ -1366,8 +1393,6 @@ namespace Microsoft.Prt
                 }
                 if (reason == ContinuationReason.Nondet)
                 {
-                    //No splitting into a new Block after nondet, since it is a local thing
-                    //myHandle.cont.nondet = choose(bool);
                     application.SetPendingChoices(p, new object[] { false, true });
                     cont.nondet = ((Boolean)application.GetSelectedChoiceValue(p));
                     nextBlock = Blocks.B0;
@@ -1403,7 +1428,7 @@ namespace Microsoft.Prt
             get;
         }
 
-        public abstract void PushFrame(Machine parent, params PrtValue[] args);
+        public abstract void PushFrame(T parent, params PrtValue[] args);
 
         public abstract void Execute(PStateImpl application, T parent);
     }
@@ -1430,9 +1455,9 @@ namespace Microsoft.Prt
     {
         public Event evt;
         public Fun<T> fun; // isPush <==> fun == null
-        public State to;
+        public State<T> to;
 
-        public Transition(Event evt, Fun<T> fun, State to)
+        public Transition(Event evt, Fun<T> fun, State<T> to)
         {
             this.evt = evt;
             this.fun = fun;
@@ -1452,35 +1477,35 @@ namespace Microsoft.Prt
         public string name;
         public Fun<T> entryFun;
         public Fun<T> exitFun;
-        public Dictionary<Event, Transition> transitions;
-        public Dictionary<Event, Fun> dos;
+        public Dictionary<Event, Transition<T>> transitions;
+        public Dictionary<Event, Fun<T>> dos;
         public bool hasNullTransition;
         public StateTemperature temperature;
         public HashSet<Event> deferredSet;
 
-        public State(State name, Fun entryFun, Fun exitFun, bool hasNullTransition, StateTemperature temperature)
+        public State(string name, Fun<T> entryFun, Fun<T> exitFun, bool hasNullTransition, StateTemperature temperature)
         {
             this.name = name;
             this.entryFun = entryFun;
             this.exitFun = exitFun;
-            this.transitions = new Dictionary<Event, Transition>();
-            this.dos = new Dictionary<Event, Fun>();
+            this.transitions = new Dictionary<Event, Transition<T>>();
+            this.dos = new Dictionary<Event, Fun<T>>();
             this.hasNullTransition = hasNullTransition;
             this.temperature = temperature;
         }
 
-        public Transition FindPushTransition(Event evt)
+        public Transition<T> FindPushTransition(Event evt)
         {
             if (transitions.ContainsKey(evt))
             {
-                Transition transition = transitions[evt];
+                Transition<T> transition = transitions[evt];
                 if (transition.fun == null)
                     return transition;
             }
             return null;
         }
 
-        public Transition FindTransition(Event evt)
+        public Transition<T> FindTransition(Event evt)
         {
             if (transitions.ContainsKey(evt))
             {
@@ -1501,7 +1526,7 @@ namespace Microsoft.Prt
         public PrtValue arg;
     }
 
-    public class EventBuffer
+    public class EventBuffer<T> where T: Machine<T>
     {
         public EventNode head;
         public int eventBufferSize;
@@ -1561,20 +1586,12 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        //.zing: trace("<Exception> Attempting to enqueue event {0} more than max instance of {1}\n", e.name, e.maxInstances);
-                        //old compiler:
-                        //application.Trace(new ZingSourceContext(0, 16127, 16235), null, @"<Exception> Attempting to enqueue event {0} more than max instance of {1}
-                        //", (((Z.Application.Event) application.LookupObject(inputs.e))).name, (((Z.Application.Event) application.LookupObject(inputs.e))).maxInstances);
-                        //this.StateImpl.Exception = new Z.ZingAssertionFailureException(@"false");
-                        //TODO(question): what to replace with in the new compiler?
-                        //assert(false);
-                        throw new PrtMaxEventInstancesException(
+                        throw new PrtMaxEventInstancesExceededException(
                             String.Format(@"< Exception > Attempting to enqueue event {0} more than max instance of {1}\n", e.name, e.maxInstances));
                     }
                 }
                 else
                 {
-                    //Instead of "Allocate" in old compiler:
                     elem = new EventNode();
                     elem.e = e;
                     elem.arg = arg;
@@ -1587,7 +1604,7 @@ namespace Microsoft.Prt
             }
         }
 
-        public void DequeueEvent(Machine owner)
+        public void DequeueEvent(T owner)
         {
             HashSet<Event> deferredSet;
             HashSet<Event> receiveSet;
@@ -1621,7 +1638,7 @@ namespace Microsoft.Prt
             }
         }
 
-        public bool IsEnabled(Machine owner)
+        public bool IsEnabled(T owner)
         {
             EventNode iter;
             HashSet<Event> deferredSet;
@@ -1652,14 +1669,14 @@ namespace Microsoft.Prt
         }
     }
 
-    public class StateStack
+    public class StateStack<T>
     {
-        public State state;
+        public State<T> state;
         public HashSet<Event> deferredSet;
         public HashSet<Event> actionSet;
-        public StateStack next;
+        public StateStack<T> next;
 
-        public Fun Find(Event f)
+        public Fun<T> Find(Event f)
         {
             if (state.dos.ContainsKey(f))
             {
@@ -1721,7 +1738,7 @@ namespace Microsoft.Prt
     {
         public StackFrame returnTo;
         public ContinuationReason reason;
-        public Machine id;
+        public BaseMachine id;
         public PrtValue retVal;
         public List<PrtValue> retLocals;
 
@@ -1812,7 +1829,7 @@ namespace Microsoft.Prt
             this.PushReturnTo(ret, locals);
         }
 
-        void NewMachine(int ret, List<PrtValue> locals, Machine o)
+        void NewMachine(int ret, List<PrtValue> locals, BaseMachine o)
         {
             this.returnTo = null;
             this.reason = ContinuationReason.NewMachine;

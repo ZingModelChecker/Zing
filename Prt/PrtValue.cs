@@ -12,7 +12,7 @@ namespace Microsoft.Prt
         public bool bl;
         public Event ev;
         public int nt;
-        public Machine mach;
+        public BaseMachine mach;
         public List<PrtValue> tuple;
         public PrtSeq seq;
         public PrtMap map;
@@ -311,12 +311,12 @@ namespace Microsoft.Prt
             return prmVal.nt;
         }
 
-        static void PrtPrimSetMachine(PrtValue prmVal, Machine value)
+        static void PrtPrimSetMachine(PrtValue prmVal, BaseMachine value)
         {
             prmVal.mach = value;
         }
 
-        static Machine PrtPrimGetMachine(PrtValue prmVal)
+        static BaseMachine PrtPrimGetMachine(PrtValue prmVal)
         {
             return prmVal.mach;
         }
