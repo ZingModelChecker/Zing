@@ -8,15 +8,25 @@ namespace Microsoft.Prt
 {
     /*    
       class Application : PStateImpl {
+        // one list for each machine and monitor type
+        List<A> A_list;
+        List<B> B_list;
          ...
-      }
+         // implement AllMachines, AllMonitors
+         
 
+        // What is the design of the constructor?
+        public Application() { ... } 
 
         Each event becomes a static field in Application class
       
+        public static Event A = new Event(...);
+
         Each static function  B becomes a class and static field in Application class
 
-        public class B_Fun : Fun {
+        // Can static functions be called from monitors
+        // If yes, the type parameter must be BaseMachine; if no, it can be Machine
+        public class B_Fun : Fun<BaseMachine> {
             // implement the abstract methods in Fun
         }
 
@@ -25,13 +35,15 @@ namespace Microsoft.Prt
         Each machine becomes a class in Application class
 
         public class Foo : Machine {
-            public Foo(int instance, int maxBufferSize): base(instance, maxBufferSize) {
+            public Foo(int instance): base(instance, numFields, maxBufferSize) {
                 // initialize fields
             }
 
+            Create getter/setter for each field so that code in functions looks nice
+
             Each function A in machine Foo becomes a class and a static field
 
-            public class A_Fun : Fun {
+            public class A_Fun : Fun<Foo> {
                 // implement the abstract methods in Fun
             }
             public static A_Fun A = new A_Fun();
@@ -84,7 +96,7 @@ namespace Microsoft.Prt
 
     public abstract class BaseMachine
     {
-        public abstract State StartState
+        public abstract State<T> StartState
         {
             get;
         }
@@ -97,7 +109,9 @@ namespace Microsoft.Prt
         public List<PrtValue> fields;
         public Event currentEvent;
         public PrtValue currentArg;
+        public Continuation cont;
     }
+
 
     public abstract class Monitor : BaseMachine
     {
@@ -111,7 +125,6 @@ namespace Microsoft.Prt
         public bool halted;
         public bool enabled;
         public StateStack stack;
-        public Continuation cont;
         public EventBuffer buffer;
         public int maxBufferSize;
         public int instance;
@@ -165,7 +178,7 @@ namespace Microsoft.Prt
             if (halted)
             {
                 //TODO: will this work?
-                application.Trace(
+                application.Trace(null, null,
                     @"<EnqueueLog> {0}-{1} Machine has been halted and Event {2} is dropped",
                     this.Name, this.instance, e.name);
             }
@@ -173,13 +186,13 @@ namespace Microsoft.Prt
             {
                 if (arg != null)
                 {
-                    application.Trace(
+                    application.Trace(null, null,
                         @"<EnqueueLog> Enqueued Event < {0} > in {1}-{2} by {3}-{4}",
                         e.name, this.Name, this.instance, source.Name, source.instance);
                 }
                 else
                 {
-                    application.Trace(
+                    application.Trace(null, null,
                         @"<EnqueueLog> Enqueued Event <{0}, {1}> in {2}-{3} by {4}-{5}",
                         e.name, arg.ToString(), this.Name, this.instance, source.Name, source.instance);
                 }
@@ -251,22 +264,31 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class Start : Z.ZingMethod
+        public abstract class PrtExecutorFun
+        {
+            public abstract PStateImpl StateImpl
+            {
+                get;
+                set;
+            }
+
+            public abstract ushort NextBlock
+            {
+                get;
+                set;
+            }
+
+            public abstract string ProgramCounter
+            {
+                get;
+            }
+
+            public abstract void Dispatch(Z.Process p);
+        }
+
+        internal sealed class Start<T> : PrtExecutorFun
         {
             private static readonly short typeId = 0;
-
-            public override object DoCheckInOthers()
-            {
-                throw new NotImplementedException();
-            }
-            public override void DoRevertOthers()
-            {
-                throw new NotImplementedException();
-            }
-            public override void DoRollbackOthers(object[] uleList)
-            {
-                throw new NotImplementedException();
-            }
 
             private PStateImpl application;
             private Machine machine;
@@ -293,7 +315,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public enum Blocks : ushort
+            private enum Blocks : ushort
             {
                 None = 0,
                 Enter = 1,
@@ -341,6 +363,7 @@ namespace Microsoft.Prt
                 }
             }
 
+            /*
             public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 Start clone = new Start(application, machine);
@@ -371,17 +394,18 @@ namespace Microsoft.Prt
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
             }
+            */
 
-            public void Enter(Z.Process p)
+            private void Enter(Z.Process p)
             {
-                Machine.Run callee = new Machine.Run(application, machine, machine.StartState);
+                Machine.Run<T> callee = new Machine.Run<T>(application, machine, machine.StartState);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
                 nextBlock = Blocks.B0;
             }
 
-            public void B0(Z.Process p)
+            private void B0(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
@@ -412,7 +436,7 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class Run : Z.ZingMethod
+        internal sealed class Run<T> : PrtExecutorFun
         {
             private static readonly short typeId = 1;
 
@@ -420,13 +444,13 @@ namespace Microsoft.Prt
             private Machine machine;
 
             // inputs
-            private State state;
+            private State<T> state;
             
             // locals
             private Blocks nextBlock;
             private bool doPop;
 
-            public Run(PStateImpl app, Machine machine, State state)
+            public Run(PStateImpl app, Machine machine, State<T> state)
             {
                 application = app;
                 nextBlock = Blocks.Enter;
@@ -446,7 +470,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public enum Blocks : ushort
+            private enum Blocks : ushort
             {
                 None = 0,
                 Enter = 1,
@@ -516,6 +540,15 @@ namespace Microsoft.Prt
                 }
             }
 
+            public override string ProgramCounter
+            {
+                get
+                {
+                    return nextBlock.ToString();
+                }
+            }
+
+            /*
             public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 Run clone = new Run(application, this.machine, this.state);
@@ -547,33 +580,34 @@ namespace Microsoft.Prt
                 bw.Write(typeId);
                 bw.Write((ushort)nextBlock);
             }
+            */
 
-            public void B5(Z.Process p)
+            private void B5(Z.Process p)
             {
                 machine.Pop();
                 p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
 
-            public void B4(Z.Process p)
+            private void B4(Z.Process p)
             {
-                doPop = ((Machine.RunHelper)p.LastFunctionCompleted).ReturnValue;
+                doPop = ((Machine.RunHelper<T>)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
 
                 //B1 is header of the "while" loop:
                 nextBlock = Blocks.B1;
             }
 
-            public void B3(Z.Process p)
+            private void B3(Z.Process p)
             {
-                Machine.RunHelper callee = new Machine.RunHelper(application, machine, false);
+                Machine.RunHelper<T> callee = new Machine.RunHelper<T>(application, machine, false);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
                 nextBlock = Blocks.B4;
             }
 
-            public void B2(Z.Process p)
+            private void B2(Z.Process p)
             {
                 var stateStack = machine.stack;
                 var hasNullTransitionOrAction = stateStack.HasNullTransitionOrAction();
@@ -603,7 +637,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B1(Z.Process p)
+            private void B1(Z.Process p)
             {
                 if (!doPop)
                 {
@@ -615,21 +649,21 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B0(Z.Process p)
+            private void B0(Z.Process p)
             {
                 //Return from RunHelper:
-                doPop = ((Machine.RunHelper)p.LastFunctionCompleted).ReturnValue;
+                doPop = ((Machine.RunHelper<T>)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
                 nextBlock = Blocks.B1;
             }
 
-            public void Enter(Z.Process p)
+            private void Enter(Z.Process p)
             {
                 var stateStack = machine.stack;
                 machine.Push();
                 stateStack.state = state;
 
-                Machine.RunHelper callee = new Machine.RunHelper(application, machine, true);
+                Machine.RunHelper<T> callee = new Machine.RunHelper<T>(application, machine, true);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -637,7 +671,7 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class RunHelper : Z.ZingMethod
+        internal sealed class RunHelper<T> : PrtExecutorFun
         {
             private static readonly short typeId = 2;
 
@@ -650,8 +684,8 @@ namespace Microsoft.Prt
             // locals
             private Blocks nextBlock;
             private State state;
-            private Fun fun;
-            private Transition transition;
+            private Fun<T> fun;
+            private Transition<T> transition;
 
             // output
             private bool _ReturnValue;
@@ -779,6 +813,7 @@ namespace Microsoft.Prt
                 }
             }
            
+            /*
             public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 RunHelper clone = new RunHelper(application, this.machine, this.start);
@@ -812,8 +847,9 @@ namespace Microsoft.Prt
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
             }
+            */
 
-            public void Enter(Z.Process p)
+            private void Enter(Z.Process p)
             {
                 var stateStack = machine.stack;
                 this.state = stateStack.state;
@@ -839,17 +875,17 @@ namespace Microsoft.Prt
                 nextBlock = Blocks.B2;
             }
 
-            public void B2(Z.Process p)
+            private void B2(Z.Process p)
             {
                 var stateStack = machine.stack;
 
-                Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, fun);
+                Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper<T>(application, machine, fun);
                 p.Call(callee);
                 StateImpl.IsCall = true;
                 nextBlock = Blocks.B3;
             }
 
-            public void B3(Z.Process p)
+            private void B3(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
@@ -880,7 +916,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B4(Z.Process p)
+            private void B4(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
@@ -889,7 +925,7 @@ namespace Microsoft.Prt
                 StateImpl.IsReturn = true;
             }
 
-            public void B1(Z.Process p)
+            private void B1(Z.Process p)
             {
                 var stateStack = machine.stack;
                 var state = stateStack.state;
@@ -920,7 +956,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B5(Z.Process p)
+            private void B5(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
@@ -937,7 +973,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B6(Z.Process p)
+            private void B6(Z.Process p)
             {
                 Machine.ReentrancyHelper callee = new Machine.ReentrancyHelper(application, machine, state.exitFun);
                 p.Call(callee);
@@ -946,7 +982,7 @@ namespace Microsoft.Prt
                 nextBlock = Blocks.B7;
             }
 
-            public void B7(Z.Process p)
+            private void B7(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
 
@@ -966,7 +1002,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B8(Z.Process p)
+            private void B8(Z.Process p)
             {
                 p.LastFunctionCompleted = null;
                 var stateStack = machine.stack;
@@ -978,13 +1014,13 @@ namespace Microsoft.Prt
             }
         }
 
-        internal sealed class ReentrancyHelper : Z.ZingMethod
+        internal sealed class ReentrancyHelper<T> : PrtExecutorFun
         {
             private static readonly short typeId = 3;
 
             private PStateImpl application;
             private Machine machine;
-            private Fun fun;
+            private Fun<T> fun;
 
             // inputs
             private PrtValue payload;
@@ -1003,7 +1039,7 @@ namespace Microsoft.Prt
                 }
             }
 
-            public ReentrancyHelper(PStateImpl app, Machine machine, Fun fun, PrtValue payload)
+            public ReentrancyHelper(PStateImpl app, Machine machine, Fun<T> fun, PrtValue payload)
             {
                 this.application = app;
                 this.machine = machine;
@@ -1077,6 +1113,7 @@ namespace Microsoft.Prt
                 }
             }
 
+            /*
             public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 ReentrancyHelper clone = new ReentrancyHelper(application, this.machine, this.fun, this.payload);
@@ -1109,8 +1146,9 @@ namespace Microsoft.Prt
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
             }
+            */
 
-            public void Enter(Z.Process p)
+            private void Enter(Z.Process p)
             {
                 machine.cont.Reset();
                 fun.PushFrame(machine, payload);
@@ -1118,7 +1156,7 @@ namespace Microsoft.Prt
                 nextBlock = Blocks.B0;
             }
 
-            public void B0(Z.Process p)
+            private void B0(Z.Process p)
             {
                 try
                 {
@@ -1134,7 +1172,7 @@ namespace Microsoft.Prt
                 nextBlock = Blocks.B1;
             }
 
-            public void B1(Z.Process p)
+            private void B1(Z.Process p)
             {
                 var doPop = ((Machine.ProcessContinuation)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
@@ -1157,10 +1195,9 @@ namespace Microsoft.Prt
                     nextBlock = Blocks.B0;
                 }
             }
-
         }
 
-        internal sealed class ProcessContinuation : Z.ZingMethod
+        internal sealed class ProcessContinuation : PrtExecutorFun
         {
             private static readonly short typeId = 4;
 
@@ -1245,6 +1282,7 @@ namespace Microsoft.Prt
                 }
             }
 
+            /*
             public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
             {
                 ProcessContinuation clone = new ProcessContinuation(application, this.machine);
@@ -1275,8 +1313,9 @@ namespace Microsoft.Prt
                 bw.Write(typeId);
                 bw.Write(((ushort)nextBlock));
             }
+            */
 
-            public void Enter(Z.Process p)
+            private void Enter(Z.Process p)
             {
                 var cont = machine.cont;
                 var reason = cont.reason;
@@ -1347,39 +1386,26 @@ namespace Microsoft.Prt
                 }
             }
 
-            public void B0(Z.Process p)
+            private void B0(Z.Process p)
             {
                 // ContinuationReason.Receive
                 _ReturnValue = false;
-                p.Return();
+                p.Return(null, null);
                 StateImpl.IsReturn = true;
             }
-
-        }
-
-        // Convert this into a static Fun 
-        public void ignore(PStateImpl application, Continuation entryCtxt)
-        {
-            StackFrame retTo;
-            retTo = entryCtxt.PopReturnTo();
-            if (retTo.pc != 0)
-            {
-                application.Exception = new Z.ZingAssertionFailureException(@"false", @"Internal error in ignore");
-            }
-            entryCtxt.Return(null);
         }
     }
 
-    public abstract class Fun
+    public abstract class Fun<T>
     {
-        public string Name
+        public abstract string Name
         {
             get;
         }
 
         public abstract void PushFrame(Machine parent, params PrtValue[] args);
 
-        public abstract void Execute(PStateImpl application, Machine parent);
+        public abstract void Execute(PStateImpl application, T parent);
     }
 
     public class Event
@@ -1400,13 +1426,13 @@ namespace Microsoft.Prt
         }
     };
 
-    public class Transition
+    public class Transition<T>
     {
         public Event evt;
-        public Fun fun; // isPush <==> fun == null
+        public Fun<T> fun; // isPush <==> fun == null
         public State to;
 
-        public Transition(Event evt, Fun fun, State to)
+        public Transition(Event evt, Fun<T> fun, State to)
         {
             this.evt = evt;
             this.fun = fun;
@@ -1421,11 +1447,11 @@ namespace Microsoft.Prt
         Hot
     };
 
-    public class State
+    public class State<T>
     {
-        public State name;
-        public Fun entryFun;
-        public Fun exitFun;
+        public string name;
+        public Fun<T> entryFun;
+        public Fun<T> exitFun;
         public Dictionary<Event, Transition> transitions;
         public Dictionary<Event, Fun> dos;
         public bool hasNullTransition;
