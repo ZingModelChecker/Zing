@@ -710,6 +710,7 @@ namespace Microsoft.Prt
             private State<T> state;
             private Fun<T> fun;
             private Transition<T> transition;
+            private PrtValue payload;
 
             // output
             private bool _ReturnValue;
@@ -845,6 +846,7 @@ namespace Microsoft.Prt
                 clone.state = this.state;
                 clone.transition = this.transition;
                 clone.fun = this.fun;
+                clone.payload = this.payload.Clone();
                 if (this.Caller != null)
                 {
                     if (shallowCopy)
@@ -880,6 +882,7 @@ namespace Microsoft.Prt
 
                 if (start)
                 {
+                    payload = machine.currentArg;
                     nextBlock = Blocks.B0;
                 }
                 else
@@ -903,7 +906,7 @@ namespace Microsoft.Prt
             {
                 var stateStack = machine.stack;
 
-                Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, fun);
+                Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, fun, payload);
                 p.Call(callee);
                 StateImpl.IsCall = true;
                 nextBlock = Blocks.B3;
@@ -931,7 +934,7 @@ namespace Microsoft.Prt
                     }
                     else
                     {
-                        Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, state.exitFun);
+                        Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, state.exitFun, null);
                         p.Call(callee);
                         StateImpl.IsCall = true;
 
@@ -956,6 +959,7 @@ namespace Microsoft.Prt
                 var actionSet = stateStack.actionSet;
 
                 //handle:
+                payload = machine.currentArg;
                 if (actionSet.Contains(machine.currentEvent))
                 {
                     fun = stateStack.Find(machine.currentEvent);
@@ -999,7 +1003,7 @@ namespace Microsoft.Prt
 
             private void B6(Z.Process p)
             {
-                Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, state.exitFun);
+                Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, state.exitFun, null);
                 p.Call(callee);
                 StateImpl.IsCall = true;
 
@@ -1019,7 +1023,7 @@ namespace Microsoft.Prt
                 }
                 else
                 {
-                    Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, transition.fun);
+                    Machine<T>.ReentrancyHelper callee = new Machine<T>.ReentrancyHelper(application, machine, transition.fun, payload);
                     p.Call(callee);
                     StateImpl.IsCall = true;
                     nextBlock = Blocks.B8;
@@ -1028,6 +1032,7 @@ namespace Microsoft.Prt
 
             private void B8(Z.Process p)
             {
+                payload = ((Machine<T>.ReentrancyHelper)p.LastFunctionCompleted).ReturnValue;
                 p.LastFunctionCompleted = null;
                 var stateStack = machine.stack;
                 stateStack.state = transition.to;
