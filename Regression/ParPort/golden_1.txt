@@ -1,4 +1,0 @@
-##################
-Check Passed
-##################
-309 distinct states explored

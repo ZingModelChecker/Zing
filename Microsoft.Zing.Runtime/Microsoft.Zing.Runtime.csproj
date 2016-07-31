@@ -211,9 +211,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Backtrace.cs" />
-    <Compile Include="BaseClasses.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Events.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -224,12 +221,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FrontierTree.cs" />
-    <Compile Include="HeapCanonicalizer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="HeapTraverser.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Process.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -242,18 +233,11 @@
     </Compile>
     <Compile Include="StepByStepTraversal.cs" />
     <Compile Include="TraversalInfo.cs" />
-    <Compile Include="Utils.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ZingDelayingSchedulerInterface.cs" />
     <Compile Include="ZingDronacharya.cs" />
     <Compile Include="ZingerConfiguration.cs" />
     <Compile Include="ZingerUtilities.cs" />
-    <Compile Include="ZingMethod.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ZingPluginInterface.cs" />
-    <Compile Include="ZingPreemptionBounding.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

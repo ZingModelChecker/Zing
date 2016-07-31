@@ -1,6 +1,3 @@
-//#define DEBUG_INC_FINGERPRINTS
-//#define PRINT_FINGERPRINTS
-
 using System;
 using System.Collections;
 using System.Diagnostics;
