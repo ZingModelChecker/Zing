@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Zing;
 
-namespace Microsoft.Prt
+namespace P.PRuntime
 {
     /// <summary>
     /// This is the base class for all Prt exceptions.

@@ -7,7 +7,7 @@
     <ProjectGuid>{1CB4A7CA-B1D6-42E1-8A6F-919369FDCFC9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Prt</RootNamespace>
+    <RootNamespace>P.PRuntime</RootNamespace>
     <AssemblyName>Prt</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

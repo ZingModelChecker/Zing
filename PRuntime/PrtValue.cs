@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Diagnostics;
 
-namespace Microsoft.Prt
+namespace P.PRuntime
 {
     public class PrtValue
     {

@@ -192,7 +192,7 @@
       <Project>{FAF10DEB-0879-4FBE-A08E-EF23F9016AE6}</Project>
       <Name>Microsoft.Zing.Runtime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ZingExplorer\PtExplorer.csproj">
+    <ProjectReference Include="..\PExplorer\PtExplorer.csproj">
       <Project>{1498d554-6c2a-4f8c-bcf3-a6f7c8803700}</Project>
       <Name>PtExplorer</Name>
     </ProjectReference>

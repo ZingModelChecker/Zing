@@ -4,7 +4,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-namespace Microsoft.Prt
+namespace P.PRuntime
 {
     /*    
       class Application : PStateImpl {
