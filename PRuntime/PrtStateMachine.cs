@@ -1345,11 +1345,8 @@ namespace P.PRuntime
     public class PrtStateMachine
     {
         // <summary>
-        // Constructor
+        // Constructor called when the state machine is created
         // </summary>
-        // <param name="entryPoint"></param>
-        // <param name="name"></param>
-        // <param name="id"></param>
         public PrtStateMachine(PStateImpl state, PrtSMMethod entryPoint, string name, uint id)
         {
             this.StateImpl = state;
@@ -1360,254 +1357,111 @@ namespace P.PRuntime
             this.Call(entryPoint);
         }
 
-        public Process(StateImpl stateObj, ZingMethod entryPoint, string name, uint id, int threadID)
-            : this(stateObj, entryPoint, name, id)
-        {
-            this.MyThreadId = threadID;
-        }
-
         // <summary>
         // Private constructor for cloning only
         // </summary>
-        private Process(StateImpl stateObj, string myName, uint myId)
+        private PrtStateMachine(PStateImpl stateObj, string myName, uint myId)
         {
             StateImpl = stateObj;
             name = myName;
             id = myId;
         }
 
-        /// <summary>
-        /// Check if the vaiable is declared in this process
-        /// </summary>
-        /// <param name="variableName"></param>
-        /// <returns></returns>
-        public bool ContainsVariable(string variableName)
-        {
-            if (topOfStack == null)
-                return false;
-
-            return topOfStack.ContainsVariable(variableName);
-        }
-
-        public object LookupValueByName(string variableName)
-        {
-            if (topOfStack == null)
-                return null;
-
-            return topOfStack.LookupValueByName(variableName);
-        }
-
-        /// <summary>
-        /// Field to store the last zing process executed by each thread during parallel exploration
-        /// </summary>
-        private static Process[] lastProcess = new Process[ZingerConfiguration.DegreeOfParallelism];
-
-        public static Process[] LastProcess
-        {
-            get { return lastProcess; }
-        }
-
-        /// <summary>
-        /// Field to store the assertion failure context
-        /// </summary>
-        public static ZingSourceContext[] AssertionFailureCtx = new ZingSourceContext[ZingerConfiguration.DegreeOfParallelism];
-
-        /// <summary>
-        /// Field to store the
-        /// </summary>
-        private static Process[] currentProcess = new Process[ZingerConfiguration.DegreeOfParallelism];
-
-        public static Process CurrentProcess
-        {
-            get { return currentProcess[0]; }
-            set { currentProcess[0] = value; }
-        }
-
-        public static Process GetCurrentProcess(int threadId)
-        {
-            return currentProcess[threadId];
-        }
-
-        public static void ClearCurrentProcesses()
-        {
-            for (int i = 0; i < ZingerConfiguration.DegreeOfParallelism; i++)
-            {
-                lastProcess[i] = null;
-                currentProcess[i] = null;
-            }
-        }
-
         [NonSerialized]
-        internal readonly StateImpl StateImpl;
+        internal readonly PStateImpl StateImpl;
 
         // <summary>
-        // The friendly name of the process.
+        // The friendly name of the state machine.
         // </summary>
         private string name;
-
         public string Name { get { return name; } }
 
         // <summary>
-        // Identifier of the process.
+        // Identifier of the state machine process.
         // </summary>
         private uint id;
-
         public uint Id { get { return id; } }
 
         // <summary>
-        // The initial point of execution for the process.
+        // The initial point of execution for the state machine.
         // </summary>
-        // <remarks>
-        // This marks the base of the stack and may be useful for fast
-        // comparisons between processes since the entry points will often
-        // be unique. It also helps to identify the process for debugging
-        // and tracing purposes.
-        // </remarks>
         [NonSerialized]
-        private ZingMethod entryPoint;
-
-        public ZingMethod EntryPoint
+        private PrtSMMethod entryPoint;
+        public PrtSMMethod EntryPoint
         {
             get { return entryPoint; }
             set { entryPoint = value; }
         }
 
-        public enum Status
+        public enum PrtSMStatus
         {
-            Runnable,       // runnable, but in a "stable" state
-            Blocked,        // blocked in "receive" (or select)
-            Completed,      // process has terminated
+            Enabled,        // The state machine is enabled
+            Blocked,        // The state machine is blocked on a dequeue or receive
+            Halted,         // The state machine has halted
         };
 
-        // atomicity level records the current dynamic depth of
-        // nested atomic blocks we have entered
-        private int atomicityLevel;
-
-        private bool middleOfTransition;
-
-        public int AtomicityLevel
+        /// <summary>
+        /// The state machine yields control
+        /// </summary>
+        private bool doYield;
+        public bool DoYield
         {
-            get { return atomicityLevel; }
-            set { atomicityLevel = value; }
-        }
+            get
+            {
+                return doYield;
+            }
 
-        public bool MiddleOfTransition
-        {
-            get { return middleOfTransition; }
-            set { middleOfTransition = value; }
-        }
-
-        private bool backTransitionEncountered;
-
-        public bool BackTransitionEncountered
-        {
-            get { return backTransitionEncountered; }
-            set { backTransitionEncountered = value; }
+            set
+            {
+                doYield = value;
+            }
         }
 
         // IsPreemptible tells RunProcess whether interleaving is allowed
         public bool IsPreemptible
         {
-            get { return ((atomicityLevel == 0) && !middleOfTransition); }
+            get { return doYield; }
         }
 
+        /// <summary>
+        /// Still need to figure out how this is going to be used
+        /// </summary>
         internal bool choicePending;
 
-        public ProcessStatus CurrentStatus
+        /// <summary>
+        /// Current status of the state-machine should be set appropriately.
+        /// </summary>
+        private PrtSMStatus currentStatus;
+        public PrtSMStatus CurrentStatus
         {
             get
             {
-                ProcessStatus returnValue;
-                try
-                {
-                    if (this.topOfStack == null)
-                        returnValue = ProcessStatus.Completed;
-                    else if (this.topOfStack.IsRunnable(this))
-                        returnValue = ProcessStatus.Runnable;
-                    else if (this.topOfStack.ValidEndState)
-                        returnValue = ProcessStatus.BlockedInEndState;
-                    else
-                        returnValue = ProcessStatus.Blocked;
-                    return returnValue;
-                }
-                catch (ZingException)
-                {
-                    // A process whose join conditions throw an exception is
-                    // runnable until we actually run the process and let it
-                    // throw the exception.
-                    return ProcessStatus.Runnable;
-                }
+                return currentStatus;
             }
-        }
 
-        public ZingSourceContext Context
-        {
-            get
+            set
             {
-                if (this.topOfStack == null)
-                    return null;
-
-                return this.topOfStack.Context;
-            }
-        }
-
-        public ZingAttribute ContextAttribute
-        {
-            get
-            {
-                if (this.topOfStack == null)
-                    return null;
-
-                ZingAttribute context = this.topOfStack.ContextAttribute;
-
-                if (context != null)
-                    return context;
-
-                this.topOfStack.IsRunnable(this);
-                return null;
-            }
-        }
-
-        public string ProgramCounter
-        {
-            get
-            {
-                if (topOfStack == null)
-                    return String.Empty;
-
-                return topOfStack.ProgramCounter;
-            }
-        }
-
-        public string MethodName
-        {
-            get
-            {
-                if (topOfStack == null)
-                    return String.Empty;
-
-                return topOfStack.MethodName;
+                currentStatus = value;
             }
         }
 
         [NonSerialized]
-        private ZingMethod topOfStack;
+        private PrtSMMethod topOfStack;
 
-        public ZingMethod TopOfStack { get { return topOfStack; } }
+        public PrtSMMethod TopOfStack { get { return topOfStack; } }
 
         [NonSerialized]
-        private ZingMethod savedTopOfStack;
+        private PrtSMMethod savedTopOfStack;
 
-        private void doPush(ZingMethod method)
+        private void doPush(PrtSMMethod method)
         {
-            method.Caller = topOfStack;
             topOfStack = method;
             if (stackULEs == null)
                 return;
             stackULEs.Push(new UndoPush(this));
         }
 
-        private ZingMethod doPop()
+        private PrtSMMethod doPop()
         {
             if (stackULEs != null)
             {
@@ -1625,10 +1479,8 @@ namespace P.PRuntime
             return oldTop;
         }
 
-        public void Call(ZingMethod method)
+        public void Call(PrtSMMethod method)
         {
-            // method.StateImpl = this.StateImpl;
-            method.SavedAtomicityLevel = this.atomicityLevel;
             doPush(method);
         }
 
@@ -1858,6 +1710,8 @@ namespace P.PRuntime
             get { return myThreadId; }
             set { myThreadId = value; }
         }
+
+        
 
         internal object Clone(StateImpl myState, bool shallowCopy)
         {
