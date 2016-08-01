@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.Serialization;
-using System.Text;
-using Microsoft.Zing;
 
 namespace P.PRuntime
 {
@@ -22,17 +20,7 @@ namespace P.PRuntime
         {
         }
 
-        protected PrtException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-        }
-
-        protected virtual string ZingMessage { get { return string.Empty; } }
+        protected virtual string ExceptionMessage { get { return string.Empty; } }
 
         /// <summary>
         /// Returns a formatted version of the exception for human consumption.
@@ -40,19 +28,22 @@ namespace P.PRuntime
         /// <returns>String-formatted version of the exception</returns>
         public sealed override string ToString()
         {
-            string zingMessage = this.ZingMessage;
+            string exceptionMessage = this.ExceptionMessage;
 
-            if (zingMessage != null && zingMessage.Length > 0)
+            if (exceptionMessage != null && exceptionMessage.Length > 0)
                 return string.Format(CultureInfo.CurrentUICulture,
-                    "{0}\r\n{1}\r\n", this.ZingMessage, StackTrace);
+                    "{0}\r\n{1}\r\n", this.ExceptionMessage, StackTrace);
             else
                 return base.ToString();
         }
 
         /// <summary>
-        /// Returns a Zing backtrace from the point at which the exception
+        /// Returns a Prt state backtrace from the point at which the exception
         /// was thrown, if possible.
         /// </summary>
+        /// <remarks>
+        /// This needs to be fixed with respect to P
+        /// </remarks>
         private string stackTrace = null;
 
         public override string StackTrace
@@ -74,19 +65,15 @@ namespace P.PRuntime
 
         private string BuildStackTrace()
         {
+
+            return "NOT IMPLEMENTED";
             //
             // We encounter many exceptions during state-space exploration, so
             // we only want to build a stack trace when we're preparing a Zing
             // trace for viewing. Options.ExecuteTraceStatements is the best way to tell
             // if that is the case.
             //
-
-            //PrtDeadlockException does not need a stack trace
-            if (this is PrtDeadlockException)
-            {
-                return "";
-            }
-
+            /*
             PSourceContext SourceContext;
             bool IsInnerMostFrame = true;
             if (ZingerConfiguration.ExecuteTraceStatements && Process.LastProcess[myThreadId] != null &&
@@ -140,7 +127,9 @@ namespace P.PRuntime
             }
             else
                 return string.Empty;
+          */
         }
+
     }
 
     public class PrtIllegalEnqueueException : PrtException
@@ -151,19 +140,10 @@ namespace P.PRuntime
         }
 
         public PrtIllegalEnqueueException(string message)
-            : this(message, null)
+            : base(message)
         {
         }
 
-        public PrtIllegalEnqueueException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtIllegalEnqueueException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
     }
 
     public class PrtInhabitsTypeException : PrtException
@@ -174,17 +154,7 @@ namespace P.PRuntime
         }
 
         public PrtInhabitsTypeException(string message)
-            : this(message, null)
-        {
-        }
-
-        public PrtInhabitsTypeException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtInhabitsTypeException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
+            : base(message)
         {
         }
     }
@@ -197,20 +167,9 @@ namespace P.PRuntime
         }
 
         public PrtMaxBufferSizeExceededException(string message)
-            : this(message, null)
+            : base(message)
         {
         }
-
-        public PrtMaxBufferSizeExceededException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtMaxBufferSizeExceededException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
     }
 
     public class PrtInternalException : PrtException
@@ -221,20 +180,9 @@ namespace P.PRuntime
         }
 
         public PrtInternalException(string message)
-            : this(message, null)
+            : base(message)
         {
         }
-
-        public PrtInternalException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtInternalException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
     }
 
     public class PrtDeadlockException : PrtException
@@ -245,17 +193,7 @@ namespace P.PRuntime
         }
 
         public PrtDeadlockException(string message)
-            : this(message, null)
-        {
-        }
-
-        public PrtDeadlockException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtDeadlockException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
+            : base(message)
         {
         }
 
@@ -269,17 +207,7 @@ namespace P.PRuntime
         }
 
         public PrtUnhandledEventException(string message)
-            : this(message, null)
-        {
-        }
-
-        public PrtUnhandledEventException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtUnhandledEventException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
+            : base(message)
         {
         }
 
@@ -293,20 +221,9 @@ namespace P.PRuntime
         }
 
         public PrtApplicationException(string message)
-            : this(message, null)
+            : base(message)
         {
         }
-
-        public PrtApplicationException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtApplicationException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
     }
 
     public class PrtAssertFailureException : PrtException
@@ -317,17 +234,7 @@ namespace P.PRuntime
         }
 
         public PrtAssertFailureException(string message)
-            : this(message, null)
-        {
-        }
-
-        public PrtAssertFailureException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        protected PrtAssertFailureException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
+            : base(message)
         {
         }
 
@@ -341,19 +248,21 @@ namespace P.PRuntime
         }
 
         public PrtMaxEventInstancesExceededException(string message)
-            : this(message, null)
+            : base(message)
+        {
+        }
+    }
+
+    public class PrtAssumeFailureException : PrtException
+    {
+        public PrtAssumeFailureException()
+            : base()
         {
         }
 
-        public PrtMaxEventInstancesExceededException(string message, Exception innerException)
-            : base(message, innerException)
+        public PrtAssumeFailureException(string message)
+            : base(message)
         {
         }
-
-        protected PrtMaxEventInstancesExceededException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
-        {
-        }
-
     }
 }

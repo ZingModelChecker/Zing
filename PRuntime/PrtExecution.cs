@@ -222,7 +222,7 @@ namespace P.PRuntime
                 {
                     if (e.doAssume)
                     {
-                        throw new Z.ZingAssumeFailureException();
+                        throw new PrtAssumeFailureException();
                     }
                     else
                     {
@@ -251,7 +251,7 @@ namespace P.PRuntime
             EventNode iter;
             bool doDequeue;
 
-            deferredSet = owner.stack.deferredSet;
+            deferredSet = owner.stateStack.deferredSet;
             receiveSet = owner.receiveSet;
 
             iter = this.head.next;
@@ -286,7 +286,7 @@ namespace P.PRuntime
             bool enabled;
 
 
-            deferredSet = owner.stack.deferredSet;
+            deferredSet = owner.stateStack.deferredSet;
             receiveSet = owner.receiveSet;
             iter = this.head.next;
             while (iter != head)
