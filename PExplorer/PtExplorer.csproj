@@ -76,16 +76,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Zing.Runtime\Microsoft.Zing.Runtime.csproj">
-      <Project>{FAF10DEB-0879-4FBE-A08E-EF23F9016AE6}</Project>
-      <Name>Microsoft.Zing.Runtime</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

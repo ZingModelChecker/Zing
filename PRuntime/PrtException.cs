@@ -53,7 +53,6 @@ namespace P.PRuntime
         /// Returns a Zing backtrace from the point at which the exception
         /// was thrown, if possible.
         /// </summary>
-
         private string stackTrace = null;
 
         public override string StackTrace
@@ -88,7 +87,7 @@ namespace P.PRuntime
                 return "";
             }
 
-            ZingSourceContext SourceContext;
+            PSourceContext SourceContext;
             bool IsInnerMostFrame = true;
             if (ZingerConfiguration.ExecuteTraceStatements && Process.LastProcess[myThreadId] != null &&
                 Process.LastProcess[myThreadId].TopOfStack != null)
