@@ -624,7 +624,7 @@ namespace P.PRuntime
 
             private void Enter(PrtStateMachine p)
             {
-                machine.Push(state);
+                machine.PushState(state);
 
                 Machine<T>.RunHelper callee = new Machine<T>.RunHelper(application, machine, true);
                 p.CallMethod(callee);
