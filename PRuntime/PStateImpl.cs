@@ -69,7 +69,7 @@ namespace P.PRuntime
             set { isReturn = value; }
         }
 
-        public void SetPendingChoices(PrtStateMachine process, object[] choices)
+        public void SetPendingChoicesAsBoolean(PrtStateMachine process)
         {
             throw new NotImplementedException();
         }

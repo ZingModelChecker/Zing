@@ -150,7 +150,7 @@ namespace P.PRuntime
 
             if (halted)
             {
-                application.Trace(null, null,
+                application.Trace(
                     @"<EnqueueLog> {0}-{1} Machine has been halted and Event {2} is dropped",
                     this.Name, this.instance, e.name);
             }
@@ -158,13 +158,13 @@ namespace P.PRuntime
             {
                 if (arg != null)
                 {
-                    application.Trace(null, null,
+                    application.Trace(
                         @"<EnqueueLog> Enqueued Event < {0} > in {1}-{2} by {3}-{4}",
                         e.name, this.Name, this.instance, source.Name, source.instance);
                 }
                 else
                 {
-                    application.Trace(null, null,
+                    application.Trace(
                         @"<EnqueueLog> Enqueued Event <{0}, {1}> in {2}-{3} by {4}-{5}",
                         e.name, arg.ToString(), this.Name, this.instance, source.Name, source.instance);
                 }
@@ -205,7 +205,7 @@ namespace P.PRuntime
                     throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
                 }
 
-                application.Trace(null, null,
+                application.Trace(
                     "<DequeueLog> Dequeued Event < {0}, {1} > at Machine {2}-{3}\n",
                     currentEvent.name, currentArg.ToString(), Name, instance);
                 receiveSet = new HashSet<Event>();
@@ -217,7 +217,7 @@ namespace P.PRuntime
                 {
                     throw new PrtInternalException("Internal error: Tyring to execute blocked machine");
                 }
-                application.Trace(null, null,
+                application.Trace(
                     "<NullTransLog> Null transition taken by Machine {0}-{1}\n",
                     Name, instance);
                 currentArg = PrtValue.NullValue;
@@ -380,7 +380,7 @@ namespace P.PRuntime
                 else
                 {
                     application.Trace(
-                        null, null,
+                        
                         @"<StateLog> Unhandled event exception by machine Real1-{0}",
                         machine.instance);
                     this.StateImpl.Exception = new PrtUnhandledEventException("Unhandled event exception by machine <mach name>");
