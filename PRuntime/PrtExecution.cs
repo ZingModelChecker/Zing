@@ -93,13 +93,11 @@ namespace P.PRuntime
 
     public class Transition<T>
     {
-        public Event evt;
         public Fun<T> fun; // isPush <==> fun == null
         public State<T> to;
 
-        public Transition(Event evt, Fun<T> fun, State<T> to)
+        public Transition(Fun<T> fun, State<T> to)
         {
-            this.evt = evt;
             this.fun = fun;
             this.to = to;
         }

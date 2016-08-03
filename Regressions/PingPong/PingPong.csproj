@@ -45,10 +45,6 @@
     <Compile Include="Ref_AlternatingBit\AlternatingBit.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Zing.Runtime\Microsoft.Zing.Runtime.csproj">
-      <Project>{faf10deb-0879-4fbe-a08e-ef23f9016ae6}</Project>
-      <Name>Microsoft.Zing.Runtime</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\PRuntime\PRuntime.csproj">
       <Project>{1cb4a7ca-b1d6-42e1-8a6f-919369fdcfc9}</Project>
       <Name>Prt</Name>
