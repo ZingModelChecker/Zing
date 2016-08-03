@@ -26,27 +26,7 @@ namespace P.PRuntime
         public bool halted;
         public bool enabled;
 
-        public Stack<PrtSMMethod> methodStack;
-        public void PushMethod(PrtSMMethod method)
-        {
-            methodStack.Push(method);
-        }
-
-        public PrtSMMethod PopMethod()
-        {
-            Debug.Assert(TopOfMethodStack != null, "Pop on an empty method stack");
-            return methodStack.Pop();
-        }
-
-        public PrtSMMethod TopOfMethodStack {
-            get
-            {
-                if (methodStack.Count == 0)
-                    return null;
-                else
-                    return methodStack.Peek();
-            }
-        }
+        
     }
 
     public abstract class BaseMonitor : Root
@@ -101,7 +81,6 @@ namespace P.PRuntime
             enabled = true;
             stateStack = null;
             fields = new List<PrtValue>();
-            methodStack = new Stack<PrtSMMethod>();
             cont = new Continuation();
             buffer = new EventBuffer<T>();
             this.maxBufferSize = maxBufferSize;
@@ -1365,6 +1344,8 @@ namespace P.PRuntime
         }
     }
 #endregion
+
+
     /// <summary>
     /// This class represents a dynamic instance of a state machine in Prt.
     /// </summary>
@@ -1374,28 +1355,47 @@ namespace P.PRuntime
         // <summary>
         // Constructor called when the state machine is created
         // </summary>
-        public PrtStateMachine(BaseMachine machine, PrtSMMethod entryPoint, string name, uint id)
+        public PrtStateMachine(PrtSMMethod entryPoint, string name, uint id)
         {
-            this.machine = machine;
-            this.entryPoint = entryPoint;
+            methodStack = new Stack<PrtSMMethod>();
             this.name = name;
             this.id = id;
 
-            machine.PushMethod(entryPoint);
+            PushMethod(entryPoint);
         }
 
         // <summary>
         // Private constructor for cloning only
         // </summary>
-        private PrtStateMachine(BaseMachine machine, string myName, uint myId)
+        private PrtStateMachine(string myName, uint myId)
         {
-            this.machine = machine;
+            this.methodStack = new Stack<PrtSMMethod>();
             name = myName;
             id = myId;
         }
 
-        [NonSerialized]
-        internal readonly BaseMachine machine;
+        private Stack<PrtSMMethod> methodStack;
+        public void PushMethod(PrtSMMethod method)
+        {
+            methodStack.Push(method);
+        }
+
+        public PrtSMMethod PopMethod()
+        {
+            Debug.Assert(TopOfMethodStack != null, "Pop on an empty method stack");
+            return methodStack.Pop();
+        }
+
+        public PrtSMMethod TopOfMethodStack
+        {
+            get
+            {
+                if (methodStack.Count == 0)
+                    return null;
+                else
+                    return methodStack.Peek();
+            }
+        }
 
         // <summary>
         // The friendly name of the state machine.
@@ -1409,16 +1409,6 @@ namespace P.PRuntime
         private uint id;
         public uint Id { get { return id; } }
 
-        // <summary>
-        // The initial point of execution for the state machine.
-        // </summary>
-        [NonSerialized]
-        private PrtSMMethod entryPoint;
-        public PrtSMMethod EntryPoint
-        {
-            get { return entryPoint; }
-            set { entryPoint = value; }
-        }
 
         public enum PrtSMStatus
         {
@@ -1474,16 +1464,16 @@ namespace P.PRuntime
 
         public void RunNextBlock()
         {
-            Debug.Assert(machine.TopOfMethodStack != null);
-            machine.methodStack.Peek().Dispatch(this);
+            Debug.Assert(TopOfMethodStack != null);
+            TopOfMethodStack.Dispatch(this);
         }
 
         public PrtSMMethod lastFunctionCompleted;
         public void MethodReturn()
         {
-            PrtSMMethod returningMethod = machine.PopMethod();
+            PrtSMMethod returningMethod = PopMethod();
 
-            if (machine.TopOfMethodStack != null)
+            if (TopOfMethodStack != null)
                 lastFunctionCompleted = returningMethod;
             else
             {
@@ -1491,7 +1481,7 @@ namespace P.PRuntime
                 DoYield = true;
             }
 
-            if (machine.TopOfMethodStack == null)
+            if (TopOfMethodStack == null)
             {
                 //Process has terminated 
                 //want to do something ???
@@ -1500,7 +1490,7 @@ namespace P.PRuntime
 
         public void CallMethod(PrtSMMethod method)
         {
-            machine.PushMethod(method);
+            PushMethod(method);
         }
     }
 }

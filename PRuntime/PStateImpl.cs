@@ -1,19 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace P.PRuntime
 {
     public abstract class PStateImpl
     {
-        public abstract IEnumerable<BaseMachine> AllMachines
+        #region Constructors
+        /// <summary>
+        /// This function is used for cloning the stateimpl
+        /// </summary>
+        protected PStateImpl()
+        { }
+
+        /// <summary>
+        /// This function is called when the stateimp is loaded first time.
+        /// </summary>
+        protected PStateImpl(bool initialState)
+        {
+            //can only call by passing true
+            Debug.Assert(initialState);
+
+            statemachines = new Dictionary<int, PrtStateMachine>();
+            nextStateMachineId = 0;
+
+            //create the main machine
+            foreach (Type nestedClassType in this.GetType().GetNestedTypes(BindingFlags.NonPublic))
+            {
+                if (nestedClassType.Name == "Main")
+                {
+                    
+                }
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Map from the statemachine id to the instance of the statemachine.
+        /// </summary>
+        private Dictionary<int, PrtStateMachine> statemachines;
+
+        /// <summary>
+        /// Represents the next statemachine id.  
+        /// </summary>
+        private int nextStateMachineId;
+
+        public abstract IEnumerable<BaseMachine> AllAliveMachines
         {
             get;
         }
 
-        public abstract IEnumerable<BaseMonitor> AllMonitors
+        public abstract IEnumerable<BaseMonitor> AllInstalledMonitors
         {
             get;
         }
@@ -23,13 +61,13 @@ namespace P.PRuntime
             get
             {
                 bool enabled = false;
-                foreach (var x in AllMachines)
+                foreach (var x in AllAliveMachines)
                 {
                     if (enabled) break;
                     enabled = enabled || x.enabled;
                 }
                 bool hot = false;
-                foreach (var x in AllMonitors)
+                foreach (var x in AllInstalledMonitors)
                 {
                     if (hot) break;
                     hot = hot || x.hot;
