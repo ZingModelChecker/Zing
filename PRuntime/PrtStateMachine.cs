@@ -1337,7 +1337,7 @@ namespace P.PRuntime
                 }
                 if (reason == ContinuationReason.Nondet)
                 {
-                    application.SetPendingChoices(p, new object[] { false, true });
+                    application.SetPendingChoicesAsBoolean(p);
                     cont.nondet = ((Boolean)application.GetSelectedChoiceValue(p));
                     nextBlock = Blocks.B0;
                 }
