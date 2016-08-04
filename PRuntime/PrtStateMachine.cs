@@ -69,7 +69,6 @@ namespace P.PRuntime
     public abstract class Machine<T> : BaseMachine where T : Machine<T>
     {
         public StateStack<T> stateStack;
-        
         public EventBuffer<T> buffer;
         public int maxBufferSize;
         public int instance;
@@ -149,7 +148,7 @@ namespace P.PRuntime
                 }
 
                 this.buffer.EnqueueEvent(e, arg);
-                if (this.maxBufferSize != -1 && this.buffer.eventBufferSize > this.maxBufferSize)
+                if (this.maxBufferSize != -1 && this.buffer.Size() > this.maxBufferSize)
                 {
                     throw new PrtMaxBufferSizeExceededException(
                         String.Format(@"<EXCEPTION> Event Buffer Size Exceeded {0} in Machine {1}-{2}",
@@ -295,39 +294,6 @@ namespace P.PRuntime
                         }
                 }
             }
-
-            /*
-            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
-            {
-                Start clone = new Start(application, machine);
-                clone.nextBlock = this.nextBlock;
-                if (this.Caller != null)
-                {
-                    if (shallowCopy)
-                    {
-                        clone.Caller = null;
-                    }
-                    else
-                    {
-                        clone.Caller = this.Caller.Clone(application, myProcess, false);
-                    }
-                }
-                else
-                {
-                    if (myProcess != null)
-                    {
-                        myProcess.EntryPoint = this;
-                    }
-                }
-                return clone;
-            }
-
-            public override void WriteString(PStateImpl state, BinaryWriter bw)
-            {
-                bw.Write(typeId);
-                bw.Write(((ushort)nextBlock));
-            }
-            */
 
             private void Enter(PrtStateMachine p)
             {
@@ -489,39 +455,6 @@ namespace P.PRuntime
                 }
             }
 
-            /*
-            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
-            {
-                Run clone = new Run(application, this.machine, this.state);
-                clone.nextBlock = this.nextBlock;
-                clone.doPop = this.doPop;
-                if (this.Caller != null)
-                {
-                    if (shallowCopy)
-                    {
-                        clone.Caller = null;
-                    }
-                    else
-                    {
-                        clone.Caller = this.Caller.Clone(application, myProcess, false);
-                    }
-                }
-                else
-                {
-                    if (myProcess != null)
-                    {
-                        myProcess.EntryPoint = this;
-                    }
-                }
-                return clone;
-            }
-
-            public override void WriteString(PStateImpl state, BinaryWriter bw)
-            {
-                bw.Write(typeId);
-                bw.Write((ushort)nextBlock);
-            }
-            */
 
             private void B5(PrtStateMachine p)
             {
@@ -756,42 +689,6 @@ namespace P.PRuntime
                 }
             }
 
-            /*
-            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
-            {
-                RunHelper clone = new RunHelper(application, this.machine, this.start);
-                clone.nextBlock = this.nextBlock;
-                clone.state = this.state;
-                clone.transition = this.transition;
-                clone.fun = this.fun;
-                clone.payload = this.payload.Clone();
-                if (this.Caller != null)
-                {
-                    if (shallowCopy)
-                    {
-                        clone.Caller = null;
-                    }
-                    else
-                    {
-                        clone.Caller = this.Caller.Clone(application, myProcess, false);
-                    }
-                }
-                else
-                {
-                    if (myProcess != null)
-                    {
-                        myProcess.EntryPoint = this;
-                    }
-                }
-                return clone;
-            }
-
-            public override void WriteString(PStateImpl state, BinaryWriter bw)
-            {
-                bw.Write(typeId);
-                bw.Write(((ushort)nextBlock));
-            }
-            */
 
             private void Enter(PrtStateMachine p)
             {
@@ -1060,40 +957,6 @@ namespace P.PRuntime
                 }
             }
 
-            /*
-            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
-            {
-                ReentrancyHelper clone = new ReentrancyHelper(application, this.machine, this.fun, this.payload);
-                clone.nextBlock = this.nextBlock;
-                clone.fun = this.fun;
-                clone.payload = this.payload;
-                if (this.Caller != null)
-                {
-                    if (shallowCopy)
-                    {
-                        clone.Caller = null;
-                    }
-                    else
-                    {
-                        clone.Caller = this.Caller.Clone(application, myProcess, false);
-                    }
-                }
-                else
-                {
-                    if (myProcess != null)
-                    {
-                        myProcess.EntryPoint = this;
-                    }
-                }
-                return clone;
-            }
-
-            public override void WriteString(PStateImpl state, BinaryWriter bw)
-            {
-                bw.Write(typeId);
-                bw.Write(((ushort)nextBlock));
-            }
-            */
 
             private void Enter(PrtStateMachine p)
             {
@@ -1229,38 +1092,6 @@ namespace P.PRuntime
                 }
             }
 
-            /*
-            public override Z.ZingMethod Clone(PStateImpl application, Z.Process myProcess, bool shallowCopy)
-            {
-                ProcessContinuation clone = new ProcessContinuation(application, this.machine);
-                clone.nextBlock = this.nextBlock;
-                if (this.Caller != null)
-                {
-                    if (shallowCopy)
-                    {
-                        clone.Caller = null;
-                    }
-                    else
-                    {
-                        clone.Caller = this.Caller.Clone(application, myProcess, false);
-                    }
-                }
-                else
-                {
-                    if (myProcess != null)
-                    {
-                        myProcess.EntryPoint = this;
-                    }
-                }
-                return clone;
-            }
-
-            public override void WriteString(PStateImpl state, BinaryWriter bw)
-            {
-                bw.Write(typeId);
-                bw.Write(((ushort)nextBlock));
-            }
-            */
 
             private void Enter(PrtStateMachine p)
             {
@@ -1349,7 +1180,6 @@ namespace P.PRuntime
     /// <summary>
     /// This class represents a dynamic instance of a state machine in Prt.
     /// </summary>
-    [Serializable]
     public class PrtStateMachine
     {
         // <summary>

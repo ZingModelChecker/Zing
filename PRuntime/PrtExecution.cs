@@ -1,66 +1,10 @@
 ﻿
 using System;
-using System.IO;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace P.PRuntime
 {
-    /*    
-      class Application : PStateImpl {
-        // one list for each machine and monitor type
-        List<A> A_list;
-        List<B> B_list;
-         ...
-         // implement AllMachines, AllMonitors
-         
-
-        // What is the design of the constructor?
-        public Application() { ... } 
-
-        Each event becomes a static field in Application class
-      
-        public static Event A = new Event(...);
-
-        Each static function  B becomes a class and static field in Application class
-
-        // Can static functions be called from monitors
-        // If yes, the type parameter must be BaseMachine; if no, it can be Machine
-        public class B_Fun : Fun<BaseMachine> {
-            // implement the abstract methods in Fun
-        }
-
-        public static B_Fun B = new B_Fun();  // static field declaration in Application
-
-        Each machine becomes a class in Application class
-
-        public class Foo : Machine {
-            public Foo(int instance): base(instance, numFields, maxBufferSize) {
-                // initialize fields
-            }
-
-            Create getter/setter for each field so that code in functions looks nice
-
-            Each function A in machine Foo becomes a class and a static field
-
-            public class A_Fun : Fun<Foo> {
-                // implement the abstract methods in Fun
-            }
-            public static A_Fun A = new A_Fun();
-
-            Each state X in machine Foo becomes a static field
-            
-            public static State X = new State(...);
-
-            static {
-                // Create transitions
-                // Wire up the states and transitions
-                // Put the appropriate funs in states and transitions 
-                // Presumably the static fields containing funs have already been initialized
-            }
-        }
-     */
-
     public abstract class Fun<T>
     {
         public abstract string Name
@@ -158,65 +102,43 @@ namespace P.PRuntime
 
     public class EventNode
     {
-        public EventNode next;
-        public EventNode prev;
-        public Event e;
+        public Event ev;
         public PrtValue arg;
+
+        public EventNode(Event e, PrtValue payload)
+        {
+            ev = e;
+            arg = payload;
+        }
     }
 
     public class EventBuffer<T> where T: Machine<T>
     {
-        public EventNode head;
-        public int eventBufferSize;
-
+        List<EventNode> events;
         public EventBuffer()
         {
-            EventNode node = new EventNode();
-            node.next = node;
-            node.prev = node;
-            node.e = null;
-            head = node;
-            eventBufferSize = 0;
+            events = new List<EventNode>();
         }
 
+        public int Size()
+        {
+            return events.Count();
+        }
         public int CalculateInstances(Event e)
         {
-            //No constructor in the old compiler:
-            //EventNode elem = EventNode.Construct();  //instead of "new"
-            int currInstances = 0;
-            EventNode elem = this.head.next;
-            while (elem != this.head)
-            {
-                if (elem.e.name == e.name)
-                {
-                    currInstances = currInstances + 1;
-                }
-                elem = elem.next;
-            }
-            return currInstances;
+            return events.Select(en => en.ev).Where(ev => ev == e).Count();
         }
 
         public void EnqueueEvent(Event e, PrtValue arg)
         {
-            EventNode elem;
-            int currInstances;
-
+            //TODO : -1 seems odd fix this
             if (e.maxInstances == -1)
             {
-                //Instead of "Allocate" in old compiler:
-                elem = new EventNode();
-                elem.e = e;
-                elem.arg = arg;
-                elem.prev = this.head.prev;
-                elem.next = this.head;
-                elem.prev.next = elem;
-                elem.next.prev = elem;
-                this.eventBufferSize = this.eventBufferSize + 1;
+                events.Add(new EventNode(e, arg));
             }
             else
             {
-                currInstances = this.CalculateInstances(e);
-                if (currInstances == e.maxInstances)
+                if (CalculateInstances(e) == e.maxInstances)
                 {
                     if (e.doAssume)
                     {
@@ -230,14 +152,7 @@ namespace P.PRuntime
                 }
                 else
                 {
-                    elem = new EventNode();
-                    elem.e = e;
-                    elem.arg = arg;
-                    elem.prev = this.head.prev;
-                    elem.next = this.head;
-                    elem.prev.next = elem;
-                    elem.next.prev = elem;
-                    this.eventBufferSize = this.eventBufferSize + 1;
+                    events.Add(new EventNode(e, arg));
                 }
             }
         }
@@ -246,62 +161,46 @@ namespace P.PRuntime
         {
             HashSet<Event> deferredSet;
             HashSet<Event> receiveSet;
-            EventNode iter;
-            bool doDequeue;
 
             deferredSet = owner.stateStack.deferredSet;
             receiveSet = owner.receiveSet;
 
-            iter = this.head.next;
-            while (iter != this.head)
-            {
-                if (receiveSet.Count == 0)
+            int iter = 0;
+            while (iter < events.Count)
+            { 
+                if ((receiveSet.Count == 0 && !deferredSet.Contains(events[iter].ev))
+                    || (receiveSet.Count > 0 && receiveSet.Contains(events[iter].ev)))
                 {
-                    doDequeue = !deferredSet.Contains(iter.e);
+                    owner.currentEvent = events[iter].ev;
+                    owner.currentArg = events[iter].arg;
+                    events.Remove(events[iter]);
+                    return;
                 }
                 else
                 {
-                    doDequeue = receiveSet.Contains(iter.e);
+                    continue;
                 }
-                if (doDequeue)
-                {
-                    iter.next.prev = iter.prev;
-                    iter.prev.next = iter.next;
-                    owner.currentEvent = iter.e;
-                    owner.currentArg = iter.arg;
-                    this.eventBufferSize = this.eventBufferSize - 1;
-                    return;
-                }
-                iter = iter.next;
             }
+
+
+
         }
 
         public bool IsEnabled(T owner)
         {
-            EventNode iter;
             HashSet<Event> deferredSet;
             HashSet<Event> receiveSet;
-            bool enabled;
-
 
             deferredSet = owner.stateStack.deferredSet;
             receiveSet = owner.receiveSet;
-            iter = this.head.next;
-            while (iter != head)
+            foreach (var evNode in events)
             {
-                if (receiveSet.Count == 0)
-                {
-                    enabled = !deferredSet.Contains(iter.e);
-                }
-                else
-                {
-                    enabled = receiveSet.Contains(iter.e);
-                }
-                if (enabled)
+                if ((receiveSet.Count == 0 && !deferredSet.Contains(evNode.ev))
+                    || (receiveSet.Count > 0 && receiveSet.Contains(evNode.ev)))
                 {
                     return true;
                 }
-                iter = iter.next;
+
             }
             return false;
         }
