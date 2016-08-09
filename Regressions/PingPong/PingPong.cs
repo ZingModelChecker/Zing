@@ -84,7 +84,16 @@ namespace SimpleMachine
 {
     public class Application : PStateImpl
     {
-        List<BaseMachine> MainMachines;
+        public List<BaseMachine> MainMachines;
+
+        //getters
+        public int SizeOfMainMachines
+        {
+            get
+            {
+                return MainMachines.Count;
+            }
+        }
 
         public override IEnumerable<BaseMachine> AllAliveMachines
         {
@@ -110,14 +119,25 @@ namespace SimpleMachine
             //initialize all the fields
         }
 
-        public Application(bool initialize) : base(initialize)
+        public Application(bool initialize) : base()
         {
             //initialize all the fields
+            CreateMainMachine();
+
         }
         #endregion
 
         //pass the right parameters here !!
         public static Event dummy = new Event("dummy", null, 0, false);
+
+        public Machine<Main> CreateMainMachine()
+        {
+            var mainMachine = new Main(this, SizeOfMainMachines, 10);
+            AddStateMachine(mainMachine);
+            MainMachines.Add(mainMachine);
+
+            return mainMachine;
+        }
 
         public class Main : Machine<Main>
         {
@@ -137,7 +157,7 @@ namespace SimpleMachine
                 }
             }
             //constructor
-            public Main(int instance) : base (instance, 10)
+            public Main(PStateImpl app, int instance, int maxB) : base (app, instance, maxB)
             {
                 fields = new List<PrtValue>();
             }

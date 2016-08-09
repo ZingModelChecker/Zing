@@ -9,37 +9,25 @@ namespace P.PRuntime
     {
         #region Constructors
         /// <summary>
-        /// This function is used for cloning the stateimpl
-        /// </summary>
-        protected PStateImpl()
-        { }
-
-        /// <summary>
         /// This function is called when the stateimp is loaded first time.
         /// </summary>
-        protected PStateImpl(bool initialState)
+        protected PStateImpl()
         {
-            //can only call by passing true
-            Debug.Assert(initialState);
-
-            statemachines = new Dictionary<int, PrtStateMachine>();
+            statemachines = new Dictionary<int, BaseMachine>();
             nextStateMachineId = 0;
-
-            //create the main machine
-            foreach (Type nestedClassType in this.GetType().GetNestedTypes(BindingFlags.NonPublic))
-            {
-                if (nestedClassType.Name == "Main")
-                {
-                    
-                }
-            }
         }
         #endregion
+
+        public void AddStateMachine(BaseMachine machine)
+        {
+            statemachines.Add(nextStateMachineId, machine);
+            nextStateMachineId++;
+        }
 
         /// <summary>
         /// Map from the statemachine id to the instance of the statemachine.
         /// </summary>
-        private Dictionary<int, PrtStateMachine> statemachines;
+        private Dictionary<int, BaseMachine> statemachines;
 
         /// <summary>
         /// Represents the next statemachine id.  
@@ -64,13 +52,13 @@ namespace P.PRuntime
                 foreach (var x in AllAliveMachines)
                 {
                     if (enabled) break;
-                    enabled = enabled || x.enabled;
+                    enabled = enabled || x.IsEnabled;
                 }
                 bool hot = false;
                 foreach (var x in AllInstalledMonitors)
                 {
                     if (hot) break;
-                    hot = hot || x.hot;
+                    hot = hot || x.IsHot;
                 }
                 return (!enabled && hot);
             }
@@ -107,12 +95,12 @@ namespace P.PRuntime
             set { isReturn = value; }
         }
 
-        public void SetPendingChoicesAsBoolean(PrtStateMachine process)
+        public void SetPendingChoicesAsBoolean(BaseMachine process)
         {
             throw new NotImplementedException();
         }
 
-        public object GetSelectedChoiceValue(PrtStateMachine process)
+        public object GetSelectedChoiceValue(BaseMachine process)
         {
             throw new NotImplementedException();
         }
