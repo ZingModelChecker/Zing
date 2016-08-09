@@ -1,5 +1,0 @@
-Things to be done:
-1)	Passing the information that the P process is blocked.
-	a.	If you check the old(zinger) there is a function GetRunnableJoinStatements this function was used to identify if a process is blocked or runnable.
-	b.	We need something equivalent to be communicated to the Zinger for p state machines.
-2)	Better and efficient integration with delaying explorer.
