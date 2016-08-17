@@ -391,6 +391,7 @@ namespace Microsoft.Zing
 
         #region RandomWalk
 
+        public abstract TraversalInfo GetDelayedSuccessor();
         public abstract TraversalInfo GetNextSuccessorUniformRandomly();
 
         public abstract TraversalInfo GetNextSuccessorUnderDelayZeroForRW();

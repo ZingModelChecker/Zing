@@ -125,6 +125,10 @@ namespace Microsoft.Zing
             return null;
         }
 
+        public override TraversalInfo GetDelayedSuccessor()
+        {
+            return null;
+        }
         public override TraversalInfo GetNextSuccessor()
         {
             return null;
@@ -219,6 +223,7 @@ namespace Microsoft.Zing
             }
         }
 
+        
         internal override void deOrphanize(StateImpl s)
         {
             Debug.Assert(numChoices == s.NumChoices);
@@ -279,6 +284,25 @@ namespace Microsoft.Zing
 
         #endregion Random Walk
 
+        public override TraversalInfo GetDelayedSuccessor()
+        {
+            if (currChoice >= numChoices)
+                return null;
+
+            //if the final cutoff is already exceeded then return null !
+            if (ZingerConfiguration.BoundChoices && ZingerConfiguration.zBoundedSearch.FinalChoiceCutOff < zBounds.ChoiceCost)
+                return null;
+
+            TraversalInfo retVal = RunChoice(currChoice++);
+
+            //increment the choice cost for choice bounding.
+            retVal.zBounds.ChoiceCost = zBounds.ChoiceCost + 1;
+            //increment the delay budget when using delaying explorers
+            if (ZingerConfiguration.DoDelayBounding)
+                retVal.zBounds.IncrementDelayCost();
+
+            return retVal;
+        }
         public override TraversalInfo GetNextSuccessor()
         {
             if (currChoice >= numChoices)
@@ -501,7 +525,7 @@ namespace Microsoft.Zing
             }
         }
 
-        public TraversalInfo GetDelayedSuccessor()
+        public override TraversalInfo GetDelayedSuccessor()
         {
             Contract.Assert(ZingerConfiguration.DoDelayBounding);
             ZingDBScheduler.Delay(ZingDBSchedState);

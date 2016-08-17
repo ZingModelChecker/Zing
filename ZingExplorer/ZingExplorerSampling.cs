@@ -226,15 +226,8 @@ namespace Microsoft.Zing
             {
                 searchStack.Pop();
             }
-            //try to get to an execution state
-            while (searchStack.Count > 1 && !(searchStack.Peek() is ExecutionState))
-            {
-                searchStack.Pop();
-            }
-            //delay at
-            var currentState = searchStack.Peek();
             //delay the schedule
-            var delayedState = (currentState as ExecutionState).GetDelayedSuccessor();
+            var delayedState = searchStack.Peek().GetDelayedSuccessor();
 
             if (delayedState == null)
             {
