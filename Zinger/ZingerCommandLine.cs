@@ -186,6 +186,7 @@ namespace Microsoft.Zing
 
                         case "ndfsliveness":
                             ZingerConfiguration.DoNDFSLiveness = true;
+                            ZingerConfiguration.DoDelayBounding = false;
                             break;
 
                         case "maceliveness":
