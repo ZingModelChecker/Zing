@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reflection;
+using System.IO;
 
 namespace Microsoft.Zing
 {
@@ -21,6 +23,27 @@ namespace Microsoft.Zing
         public ZingExplorerNaiveRandomWalk()
             : base()
         {
+            var zingerPath = new Uri(
+                System.IO.Path.GetDirectoryName(
+                    System.Reflection.Assembly.GetExecutingAssembly().CodeBase)
+                ).LocalPath;
+            var schedDllPath = zingerPath + "\\" + "RandomDelayingScheduler.dll";
+
+            if (!File.Exists(schedDllPath))
+            {
+                ZingerUtilities.PrintErrorMessage(String.Format("Scheduler file {0} not found", schedDllPath));
+                ZingerConfiguration.DoDelayBounding = false;
+                return;
+            }
+
+            var schedAssembly = Assembly.LoadFrom(schedDllPath);
+            // get class name
+            string schedClassName = schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerDelayingScheduler")).First().FullName;
+            var schedStateClassName = schedAssembly.GetTypes().Where(t => (t.BaseType.Name == "ZingerSchedulerState")).First().FullName;
+            var schedClassType = schedAssembly.GetType(schedClassName);
+            var schedStateClassType = schedAssembly.GetType(schedStateClassName);
+            ZingerConfiguration.ZExternalScheduler.zDelaySched = Activator.CreateInstance(schedClassType) as ZingerDelayingScheduler;
+            ZingerConfiguration.ZExternalScheduler.zSchedState = Activator.CreateInstance(schedStateClassType) as ZingerSchedulerState;
         }
 
         protected override ZingerResult IterativeSearchStateSpace()

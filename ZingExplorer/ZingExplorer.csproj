@@ -94,6 +94,7 @@
     <Compile Include="ZingerStateTable.cs" />
     <Compile Include="ZingExplorer.cs" />
     <Compile Include="ZingExplorerExhaustiveSearch.cs" />
+    <Compile Include="ZingExplorerLivenessSampling.cs" />
     <Compile Include="ZingExplorerNDFSLiveness.cs" />
     <Compile Include="ZingExplorerSampling.cs" />
     <Compile Include="ZingExplorerStateLessSearch.cs" />

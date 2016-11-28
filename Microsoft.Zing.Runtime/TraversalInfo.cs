@@ -433,7 +433,7 @@ namespace Microsoft.Zing
             //{
             //    Debug.Assert(this.fingerprint.Equals(stateImpl.Fingerprint));
             //}
-            if (!ZingerConfiguration.DoMaceliveness)
+            if (!ZingerConfiguration.DoLivenessSampling)
             {
                 stateImpl.IsAcceptingState = false;
             }

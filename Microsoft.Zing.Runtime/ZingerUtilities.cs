@@ -73,7 +73,7 @@ namespace Microsoft.Zing
             {
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
 
-                if (ZingerConfiguration.DoRandomSampling)
+                if (ZingerConfiguration.DoRandomSampling || ZingerConfiguration.DoLivenessSampling)
                     ZingerUtilities.PrintMessage(String.Format("Number of Schedules Explored : {0}", NumOfSchedulesExplored));
 
                 ZingerUtilities.PrintMessage(String.Format("Elapsed time : {0:00}:{1:00}:{2:00}", (int)elapsedTime.TotalHours, (int)elapsedTime.TotalMinutes, (int)elapsedTime.TotalSeconds));
@@ -105,14 +105,14 @@ namespace Microsoft.Zing
                 {
                     ZingerUtilities.PrintMessage(String.Format("Depth Bound {0}", ZingerConfiguration.zBoundedSearch.IterativeCutoff));
                 }
-                if(!ZingerConfiguration.DoRandomSampling)
+                if(!(ZingerConfiguration.DoRandomSampling || ZingerConfiguration.DoLivenessSampling))
                     ZingerUtilities.PrintMessage(String.Format("No. of Frontiers {0}", NumOfFrontiers));
 
                 ZingerUtilities.PrintMessage(String.Format("No. of Distinct States {0}", NumOfStatesVisited));
                 ZingerUtilities.PrintMessage(String.Format("Total Transitions: {0}", NumOfTransitionExplored));
                 ZingerUtilities.PrintMessage(String.Format("Maximum Depth Explored : {0}", MaxDepth));
 
-                if (ZingerConfiguration.DoRandomSampling)
+                if (ZingerConfiguration.DoRandomSampling || ZingerConfiguration.DoLivenessSampling)
                     ZingerUtilities.PrintMessage(String.Format("Number of Schedules Explored : {0}", NumOfSchedulesExplored));
 
                 ZingerUtilities.PrintMessage(String.Format("Total Exploration time so far = {0}", elapsedTime.ToString()));

@@ -55,6 +55,8 @@ namespace Microsoft.Zing
                         zingExplorer = new ZingExplorerNaiveRandomWalk();
                     else if (ZingerConfiguration.DoRandomSampling && ZingerConfiguration.DoDelayBounding)
                         zingExplorer = new ZingExplorerDelayBoundedSampling();
+                    else if (ZingerConfiguration.DoLivenessSampling)
+                        zingExplorer = new ZingExplorerLivenessSampling();
                     else
                         zingExplorer = new ZingExplorerExhaustiveSearch();
                 }

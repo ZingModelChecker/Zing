@@ -513,16 +513,7 @@ namespace Microsoft.Zing
 
         public override TraversalInfo GetNextSuccessorUniformRandomly()
         {
-            var nextProcess = ZingerUtilities.rand.Next(0, NumProcesses);
-
-            if (ProcessInfo[nextProcess].Status != RUNNABLE)
-            {
-                return null;
-            }
-            else
-            {
-                return RunProcess(nextProcess);
-            }
+            return GetNextSuccessor();
         }
 
         public override TraversalInfo GetDelayedSuccessor()

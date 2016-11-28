@@ -376,13 +376,13 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.boundChoices = value; }
         }
 
-        //perform maceliveness
-        private static bool doMaceliveness = false;
 
-        public static bool DoMaceliveness
+        private static bool doLivenessSampling = false;
+
+        public static bool DoLivenessSampling
         {
-            get { return ZingerConfiguration.doMaceliveness; }
-            set { ZingerConfiguration.doMaceliveness = value; }
+            get { return ZingerConfiguration.doLivenessSampling; }
+            set { ZingerConfiguration.doLivenessSampling = value; }
         }
 
         public static ZingerMaceLiveness MaceLivenessConfiguration = new ZingerMaceLiveness();
@@ -496,6 +496,7 @@ namespace Microsoft.Zing
                 zBoundedSearch.IterativeIncrement = zBoundedSearch.FinalExecutionCutOff;
                 DegreeOfParallelism = 1;
                 DoRandomSampling = false;
+                DoDelayBounding = false;
             }
 
             if (DoDelayBounding)
@@ -520,7 +521,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));
             ZingerUtilities.PrintMessage(String.Format("Bound Choices: {0} and max Bound {1}", BoundChoices, zBoundedSearch.FinalChoiceCutOff));
             ZingerUtilities.PrintMessage(String.Format("Bounded Search : Iterative bound {0} and Max Bound {1}", zBoundedSearch.IterativeIncrement, zBoundedSearch.FinalExecutionCutOff));
-            ZingerUtilities.PrintMessage(String.Format("Do Maceliveness: {0} with exhaustive bound {1}, live state period {2} and final bound {3}", doMaceliveness, MaceLivenessConfiguration.exSearchDepth, MaceLivenessConfiguration.liveStatePeriod, MaceLivenessConfiguration.randomFinalCutOff));
+            ZingerUtilities.PrintMessage(String.Format("Do Maceliveness: {0} with exhaustive bound {1}, live state period {2} and final bound {3}", doLivenessSampling, MaceLivenessConfiguration.exSearchDepth, MaceLivenessConfiguration.liveStatePeriod, MaceLivenessConfiguration.randomFinalCutOff));
             ZingerUtilities.PrintMessage(String.Format("Do MapLiveness: {0}", doRandomLiveness));
             ZingerUtilities.PrintMessage(String.Format("Frontier to Disk :{0}", frontierToDisk));
             ZingerUtilities.PrintMessage(String.Format("Max memory : {0}", maxMemoryConsumption));

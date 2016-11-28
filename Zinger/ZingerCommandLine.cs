@@ -186,11 +186,10 @@ namespace Microsoft.Zing
 
                         case "ndfsliveness":
                             ZingerConfiguration.DoNDFSLiveness = true;
-                            ZingerConfiguration.DoDelayBounding = false;
                             break;
 
-                        case "maceliveness":
-                            ZingerConfiguration.DoMaceliveness = true;
+                        case "randomliveness":
+                            ZingerConfiguration.DoLivenessSampling = true;
                             if (param.Length == 0)
                             {
                                 //Use the default parameters
@@ -210,10 +209,6 @@ namespace Microsoft.Zing
                                     ZingerConfiguration.MaceLivenessConfiguration = new ZingerMaceLiveness(int.Parse(bounds[0]), int.Parse(bounds[1]), int.Parse(bounds[2]));
                                 }
                             }
-                            break;
-
-                        case "randomliveness":
-                            ZingerConfiguration.DoMAPLiveness = true;
                             break;
 
                         case "plugin":
@@ -423,7 +418,7 @@ namespace Microsoft.Zing
             Console.WriteLine("---------------------------");
             Console.WriteLine("-NDFSliveness");
             Console.WriteLine("To perform liveness search using NDFS <use only with sequential and non-iterative>\n");
-            Console.WriteLine("-randomliveness:(exhaustivesearchbound,livestatebound,finalcutoff)");
+            Console.WriteLine("-randomliveness");
             Console.WriteLine("This option uses random search based liveness algorithm.");
             Console.WriteLine("It performs random search untill it finds a cycles in the execution.");
             /*Console.WriteLine("-MAPLiveness");
