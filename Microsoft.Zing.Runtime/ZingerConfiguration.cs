@@ -385,12 +385,11 @@ namespace Microsoft.Zing
             set { ZingerConfiguration.doLivenessSampling = value; }
         }
 
-        public static ZingerMaceLiveness MaceLivenessConfiguration = new ZingerMaceLiveness();
 
         //perform Iterative MAP algorithm for liveness
         private static bool doRandomLiveness = false;
 
-        public static bool DoMAPLiveness
+        public static bool DoRandomLiveness
         {
             get { return ZingerConfiguration.doRandomLiveness; }
             set { ZingerConfiguration.doRandomLiveness = value; }
@@ -521,8 +520,7 @@ namespace Microsoft.Zing
             ZingerUtilities.PrintMessage(String.Format("Max Stack Size : {0}", boundDFSStackLength));
             ZingerUtilities.PrintMessage(String.Format("Bound Choices: {0} and max Bound {1}", BoundChoices, zBoundedSearch.FinalChoiceCutOff));
             ZingerUtilities.PrintMessage(String.Format("Bounded Search : Iterative bound {0} and Max Bound {1}", zBoundedSearch.IterativeIncrement, zBoundedSearch.FinalExecutionCutOff));
-            ZingerUtilities.PrintMessage(String.Format("Do Maceliveness: {0} with exhaustive bound {1}, live state period {2} and final bound {3}", doLivenessSampling, MaceLivenessConfiguration.exSearchDepth, MaceLivenessConfiguration.liveStatePeriod, MaceLivenessConfiguration.randomFinalCutOff));
-            ZingerUtilities.PrintMessage(String.Format("Do MapLiveness: {0}", doRandomLiveness));
+            ZingerUtilities.PrintMessage(String.Format("Do Random liveness: {0}, max depth {1}, max schedules per iteration {2}", doLivenessSampling, MaxDepthPerSchedule, maxSchedulesPerIteration));
             ZingerUtilities.PrintMessage(String.Format("Frontier to Disk :{0}", frontierToDisk));
             ZingerUtilities.PrintMessage(String.Format("Max memory : {0}", maxMemoryConsumption));
             ZingerUtilities.PrintMessage(String.Format("Stop on First Error: {0}", stopOnError));

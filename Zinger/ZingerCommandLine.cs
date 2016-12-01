@@ -190,23 +190,19 @@ namespace Microsoft.Zing
 
                         case "randomliveness":
                             ZingerConfiguration.DoLivenessSampling = true;
-                            if (param.Length == 0)
+                            if (param.Length != 0)
                             {
-                                //Use the default parameters
-                                ZingerConfiguration.MaceLivenessConfiguration = new ZingerMaceLiveness();
-                            }
-                            else
-                            {
-                                var parameters = Regex.Match(param, "([0-9]*,[0-9]*,[0-9]*)").Groups[0].ToString();
-                                var bounds = parameters.Split(',');
-                                if (bounds.Count() != 3)
+                                string pattern = @"(\d+,\d+)";
+                                Match result = Regex.Match(param, pattern);
+                                if (result.Success)
                                 {
-                                    PrintZingerHelp(arg, "Invalid parameters passed to maceliveness");
-                                    return false;
+                                    ZingerConfiguration.MaxSchedulesPerIteration = int.Parse(result.Value.Split(',').ElementAt(0));
+                                    ZingerConfiguration.MaxDepthPerSchedule = int.Parse(result.Value.Split(',').ElementAt(1));
                                 }
                                 else
                                 {
-                                    ZingerConfiguration.MaceLivenessConfiguration = new ZingerMaceLiveness(int.Parse(bounds[0]), int.Parse(bounds[1]), int.Parse(bounds[2]));
+                                    PrintZingerHelp(option, String.Format("Invalid parameter passed with randomliveness, expecting (int,int)"));
+                                    return false;
                                 }
                             }
                             break;

@@ -104,7 +104,7 @@ namespace Microsoft.Zing
                 //random walk always starts from the start state ( no frontier ).
                 TraversalInfo currentState = startState.Clone();
                 statesExplored.Clear();
-                while (currentState.CurrentDepth < 10000)
+                while (currentState.CurrentDepth < ZingerConfiguration.MaxDepthPerSchedule)
                 {
                     //kil the exploration if bug found
                     //Check if cancelation token triggered
@@ -137,12 +137,9 @@ namespace Microsoft.Zing
                         break;
                     }
 
-                    if(nextSuccessor.IsAcceptingState)
-                    {
-                        Console.Write("a");
-                    }
                     //check if the next step is entered through a accepting transition
                     if(nextSuccessor.IsAcceptingState && nextSuccessor.IsFingerPrinted && statesExplored.Contains(nextSuccessor.Fingerprint))
+                    //if (nextSuccessor.IsFingerPrinted && statesExplored.Contains(nextSuccessor.Fingerprint))
                     {
                         AcceptingCycles.Add(nextSuccessor.GenerateNonCompactTrace());
                         lastErrorFound = ZingerResult.AcceptanceCyleFound;
